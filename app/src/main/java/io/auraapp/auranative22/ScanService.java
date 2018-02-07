@@ -137,7 +137,7 @@ public class ScanService extends Service {
                     peer.isDiscoveringServices = false;
                     peer.isFetchingSlogan = false;
 
-                    // Letting some time pass before we do the next connection attempt
+                    // Giving the BT some air before we do the next connection attempt
                     continue;
                 }
 
@@ -218,7 +218,7 @@ public class ScanService extends Service {
     private void requestSlogan(Peer peer, UUID uuid) {
         peer.isFetchingSlogan = true;
         d(TAG, "Requesting characteristic, gatt: %s, characteristic: %s", peer.device.getAddress(), uuid);
-        BluetoothGattCharacteristic chara = peer.service.getCharacteristic(UUID.fromString(getString(R.string.ble_uuid_slogan_1)));
+        BluetoothGattCharacteristic chara = peer.service.getCharacteristic(uuid);
         if (!peer.gatt.readCharacteristic(chara)) {
             d(TAG, "Failed to request slogan. Disconnecting, gatt: %s, characteristic: %s", peer.device.getAddress(), uuid);
             peer.shouldDisconnect = true;
@@ -364,7 +364,7 @@ public class ScanService extends Service {
 
             UUID uuid = characteristic.getUuid();
             String slogan = new String(value, UTF8_CHARSET);
-            w(TAG, "Retrieved slogan, device: %s, slogan: %s", address, slogan);
+            w(TAG, "Retrieved slogan, device: %s, uuid: %s, slogan: %s", address, uuid, slogan);
             if (mSlogan1Uuid.equals(uuid)) {
                 peers.get(address).slogan1 = slogan;
 
