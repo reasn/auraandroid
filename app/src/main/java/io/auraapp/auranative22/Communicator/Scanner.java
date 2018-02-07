@@ -94,7 +94,6 @@ class Scanner {
 
     private void actOnState() {
         mQueued = false;
-//        v(TAG, "Making decisions for %d peers", peers.size());
 
         long now = System.currentTimeMillis();
 
@@ -102,11 +101,9 @@ class Scanner {
 
             Peer peer = peers.get(address);
 
-//            w(TAG, "%s", peer.toLogString());
-
             try {
                 if (peer.shouldDisconnect) {
-                    d(TAG, "Disconnecting peer, device: %s", address);
+                    i(TAG, "Disconnecting peer, device: %s", address);
                     peer.gatt.close();
                     peer.gatt = null;
                     peer.service = null;

@@ -14,9 +14,9 @@ import android.bluetooth.le.AdvertiseSettings;
 import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.content.Context;
 import android.os.ParcelUuid;
-import android.util.Log;
 
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.UUID;
 
 import static android.bluetooth.BluetoothGattCharacteristic.PERMISSION_READ;
@@ -26,8 +26,9 @@ import static io.auraapp.auranative22.FormattedLog.d;
 import static io.auraapp.auranative22.FormattedLog.e;
 import static io.auraapp.auranative22.FormattedLog.i;
 import static io.auraapp.auranative22.FormattedLog.v;
+import static io.auraapp.auranative22.FormattedLog.w;
 
-public class Advertiser {
+class Advertiser {
 
     private final static String TAG = "@aura/ble/advertiser";
     private final UUID mSlogan3Uuid;
@@ -41,6 +42,20 @@ public class Advertiser {
     private BluetoothManager mBluetoothManager;
     private BluetoothGattServer mBluetoothGattServer;
     private Context mContext;
+    private BluetoothLeAdvertiser mBluetoothAdvertiser;
+
+    private AdvertiseCallback mAdvertisingCallback = new AdvertiseCallback() {
+        @Override
+        public void onStartSuccess(AdvertiseSettings settingsInEffect) {
+            d(TAG, "onStartSuccess, settings: %s", settingsInEffect);
+        }
+
+        @Override
+        public void onStartFailure(int errorCode) {
+            e(TAG, "onStartFailure, errorCode: %s", BtConst.nameAdvertiseError(errorCode));
+            advertisingUnsupported();
+        }
+    };
 
     Advertiser(BluetoothManager bluetoothManager,
                UUID serviceUuid,
@@ -64,12 +79,33 @@ public class Advertiser {
     }
 
     void start() {
+
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        mBluetoothAdvertiser = bluetoothAdapter.getBluetoothLeAdvertiser();
+        if (mBluetoothAdvertiser == null) {
+            advertisingUnsupported();
+            return;
+        }
+
         advertise();
         startServer();
     }
 
     void stop() {
-        // TODO
+        d(TAG, "Making sure advertising is stopped");
+        if (mBluetoothGattServer != null) {
+            mBluetoothGattServer.clearServices();
+            mBluetoothGattServer.close();
+        }
+        if (mBluetoothAdvertiser != null) {
+            mBluetoothAdvertiser.stopAdvertising(mAdvertisingCallback);
+        }
+    }
+
+
+    private void advertisingUnsupported() {
+        d(TAG, "Advertising seems to be unsupported on this device");
+        stop();
     }
 
     private void startServer() {
@@ -83,25 +119,24 @@ public class Advertiser {
             @Override
             public void onCharacteristicReadRequest(BluetoothDevice device, int requestId, int offset, BluetoothGattCharacteristic characteristic) {
 
-                d(TAG, "onCharacteristicReadRequest device: %s, requestId: %d, offset: %d, characteristic: %s", device.getAddress(), requestId, offset, characteristic.getUuid());
+                v(TAG, "onCharacteristicReadRequest device: %s, requestId: %d, offset: %d, characteristic: %s", device.getAddress(), requestId, offset, characteristic.getUuid());
 
                 if (mSlogan1Uuid.equals(characteristic.getUuid())) {
-                    i(TAG, "sending slogan 1");
-                    mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, mSlogan1);
+                    d(TAG, "sending slogan 1");
+                    mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, chunk(mSlogan1, offset));
+
                 } else if (mSlogan2Uuid.equals(characteristic.getUuid())) {
-                    i(TAG, "sending slogan 2");
-                    mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, mSlogan2);
+                    d(TAG, "sending slogan 2");
+                    mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, chunk(mSlogan2, offset));
+
                 } else if (mSlogan3Uuid.equals(characteristic.getUuid())) {
-                    i(TAG, "sending slogan 3");
-                    mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, mSlogan3);
+                    d(TAG, "sending slogan 3");
+                    mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, chunk(mSlogan3, offset));
+
                 } else {
                     // Invalid characteristic
-                    Log.w("ble", "Invalid Characteristic Read: " + characteristic.getUuid());
-                    mBluetoothGattServer.sendResponse(device,
-                            requestId,
-                            BluetoothGatt.GATT_FAILURE,
-                            0,
-                            null);
+                    w(TAG, "Invalid characteristic requested, device: %s, characteristic: %s", device.getAddress(), characteristic.getUuid());
+                    mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_FAILURE, 0, null);
                 }
             }
         };
@@ -111,6 +146,18 @@ public class Advertiser {
         assert mBluetoothGattServer != null;
 
         mBluetoothGattServer.addService(createSloganService());
+    }
+
+    /**
+     * onCharacteristicReadRequest is called until no more response is transmitted.
+     * For that to be achieved sendResponse() has to be eventually invoked with an empty byte[].
+     * Otherwise the payload is transmitted multiple times, significantly reducing throughput.
+     */
+    private byte[] chunk(byte[] slogan, int offset) {
+        if (offset > slogan.length) {
+            return new byte[0];
+        }
+        return Arrays.copyOfRange(slogan, offset, slogan.length);
     }
 
     private BluetoothGattService createSloganService() {
@@ -131,13 +178,12 @@ public class Advertiser {
         return service;
     }
 
+
     /**
      * Inspiration
      * - https://code.tutsplus.com/tutorials/how-to-advertise-android-as-a-bluetooth-le-peripheral--cms-25426
      */
     private void advertise() {
-
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         AdvertiseSettings settings = new AdvertiseSettings.Builder()
                 .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
@@ -147,37 +193,13 @@ public class Advertiser {
                 .setTimeout(0)
                 .build();
 
-//        bluetoothAdapter.setName("#");
         AdvertiseData data = new AdvertiseData.Builder()
                 .setIncludeTxPowerLevel(false)
                 .setIncludeDeviceName(false)
                 .addServiceUuid(new ParcelUuid(mServiceUuid))
                 .build();
 
-        AdvertiseCallback advertisingCallback = new AdvertiseCallback() {
-            @Override
-            public void onStartSuccess(AdvertiseSettings settingsInEffect) {
-                d(TAG, "onStartSuccess, settings: %s", settingsInEffect);
-//                Toast.makeText(context, "Advertising", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onStartFailure(int errorCode) {
-                e(TAG, "onStartFailure, errorCode: %s", BtConst.nameAdvertiseError(errorCode));
-                advertisingUnsupported();
-            }
-        };
-
-        BluetoothLeAdvertiser advertiser = bluetoothAdapter.getBluetoothLeAdvertiser();
-        if (advertiser == null) {
-            advertisingUnsupported();
-        } else {
-            advertiser.startAdvertising(settings, data, advertisingCallback);
-            i(TAG, "started advertising");
-        }
-    }
-
-    private void advertisingUnsupported() {
-
+        mBluetoothAdvertiser.startAdvertising(settings, data, mAdvertisingCallback);
+        i(TAG, "started advertising");
     }
 }
