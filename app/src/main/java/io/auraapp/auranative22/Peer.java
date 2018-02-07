@@ -13,7 +13,8 @@ class Peer {
     Long lastFullRetrievalTimestamp = null;
     Long lastSeenTimestamp = null;
     Long lastConnectAttempt = null;
-    Long lastServiceDiscoveryAttempt = null;
+
+    boolean isDiscoveringServices = false;
 
     BluetoothDevice device = null;
     BluetoothGatt gatt = null;
@@ -23,6 +24,8 @@ class Peer {
     boolean shouldDisconnect = false;
     int connectionAttempts = 0;
     int errors = 0;
+
+    boolean isFetchingSlogan = false;
 
     String slogan1;
     String slogan2;
@@ -43,6 +46,7 @@ class Peer {
                 "lastFullRetrievalTimestamp: %d"
                         + ", lastSeenTimestamp: %d"
                         + ", lastConnectAttempt: %d"
+                        + ", isDiscoveringServices: %s"
                         + ", lastServiceDiscoveryAttempt: %d"
                         + ", device: %s"
                         + ", gatt: %s"
@@ -51,13 +55,14 @@ class Peer {
                         + ", shouldDisconnect: %s"
                         + ", connectionAttempts: %d"
                         + ", errors: %d"
+                        + ", isFetchingSlogan: %s"
                         + ", slogan1: %s"
                         + ", slogan2: %s"
                         + ", slogan3: %s",
                 lastFullRetrievalTimestamp,
                 lastSeenTimestamp,
                 lastConnectAttempt,
-                lastServiceDiscoveryAttempt,
+                isDiscoveringServices ? "yes" : "no",
                 device == null ? null : device.getAddress(),
                 gatt == null ? null : "set",
                 service == null ? null : "set",
@@ -65,6 +70,7 @@ class Peer {
                 shouldDisconnect ? "yes" : "no",
                 connectionAttempts,
                 errors,
+                isFetchingSlogan ? "yes" : "no",
                 slogan1 == null ? null : "set",
                 slogan2 == null ? null : "set",
                 slogan3 == null ? null : "set"

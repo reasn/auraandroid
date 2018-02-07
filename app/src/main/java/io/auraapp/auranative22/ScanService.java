@@ -115,7 +115,7 @@ public class ScanService extends Service {
 
     private void actOnState() {
         mQueued = false;
-        v(TAG, "Making decisions for %d peers", peers.size());
+//        v(TAG, "Making decisions for %d peers", peers.size());
 
         long now = System.currentTimeMillis();
 
@@ -123,7 +123,7 @@ public class ScanService extends Service {
 
             Peer peer = peers.get(address);
 
-            w(TAG, "%s", peer.toLogString());
+//            w(TAG, "%s", peer.toLogString());
 
             try {
                 if (peer.shouldDisconnect) {
@@ -134,7 +134,8 @@ public class ScanService extends Service {
                     peer.connected = false;
                     peer.shouldDisconnect = false;
                     peer.lastConnectAttempt = null;
-                    peer.lastServiceDiscoveryAttempt = null;
+                    peer.isDiscoveringServices = false;
+                    peer.isFetchingSlogan = false;
 
                     // Letting some time pass before we do the next connection attempt
                     continue;
@@ -172,14 +173,22 @@ public class ScanService extends Service {
 
                 // peer is currently connected
 
-                if (peer.lastServiceDiscoveryAttempt == null) {
-                    peer.lastServiceDiscoveryAttempt = now;
+                if (peer.service == null && !peer.isDiscoveringServices) {
+                    peer.isDiscoveringServices = true;
                     i(TAG, "Connected to %s, discovering services", address);
                     peer.gatt.discoverServices();
                     continue;
                 }
                 if (peer.service == null) {
                     v(TAG, "Still discovering services, device: %s", address);
+                    continue;
+                }
+
+                // peer has a service and is not discovering
+
+                if (peer.isFetchingSlogan) {
+                    v(TAG, "Still fetching slogan, device: %s", address);
+                    continue;
                 }
 
                 if (peer.slogan1 == null) {
@@ -207,6 +216,7 @@ public class ScanService extends Service {
     }
 
     private void requestSlogan(Peer peer, UUID uuid) {
+        peer.isFetchingSlogan = true;
         d(TAG, "Requesting characteristic, gatt: %s, characteristic: %s", peer.device.getAddress(), uuid);
         BluetoothGattCharacteristic chara = peer.service.getCharacteristic(UUID.fromString(getString(R.string.ble_uuid_slogan_1)));
         if (!peer.gatt.readCharacteristic(chara)) {
@@ -278,13 +288,12 @@ public class ScanService extends Service {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             String address = gatt.getDevice().getAddress();
-            d(TAG, "onConnectionStateChange, gatt: %s, status: %d, newState: %d", address, status, newState);
+            d(TAG, "onConnectionStateChange, gatt: %s, status: %s, newState: %s", address, BtConst.nameStatus(status), BtConst.nameConnectionState(newState));
             if (!assertPeer(address, gatt, "onConnectionStateChange")) {
                 return;
             }
 
             if (newState == STATE_CONNECTED) {
-                d(TAG, "Connected to %s", address);
                 peers.get(address).connected = true;
                 returnControl();
 
@@ -296,21 +305,21 @@ public class ScanService extends Service {
         }
 
         @Override
-        // New services discovered
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             String address = gatt.getDevice().getAddress();
-            v(TAG, "onServicesDiscovered, gatt: %s, status: %d", address, status);
+            v(TAG, "onServicesDiscovered, gatt: %s, status: %s", address, BtConst.nameStatus(status));
             if (!assertPeer(address, gatt, "onServicesDiscovered")) {
                 return;
             }
 
             if (status != BluetoothGatt.GATT_SUCCESS) {
-                w(TAG, "onServicesDiscovered unsuccessful, status: %d", status);
+                w(TAG, "onServicesDiscovered unsuccessful, status: %s", BtConst.nameStatus(status));
                 peers.get(address).shouldDisconnect = true;
                 peers.get(address).errors++;
                 returnControl();
                 return;
             }
+
 
             d(TAG, "Discovered %d services, gatt: %s, services: %s", gatt.getServices().size(), address, gatt.getServices().toString());
 
@@ -323,6 +332,7 @@ public class ScanService extends Service {
                 returnControl();
                 return;
             }
+            peers.get(address).isDiscoveringServices = false;
             peers.get(address).service = service;
             returnControl();
         }
@@ -330,14 +340,14 @@ public class ScanService extends Service {
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             String address = gatt.getDevice().getAddress();
-            d(TAG, "onCharacteristicRead, gatt: %s, characteristic: %s, status: %d", address, characteristic.getUuid(), status);
+            d(TAG, "onCharacteristicRead, gatt: %s, characteristic: %s, status: %s", address, characteristic.getUuid(), BtConst.nameStatus(status));
 
             if (!assertPeer(address, gatt, "onCharacteristicRead")) {
                 return;
             }
 
             if (status != BluetoothGatt.GATT_SUCCESS) {
-                w(TAG, "onCharacteristicRead unsuccessful, status: %d", status);
+                w(TAG, "onCharacteristicRead unsuccessful");
                 peers.get(address).shouldDisconnect = true;
                 peers.get(address).errors++;
                 returnControl();
@@ -366,6 +376,7 @@ public class ScanService extends Service {
             } else {
                 w(TAG, "Characteristic retrieved matches no slogan UUID, address: %s, uuid: %s", address, uuid);
             }
+            peers.get(address).isFetchingSlogan = false;
             returnControl();
         }
     };
