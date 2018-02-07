@@ -14,7 +14,6 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
@@ -55,7 +54,6 @@ public class ScanService extends Service {
 
     private HashMap<String, Peer> peers = new HashMap<>();
 
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
@@ -66,16 +64,16 @@ public class ScanService extends Service {
                 .setContentTitle("ContentTitle")
                 .setContentText("ContentTExt")
                 .setContentIntent(pendingIntent)
-                .setTicker("ticker")
+                .setTicker("🍭ticker")
                 .build();
 
         startForeground(FOREGROUND_ID, notification);
 
+        mServiceUuid = UUID.fromString(getString(R.string.ble_uuid_service));
         mSlogan1Uuid = UUID.fromString(getString(R.string.ble_uuid_slogan_1));
         mSlogan2Uuid = UUID.fromString(getString(R.string.ble_uuid_slogan_2));
         mSlogan3Uuid = UUID.fromString(getString(R.string.ble_uuid_slogan_3));
 
-        mServiceUuid = UUID.fromString(getString(R.string.ble_uuid_service));
 
         mHandler = new Handler();
 
@@ -92,12 +90,30 @@ public class ScanService extends Service {
         if (mQueued) {
             return;
         }
-        mHandler.postDelayed(this::main, 1000);
+        mHandler.postDelayed(this::actOnState, 100);
         mQueued = true;
     }
 
+    @Override
+    public void onDestroy() {
+        w(TAG, "onDestroy called, destroying");
+        mQueued = true;
+        mHandler.getLooper().quitSafely();
+        for (String address : peers.keySet()) {
 
-    private void main() {
+            Peer peer = peers.get(address);
+            if (peer.gatt != null) {
+                // TODO check if already closed?
+                peer.gatt.close();
+            }
+            peer.device = null;
+            peer.service = null;
+        }
+        peers.clear();
+        mHandler = null;
+    }
+
+    private void actOnState() {
         mQueued = false;
         v(TAG, "Making decisions for %d peers", peers.size());
 
@@ -117,6 +133,9 @@ public class ScanService extends Service {
                     peer.service = null;
                     peer.connected = false;
                     peer.shouldDisconnect = false;
+                    peer.lastConnectAttempt = null;
+                    peer.lastServiceDiscoveryAttempt = null;
+
                     // Letting some time pass before we do the next connection attempt
                     continue;
                 }
@@ -136,7 +155,11 @@ public class ScanService extends Service {
                         peers.remove(address);
 
                     } else if (peer.lastFullRetrievalTimestamp == null || now - peer.lastFullRetrievalTimestamp > PEER_REFRESH_AFTER) {
-                        d(TAG, "Connecting to gatt server to refresh, device: %s", address);
+                        if (peer.lastFullRetrievalTimestamp == null) {
+                            d(TAG, "Connecting to gatt server (no prior successful retrieval), device: %s", address);
+                        } else {
+                            d(TAG, "Connecting to gatt server to refresh, device: %s", address);
+                        }
                         peer.connectionAttempts++;
                         peer.lastConnectAttempt = now;
                         peer.gatt = peer.device.connectGatt(this, false, mGattCallback);
@@ -149,10 +172,14 @@ public class ScanService extends Service {
 
                 // peer is currently connected
 
-                if (peer.service == null) {
+                if (peer.lastServiceDiscoveryAttempt == null) {
+                    peer.lastServiceDiscoveryAttempt = now;
                     i(TAG, "Connected to %s, discovering services", address);
                     peer.gatt.discoverServices();
                     continue;
+                }
+                if (peer.service == null) {
+                    v(TAG, "Still discovering services, device: %s", address);
                 }
 
                 if (peer.slogan1 == null) {

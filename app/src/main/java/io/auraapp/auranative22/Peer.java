@@ -13,6 +13,7 @@ class Peer {
     Long lastFullRetrievalTimestamp = null;
     Long lastSeenTimestamp = null;
     Long lastConnectAttempt = null;
+    Long lastServiceDiscoveryAttempt = null;
 
     BluetoothDevice device = null;
     BluetoothGatt gatt = null;
@@ -42,6 +43,7 @@ class Peer {
                 "lastFullRetrievalTimestamp: %d"
                         + ", lastSeenTimestamp: %d"
                         + ", lastConnectAttempt: %d"
+                        + ", lastServiceDiscoveryAttempt: %d"
                         + ", device: %s"
                         + ", gatt: %s"
                         + ", service: %s"
@@ -55,6 +57,7 @@ class Peer {
                 lastFullRetrievalTimestamp,
                 lastSeenTimestamp,
                 lastConnectAttempt,
+                lastServiceDiscoveryAttempt,
                 device == null ? null : device.getAddress(),
                 gatt == null ? null : "set",
                 service == null ? null : "set",
