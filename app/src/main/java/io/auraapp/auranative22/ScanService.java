@@ -204,7 +204,10 @@ public class ScanService extends Service {
                     continue;
                 }
 
-                d(TAG, "All slogans retrieved, should disconnect, address: %s", address);
+                w(TAG, "All slogans retrieved, should disconnect, address: %s", address);
+                w(TAG, peer.slogan1);
+                w(TAG, peer.slogan2);
+                w(TAG, peer.slogan3);
                 peer.lastFullRetrievalTimestamp = now;
                 peer.shouldDisconnect = true;
             } catch (Exception e) {
@@ -364,7 +367,7 @@ public class ScanService extends Service {
 
             UUID uuid = characteristic.getUuid();
             String slogan = new String(value, UTF8_CHARSET);
-            w(TAG, "Retrieved slogan, device: %s, uuid: %s, slogan: %s", address, uuid, slogan);
+            d(TAG, "Retrieved slogan, device: %s, uuid: %s, slogan: %s", address, uuid, slogan);
             if (mSlogan1Uuid.equals(uuid)) {
                 peers.get(address).slogan1 = slogan;
 

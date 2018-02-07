@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         startService(new Intent(this, ScanService.class));
+        startService(new Intent(this, AdvertiseService.class));
 
     }
 }
