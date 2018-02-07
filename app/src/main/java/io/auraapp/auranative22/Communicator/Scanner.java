@@ -1,25 +1,19 @@
-package io.auraapp.auranative22;
+package io.auraapp.auranative22.Communicator;
 
-import android.app.Notification;
-import android.app.PendingIntent;
-import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
-import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
-import android.content.Intent;
+import android.content.Context;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.ParcelUuid;
-import android.support.annotation.Nullable;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -35,13 +29,12 @@ import static io.auraapp.auranative22.FormattedLog.i;
 import static io.auraapp.auranative22.FormattedLog.v;
 import static io.auraapp.auranative22.FormattedLog.w;
 
-public class ScanService extends Service {
+class Scanner {
 
     private final static String TAG = "@aura/ble/scanner";
 
-    public static final int FOREGROUND_ID = 1338;
-
     private static Charset UTF8_CHARSET = Charset.forName("UTF-8");
+    private final Context mContext;
     private Handler mHandler;
     private UUID mServiceUuid;
     private UUID mSlogan1Uuid;
@@ -54,51 +47,24 @@ public class ScanService extends Service {
     private static final long PEER_CONNECT_TIMEOUT = 1000 * 10;
 
     private HashMap<String, Peer> peers = new HashMap<>();
-    private Advertiser mAdvertiser;
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-
-        final Notification notification = new Notification.Builder(this)
-                .setContentTitle("ContentTitle")
-                .setContentText("ContentTExt")
-                .setContentIntent(pendingIntent)
-                .setTicker("🍭ticker")
-                .build();
-
-        startForeground(FOREGROUND_ID, notification);
-
-        mServiceUuid = UUID.fromString(getString(R.string.ble_uuid_service));
-        mSlogan1Uuid = UUID.fromString(getString(R.string.ble_uuid_slogan_1));
-        mSlogan2Uuid = UUID.fromString(getString(R.string.ble_uuid_slogan_2));
-        mSlogan3Uuid = UUID.fromString(getString(R.string.ble_uuid_slogan_3));
-
-        mAdvertiser = new Advertiser(
-                (BluetoothManager) getSystemService(BLUETOOTH_SERVICE),
-                mServiceUuid,
-                mSlogan1Uuid,
-                mSlogan2Uuid,
-                mSlogan3Uuid,
-                "Helloo World, Hello!1Helloo World, 🚀 Hello!1Helloo World, Hello!1Helloo World, H",
-                "Fappoo LorpdFappo!1FappoLorpdFappo!1FappoLorpdFappo!1FappoLorpdF nanunana wadatap",
-                "The lazy chicken jumps over the running dog on its way to the alphabet. Cthullu !",
-                this
-        );
-
-        mHandler = new Handler();
-
-        mHandler.postDelayed(() -> {
-            scan();
-            returnControl();
-            mAdvertiser.start();
-        }, 100);
-
-        return START_STICKY;
+    Scanner(UUID serviceUuid,
+            UUID slogan1Uuid,
+            UUID slogan2Uuid,
+            UUID slogan3Uuid,
+            Context context) {
+        mServiceUuid = serviceUuid;
+        mSlogan1Uuid = slogan1Uuid;
+        mSlogan2Uuid = slogan2Uuid;
+        mSlogan3Uuid = slogan3Uuid;
+        mContext = context;
     }
 
+    void start() {
+        mHandler = new Handler();
+        scan();
+        returnControl();
+    }
 
     private void returnControl() {
         if (mQueued) {
@@ -108,8 +74,7 @@ public class ScanService extends Service {
         mQueued = true;
     }
 
-    @Override
-    public void onDestroy() {
+    void stop() {
         w(TAG, "onDestroy called, destroying");
         mQueued = true;
         mHandler.getLooper().quitSafely();
@@ -125,7 +90,6 @@ public class ScanService extends Service {
         }
         peers.clear();
         mHandler = null;
-        mAdvertiser.stop();
     }
 
     private void actOnState() {
@@ -178,7 +142,7 @@ public class ScanService extends Service {
                         }
                         peer.connectionAttempts++;
                         peer.lastConnectAttempt = now;
-                        peer.gatt = peer.device.connectGatt(this, false, mGattCallback);
+                        peer.gatt = peer.device.connectGatt(mContext, false, mGattCallback);
 
                     } else {
                         v(TAG, "Nothing to do for disconnected peer, device: %s", address);
@@ -259,9 +223,9 @@ public class ScanService extends Service {
                 .setScanMode(SCAN_MODE_BALANCED)
                 .build();
 
-        List<ScanFilter> scanFilters = new ArrayList<ScanFilter>();
+        List<ScanFilter> scanFilters = new ArrayList<>();
         scanFilters.add(new ScanFilter.Builder()
-                .setServiceUuid(new ParcelUuid(UUID.fromString(getString(R.string.ble_uuid_service))))
+                .setServiceUuid(new ParcelUuid(mServiceUuid))
                 .build());
 
         scanner.startScan(scanFilters, settings, new ScanCallback() {
@@ -412,11 +376,5 @@ public class ScanService extends Service {
             peers.get(address).lastSeenTimestamp = System.currentTimeMillis();
         }
         returnControl();
-    }
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
     }
 }

@@ -1,4 +1,4 @@
-package io.auraapp.auranative22;
+package io.auraapp.auranative22.Communicator;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothProfile;

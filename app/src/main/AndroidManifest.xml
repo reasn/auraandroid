@@ -21,7 +21,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".ScanService" />
+        <service android:name=".Communicator.Communicator" />
     </application>
 
 </manifest>

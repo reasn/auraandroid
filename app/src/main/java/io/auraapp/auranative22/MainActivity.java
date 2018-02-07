@@ -10,6 +10,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import io.auraapp.auranative22.Communicator.Communicator;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -32,6 +34,6 @@ public class MainActivity extends AppCompatActivity {
             // TODO handle user declining
         }
 
-        startService(new Intent(this, ScanService.class));
+        startService(new Intent(this, Communicator.class));
     }
 }
