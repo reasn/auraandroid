@@ -1,7 +1,6 @@
 package io.auraapp.auranative22;
 
 import android.Manifest;
-import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -34,7 +33,5 @@ public class MainActivity extends AppCompatActivity {
         }
 
         startService(new Intent(this, ScanService.class));
-        startService(new Intent(this, AdvertiseService.class));
-
     }
 }

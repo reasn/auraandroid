@@ -22,7 +22,6 @@
             </intent-filter>
         </activity>
         <service android:name=".ScanService" />
-        <service android:name=".AdvertiseService" />
     </application>
 
 </manifest>

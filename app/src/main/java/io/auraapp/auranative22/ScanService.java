@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
+import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
@@ -36,7 +37,7 @@ import static io.auraapp.auranative22.FormattedLog.w;
 
 public class ScanService extends Service {
 
-    private final static String TAG = "@aura/ble";
+    private final static String TAG = "@aura/ble/scanner";
 
     public static final int FOREGROUND_ID = 1338;
 
@@ -53,6 +54,7 @@ public class ScanService extends Service {
     private static final long PEER_CONNECT_TIMEOUT = 1000 * 10;
 
     private HashMap<String, Peer> peers = new HashMap<>();
+    private Advertiser mAdvertiser;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -74,12 +76,24 @@ public class ScanService extends Service {
         mSlogan2Uuid = UUID.fromString(getString(R.string.ble_uuid_slogan_2));
         mSlogan3Uuid = UUID.fromString(getString(R.string.ble_uuid_slogan_3));
 
+        mAdvertiser = new Advertiser(
+                (BluetoothManager) getSystemService(BLUETOOTH_SERVICE),
+                mServiceUuid,
+                mSlogan1Uuid,
+                mSlogan2Uuid,
+                mSlogan3Uuid,
+                "Helloo World, Hello!1Helloo World, 🚀 Hello!1Helloo World, Hello!1Helloo World, H",
+                "Fappoo LorpdFappo!1FappoLorpdFappo!1FappoLorpdFappo!1FappoLorpdF nanunana wadatap",
+                "The lazy chicken jumps over the running dog on its way to the alphabet. Cthullu !",
+                this
+        );
 
         mHandler = new Handler();
 
         mHandler.postDelayed(() -> {
             scan();
             returnControl();
+            mAdvertiser.start();
         }, 100);
 
         return START_STICKY;
@@ -111,6 +125,7 @@ public class ScanService extends Service {
         }
         peers.clear();
         mHandler = null;
+        mAdvertiser.stop();
     }
 
     private void actOnState() {
