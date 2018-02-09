@@ -205,13 +205,24 @@ class Scanner {
         }
     }
 
+    private void scanningUnsupported() {
+        d(TAG, "Scanning seems to be unsupported on this device");
+        stop();
+        // TODO implement
+    }
+
     private void scan() {
 
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (bluetoothAdapter == null) {
+            scanningUnsupported();
+            return;
+        }
         BluetoothLeScanner scanner = bluetoothAdapter.getBluetoothLeScanner();
 
         if (scanner == null) {
-            throw new RuntimeException("BT disabled");
+            scanningUnsupported();
+            return;
         }
 
         ScanSettings settings = new ScanSettings.Builder()

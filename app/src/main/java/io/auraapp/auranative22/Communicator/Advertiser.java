@@ -81,7 +81,12 @@ class Advertiser {
     void start() {
 
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (bluetoothAdapter == null) {
+            advertisingUnsupported();
+            return;
+        }
         mBluetoothAdvertiser = bluetoothAdapter.getBluetoothLeAdvertiser();
+
         if (mBluetoothAdvertiser == null) {
             advertisingUnsupported();
             return;
@@ -102,10 +107,10 @@ class Advertiser {
         }
     }
 
-
     private void advertisingUnsupported() {
         d(TAG, "Advertising seems to be unsupported on this device");
         stop();
+        // TODO implement
     }
 
     private void startServer() {

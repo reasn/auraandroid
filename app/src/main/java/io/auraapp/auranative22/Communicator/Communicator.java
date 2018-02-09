@@ -67,8 +67,8 @@ public class Communicator extends Service {
         mHandler = new Handler();
 
         mHandler.postDelayed(() -> {
-            mScanner.start();
-            mAdvertiser.start();
+                mScanner.start();
+                mAdvertiser.start();
         }, 100);
 
         return START_STICKY;
@@ -79,7 +79,6 @@ public class Communicator extends Service {
         w(TAG, "onDestroy called, destroying");
         mScanner.stop();
         mAdvertiser.stop();
-        mHandler.getLooper().quitSafely();
     }
 
     @Nullable
