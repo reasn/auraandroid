@@ -21,7 +21,6 @@ public class Communicator extends Service {
     private final static String TAG = "@aura/ble/scanner";
 
     public static final int FOREGROUND_ID = 1338;
-    private Handler mHandler;
     private Advertiser mAdvertiser;
     private Scanner mScanner;
 
@@ -64,11 +63,9 @@ public class Communicator extends Service {
                 this
         );
 
-        mHandler = new Handler();
-
-        mHandler.postDelayed(() -> {
-                mScanner.start();
-                mAdvertiser.start();
+        new Handler().postDelayed(() -> {
+            mScanner.start();
+            mAdvertiser.start();
         }, 100);
 
         return START_STICKY;
