@@ -41,6 +41,7 @@ class Scanner {
     private UUID mSlogan2Uuid;
     private UUID mSlogan3Uuid;
     private boolean mQueued = false;
+    private boolean mInactive = false;
 
     private static final long PEER_FORGET_AFTER = 1000 * 60 * 2;
     private static final long PEER_REFRESH_AFTER = 1000 * 60;
@@ -67,7 +68,7 @@ class Scanner {
     }
 
     private void returnControl() {
-        if (mQueued) {
+        if (mQueued || mInactive) {
             return;
         }
         mHandler.postDelayed(this::actOnState, 100);
@@ -76,8 +77,7 @@ class Scanner {
 
     void stop() {
         w(TAG, "onDestroy called, destroying");
-        mQueued = true;
-        mHandler.getLooper().quitSafely();
+        mInactive = true;
         for (String address : peers.keySet()) {
 
             Peer peer = peers.get(address);
