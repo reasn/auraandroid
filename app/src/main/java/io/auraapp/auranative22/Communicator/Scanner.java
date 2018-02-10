@@ -52,7 +52,7 @@ class Scanner {
     private boolean mInactive = false;
 
     private static final long PEER_FORGET_AFTER = 1000 * 60 * 2;
-    private static final long PEER_REFRESH_AFTER = 1000 * 60;
+    private static final long PEER_REFRESH_AFTER = 1000 * 20;
     private static final long PEER_CONNECT_TIMEOUT = 1000 * 10;
 
     private HashMap<String, Peer> peers = new HashMap<>();
@@ -188,6 +188,9 @@ class Scanner {
                         peer.connectionAttempts++;
                         peer.lastConnectAttempt = now;
                         peer.gatt = peer.device.connectGatt(mContext, false, mGattCallback);
+                        peer.slogan1 = null;
+                        peer.slogan2 = null;
+                        peer.slogan3 = null;
 
                     } else {
 //                        v(TAG, "Nothing to do for disconnected peer, device: %s", address);
@@ -231,6 +234,7 @@ class Scanner {
                 d(TAG, "All slogans retrieved, should disconnect, address: %s", address);
                 peer.lastFullRetrievalTimestamp = now;
                 peer.shouldDisconnect = true;
+                peer.service = null;
 
             } catch (Exception e) {
                 e(TAG, "Unhandled exception, peer: %s", peer.toLogString());

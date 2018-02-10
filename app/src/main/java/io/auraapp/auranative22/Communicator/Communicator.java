@@ -42,7 +42,7 @@ public class Communicator extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        if (!INTENT_LOCAL_SLOGANS_CHANGED_ACTION.equals(intent.getAction())) {
+        if (intent == null || !INTENT_LOCAL_SLOGANS_CHANGED_ACTION.equals(intent.getAction())) {
             w(TAG, "Received unknown intent, intent: %s", intent);
             return START_STICKY;
         }

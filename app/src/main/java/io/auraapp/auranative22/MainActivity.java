@@ -1,7 +1,11 @@
 package io.auraapp.auranative22;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -12,12 +16,14 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
-import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -39,9 +45,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String PREFS_BUCKET = "prefs";
     private static final String PREFS_SLOGANS = "slogans";
 
-    //    private static final String slogan1 = Build.VERSION.SDK_INT + " " + android.os.Build.MODEL + " Helloo World, Hello!1Helloo World, 🚀 Hello!1Helloo World, Hello!1Helloo World, H";
-//    private static final String slogan2 = Build.VERSION.SDK_INT + " " + android.os.Build.MODEL + " Fappoo LorpdFappo!1FappoLorpdFappo!1FappoLorpdFappo!1FappoLorpdF nanunana wadatap";
-//    private static final String slogan3 = Build.VERSION.SDK_INT + " " + android.os.Build.MODEL + " The lazy chicken jumps over the running dog on its way to the alphabet. Cthullu !";
     private List<Slogan> mSlogans = new ArrayList<>();
     private ArrayAdapter<Slogan> mListAdapter;
 
@@ -58,33 +61,92 @@ public class MainActivity extends AppCompatActivity {
             mSlogans.add(Slogan.create(true, mySloganText));
         }
 
-        if (mSlogans.size() == 0) {
-            mSlogans.add(Slogan.create(true, Build.VERSION.SDK_INT + " " + android.os.Build.MODEL + " The lazy chicken jumps over the running dog on its way to the alphabet. Cthullu !"));
-            persistSlogans();
-        }
+        mSlogans.add(Slogan.create(false, "adopt me :)"));
 
         setContentView(R.layout.activity_main);
 
+        final Activity activity = this;
+
+        // TODO make list expandable to show stats for slogans
         ListView listView = findViewById(R.id.list_view);
+        Button button = findViewById(R.id.add_slogan);
+        button.setOnClickListener((View $$$) -> {
 
-        ProgressBar progressBar = new ProgressBar(this);
-        progressBar.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        progressBar.setIndeterminate(true);
-        listView.setEmptyView(progressBar);
+            View dialogView = activity.getLayoutInflater().inflate(R.layout.dialog_add_slogan, null);
 
-        // Must add the progress bar to the root of the layout
-        ViewGroup root = findViewById(android.R.id.content);
-        root.addView(progressBar);
+            TextView textView = dialogView.findViewById(R.id.dialog_add_slogan_slogan_text);
+            new AlertDialog.Builder(activity)
+                    .setView(dialogView)
+                    .setPositiveButton("Add", (DialogInterface $, int $$) -> {
+                        adoptSlogan(textView.getText().toString());
+                    })
+                    .setNegativeButton("Cancel", (DialogInterface $, int $$) -> {
+                    })
+                    .create()
+                    .show();
+        });
 
         mListAdapter = new SloganListAdapter(this, mSlogans);
 
         listView.setAdapter(mListAdapter);
 
         listView.setOnItemClickListener((AdapterView<?> parent, View view, int position, long id) -> {
-            Toast.makeText(getApplicationContext(), "Click " + mSlogans.get(position).mText, Toast.LENGTH_SHORT).show();
+
+            Slogan slogan = mSlogans.get(position);
+            if (!slogan.mMine) {
+
+                if (countMySlogans() >= 3) {
+                    // Replace slogan
+                    // TODO implement
+                } else {
+                    adoptSlogan(slogan.mText);
+                }
+            } else {
+                new AlertDialog.Builder(activity)
+                        .setPositiveButton("Delete", (DialogInterface $, int $$) -> {
+                            dropSlogan(slogan.mText);
+                        })
+                        .setNegativeButton("Cancel", (DialogInterface $, int $$) -> {
+                        })
+                        .create()
+                        .show();
+            }
         });
 
         checkPermissions();
+    }
+
+    private int countMySlogans() {
+        int mine = 0;
+        for (Slogan s : mSlogans) {
+            if (s.mMine) {
+                mine++;
+            }
+        }
+        return mine;
+    }
+
+    private void dropSlogan(String text) {
+        mSlogans.remove(Slogan.create(true, text));
+
+        persistSlogans();
+        mListAdapter.notifyDataSetChanged();
+        Toast.makeText(getApplicationContext(), "Slogan dropped ", Toast.LENGTH_LONG).show();
+        advertiseSlogans();
+    }
+
+    private void adoptSlogan(String text) {
+        if (countMySlogans() >= 3) {
+            return;
+        }
+        mSlogans.remove(Slogan.create(true, text));
+        mSlogans.remove(Slogan.create(false, text));
+        mSlogans.add(Slogan.create(true, text));
+
+        persistSlogans();
+        mListAdapter.notifyDataSetChanged();
+        Toast.makeText(getApplicationContext(), "Slogan adopted ", Toast.LENGTH_LONG).show();
+        advertiseSlogans();
     }
 
     private void persistSlogans() {
@@ -92,7 +154,9 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = getSharedPreferences(PREFS_BUCKET, MODE_PRIVATE).edit();
         Set<String> mySloganTexts = new HashSet<>();
         for (Slogan slogan : mSlogans) {
-            mySloganTexts.add(slogan.mText);
+            if (slogan.mMine) {
+                mySloganTexts.add(slogan.mText);
+            }
         }
         editor.putStringSet(PREFS_SLOGANS, mySloganTexts);
 
@@ -101,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        unregisterReceiver(mMessageReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
         super.onPause();
     }
 
@@ -113,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // TODO tell communicator to send all slogans over
+        // TODO send all present slogans at once
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter(Communicator.INTENT_PEERS_CHANGED_ACTION));
 
