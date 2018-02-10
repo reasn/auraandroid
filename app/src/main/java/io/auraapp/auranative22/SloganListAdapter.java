@@ -8,28 +8,44 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
+
+import io.auraapp.auranative22.Communicator.Slogan;
+
+import static io.auraapp.auranative22.FormattedLog.d;
 
 public class SloganListAdapter extends ArrayAdapter<ListItem> {
-    private List<ListItem> mItems;
+    private static final String TAG = "@aura/" + SloganListAdapter.class.getSimpleName();
+    private final TreeSet<Slogan> mMySlogans;
+    private final TreeSet<Slogan> mPeerSlogans;
 
-    public SloganListAdapter(@NonNull Context context, List<ListItem> items) {
+    private final List<ListItem> mItems;
+
+    static SloganListAdapter create(@NonNull Context context, TreeSet<Slogan> mySlogans, TreeSet<Slogan> peerSlogans) {
+        return new SloganListAdapter(context, new ArrayList<>(), mySlogans, peerSlogans);
+    }
+
+    private SloganListAdapter(@NonNull Context context, List<ListItem> items, TreeSet<Slogan> mySlogans, TreeSet<Slogan> peerSlogans) {
         super(context, R.layout.list_item, items);
         mItems = items;
+        mMySlogans = mySlogans;
+        mPeerSlogans = peerSlogans;
     }
 
     @Override
     public void notifyDataSetChanged() {
-        Collections.sort(mItems, (ListItem o1, ListItem o2) -> {
-            if (o1.isMine() && !o2.isMine()) {
-                return -1;
-            }
-            if (!o1.isMine() && o2.isMine()) {
-                return 1;
-            }
-            return o1.getSlogan().compareTo(o2.getSlogan());
-        });
+        d(TAG, "Updating list, mySlogans: %d, peerSlogans: %d", mMySlogans.size(), mPeerSlogans.size());
+        mItems.clear();
+
+        for (Slogan mySlogan : mMySlogans) {
+            mItems.add(new ListItem(mySlogan, true));
+        }
+        for (Slogan peerSlogan : mPeerSlogans) {
+            mItems.add(new ListItem(peerSlogan, false));
+        }
+
         super.notifyDataSetChanged();
     }
 

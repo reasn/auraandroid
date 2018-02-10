@@ -7,7 +7,6 @@ import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,19 +16,15 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.Serializable;
+import java.util.TreeSet;
 
 import io.auraapp.auranative22.Communicator.Communicator;
-import io.auraapp.auranative22.Communicator.Peer;
 import io.auraapp.auranative22.Communicator.Slogan;
 
 import static io.auraapp.auranative22.Communicator.Communicator.INTENT_PEERS_CHANGED_ACTION;
@@ -41,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "@aura/main";
     private BroadcastReceiver mMessageReceiver;
 
-    private List<ListItem> mList = new ArrayList<>();
+    final private TreeSet<Slogan> mPeerSlogans = new TreeSet<>(new SloganComparator());
     private SloganListAdapter mListAdapter;
     private MySloganManager mMySloganManager;
 
@@ -54,34 +49,12 @@ public class MainActivity extends AppCompatActivity {
         mMySloganManager = new MySloganManager(
                 this,
                 () -> {
+                    d(TAG, "My slogans changed");
 
-                    int added = 0;
-                    int removed = 0;
-
-                    // Remove slogans that are gone
-                    for (ListItem item : mList.subList(0, mList.size())) {
-                        if (!mMySloganManager.getMySlogans().contains(item.getSlogan())) {
-                            mList.remove(item);
-                            removed++;
-                        }
-                    }
-
-                    for (Slogan slogan : mMySloganManager.getMySlogans()) {
-                        ListItem foundSlogan = new ListItem(slogan, true);
-                        if (!mList.contains(foundSlogan)) {
-                            mList.add(foundSlogan);
-                            added++;
-                        }
-                    }
-
-                    if (added > 0 || removed > 0) {
-                        d(TAG, "My slogans changed, %d added, %d removed", added, removed);
-
-                        mListAdapter.notifyDataSetChanged();
-                        // TODO add argument or use added/removed to indicate whether dropped or adopted, update toast
-                        Toast.makeText(getApplicationContext(), "Slogan changed ;) ", Toast.LENGTH_LONG).show();
-                        advertiseSlogans();
-                    }
+                    mListAdapter.notifyDataSetChanged();
+                    // TODO add argument or use added/removed to indicate whether dropped or adopted, update toast
+                    Toast.makeText(getApplicationContext(), "Slogan changed ;) ", Toast.LENGTH_LONG).show();
+                    advertiseSlogans();
                 }
         );
 
@@ -108,13 +81,16 @@ public class MainActivity extends AppCompatActivity {
                     .show();
         });
 
-        mListAdapter = new SloganListAdapter(this, mList);
+        mListAdapter = SloganListAdapter.create(this, mMySloganManager.getMySlogans(), mPeerSlogans);
 
         listView.setAdapter(mListAdapter);
 
         listView.setOnItemClickListener((AdapterView<?> parent, View view, int position, long id) -> {
 
-            ListItem item = mList.get(position);
+            ListItem item = mListAdapter.getItem(position);
+            if (item == null) {
+                return;
+            }
             if (!item.isMine()) {
 
                 if (mMySloganManager.spaceAvailable()) {
@@ -148,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
 
         if (mMessageReceiver == null) {
-            mMessageReceiver = new PeerSloganUpdateReceiver(mList, mListAdapter);
+            mMessageReceiver = new PeerSloganUpdateReceiver(mPeerSlogans, mListAdapter);
         }
 
         // TODO tell communicator to send all slogans over
@@ -161,23 +137,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void advertiseSlogans() {
+        TreeSet<Slogan> slogans = mMySloganManager.getMySlogans();
 
-        List<Slogan> mySlogans = mMySloganManager.getMySlogans();
-
-        v(TAG, "Advertising %d slogans", mySlogans.size());
+        v(TAG, "Advertising %d slogans", slogans.size());
 
         Intent intent = new Intent(this, Communicator.class);
-        intent.setAction(Communicator.INTENT_LOCAL_SLOGANS_CHANGED_ACTION);
-        if (mySlogans.size() > 0) {
-            intent.putExtra(Communicator.INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_1, mySlogans.get(0).getText());
-        }
-        if (mySlogans.size() > 1) {
-            intent.putExtra(Communicator.INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_2, mySlogans.get(1).getText());
-        }
-        if (mySlogans.size() > 2) {
-            intent.putExtra(Communicator.INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_3, mySlogans.get(2).getText());
-        }
+        intent.setAction(Communicator.INTENT_LOCAL_MY_SLOGANS_CHANGED_ACTION);
 
+        String[] mySloganStrings = new String[slogans.size()];
+        int index = 0;
+        for (Slogan slogan : slogans) {
+            mySloganStrings[index++] = slogan.getText();
+        }
+        intent.putExtra(Communicator.INTENT_LOCAL_MY_SLOGANS_CHANGED_SLOGANS, mySloganStrings);
         startService(intent);
     }
 

@@ -9,27 +9,25 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 
 import java.io.Serializable;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import io.auraapp.auranative22.MainActivity;
 import io.auraapp.auranative22.R;
 
 import static io.auraapp.auranative22.FormattedLog.d;
-import static io.auraapp.auranative22.FormattedLog.v;
+import static io.auraapp.auranative22.FormattedLog.e;
 import static io.auraapp.auranative22.FormattedLog.w;
 
 public class Communicator extends Service {
 
-    public static final String INTENT_LOCAL_SLOGANS_CHANGED_ACTION = "io.aurapp.aura.localSlogansChanged";
-    public static final String INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_1 = "io.auraapp.aura.slogan1";
-    public static final String INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_2 = "io.auraapp.aura.slogan2";
-    public static final String INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_3 = "io.auraapp.aura.slogan3";
+    public static final String INTENT_LOCAL_MY_SLOGANS_CHANGED_ACTION = "io.aurapp.aura.localSlogansChanged";
+    public static final String INTENT_LOCAL_MY_SLOGANS_CHANGED_SLOGANS = "io.auraapp.aura.mySlogans";
 
     public static final String INTENT_PEERS_CHANGED_ACTION = "io.auraapp.aura.peersUpdated";
     public static final String INTENT_PEERS_CHANGED_PEERS = "io.auraapp.aura.peers";
@@ -44,7 +42,7 @@ public class Communicator extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        if (intent == null || !INTENT_LOCAL_SLOGANS_CHANGED_ACTION.equals(intent.getAction())) {
+        if (intent == null || !INTENT_LOCAL_MY_SLOGANS_CHANGED_ACTION.equals(intent.getAction())) {
             w(TAG, "Received unknown intent, intent: %s", intent);
             return START_STICKY;
         }
@@ -57,29 +55,33 @@ public class Communicator extends Service {
 //                @Override
 //                public void run() {
 //                    Looper.prepare();
-                    Communicator.this.start();
-                    handleIntent(intent);
+            Communicator.this.start();
 //                }
 //            }.start();
         }
+        // don't put this into !mRunning clause
+        handleIntent(intent);
         return START_STICKY;
     }
 
     private void handleIntent(Intent intent) {
 
         Bundle extras = intent.getExtras();
+
         if (extras == null) {
+            w(TAG, "No extras on intent");
             return;
         }
-        if (intent.hasExtra(INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_1)) {
-            mAdvertiser.setSlogan1(extras.getString(INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_1));
+
+        @SuppressWarnings("unchecked")
+        String[] mySlogans = extras.getStringArray(INTENT_LOCAL_MY_SLOGANS_CHANGED_SLOGANS);
+        if (mySlogans == null) {
+            w(TAG, "No slogans retrieved from intent");
+            return;
         }
-        if (intent.hasExtra(INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_2)) {
-            mAdvertiser.setSlogan2(extras.getString(INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_2));
-        }
-        if (intent.hasExtra(INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_3)) {
-            mAdvertiser.setSlogan3(extras.getString(INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_3));
-        }
+        mAdvertiser.setSlogan1(mySlogans.length > 0 ? mySlogans[0] : null);
+        mAdvertiser.setSlogan2(mySlogans.length > 1 ? mySlogans[1] : null);
+        mAdvertiser.setSlogan3(mySlogans.length > 2 ? mySlogans[2] : null);
     }
 
     private void start() {
@@ -128,7 +130,7 @@ public class Communicator extends Service {
 
                     LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
-                    d(TAG, "Sent intent %s", intent.getAction());
+                    d(TAG, "Sent intent with %d peers, intent: %s", peers.size(), intent.getAction());
 
                 }
         );

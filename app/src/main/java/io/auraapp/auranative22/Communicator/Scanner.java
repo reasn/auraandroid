@@ -83,7 +83,7 @@ class Scanner {
         if (mQueued || mInactive) {
             return;
         }
-        mHandler.postDelayed(this::actOnState, 100);
+        mHandler.postDelayed(this::actOnState, 300);
         mQueued = true;
     }
 
@@ -110,7 +110,7 @@ class Scanner {
      */
     private void propagateChanges() {
 
-        v(TAG, "Propagating slogan changes");
+        v(TAG, "Checking if slogan changes need propagation");
         Set<String> slogans = new HashSet<>();
         for (Device device : devices.values()) {
             if (device.slogan1 != null && !device.slogan1.equals("")) {
@@ -135,10 +135,12 @@ class Scanner {
         found.removeAll(mSlogansAtLastPropagation);
 
         if (found.size() > 0 || gone.size() > 0) {
-            d(TAG, "Slogans changed, %d found (%s), %d gone (%s)", found.size(), found, gone.size(), gone);
+            d(TAG, "Slogans changed, devices: %d, slogans: %d found (%s) and %d gone (%s)", devices.size(), found.size(), found, gone.size(), gone);
 
             mProximityCallback.proximityChanged(buildPeers());
             mSlogansAtLastPropagation = slogans;
+        } else {
+            v(TAG, "No slogans changed, nothing to propagates, slogans: %d", slogans.size());
         }
     }
 
@@ -148,7 +150,7 @@ class Scanner {
             Peer peer = new Peer();
             peer.mLastSeenTimestamp = device.lastSeenTimestamp;
             peer.mSuccessfulRetrievals = device.stats.mSuccessfulRetrievals;
-            
+
             if (device.slogan1 != null && !device.slogan1.equals("")) {
                 peer.mSlogans.add(Slogan.create(device.slogan1));
             }
@@ -158,6 +160,7 @@ class Scanner {
             if (device.slogan3 != null && !device.slogan3.equals("")) {
                 peer.mSlogans.add(Slogan.create(device.slogan3));
             }
+            peers.add(peer);
         }
         return peers;
     }
@@ -255,6 +258,9 @@ class Scanner {
                 }
 
                 d(TAG, "All slogans fresh, should disconnect, address: %s", address);
+                w(TAG, "slogan1 %s", device.slogan1);
+                w(TAG, "slogan2 %s", device.slogan2);
+                w(TAG, "slogan3 %s", device.slogan3);
                 device.lastFullRetrievalTimestamp = now;
                 device.stats.mSuccessfulRetrievals++;
                 device.shouldDisconnect = true;
@@ -347,6 +353,7 @@ class Scanner {
         return false;
     }
 
+    // TODO extract
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -434,14 +441,17 @@ class Scanner {
             boolean changed = false;
             if (mSlogan1Uuid.equals(uuid)) {
                 device.slogan1 = slogan;
+                device.slogan1fresh = true;
                 changed = true;
 
             } else if (mSlogan2Uuid.equals(uuid)) {
                 device.slogan2 = slogan;
+                device.slogan2fresh = true;
                 changed = true;
 
             } else if (mSlogan3Uuid.equals(uuid)) {
                 device.slogan3 = slogan;
+                device.slogan3fresh = true;
                 changed = true;
             } else {
                 w(TAG, "Characteristic retrieved matches no slogan UUID, address: %s, uuid: %s", address, uuid);

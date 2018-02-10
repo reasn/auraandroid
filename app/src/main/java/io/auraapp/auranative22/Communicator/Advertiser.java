@@ -141,15 +141,15 @@ class Advertiser {
                 v(TAG, "onCharacteristicReadRequest device: %s, requestId: %d, offset: %d, characteristic: %s", device.getAddress(), requestId, offset, characteristic.getUuid());
 
                 if (mSlogan1Uuid.equals(characteristic.getUuid())) {
-                    d(TAG, "sending slogan 1");
+                    d(TAG, "sending slogan 1, bytes: %d", mSlogan1.length);
                     mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, chunk(mSlogan1, offset));
 
                 } else if (mSlogan2Uuid.equals(characteristic.getUuid())) {
-                    d(TAG, "sending slogan 2");
+                    d(TAG, "sending slogan 2, bytes: %d", mSlogan2.length);
                     mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, chunk(mSlogan2, offset));
 
                 } else if (mSlogan3Uuid.equals(characteristic.getUuid())) {
-                    d(TAG, "sending slogan 3");
+                    d(TAG, "sending slogan 3, bytes: %d", mSlogan3.length);
                     mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, chunk(mSlogan3, offset));
 
                 } else {

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import io.auraapp.auranative22.Communicator.Slogan;
 
@@ -19,7 +20,7 @@ class MySloganManager {
     private static final String PREFS_BUCKET = "prefs";
     private static final String PREFS_SLOGANS = "slogans";
 
-    private final List<Slogan> mMySlogans = new ArrayList<>();
+    private final TreeSet<Slogan> mMySlogans = new TreeSet<>(new SloganComparator());
 
     private final Context mContext;
 
@@ -39,7 +40,7 @@ class MySloganManager {
         mNotifyChangeCallback.run();
     }
 
-    List<Slogan> getMySlogans() {
+    TreeSet<Slogan> getMySlogans() {
         return mMySlogans;
     }
 
