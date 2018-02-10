@@ -9,6 +9,23 @@ class Slogan {
         s.mMine = mine;
         s.mText = text;
         return s;
+    }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Slogan slogan = (Slogan) o;
+
+        return mMine == slogan.mMine && (
+                mText != null
+                        ? mText.equals(slogan.mText)
+                        : slogan.mText == null
+        );
     }
 }

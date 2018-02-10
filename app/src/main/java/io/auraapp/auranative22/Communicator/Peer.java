@@ -47,7 +47,6 @@ class Peer {
                         + ", lastSeenTimestamp: %d"
                         + ", lastConnectAttempt: %d"
                         + ", isDiscoveringServices: %s"
-                        + ", lastServiceDiscoveryAttempt: %d"
                         + ", device: %s"
                         + ", gatt: %s"
                         + ", service: %s"

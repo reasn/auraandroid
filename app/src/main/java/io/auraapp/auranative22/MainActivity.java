@@ -1,36 +1,70 @@
 package io.auraapp.auranative22;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import io.auraapp.auranative22.Communicator.Communicator;
 
+import static io.auraapp.auranative22.Communicator.Communicator.INTENT_PEERS_CHANGED_ACTION;
+import static io.auraapp.auranative22.FormattedLog.d;
+import static io.auraapp.auranative22.FormattedLog.v;
+
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "@aura/main";
+    private BroadcastReceiver mMessageReceiver;
+
+    private static final String PREFS_BUCKET = "prefs";
+    private static final String PREFS_SLOGANS = "slogans";
+
+    //    private static final String slogan1 = Build.VERSION.SDK_INT + " " + android.os.Build.MODEL + " Helloo World, Hello!1Helloo World, 🚀 Hello!1Helloo World, Hello!1Helloo World, H";
+//    private static final String slogan2 = Build.VERSION.SDK_INT + " " + android.os.Build.MODEL + " Fappoo LorpdFappo!1FappoLorpdFappo!1FappoLorpdFappo!1FappoLorpdF nanunana wadatap";
+//    private static final String slogan3 = Build.VERSION.SDK_INT + " " + android.os.Build.MODEL + " The lazy chicken jumps over the running dog on its way to the alphabet. Cthullu !";
+    private List<Slogan> mSlogans = new ArrayList<>();
+    private ArrayAdapter<Slogan> mListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        v(TAG, "onCreate, intent: %s", getIntent().getAction());
+
+        mSlogans = new ArrayList<>();
+
+        SharedPreferences prefs = getSharedPreferences(PREFS_BUCKET, MODE_PRIVATE);
+        for (String mySloganText : prefs.getStringSet(PREFS_SLOGANS, new HashSet<>())) {
+            mSlogans.add(Slogan.create(true, mySloganText));
+        }
+
+        if (mSlogans.size() == 0) {
+            mSlogans.add(Slogan.create(true, Build.VERSION.SDK_INT + " " + android.os.Build.MODEL + " The lazy chicken jumps over the running dog on its way to the alphabet. Cthullu !"));
+            persistSlogans();
+        }
+
         setContentView(R.layout.activity_main);
-        startCommunicator();
+
         ListView listView = findViewById(R.id.list_view);
 
         ProgressBar progressBar = new ProgressBar(this);
@@ -42,58 +76,69 @@ public class MainActivity extends AppCompatActivity {
         ViewGroup root = findViewById(android.R.id.content);
         root.addView(progressBar);
 
-        final ArrayList<Slogan> list = new ArrayList<>();
-        list.add(Slogan.create(true, "Hallo"));
-        list.add(Slogan.create(true, "Fisch"));
-        list.add(Slogan.create(true, "Android"));
-        list.add(Slogan.create(true, "Ubuntu"));
-        list.add(Slogan.create(true, "Windows7"));
-        list.add(Slogan.create(true, "WebOS"));
+        mListAdapter = new SloganListAdapter(this, mSlogans);
 
-        ArrayAdapter<Slogan> adapter = new ArrayAdapter<Slogan>(this, R.layout.list_item, list) {
-            @Override
-            public void notifyDataSetChanged() {
-                Collections.sort(list, (Slogan o1, Slogan o2) -> {
-                    if (o1.mMine && !o2.mMine) {
-                        return -1;
-                    }
-                    if (!o1.mMine && o2.mMine) {
-                        return 1;
-                    }
-                    return o1.mText.compareTo(o2.mText);
-                });
-                super.notifyDataSetChanged();
-            }
-
-            @NonNull
-            @Override
-            public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-                // Get the data item for this position
-                Slogan user = getItem(position);
-                // Check if an existing view is being reused, otherwise inflate the view
-                if (convertView == null) {
-                    convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item, parent, false);
-                }
-                TextView tvName = convertView.findViewById(R.id.slogan_text);
-                if(user != null) {
-                    tvName.setText(user.mText);
-                } else {
-                    tvName.setText("");
-                }
-                return convertView;
-            }
-        };
-
-        listView.setAdapter(adapter);
+        listView.setAdapter(mListAdapter);
 
         listView.setOnItemClickListener((AdapterView<?> parent, View view, int position, long id) -> {
-            Toast.makeText(getApplicationContext(), "Click " + list.get(position).mText, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Click " + mSlogans.get(position).mText, Toast.LENGTH_SHORT).show();
         });
 
+        checkPermissions();
     }
 
-    private void startCommunicator() {
+    private void persistSlogans() {
 
+        SharedPreferences.Editor editor = getSharedPreferences(PREFS_BUCKET, MODE_PRIVATE).edit();
+        Set<String> mySloganTexts = new HashSet<>();
+        for (Slogan slogan : mSlogans) {
+            mySloganTexts.add(slogan.mText);
+        }
+        editor.putStringSet(PREFS_SLOGANS, mySloganTexts);
+
+        editor.apply();
+    }
+
+    @Override
+    protected void onPause() {
+        unregisterReceiver(mMessageReceiver);
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+
+        if (mMessageReceiver == null) {
+            mMessageReceiver = new PeerSloganUpdateReceiver(mSlogans, mListAdapter);
+        }
+
+        // TODO tell communicator to send all slogans over
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter(Communicator.INTENT_PEERS_CHANGED_ACTION));
+
+        d(TAG, "Registered receiver for %s intents", INTENT_PEERS_CHANGED_ACTION);
+
+        super.onResume();
+    }
+
+    private void advertiseSlogans() {
+
+        Intent intent = new Intent(this, Communicator.class);
+        intent.setAction(Communicator.INTENT_LOCAL_SLOGANS_CHANGED_ACTION);
+        if (mSlogans.size() > 0) {
+            intent.putExtra(Communicator.INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_1, mSlogans.get(0).mText);
+        }
+        if (mSlogans.size() > 1) {
+            intent.putExtra(Communicator.INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_2, mSlogans.get(1).mText);
+        }
+        if (mSlogans.size() > 2) {
+            intent.putExtra(Communicator.INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_3, mSlogans.get(2).mText);
+        }
+
+        startService(intent);
+    }
+
+    private void checkPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
             if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
@@ -104,12 +149,12 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             } else {
-                Toast.makeText(this, "Location permissions already granted", Toast.LENGTH_SHORT).show();
-                startService(new Intent(this, Communicator.class));
+//                Toast.makeText(this, "Location permissions already granted", Toast.LENGTH_SHORT).show();
+                advertiseSlogans();
             }
             // TODO handle user declining
         } else {
-            startService(new Intent(this, Communicator.class));
+            advertiseSlogans();
         }
     }
 }

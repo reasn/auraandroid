@@ -18,7 +18,9 @@ import android.os.ParcelUuid;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static android.bluetooth.BluetoothProfile.STATE_CONNECTED;
@@ -30,6 +32,12 @@ import static io.auraapp.auranative22.FormattedLog.v;
 import static io.auraapp.auranative22.FormattedLog.w;
 
 class Scanner {
+
+    interface SloganCallback {
+        void slogansUpdated(Set<String> found, Set<String> gone);
+    }
+
+    private final SloganCallback mSloganCallback;
 
     private final static String TAG = "@aura/ble/scanner";
 
@@ -49,16 +57,20 @@ class Scanner {
 
     private HashMap<String, Peer> peers = new HashMap<>();
 
+    private Set<String> mLastPropagatedSlogans = new HashSet<>();
+
     Scanner(UUID serviceUuid,
             UUID slogan1Uuid,
             UUID slogan2Uuid,
             UUID slogan3Uuid,
-            Context context) {
+            Context context,
+            SloganCallback sloganCallback) {
         mServiceUuid = serviceUuid;
         mSlogan1Uuid = slogan1Uuid;
         mSlogan2Uuid = slogan2Uuid;
         mSlogan3Uuid = slogan3Uuid;
         mContext = context;
+        mSloganCallback = sloganCallback;
     }
 
     void start() {
@@ -92,6 +104,41 @@ class Scanner {
         mHandler = null;
     }
 
+    private void propagateSloganChanges() {
+
+        v(TAG, "Propagating slogan changes");
+        Set<String> slogans = new HashSet<>();
+        for (Peer peer : peers.values()) {
+            if (peer.slogan1 != null && !peer.slogan1.equals("")) {
+                slogans.add(peer.slogan1);
+            }
+            if (peer.slogan2 != null && !peer.slogan2.equals("")) {
+                slogans.add(peer.slogan2);
+            }
+            if (peer.slogan3 != null && !peer.slogan3.equals("")) {
+                slogans.add(peer.slogan3);
+            }
+        }
+
+        // A kingdom for immutability and first class functions
+        Set<String> gone = new HashSet<>();
+        gone.addAll(mLastPropagatedSlogans);
+        gone.removeAll(slogans);
+
+        // A kingdom for immutability and first class functions
+        Set<String> found = new HashSet<>();
+        found.addAll(slogans);
+        found.removeAll(mLastPropagatedSlogans);
+
+        if (found.size() > 0 || gone.size() > 0) {
+            d(TAG, "Slogans changed, %d found (%s), %d gone (%s)", found.size(), found, gone.size(), gone);
+        }
+
+        mSloganCallback.slogansUpdated(found, gone);
+
+        mLastPropagatedSlogans = slogans;
+    }
+
     private void actOnState() {
         mQueued = false;
 
@@ -119,7 +166,7 @@ class Scanner {
 
                 if (!peer.connected) {
                     if (peer.lastConnectAttempt != null && now - peer.lastConnectAttempt <= PEER_CONNECT_TIMEOUT) {
-                        v(TAG, "Nothing to do, connection attempt is in progress, device: %s", address);
+//                        v(TAG, "Nothing to do, connection attempt is in progress, device: %s", address);
 
                     } else if (peer.lastConnectAttempt != null && now - peer.lastConnectAttempt > PEER_CONNECT_TIMEOUT) {
                         d(TAG, "Connection timeout, closing gatt, device: %s", address);
@@ -130,6 +177,7 @@ class Scanner {
                         v(TAG, "Forgetting peer, device: %s", address);
                         peer.device = null;
                         peers.remove(address);
+                        propagateSloganChanges();
 
                     } else if (peer.lastFullRetrievalTimestamp == null || now - peer.lastFullRetrievalTimestamp > PEER_REFRESH_AFTER) {
                         if (peer.lastFullRetrievalTimestamp == null) {
@@ -142,7 +190,7 @@ class Scanner {
                         peer.gatt = peer.device.connectGatt(mContext, false, mGattCallback);
 
                     } else {
-                        v(TAG, "Nothing to do for disconnected peer, device: %s", address);
+//                        v(TAG, "Nothing to do for disconnected peer, device: %s", address);
                     }
                     continue;
                 }
@@ -180,12 +228,10 @@ class Scanner {
                     continue;
                 }
 
-                w(TAG, "All slogans retrieved, should disconnect, address: %s", address);
-                w(TAG, peer.slogan1);
-                w(TAG, peer.slogan2);
-                w(TAG, peer.slogan3);
+                d(TAG, "All slogans retrieved, should disconnect, address: %s", address);
                 peer.lastFullRetrievalTimestamp = now;
                 peer.shouldDisconnect = true;
+
             } catch (Exception e) {
                 e(TAG, "Unhandled exception, peer: %s", peer.toLogString());
                 throw e;
@@ -355,18 +401,25 @@ class Scanner {
             UUID uuid = characteristic.getUuid();
             String slogan = new String(value, UTF8_CHARSET);
             d(TAG, "Retrieved slogan, device: %s, uuid: %s, slogan: %s", address, uuid, slogan);
+            boolean changed = false;
             if (mSlogan1Uuid.equals(uuid)) {
                 peers.get(address).slogan1 = slogan;
+                changed = true;
 
             } else if (mSlogan2Uuid.equals(uuid)) {
                 peers.get(address).slogan2 = slogan;
+                changed = true;
 
             } else if (mSlogan3Uuid.equals(uuid)) {
                 peers.get(address).slogan3 = slogan;
+                changed = true;
             } else {
                 w(TAG, "Characteristic retrieved matches no slogan UUID, address: %s, uuid: %s", address, uuid);
             }
             peers.get(address).isFetchingSlogan = false;
+            if (changed) {
+                propagateSloganChanges();
+            }
             returnControl();
         }
     };
@@ -376,7 +429,7 @@ class Scanner {
 
             String address = result.getDevice().getAddress();
             if (peers.containsKey(address)) {
-                v(TAG, "Device %s is already known, doing nothing", address);
+//                v(TAG, "Nothing to do, device already known, device: %s", address);
             } else {
                 i(TAG, "Device %s is yet unknown", address);
                 peers.put(address, Peer.create(result.getDevice()));

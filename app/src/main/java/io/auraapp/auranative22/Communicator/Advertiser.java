@@ -35,9 +35,9 @@ class Advertiser {
     private final UUID mSlogan1Uuid;
     private final UUID mSlogan2Uuid;
     private final UUID mServiceUuid;
-    private final byte[] mSlogan1;
-    private final byte[] mSlogan2;
-    private final byte[] mSlogan3;
+    private byte[] mSlogan1 = new byte[0];
+    private byte[] mSlogan2 = new byte[0];
+    private byte[] mSlogan3 = new byte[0];
 
     private BluetoothManager mBluetoothManager;
     private BluetoothGattServer mBluetoothGattServer;
@@ -62,9 +62,6 @@ class Advertiser {
                UUID slogan1Uuid,
                UUID slogan2Uuid,
                UUID slogan3Uuid,
-               String slogan1,
-               String slogan2,
-               String slogan3,
                Context context) {
         mBluetoothManager = bluetoothManager;
         mServiceUuid = serviceUuid;
@@ -72,10 +69,27 @@ class Advertiser {
         mSlogan2Uuid = slogan2Uuid;
         mSlogan3Uuid = slogan3Uuid;
         mContext = context;
+    }
 
-        mSlogan1 = slogan1.getBytes(Charset.forName("UTF-8"));
-        mSlogan2 = slogan2.getBytes(Charset.forName("UTF-8"));
-        mSlogan3 = slogan3.getBytes(Charset.forName("UTF-8"));
+    void setSlogan1(String slogan) {
+        i(TAG, "Setting slogan 1 to %s", slogan);
+        mSlogan1 = slogan == null
+                ? new byte[0]
+                : slogan.getBytes(Charset.forName("UTF-8"));
+    }
+
+    void setSlogan2(String slogan) {
+        i(TAG, "Setting slogan 2 to %s", slogan);
+        mSlogan2 = slogan == null
+                ? new byte[0]
+                : slogan.getBytes(Charset.forName("UTF-8"));
+    }
+
+    void setSlogan3(String slogan) {
+        i(TAG, "Setting slogan 3 to %s", slogan);
+        mSlogan3 = slogan == null
+                ? new byte[0]
+                : slogan.getBytes(Charset.forName("UTF-8"));
     }
 
     void start() {
