@@ -258,9 +258,9 @@ class Scanner {
                 }
 
                 d(TAG, "All slogans fresh, should disconnect, address: %s", address);
-                w(TAG, "slogan1 %s", device.slogan1);
-                w(TAG, "slogan2 %s", device.slogan2);
-                w(TAG, "slogan3 %s", device.slogan3);
+//                w(TAG, "slogan1 %s", device.slogan1);
+//                w(TAG, "slogan2 %s", device.slogan2);
+//                w(TAG, "slogan3 %s", device.slogan3);
                 device.lastFullRetrievalTimestamp = now;
                 device.stats.mSuccessfulRetrievals++;
                 device.shouldDisconnect = true;
@@ -334,8 +334,7 @@ class Scanner {
 
             @Override
             public void onScanFailed(int errorCode) {
-                d(TAG, "onScanFailed errorCode: %d", errorCode);
-                e(TAG, "error during scan " + errorCode);
+                d(TAG, "onScanFailed errorCode: %s", BtConst.nameScanError(errorCode));
             }
         });
         i(TAG, "started scanning");

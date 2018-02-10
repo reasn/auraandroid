@@ -3,6 +3,7 @@ package io.auraapp.auranative22.Communicator;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.AdvertiseCallback;
+import android.bluetooth.le.ScanCallback;
 
 class BtConst {
     static String nameStatus(int status) {
@@ -66,6 +67,27 @@ class BtConst {
                 return "ADVERTISE_FAILED_TOO_MANY_ADVERTISERS";
             default:
                 return "Unknown advertise error code: " + errorCode;
+        }
+    }
+
+    static String nameScanError(int errorCode) {
+        switch (errorCode) {
+            case ScanCallback.SCAN_FAILED_ALREADY_STARTED:
+                return "SCAN_FAILED_ALREADY_STARTED";
+
+            case ScanCallback.SCAN_FAILED_APPLICATION_REGISTRATION_FAILED:
+                return "SCAN_FAILED_APPLICATION_REGISTRATION_FAILED";
+
+            case ScanCallback.SCAN_FAILED_INTERNAL_ERROR:
+                return "SCAN_FAILED_INTERNAL_ERROR";
+
+            case ScanCallback.SCAN_FAILED_FEATURE_UNSUPPORTED:
+                return "SCAN_FAILED_FEATURE_UNSUPPORTED";
+
+            case 5: // @hide ScanCallback.SCAN_FAILED_OUT_OF_HARDWARE_RESOURCES:
+                return "SCAN_FAILED_OUT_OF_HARDWARE_RESOURCES";
+            default:
+                return "Unknown scan error code: " + errorCode;
         }
     }
 }
