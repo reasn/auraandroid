@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 
@@ -49,10 +50,16 @@ public class Communicator extends Service {
 
         if (!mRunning) {
             mRunning = true;
-            start();
+            // TODO are there memory leaks / risks to this naive implementation?
+            new Thread() {
+                @Override
+                public void run() {
+                    Looper.prepare();
+                    Communicator.this.start();
+                    handleIntent(intent);
+                }
+            }.start();
         }
-        handleIntent(intent);
-
         return START_STICKY;
     }
 
@@ -129,6 +136,7 @@ public class Communicator extends Service {
     @Override
     public void onDestroy() {
         w(TAG, "onDestroy called, destroying");
+
         mScanner.stop();
         mAdvertiser.stop();
     }
