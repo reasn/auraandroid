@@ -13,6 +13,7 @@ import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 
+import java.io.Serializable;
 import java.util.Set;
 import java.util.UUID;
 
@@ -20,18 +21,18 @@ import io.auraapp.auranative22.MainActivity;
 import io.auraapp.auranative22.R;
 
 import static io.auraapp.auranative22.FormattedLog.d;
+import static io.auraapp.auranative22.FormattedLog.v;
 import static io.auraapp.auranative22.FormattedLog.w;
 
 public class Communicator extends Service {
 
-    public static final String INTENT_LOCAL_SLOGANS_CHANGED_ACTION = "io.aurapp.aura1.v1localSlogansChanged";
-    public static final String INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_1 = "io.auraapp.aura1.slogan1";
-    public static final String INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_2 = "io.auraapp.aura1.slogan2";
-    public static final String INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_3 = "io.auraapp.aura1.slogan3";
+    public static final String INTENT_LOCAL_SLOGANS_CHANGED_ACTION = "io.aurapp.aura.localSlogansChanged";
+    public static final String INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_1 = "io.auraapp.aura.slogan1";
+    public static final String INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_2 = "io.auraapp.aura.slogan2";
+    public static final String INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_3 = "io.auraapp.aura.slogan3";
 
-    public static final String INTENT_PEERS_CHANGED_ACTION = "io.auraapp.aura1.v1peerSlogansChanged";
-    public static final String INTENT_PEERS_CHANGED_SLOGANS_FOUND = "io.auraapp.aura1.slogansFound";
-    public static final String INTENT_PEERS_CHANGED_SLOGANS_GONE = "io.auraapp.aura1.slogansGone";
+    public static final String INTENT_PEERS_CHANGED_ACTION = "io.auraapp.aura.peersUpdated";
+    public static final String INTENT_PEERS_CHANGED_PEERS = "io.auraapp.aura.peers";
 
     private final static String TAG = "@aura/ble/communicator";
 
@@ -50,15 +51,16 @@ public class Communicator extends Service {
 
         if (!mRunning) {
             mRunning = true;
+//            v(TAG, "Spawning thread to start advertising and scanning");
             // TODO are there memory leaks / risks to this naive implementation?
-            new Thread() {
-                @Override
-                public void run() {
-                    Looper.prepare();
+//            new Thread() {
+//                @Override
+//                public void run() {
+//                    Looper.prepare();
                     Communicator.this.start();
                     handleIntent(intent);
-                }
-            }.start();
+//                }
+//            }.start();
         }
         return START_STICKY;
     }
@@ -114,22 +116,28 @@ public class Communicator extends Service {
                 slogan2Uuid,
                 slogan3Uuid,
                 this,
-                (Set<String> found, Set<String> gone) -> {
-
+                (Set<Peer> peers) -> {
+                    if (!(peers instanceof Serializable)) {
+                        throw new RuntimeException("peers must be serializable");
+                    }
                     Intent intent = new Intent(INTENT_PEERS_CHANGED_ACTION);
-                    // The argument to toArray is required, otherwise Object[] is serialized resulting in broken payloads
-                    intent.putExtra(INTENT_PEERS_CHANGED_SLOGANS_FOUND, found.toArray(new String[found.size()]));
-                    intent.putExtra(INTENT_PEERS_CHANGED_SLOGANS_GONE, gone.toArray(new String[found.size()]));
+                    intent.putExtra(INTENT_PEERS_CHANGED_PEERS, (Serializable) peers);
+
+//                        // The argument to toArray is required, otherwise Object[] is serialized resulting in broken payloads
+//                        intent.putExtra(INTENT_PEERS_CHANGED_SLOGANS_GONE, gone.toArray(new String[found.size()]));
 
                     LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
                     d(TAG, "Sent intent %s", intent.getAction());
+
                 }
         );
 
+        d(TAG, "Starting communicator");
         new Handler().postDelayed(() -> {
             mScanner.start();
             mAdvertiser.start();
+            d(TAG, "Communicator started");
         }, 100);
     }
 

@@ -1,11 +1,11 @@
 package io.auraapp.auranative22;
 
-class Slogan {
+class SimpleSlogan {
     boolean mMine;
     String mText;
 
-    static Slogan create(boolean mine, String text) {
-        Slogan s = new Slogan();
+    static SimpleSlogan create(boolean mine, String text) {
+        SimpleSlogan s = new SimpleSlogan();
         s.mMine = mine;
         s.mText = text;
         return s;
@@ -20,12 +20,12 @@ class Slogan {
             return false;
         }
 
-        Slogan slogan = (Slogan) o;
+        SimpleSlogan simpleSlogan = (SimpleSlogan) o;
 
-        return mMine == slogan.mMine && (
+        return mMine == simpleSlogan.mMine && (
                 mText != null
-                        ? mText.equals(slogan.mText)
-                        : slogan.mText == null
+                        ? mText.equals(simpleSlogan.mText)
+                        : simpleSlogan.mText == null
         );
     }
 }

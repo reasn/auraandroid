@@ -6,21 +6,24 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import static io.auraapp.auranative22.Communicator.Communicator.INTENT_PEERS_CHANGED_SLOGANS_FOUND;
-import static io.auraapp.auranative22.Communicator.Communicator.INTENT_PEERS_CHANGED_SLOGANS_GONE;
+import io.auraapp.auranative22.Communicator.Peer;
+import io.auraapp.auranative22.Communicator.Slogan;
+
+import static io.auraapp.auranative22.Communicator.Communicator.INTENT_PEERS_CHANGED_PEERS;
 import static io.auraapp.auranative22.FormattedLog.d;
 import static io.auraapp.auranative22.FormattedLog.v;
-import static io.auraapp.auranative22.FormattedLog.w;
 
 public class PeerSloganUpdateReceiver extends BroadcastReceiver {
 
     private static final String TAG = "@aura/peerSloganReceiver";
-    private final List<Slogan> mList;
-    private final ArrayAdapter<Slogan> mAdapter;
+    private final List<ListItem> mList;
+    private final ArrayAdapter<ListItem> mAdapter;
 
-    public PeerSloganUpdateReceiver(List<Slogan> List, ArrayAdapter<Slogan> Adapter) {
+    public PeerSloganUpdateReceiver(List<ListItem> List, ArrayAdapter<ListItem> Adapter) {
         mList = List;
         mAdapter = Adapter;
     }
@@ -34,38 +37,42 @@ public class PeerSloganUpdateReceiver extends BroadcastReceiver {
             v(TAG, "Intent has no extras, ignoring it, intent: %s", intent);
             return;
         }
-        boolean changed = false;
 
-        w(TAG, "%s | %s", extras.get(INTENT_PEERS_CHANGED_SLOGANS_FOUND), extras.get(INTENT_PEERS_CHANGED_SLOGANS_GONE));
+        @SuppressWarnings("unchecked")
+        Set<Peer> candidate = (Set<Peer>) extras.getSerializable(INTENT_PEERS_CHANGED_PEERS);
 
-        String[] slogansFound = intent.hasExtra(INTENT_PEERS_CHANGED_SLOGANS_FOUND)
-                ? extras.getStringArray(INTENT_PEERS_CHANGED_SLOGANS_FOUND)
-                : new String[0];
-        if (slogansFound != null) {
-            d(TAG, "Received %d newly found slogans: %s", slogansFound.length, slogansFound);
-            for (String slogan : slogansFound) {
-                Slogan found = Slogan.create(false, slogan);
-                if (!mList.contains(found)) {
-                    mList.add(found);
-                    changed = true;
+        final Set<Peer> peers = candidate != null
+                ? candidate
+                : new HashSet<>();
 
-                }
+        final Set<Slogan> uniqueSlogans = new HashSet<>();
+        for (Peer peer : peers) {
+            uniqueSlogans.addAll(peer.mSlogans);
+        }
+
+        int found = 0;
+        int gone = 0;
+
+        // Remove slogans that are gone
+        for (ListItem item : mList.subList(0, mList.size())) {
+            if (!uniqueSlogans.contains(item.getSlogan())) {
+                mList.remove(item);
+                gone++;
             }
         }
-        String[] slogansGone = intent.hasExtra(INTENT_PEERS_CHANGED_SLOGANS_GONE)
-                ? extras.getStringArray(INTENT_PEERS_CHANGED_SLOGANS_GONE)
-                : new String[0];
-        if (slogansGone != null) {
-            d(TAG, "Received %d slogans that are gone: %s", slogansGone.length, slogansGone);
-            for (String slogan : slogansGone) {
-                Slogan gone = Slogan.create(false, slogan);
-                if (mList.contains(gone)) {
-                    mList.remove(gone);
-                    changed = true;
-                }
+
+        for (Slogan slogan : uniqueSlogans) {
+            ListItem foundSlogan = new ListItem(slogan, false);
+            if (!mList.contains(foundSlogan)) {
+                mList.add(foundSlogan);
+                found++;
             }
         }
-        if (changed) {
+
+        if (found == 0 && gone == 0) {
+            v(TAG, "Received updated peers but nothing changed, peers: %d, unique logans: %d", peers.size(), uniqueSlogans.size());
+        } else {
+            d(TAG, "Received updated peers, %d slogans found, %d slogans gone, peers: %d, unique logans: %d", found, gone, peers.size(), uniqueSlogans.size());
             mAdapter.notifyDataSetChanged();
         }
     }

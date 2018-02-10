@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -16,8 +15,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -32,6 +29,8 @@ import java.util.List;
 import java.util.Set;
 
 import io.auraapp.auranative22.Communicator.Communicator;
+import io.auraapp.auranative22.Communicator.Peer;
+import io.auraapp.auranative22.Communicator.Slogan;
 
 import static io.auraapp.auranative22.Communicator.Communicator.INTENT_PEERS_CHANGED_ACTION;
 import static io.auraapp.auranative22.FormattedLog.d;
@@ -42,11 +41,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "@aura/main";
     private BroadcastReceiver mMessageReceiver;
 
-    private static final String PREFS_BUCKET = "prefs";
-    private static final String PREFS_SLOGANS = "slogans";
-
-    private List<Slogan> mSlogans = new ArrayList<>();
-    private ArrayAdapter<Slogan> mListAdapter;
+    private List<ListItem> mList = new ArrayList<>();
+    private SloganListAdapter mListAdapter;
+    private MySloganManager mMySloganManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,14 +51,39 @@ public class MainActivity extends AppCompatActivity {
 
         v(TAG, "onCreate, intent: %s", getIntent().getAction());
 
-        mSlogans = new ArrayList<>();
+        mMySloganManager = new MySloganManager(
+                this,
+                () -> {
 
-        SharedPreferences prefs = getSharedPreferences(PREFS_BUCKET, MODE_PRIVATE);
-        for (String mySloganText : prefs.getStringSet(PREFS_SLOGANS, new HashSet<>())) {
-            mSlogans.add(Slogan.create(true, mySloganText));
-        }
+                    int added = 0;
+                    int removed = 0;
 
-        mSlogans.add(Slogan.create(false, "adopt me :)"));
+                    // Remove slogans that are gone
+                    for (ListItem item : mList.subList(0, mList.size())) {
+                        if (!mMySloganManager.getMySlogans().contains(item.getSlogan())) {
+                            mList.remove(item);
+                            removed++;
+                        }
+                    }
+
+                    for (Slogan slogan : mMySloganManager.getMySlogans()) {
+                        ListItem foundSlogan = new ListItem(slogan, true);
+                        if (!mList.contains(foundSlogan)) {
+                            mList.add(foundSlogan);
+                            added++;
+                        }
+                    }
+
+                    if (added > 0 || removed > 0) {
+                        d(TAG, "My slogans changed, %d added, %d removed", added, removed);
+
+                        mListAdapter.notifyDataSetChanged();
+                        // TODO add argument or use added/removed to indicate whether dropped or adopted, update toast
+                        Toast.makeText(getApplicationContext(), "Slogan changed ;) ", Toast.LENGTH_LONG).show();
+                        advertiseSlogans();
+                    }
+                }
+        );
 
         setContentView(R.layout.activity_main);
 
@@ -78,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             new AlertDialog.Builder(activity)
                     .setView(dialogView)
                     .setPositiveButton("Add", (DialogInterface $, int $$) -> {
-                        adoptSlogan(textView.getText().toString());
+                        mMySloganManager.adopt(Slogan.create(textView.getText().toString()));
                     })
                     .setNegativeButton("Cancel", (DialogInterface $, int $$) -> {
                     })
@@ -86,25 +108,25 @@ public class MainActivity extends AppCompatActivity {
                     .show();
         });
 
-        mListAdapter = new SloganListAdapter(this, mSlogans);
+        mListAdapter = new SloganListAdapter(this, mList);
 
         listView.setAdapter(mListAdapter);
 
         listView.setOnItemClickListener((AdapterView<?> parent, View view, int position, long id) -> {
 
-            Slogan slogan = mSlogans.get(position);
-            if (!slogan.mMine) {
+            ListItem item = mList.get(position);
+            if (!item.isMine()) {
 
-                if (countMySlogans() >= 3) {
+                if (mMySloganManager.spaceAvailable()) {
+                    mMySloganManager.adopt(item.getSlogan());
+                } else {
                     // Replace slogan
                     // TODO implement
-                } else {
-                    adoptSlogan(slogan.mText);
                 }
             } else {
                 new AlertDialog.Builder(activity)
                         .setPositiveButton("Delete", (DialogInterface $, int $$) -> {
-                            dropSlogan(slogan.mText);
+                            mMySloganManager.dropSlogan(item.getSlogan());
                         })
                         .setNegativeButton("Cancel", (DialogInterface $, int $$) -> {
                         })
@@ -114,53 +136,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         checkPermissions();
-    }
-
-    private int countMySlogans() {
-        int mine = 0;
-        for (Slogan s : mSlogans) {
-            if (s.mMine) {
-                mine++;
-            }
-        }
-        return mine;
-    }
-
-    private void dropSlogan(String text) {
-        mSlogans.remove(Slogan.create(true, text));
-
-        persistSlogans();
-        mListAdapter.notifyDataSetChanged();
-        Toast.makeText(getApplicationContext(), "Slogan dropped ", Toast.LENGTH_LONG).show();
-        advertiseSlogans();
-    }
-
-    private void adoptSlogan(String text) {
-        if (countMySlogans() >= 3) {
-            return;
-        }
-        mSlogans.remove(Slogan.create(true, text));
-        mSlogans.remove(Slogan.create(false, text));
-        mSlogans.add(Slogan.create(true, text));
-
-        persistSlogans();
-        mListAdapter.notifyDataSetChanged();
-        Toast.makeText(getApplicationContext(), "Slogan adopted ", Toast.LENGTH_LONG).show();
-        advertiseSlogans();
-    }
-
-    private void persistSlogans() {
-
-        SharedPreferences.Editor editor = getSharedPreferences(PREFS_BUCKET, MODE_PRIVATE).edit();
-        Set<String> mySloganTexts = new HashSet<>();
-        for (Slogan slogan : mSlogans) {
-            if (slogan.mMine) {
-                mySloganTexts.add(slogan.mText);
-            }
-        }
-        editor.putStringSet(PREFS_SLOGANS, mySloganTexts);
-
-        editor.apply();
     }
 
     @Override
@@ -173,11 +148,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
 
         if (mMessageReceiver == null) {
-            mMessageReceiver = new PeerSloganUpdateReceiver(mSlogans, mListAdapter);
+            mMessageReceiver = new PeerSloganUpdateReceiver(mList, mListAdapter);
         }
 
         // TODO tell communicator to send all slogans over
-        // TODO send all present slogans at once
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter(Communicator.INTENT_PEERS_CHANGED_ACTION));
 
@@ -188,16 +162,20 @@ public class MainActivity extends AppCompatActivity {
 
     private void advertiseSlogans() {
 
+        List<Slogan> mySlogans = mMySloganManager.getMySlogans();
+
+        v(TAG, "Advertising %d slogans", mySlogans.size());
+
         Intent intent = new Intent(this, Communicator.class);
         intent.setAction(Communicator.INTENT_LOCAL_SLOGANS_CHANGED_ACTION);
-        if (mSlogans.size() > 0) {
-            intent.putExtra(Communicator.INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_1, mSlogans.get(0).mText);
+        if (mySlogans.size() > 0) {
+            intent.putExtra(Communicator.INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_1, mySlogans.get(0).getText());
         }
-        if (mSlogans.size() > 1) {
-            intent.putExtra(Communicator.INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_2, mSlogans.get(1).mText);
+        if (mySlogans.size() > 1) {
+            intent.putExtra(Communicator.INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_2, mySlogans.get(1).getText());
         }
-        if (mSlogans.size() > 2) {
-            intent.putExtra(Communicator.INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_3, mSlogans.get(2).mText);
+        if (mySlogans.size() > 2) {
+            intent.putExtra(Communicator.INTENT_LOCAL_SLOGANS_CHANGED_SLOGAN_3, mySlogans.get(2).getText());
         }
 
         startService(intent);
@@ -215,11 +193,12 @@ public class MainActivity extends AppCompatActivity {
                 }
             } else {
 //                Toast.makeText(this, "Location permissions already granted", Toast.LENGTH_SHORT).show();
-                advertiseSlogans();
+
+                mMySloganManager.init();
             }
             // TODO handle user declining
         } else {
-            advertiseSlogans();
+            mMySloganManager.init();
         }
     }
 }
