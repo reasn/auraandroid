@@ -2,33 +2,48 @@ package io.auraapp.auraandroid.common;
 
 import android.util.Log;
 
+import io.auraapp.auraandroid.BuildConfig;
+
 import static java.lang.String.format;
 
+/**
+ * @todo properly remove log calls in production to avoid superfluous method invocations
+ */
 public class FormattedLog {
 
     public static void v(String tag, String msg, Object... args) {
-        joinIterablesInPlace(args);
-        Log.v(tag, format(msg, args));
+        if (BuildConfig.DEBUG) {
+            joinIterablesInPlace(args);
+            Log.v(tag, format(msg, args));
+        }
     }
 
     public static void d(String tag, String msg, Object... args) {
-        joinIterablesInPlace(args);
-        Log.d(tag, format(msg, args));
+        if (BuildConfig.DEBUG) {
+            joinIterablesInPlace(args);
+            Log.d(tag, format(msg, args));
+        }
     }
 
     public static void i(String tag, String msg, Object... args) {
-        joinIterablesInPlace(args);
-        Log.i(tag, format(msg, args));
+        if (BuildConfig.DEBUG) {
+            joinIterablesInPlace(args);
+            Log.i(tag, format(msg, args));
+        }
     }
 
     public static void w(String tag, String msg, Object... args) {
-        joinIterablesInPlace(args);
-        Log.w(tag, format(msg, args));
+        if (BuildConfig.DEBUG) {
+            joinIterablesInPlace(args);
+            Log.w(tag, format(msg, args));
+        }
     }
 
     public static void e(String tag, String msg, Object... args) {
-        joinIterablesInPlace(args);
-        Log.e(tag, format(msg, args));
+        if (BuildConfig.DEBUG) {
+            joinIterablesInPlace(args);
+            Log.e(tag, format(msg, args));
+        }
     }
 
     private static void joinIterablesInPlace(Object[] args) {

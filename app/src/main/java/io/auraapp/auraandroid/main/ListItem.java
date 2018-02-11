@@ -2,9 +2,10 @@ package io.auraapp.auraandroid.main;
 
 import io.auraapp.auraandroid.common.Slogan;
 
-public class ListItem {
+class ListItem {
     private Slogan mSlogan;
     private boolean mMine;
+    private boolean mExpanded = false;
 
     ListItem(Slogan slogan, boolean mine) {
         mSlogan = slogan;
