@@ -21,7 +21,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.Serializable;
 import java.util.TreeSet;
 
 import io.auraapp.auranative22.Communicator.Communicator;
@@ -116,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+        unregisterReceiver(mMessageReceiver);
         super.onPause();
     }
 
@@ -129,8 +128,7 @@ public class MainActivity extends AppCompatActivity {
 
         // TODO tell communicator to send all slogans over
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter(Communicator.INTENT_PEERS_CHANGED_ACTION));
-
+        registerReceiver(mMessageReceiver, new IntentFilter(Communicator.INTENT_PEERS_CHANGED_ACTION));
         d(TAG, "Registered receiver for %s intents", INTENT_PEERS_CHANGED_ACTION);
 
         super.onResume();
@@ -142,14 +140,14 @@ public class MainActivity extends AppCompatActivity {
         v(TAG, "Advertising %d slogans", slogans.size());
 
         Intent intent = new Intent(this, Communicator.class);
-        intent.setAction(Communicator.INTENT_LOCAL_MY_SLOGANS_CHANGED_ACTION);
+        intent.setAction(Communicator.INTENT_MY_SLOGANS_CHANGED_ACTION);
 
         String[] mySloganStrings = new String[slogans.size()];
         int index = 0;
         for (Slogan slogan : slogans) {
             mySloganStrings[index++] = slogan.getText();
         }
-        intent.putExtra(Communicator.INTENT_LOCAL_MY_SLOGANS_CHANGED_SLOGANS, mySloganStrings);
+        intent.putExtra(Communicator.INTENT_MY_SLOGANS_CHANGED_SLOGANS, mySloganStrings);
         startService(intent);
     }
 

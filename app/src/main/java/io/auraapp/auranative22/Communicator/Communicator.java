@@ -14,20 +14,23 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import java.io.Serializable;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.UUID;
 
 import io.auraapp.auranative22.MainActivity;
 import io.auraapp.auranative22.R;
 
 import static io.auraapp.auranative22.FormattedLog.d;
-import static io.auraapp.auranative22.FormattedLog.e;
+import static io.auraapp.auranative22.FormattedLog.v;
 import static io.auraapp.auranative22.FormattedLog.w;
 
+/**
+ * Runs in a separate process
+ * Thx to https://medium.com/@rotxed/going-multiprocess-on-android-52975ed8863c
+ */
 public class Communicator extends Service {
 
-    public static final String INTENT_LOCAL_MY_SLOGANS_CHANGED_ACTION = "io.aurapp.aura.localSlogansChanged";
-    public static final String INTENT_LOCAL_MY_SLOGANS_CHANGED_SLOGANS = "io.auraapp.aura.mySlogans";
+    public static final String INTENT_MY_SLOGANS_CHANGED_ACTION = "io.aurapp.aura.mySlogansChanged";
+    public static final String INTENT_MY_SLOGANS_CHANGED_SLOGANS = "io.auraapp.aura.mySlogans";
 
     public static final String INTENT_PEERS_CHANGED_ACTION = "io.auraapp.aura.peersUpdated";
     public static final String INTENT_PEERS_CHANGED_PEERS = "io.auraapp.aura.peers";
@@ -42,29 +45,34 @@ public class Communicator extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        if (intent == null || !INTENT_LOCAL_MY_SLOGANS_CHANGED_ACTION.equals(intent.getAction())) {
-            w(TAG, "Received unknown intent, intent: %s", intent);
-            return START_STICKY;
-        }
-
         if (!mRunning) {
             mRunning = true;
-//            v(TAG, "Spawning thread to start advertising and scanning");
-            // TODO are there memory leaks / risks to this naive implementation?
-//            new Thread() {
-//                @Override
-//                public void run() {
-//                    Looper.prepare();
-            Communicator.this.start();
-//                }
-//            }.start();
+
+            Intent notificationIntent = new Intent(this, MainActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+
+            final Notification notification = new Notification.Builder(this)
+                    .setContentTitle("ContentTitle")
+                    .setContentText("ContentTExt")
+                    .setContentIntent(pendingIntent)
+                    .setTicker("🍭ticker")
+                    .build();
+
+            startForeground(FOREGROUND_ID, notification);
+
+            start();
         }
-        // don't put this into !mRunning clause
         handleIntent(intent);
         return START_STICKY;
     }
 
+
     private void handleIntent(Intent intent) {
+
+        if (intent == null || !INTENT_MY_SLOGANS_CHANGED_ACTION.equals(intent.getAction())) {
+            w(TAG, "Received unknown intent, intent: %s", intent);
+            return;
+        }
 
         Bundle extras = intent.getExtras();
 
@@ -74,7 +82,7 @@ public class Communicator extends Service {
         }
 
         @SuppressWarnings("unchecked")
-        String[] mySlogans = extras.getStringArray(INTENT_LOCAL_MY_SLOGANS_CHANGED_SLOGANS);
+        String[] mySlogans = extras.getStringArray(INTENT_MY_SLOGANS_CHANGED_SLOGANS);
         if (mySlogans == null) {
             w(TAG, "No slogans retrieved from intent");
             return;
@@ -86,18 +94,7 @@ public class Communicator extends Service {
 
     private void start() {
 
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-
-        final Notification notification = new Notification.Builder(this)
-                .setContentTitle("ContentTitle")
-                .setContentText("ContentTExt")
-                .setContentIntent(pendingIntent)
-                .setTicker("🍭ticker")
-                .build();
-
-        startForeground(FOREGROUND_ID, notification);
-
+        d(TAG, "Starting communicator");
         UUID serviceUuid = UUID.fromString(getString(R.string.ble_uuid_service));
         UUID slogan1Uuid = UUID.fromString(getString(R.string.ble_uuid_slogan_1));
         UUID slogan2Uuid = UUID.fromString(getString(R.string.ble_uuid_slogan_2));
@@ -111,7 +108,6 @@ public class Communicator extends Service {
                 slogan3Uuid,
                 this
         );
-        final Context context = this;
         mScanner = new Scanner(
                 serviceUuid,
                 slogan1Uuid,
@@ -124,23 +120,15 @@ public class Communicator extends Service {
                     }
                     Intent intent = new Intent(INTENT_PEERS_CHANGED_ACTION);
                     intent.putExtra(INTENT_PEERS_CHANGED_PEERS, (Serializable) peers);
-
-//                        // The argument to toArray is required, otherwise Object[] is serialized resulting in broken payloads
-//                        intent.putExtra(INTENT_PEERS_CHANGED_SLOGANS_GONE, gone.toArray(new String[found.size()]));
-
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                    sendBroadcast(intent);
 
                     d(TAG, "Sent intent with %d peers, intent: %s", peers.size(), intent.getAction());
-
                 }
         );
 
-        d(TAG, "Starting communicator");
-        new Handler().postDelayed(() -> {
-            mScanner.start();
-            mAdvertiser.start();
-            d(TAG, "Communicator started");
-        }, 100);
+        mScanner.start();
+        mAdvertiser.start();
+        d(TAG, "Communicator started");
     }
 
     @Override

@@ -12,6 +12,7 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
+import android.os.DeadObjectException;
 import android.os.Handler;
 import android.os.ParcelUuid;
 
@@ -258,14 +259,17 @@ class Scanner {
                 }
 
                 d(TAG, "All slogans fresh, should disconnect, address: %s", address);
-//                w(TAG, "slogan1 %s", device.slogan1);
-//                w(TAG, "slogan2 %s", device.slogan2);
-//                w(TAG, "slogan3 %s", device.slogan3);
+                d(TAG, "slogan1: %s, device: %s", device.slogan1, address);
+                d(TAG, "slogan2: %s, device: %s", device.slogan2, address);
+                d(TAG, "slogan3: %s, device: %s", device.slogan3, address);
                 device.lastFullRetrievalTimestamp = now;
                 device.stats.mSuccessfulRetrievals++;
                 device.shouldDisconnect = true;
-
             } catch (Exception e) {
+                if (e instanceof DeadObjectException) {
+                    w(TAG, "Thread seems to have been discarded of, caught a DeadObjectException");
+                    return;
+                }
                 e(TAG, "Unhandled exception, device: %s", device.toLogString());
                 throw e;
             }
