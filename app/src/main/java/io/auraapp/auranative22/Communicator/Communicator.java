@@ -4,13 +4,10 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothManager;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -20,7 +17,6 @@ import io.auraapp.auranative22.MainActivity;
 import io.auraapp.auranative22.R;
 
 import static io.auraapp.auranative22.FormattedLog.d;
-import static io.auraapp.auranative22.FormattedLog.v;
 import static io.auraapp.auranative22.FormattedLog.w;
 
 /**
@@ -37,7 +33,7 @@ public class Communicator extends Service {
 
     private final static String TAG = "@aura/ble/communicator";
 
-    public static final int FOREGROUND_ID = 1338;
+    public static final int FOREGROUND_NOTIFICATION_ID = 1338;
     private Advertiser mAdvertiser;
     private Scanner mScanner;
     private boolean mRunning = false;
@@ -47,25 +43,38 @@ public class Communicator extends Service {
 
         if (!mRunning) {
             mRunning = true;
-
-            Intent notificationIntent = new Intent(this, MainActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-
-            final Notification notification = new Notification.Builder(this)
-                    .setContentTitle("ContentTitle")
-                    .setContentText("ContentTExt")
-                    .setContentIntent(pendingIntent)
-                    .setTicker("🍭ticker")
-                    .build();
-
-            startForeground(FOREGROUND_ID, notification);
-
-            start();
+            makeForegroundService();
+            startCommunicator();
         }
         handleIntent(intent);
         return START_STICKY;
     }
 
+    /**
+     * Thanks to https://gist.github.com/kristopherjohnson/6211176
+     */
+    private void makeForegroundService() {
+
+        Intent showActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+        showActivityIntent.setAction(Intent.ACTION_MAIN);
+        showActivityIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        showActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        PendingIntent contentIntent = PendingIntent.getActivity(
+                getApplicationContext(),
+                0,
+                showActivityIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Notification notification = new Notification.Builder(getApplicationContext())
+                .setContentTitle("\uD83D\uDD25 Aura")
+                .setContentText("You're Aura is visible")
+                .setTicker("\uD83D\uDD25 Your Aura is on")
+                .setSmallIcon(android.R.drawable.ic_menu_compass)
+                .setContentIntent(contentIntent)
+                .build();
+        startForeground(FOREGROUND_NOTIFICATION_ID, notification);
+    }
 
     private void handleIntent(Intent intent) {
 
@@ -92,7 +101,7 @@ public class Communicator extends Service {
         mAdvertiser.setSlogan3(mySlogans.length > 2 ? mySlogans[2] : null);
     }
 
-    private void start() {
+    private void startCommunicator() {
 
         d(TAG, "Starting communicator");
         UUID serviceUuid = UUID.fromString(getString(R.string.ble_uuid_service));
