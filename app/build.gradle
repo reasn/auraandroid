@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 26
     defaultConfig {
-        applicationId "io.auraapp.auranative22"
+        applicationId "io.auraapp.auraandroid"
         minSdkVersion 22
         targetSdkVersion 26
         versionCode 1
@@ -17,8 +17,8 @@ android {
         }
     }
     compileOptions {
-        targetCompatibility JavaVersion.VERSION_1_8
         sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 

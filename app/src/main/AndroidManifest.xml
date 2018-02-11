@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="io.auraapp.auranative22">
+    package="io.auraapp.auraandroid">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -21,7 +21,6 @@
             </intent-filter>
         </activity>
         <service android:name=".Communicator.Communicator"  android:process=":communicator" />
-
     </application>
 
 </manifest>
