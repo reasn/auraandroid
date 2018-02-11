@@ -1,17 +1,12 @@
 package io.auraapp.auraandroid;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -24,6 +19,7 @@ import java.util.TreeSet;
 
 import io.auraapp.auraandroid.Communicator.Communicator;
 import io.auraapp.auraandroid.Communicator.Slogan;
+import io.auraapp.auraandroid.common.PermissionHelper;
 
 import static io.auraapp.auraandroid.Communicator.Communicator.INTENT_PEERS_CHANGED_ACTION;
 import static io.auraapp.auraandroid.FormattedLog.d;
@@ -109,17 +105,32 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        checkPermissions();
+        mMySloganManager.init();
     }
 
     @Override
     protected void onPause() {
-        unregisterReceiver(mMessageReceiver);
+        if (mMessageReceiver != null) {
+            unregisterReceiver(mMessageReceiver);
+        }
         super.onPause();
+    }
+
+    private void showPermissionMissingActivity() {
+
+        Intent intent = new Intent(this, PermissionMissingActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        startActivity(intent);
     }
 
     @Override
     protected void onResume() {
+        super.onResume();
+
+        if (!PermissionHelper.granted(this)) {
+            showPermissionMissingActivity();
+            return;
+        }
 
         if (mMessageReceiver == null) {
             mMessageReceiver = new PeerSloganUpdateReceiver(mPeerSlogans, mListAdapter);
@@ -129,8 +140,6 @@ public class MainActivity extends AppCompatActivity {
 
         registerReceiver(mMessageReceiver, new IntentFilter(Communicator.INTENT_PEERS_CHANGED_ACTION));
         d(TAG, "Registered receiver for %s intents", INTENT_PEERS_CHANGED_ACTION);
-
-        super.onResume();
     }
 
     private void advertiseSlogans() {
@@ -148,26 +157,5 @@ public class MainActivity extends AppCompatActivity {
         }
         intent.putExtra(Communicator.INTENT_MY_SLOGANS_CHANGED_SLOGANS, mySloganStrings);
         startService(intent);
-    }
-
-    private void checkPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-            if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-                    Toast.makeText(this, "The permission to get BLE location data is required", Toast.LENGTH_SHORT).show();
-                } else {
-                    requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-
-                }
-            } else {
-//                Toast.makeText(this, "Location permissions already granted", Toast.LENGTH_SHORT).show();
-
-                mMySloganManager.init();
-            }
-            // TODO handle user declining
-        } else {
-            mMySloganManager.init();
-        }
     }
 }

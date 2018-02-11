@@ -6,6 +6,7 @@ import android.app.Service;
 import android.bluetooth.BluetoothManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
@@ -14,7 +15,9 @@ import java.util.Set;
 import java.util.UUID;
 
 import io.auraapp.auraandroid.MainActivity;
+import io.auraapp.auraandroid.PermissionMissingActivity;
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.PermissionHelper;
 
 import static io.auraapp.auraandroid.FormattedLog.d;
 import static io.auraapp.auraandroid.FormattedLog.w;
@@ -37,25 +40,53 @@ public class Communicator extends Service {
     private Advertiser mAdvertiser;
     private Scanner mScanner;
     private boolean mRunning = false;
+    private Handler mHandler;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         if (!mRunning) {
             mRunning = true;
-            makeForegroundService();
-            startCommunicator();
+
+            mHandler = new Handler();
+            if (!PermissionHelper.granted(this)) {
+                makeForegroundService(false);
+            }
+            initialize();
+
+            awaitPermissions();
         }
         handleIntent(intent);
         return START_STICKY;
     }
 
+    private void awaitPermissions() {
+        if (PermissionHelper.granted(this)) {
+            makeForegroundService(true);
+            mScanner.start();
+            mAdvertiser.start();
+            return;
+        }
+        mHandler.postDelayed(this::awaitPermissions, 500);
+    }
+
     /**
      * Thanks to https://gist.github.com/kristopherjohnson/6211176
      */
-    private void makeForegroundService() {
+    private void makeForegroundService(boolean permissionsGranted) {
 
-        Intent showActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+        Class activity = permissionsGranted
+                ? MainActivity.class
+                : PermissionMissingActivity.class;
+
+        String title = permissionsGranted
+                ? "🔮 Your Aura is on"
+                : "🔮 Your Aura is off";
+        String text = permissionsGranted
+                ? null
+                : "Click to turn it on";
+
+        Intent showActivityIntent = new Intent(getApplicationContext(), activity);
         showActivityIntent.setAction(Intent.ACTION_MAIN);
         showActivityIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         showActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -66,13 +97,16 @@ public class Communicator extends Service {
                 showActivityIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Notification notification = new Notification.Builder(getApplicationContext())
-                .setContentTitle("🔮 Your Aura is on")
-//                .setContentText("You're Aura is visible")
+        Notification.Builder builder = new Notification.Builder(getApplicationContext())
+                .setContentTitle(title)
                 .setSmallIcon(android.R.drawable.ic_menu_compass)
-                .setContentIntent(contentIntent)
-                .build();
-        startForeground(FOREGROUND_NOTIFICATION_ID, notification);
+                .setTicker(title)
+                .setContentIntent(contentIntent);
+
+        if (text != null) {
+            builder.setContentText(text);
+        }
+        startForeground(FOREGROUND_NOTIFICATION_ID, builder.build());
     }
 
     private void handleIntent(Intent intent) {
@@ -100,7 +134,7 @@ public class Communicator extends Service {
         mAdvertiser.setSlogan3(mySlogans.length > 2 ? mySlogans[2] : null);
     }
 
-    private void startCommunicator() {
+    private void initialize() {
 
         d(TAG, "Starting communicator");
         UUID serviceUuid = UUID.fromString(getString(R.string.ble_uuid_service));
@@ -133,10 +167,6 @@ public class Communicator extends Service {
                     d(TAG, "Sent intent with %d peers, intent: %s", peers.size(), intent.getAction());
                 }
         );
-
-        mScanner.start();
-        mAdvertiser.start();
-        d(TAG, "Communicator started");
     }
 
     @Override
