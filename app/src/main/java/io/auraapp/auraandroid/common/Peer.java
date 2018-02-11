@@ -1,4 +1,4 @@
-package io.auraapp.auraandroid.Communicator;
+package io.auraapp.auraandroid.common;
 
 import java.io.Serializable;
 import java.util.HashSet;

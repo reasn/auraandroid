@@ -22,11 +22,11 @@ import java.util.UUID;
 import static android.bluetooth.BluetoothGattCharacteristic.PERMISSION_READ;
 import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_NOTIFY;
 import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_READ;
-import static io.auraapp.auraandroid.FormattedLog.d;
-import static io.auraapp.auraandroid.FormattedLog.e;
-import static io.auraapp.auraandroid.FormattedLog.i;
-import static io.auraapp.auraandroid.FormattedLog.v;
-import static io.auraapp.auraandroid.FormattedLog.w;
+import static io.auraapp.auraandroid.common.FormattedLog.d;
+import static io.auraapp.auraandroid.common.FormattedLog.e;
+import static io.auraapp.auraandroid.common.FormattedLog.i;
+import static io.auraapp.auraandroid.common.FormattedLog.v;
+import static io.auraapp.auraandroid.common.FormattedLog.w;
 
 class Advertiser {
 

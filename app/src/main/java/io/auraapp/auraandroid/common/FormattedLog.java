@@ -1,4 +1,4 @@
-package io.auraapp.auraandroid;
+package io.auraapp.auraandroid.common;
 
 import android.util.Log;
 

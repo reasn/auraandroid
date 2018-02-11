@@ -1,4 +1,4 @@
-package io.auraapp.auraandroid;
+package io.auraapp.auraandroid.main;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -7,7 +7,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import io.auraapp.auraandroid.Communicator.Slogan;
+import io.auraapp.auraandroid.common.Slogan;
+import io.auraapp.auraandroid.common.SloganComparator;
 
 import static android.content.Context.MODE_PRIVATE;
 

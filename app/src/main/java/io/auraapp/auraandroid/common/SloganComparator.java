@@ -1,9 +1,7 @@
-package io.auraapp.auraandroid;
+package io.auraapp.auraandroid.common;
 
 import java.io.Serializable;
 import java.util.Comparator;
-
-import io.auraapp.auraandroid.Communicator.Slogan;
 
 public class SloganComparator implements Comparator<Slogan>, Serializable {
     @Override

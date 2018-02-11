@@ -1,4 +1,4 @@
-package io.auraapp.auraandroid.Communicator;
+package io.auraapp.auraandroid.common;
 
 import android.support.annotation.NonNull;
 

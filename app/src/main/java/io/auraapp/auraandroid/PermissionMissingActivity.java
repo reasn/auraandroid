@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 
 import io.auraapp.auraandroid.common.PermissionHelper;
+import io.auraapp.auraandroid.main.MainActivity;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 

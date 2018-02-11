@@ -9,12 +9,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import io.auraapp.auraandroid.Communicator.Peer;
-import io.auraapp.auraandroid.Communicator.Slogan;
+import io.auraapp.auraandroid.common.Peer;
+import io.auraapp.auraandroid.common.Slogan;
+import io.auraapp.auraandroid.main.SloganListAdapter;
 
 import static io.auraapp.auraandroid.Communicator.Communicator.INTENT_PEERS_CHANGED_PEERS;
-import static io.auraapp.auraandroid.FormattedLog.v;
-import static io.auraapp.auraandroid.FormattedLog.w;
+import static io.auraapp.auraandroid.common.FormattedLog.v;
+import static io.auraapp.auraandroid.common.FormattedLog.w;
 
 public class PeerSloganUpdateReceiver extends BroadcastReceiver {
 

@@ -24,13 +24,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import io.auraapp.auraandroid.common.Peer;
+import io.auraapp.auraandroid.common.Slogan;
+
 import static android.bluetooth.BluetoothProfile.STATE_CONNECTED;
 import static android.bluetooth.le.ScanSettings.SCAN_MODE_BALANCED;
-import static io.auraapp.auraandroid.FormattedLog.d;
-import static io.auraapp.auraandroid.FormattedLog.e;
-import static io.auraapp.auraandroid.FormattedLog.i;
-import static io.auraapp.auraandroid.FormattedLog.v;
-import static io.auraapp.auraandroid.FormattedLog.w;
+import static io.auraapp.auraandroid.common.FormattedLog.d;
+import static io.auraapp.auraandroid.common.FormattedLog.e;
+import static io.auraapp.auraandroid.common.FormattedLog.i;
+import static io.auraapp.auraandroid.common.FormattedLog.v;
+import static io.auraapp.auraandroid.common.FormattedLog.w;
 
 class Scanner {
 
@@ -89,7 +92,7 @@ class Scanner {
     }
 
     void stop() {
-        w(TAG, "onDestroy called, destroying");
+        w(TAG, "onStop called, destroying");
         mInactive = true;
         for (String address : devices.keySet()) {
 
@@ -101,7 +104,9 @@ class Scanner {
             device.bt.device = null;
             device.bt.service = null;
         }
-        devices.clear();
+        mHandler.post(() -> {
+            devices.clear();
+        });
         mHandler = null;
     }
 
@@ -203,8 +208,10 @@ class Scanner {
                     } else if (now - device.lastSeenTimestamp > PEER_FORGET_AFTER) {
                         v(TAG, "Forgetting device, device: %s", address);
                         device.bt.device = null;
-                        devices.remove(address);
-                        propagateChanges();
+                        mHandler.post(() -> {
+                            devices.remove(address);
+                            propagateChanges();
+                        });
 
                     } else if (device.lastFullRetrievalTimestamp == null || now - device.lastFullRetrievalTimestamp > PEER_REFRESH_AFTER) {
                         if (device.lastFullRetrievalTimestamp == null) {
@@ -469,16 +476,18 @@ class Scanner {
 
     private void handleResults(ScanResult[] results) {
         for (ScanResult result : results) {
-
             String address = result.getDevice().getAddress();
             if (devices.containsKey(address)) {
 //                v(TAG, "Nothing to do, device already known, device: %s", address);
+                devices.get(address).lastSeenTimestamp = System.currentTimeMillis();
             } else {
                 i(TAG, "Device %s is yet unknown", address);
-                devices.put(address, Device.create(result.getDevice()));
+                mHandler.post(() -> {
+                    Device device = Device.create(result.getDevice());
+                    device.lastSeenTimestamp = System.currentTimeMillis();
+                    devices.put(address, device);
+                });
             }
-            devices.get(address).lastSeenTimestamp = System.currentTimeMillis();
         }
-        returnControl();
     }
 }

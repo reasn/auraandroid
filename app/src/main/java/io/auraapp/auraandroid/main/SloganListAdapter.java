@@ -1,4 +1,4 @@
-package io.auraapp.auraandroid;
+package io.auraapp.auraandroid.main;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -12,9 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
-import io.auraapp.auraandroid.Communicator.Slogan;
+import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.Slogan;
 
-import static io.auraapp.auraandroid.FormattedLog.d;
+import static io.auraapp.auraandroid.common.FormattedLog.d;
 
 public class SloganListAdapter extends ArrayAdapter<ListItem> {
     private static final String TAG = "@aura/" + SloganListAdapter.class.getSimpleName();

@@ -1,6 +1,6 @@
-package io.auraapp.auraandroid;
+package io.auraapp.auraandroid.main;
 
-import io.auraapp.auraandroid.Communicator.Slogan;
+import io.auraapp.auraandroid.common.Slogan;
 
 public class ListItem {
     private Slogan mSlogan;

@@ -4,6 +4,8 @@ import android.bluetooth.BluetoothDevice;
 
 import java.util.Locale;
 
+import io.auraapp.auraandroid.common.PeerStatsSet;
+
 import static java.lang.String.format;
 
 class Device {

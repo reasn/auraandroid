@@ -14,13 +14,14 @@ import java.io.Serializable;
 import java.util.Set;
 import java.util.UUID;
 
-import io.auraapp.auraandroid.MainActivity;
 import io.auraapp.auraandroid.PermissionMissingActivity;
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.PermissionHelper;
+import io.auraapp.auraandroid.main.MainActivity;
 
-import static io.auraapp.auraandroid.FormattedLog.d;
-import static io.auraapp.auraandroid.FormattedLog.w;
+import static io.auraapp.auraandroid.common.FormattedLog.d;
+import static io.auraapp.auraandroid.common.FormattedLog.w;
 
 /**
  * Runs in a separate process

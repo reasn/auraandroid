@@ -1,15 +1,15 @@
-package io.auraapp.auraandroid.Communicator;
+package io.auraapp.auraandroid.common;
 
 import java.util.Locale;
 
 import static java.lang.String.format;
 
-class PeerStatsSet {
+public class PeerStatsSet {
 
-    int mSuccessfulRetrievals = 0;
-    int mErrors = 0;
+    public int mSuccessfulRetrievals = 0;
+    public int mErrors = 0;
 
-    String toLogString() {
+    public String toLogString() {
         return format(Locale.ENGLISH, "mErrors: %d , mSuccessfulRetrievals: %d", mErrors, mSuccessfulRetrievals);
     }
 }

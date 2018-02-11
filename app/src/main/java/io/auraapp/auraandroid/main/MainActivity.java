@@ -1,4 +1,4 @@
-package io.auraapp.auraandroid;
+package io.auraapp.auraandroid.main;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -18,12 +18,16 @@ import android.widget.Toast;
 import java.util.TreeSet;
 
 import io.auraapp.auraandroid.Communicator.Communicator;
-import io.auraapp.auraandroid.Communicator.Slogan;
+import io.auraapp.auraandroid.PeerSloganUpdateReceiver;
+import io.auraapp.auraandroid.PermissionMissingActivity;
+import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.PermissionHelper;
+import io.auraapp.auraandroid.common.Slogan;
+import io.auraapp.auraandroid.common.SloganComparator;
 
 import static io.auraapp.auraandroid.Communicator.Communicator.INTENT_PEERS_CHANGED_ACTION;
-import static io.auraapp.auraandroid.FormattedLog.d;
-import static io.auraapp.auraandroid.FormattedLog.v;
+import static io.auraapp.auraandroid.common.FormattedLog.d;
+import static io.auraapp.auraandroid.common.FormattedLog.v;
 
 public class MainActivity extends AppCompatActivity {
 
