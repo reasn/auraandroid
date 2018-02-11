@@ -67,9 +67,8 @@ public class Communicator extends Service {
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification notification = new Notification.Builder(getApplicationContext())
-                .setContentTitle("🔮 Aura")
-                .setContentText("You're Aura is visible")
-                .setTicker("🔮 Your Aura is on")
+                .setContentTitle("🔮 Your Aura is on")
+//                .setContentText("You're Aura is visible")
                 .setSmallIcon(android.R.drawable.ic_menu_compass)
                 .setContentIntent(contentIntent)
                 .build();
