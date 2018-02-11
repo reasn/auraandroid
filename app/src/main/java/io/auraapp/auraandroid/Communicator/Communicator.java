@@ -80,8 +80,8 @@ public class Communicator extends Service {
                 : PermissionMissingActivity.class;
 
         String title = permissionsGranted
-                ? "🔮 Your Aura is on"
-                : "🔮 Your Aura is off";
+                ? "🔥 Your Aura is on"
+                : "🔥 Your Aura is off";
         String text = permissionsGranted
                 ? null
                 : "Click to turn it on";
