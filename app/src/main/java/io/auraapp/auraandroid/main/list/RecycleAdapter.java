@@ -26,11 +26,6 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     private final OnDropHandler mOnDropHandler;
 
     @FunctionalInterface
-    public interface OnClickHandler {
-        void onClick(ListItem item);
-    }
-
-    @FunctionalInterface
     public interface OnAdoptHandler {
         void onAdopt(Slogan slogan);
     }
@@ -147,8 +142,8 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
                         : TYPE_MY_COLLAPSED)
                 : (
                 item.mExpanded
-                        ? TYPE_MY_EXPANDED
-                        : TYPE_MY_COLLAPSED);
+                        ? TYPE_PEER_EXPANDED
+                        : TYPE_PEER_COLLAPSED);
     }
 
     @Override

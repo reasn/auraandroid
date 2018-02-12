@@ -1,19 +1,31 @@
 package io.auraapp.auraandroid.main.list;
 
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-public abstract class ItemViewHolder extends RecyclerView.ViewHolder {
-    protected ListItem mItem;
+import java.util.Random;
+
+abstract class ItemViewHolder extends RecyclerView.ViewHolder {
+    private final View mItemView;
+    ListItem mItem;
 
     ItemViewHolder(View itemView) {
         super(itemView);
+        mItemView = itemView;
     }
 
     abstract void bind(ListItem item);
 
-    public final void setItem(ListItem listItem) {
+    final void setItem(ListItem listItem) {
         mItem = listItem;
         bind(listItem);
+        Random rnd = new Random();
+        int color = Color.argb(
+                255,
+                rnd.nextInt(100) + 156,
+                rnd.nextInt(100) + 156,
+                rnd.nextInt(100) + 156);
+        mItemView.setBackgroundColor(color);
     }
 }

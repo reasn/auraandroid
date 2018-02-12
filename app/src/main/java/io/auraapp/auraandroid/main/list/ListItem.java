@@ -2,7 +2,7 @@ package io.auraapp.auraandroid.main.list;
 
 import io.auraapp.auraandroid.common.Slogan;
 
-public class ListItem {
+class ListItem {
     private Slogan mSlogan;
     private boolean mMine;
     boolean mExpanded = false;
@@ -12,7 +12,7 @@ public class ListItem {
         mMine = mine;
     }
 
-    public Slogan getSlogan() {
+    Slogan getSlogan() {
         return mSlogan;
     }
 

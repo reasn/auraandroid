@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -46,8 +45,7 @@ public class PeerSloganUpdateReceiver extends BroadcastReceiver {
             return;
         }
 
-
-        final Set<Slogan> uniqueSlogans = new HashSet<>();
+        final Set<Slogan> uniqueSlogans = new TreeSet<>();
         for (Peer peer : peers) {
             uniqueSlogans.addAll(peer.mSlogans);
         }
