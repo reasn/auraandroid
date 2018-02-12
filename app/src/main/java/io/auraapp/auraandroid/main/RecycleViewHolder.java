@@ -5,6 +5,8 @@ import android.view.View;
 import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.main.list.ListItem;
+import io.auraapp.auraandroid.main.list.RecycleAdapter;
 
 class RecycleViewHolder extends RecyclerView.ViewHolder {
     final TextView mSloganTextView;

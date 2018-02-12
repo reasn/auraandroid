@@ -23,6 +23,7 @@ import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.PermissionHelper;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.common.SloganComparator;
+import io.auraapp.auraandroid.main.list.RecycleAdapter;
 
 import static io.auraapp.auraandroid.Communicator.Communicator.INTENT_PEERS_CHANGED_ACTION;
 import static io.auraapp.auraandroid.common.FormattedLog.d;
@@ -84,29 +85,27 @@ public class MainActivity extends AppCompatActivity {
                 this,
                 mMySloganManager.getMySlogans(),
                 mPeerSlogans,
-                (ListItem item) -> {
-
-                    if (item == null) {
-                        return;
-                    }
-                    if (!item.isMine()) {
-
-                        if (mMySloganManager.spaceAvailable()) {
-                            mMySloganManager.adopt(item.getSlogan());
-                        } else {
-                            // Replace slogan
-                            // TODO implement
-                        }
+                (Slogan slogan) -> {
+                    if (mMySloganManager.spaceAvailable()) {
+                        mMySloganManager.adopt(slogan);
                     } else {
-                        new AlertDialog.Builder(activity)
-                                .setPositiveButton("Delete", (DialogInterface $, int $$) -> {
-                                    mMySloganManager.dropSlogan(item.getSlogan());
-                                })
-                                .setNegativeButton("Cancel", (DialogInterface $, int $$) -> {
-                                })
-                                .create()
-                                .show();
+                        // Replace slogan
+                        // TODO implement
                     }
+                },
+                (Slogan slogan) -> {
+                    // TODO edit
+                },
+                (Slogan slogan) -> {
+                    new AlertDialog.Builder(activity)
+                            .setPositiveButton("Delete", (DialogInterface $, int $$) -> {
+                                mMySloganManager.dropSlogan(slogan);
+                            })
+                            .setNegativeButton("Cancel", (DialogInterface $, int $$) -> {
+                            })
+                            .create()
+                            .show();
+
                 }
         );
 

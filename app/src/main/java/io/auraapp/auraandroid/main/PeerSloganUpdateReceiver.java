@@ -11,6 +11,7 @@ import java.util.TreeSet;
 
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.Slogan;
+import io.auraapp.auraandroid.main.list.RecycleAdapter;
 
 import static io.auraapp.auraandroid.Communicator.Communicator.INTENT_PEERS_CHANGED_PEERS;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
