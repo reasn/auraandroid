@@ -1,14 +1,19 @@
 package io.auraapp.auraandroid.Communicator;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothManager;
+import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -37,7 +42,7 @@ public class Communicator extends Service {
 
     private final static String TAG = "@aura/ble/communicator";
 
-    public static final int FOREGROUND_NOTIFICATION_ID = 1338;
+    public static final int FOREGROUND_NOTIFICATION_ID = 1;
     private Advertiser mAdvertiser;
     private Scanner mScanner;
     private boolean mRunning = false;
@@ -93,13 +98,16 @@ public class Communicator extends Service {
         showActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         PendingIntent contentIntent = PendingIntent.getActivity(
-                getApplicationContext(),
+                this,
                 0,
                 showActivityIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Notification.Builder builder = new Notification.Builder(getApplicationContext())
-                .setContentTitle(title)
+        Notification.Builder builder = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                ? new Notification.Builder(this, createNotificationChannel())
+                : new Notification.Builder(this);
+
+        builder.setContentTitle(title)
                 .setSmallIcon(android.R.drawable.ic_menu_compass)
                 .setTicker(title)
                 .setContentIntent(contentIntent);
@@ -108,6 +116,23 @@ public class Communicator extends Service {
             builder.setContentText(text);
         }
         startForeground(FOREGROUND_NOTIFICATION_ID, builder.build());
+    }
+
+    /**
+     * Thanks to https://stackoverflow.com/questions/47531742/startforeground-fail-after-upgrade-to-android-8-1
+     */
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private String createNotificationChannel() {
+        NotificationChannel channel = new NotificationChannel("communicator_channel", "Aura", NotificationManager.IMPORTANCE_HIGH);
+        channel.setImportance(NotificationManager.IMPORTANCE_NONE);
+        channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+        channel.setShowBadge(false);
+        NotificationManager notificationManager = ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE));
+        if (notificationManager == null) {
+            throw new RuntimeException("Could not fetch NOTIFICATION_SERVICE");
+        }
+        notificationManager.createNotificationChannel(channel);
+        return channel.getId();
     }
 
     private void handleIntent(Intent intent) {
