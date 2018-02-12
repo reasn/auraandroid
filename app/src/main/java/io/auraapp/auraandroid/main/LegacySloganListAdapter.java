@@ -17,18 +17,18 @@ import io.auraapp.auraandroid.common.Slogan;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 
-public class SloganListAdapter extends ArrayAdapter<ListItem> {
-    private static final String TAG = "@aura/" + SloganListAdapter.class.getSimpleName();
+public class LegacySloganListAdapter extends ArrayAdapter<ListItem> {
+    private static final String TAG = "@aura/" + LegacySloganListAdapter.class.getSimpleName();
     private final TreeSet<Slogan> mMySlogans;
     private final TreeSet<Slogan> mPeerSlogans;
 
     private final List<ListItem> mItems;
 
-    static SloganListAdapter create(@NonNull Context context, TreeSet<Slogan> mySlogans, TreeSet<Slogan> peerSlogans) {
-        return new SloganListAdapter(context, new ArrayList<>(), mySlogans, peerSlogans);
+    static LegacySloganListAdapter create(@NonNull Context context, TreeSet<Slogan> mySlogans, TreeSet<Slogan> peerSlogans) {
+        return new LegacySloganListAdapter(context, new ArrayList<>(), mySlogans, peerSlogans);
     }
 
-    private SloganListAdapter(@NonNull Context context, List<ListItem> items, TreeSet<Slogan> mySlogans, TreeSet<Slogan> peerSlogans) {
+    private LegacySloganListAdapter(@NonNull Context context, List<ListItem> items, TreeSet<Slogan> mySlogans, TreeSet<Slogan> peerSlogans) {
         super(context, R.layout.list_item, items);
         mItems = items;
         mMySlogans = mySlogans;

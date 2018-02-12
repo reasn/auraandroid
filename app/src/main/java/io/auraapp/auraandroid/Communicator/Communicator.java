@@ -42,7 +42,7 @@ public class Communicator extends Service {
 
     private final static String TAG = "@aura/ble/communicator";
 
-    public static final int FOREGROUND_NOTIFICATION_ID = 1;
+    public static final int FOREGROUND_NOTIFICATION_ID = 1338;
     private Advertiser mAdvertiser;
     private Scanner mScanner;
     private boolean mRunning = false;
@@ -97,11 +97,7 @@ public class Communicator extends Service {
         showActivityIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         showActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        PendingIntent contentIntent = PendingIntent.getActivity(
-                this,
-                0,
-                showActivityIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, showActivityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification.Builder builder = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
                 ? new Notification.Builder(this, createNotificationChannel())

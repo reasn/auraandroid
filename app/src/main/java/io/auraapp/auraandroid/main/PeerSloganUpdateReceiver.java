@@ -1,4 +1,4 @@
-package io.auraapp.auraandroid;
+package io.auraapp.auraandroid.main;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -11,7 +11,6 @@ import java.util.TreeSet;
 
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.Slogan;
-import io.auraapp.auraandroid.main.SloganListAdapter;
 
 import static io.auraapp.auraandroid.Communicator.Communicator.INTENT_PEERS_CHANGED_PEERS;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
@@ -21,9 +20,9 @@ public class PeerSloganUpdateReceiver extends BroadcastReceiver {
 
     private static final String TAG = "@aura/peerSloganReceiver";
     private final TreeSet<Slogan> mPeerSlogans;
-    private final SloganListAdapter mAdapter;
+    private final RecycleAdapter mAdapter;
 
-    public PeerSloganUpdateReceiver(TreeSet<Slogan> peerSlogans, SloganListAdapter Adapter) {
+    public PeerSloganUpdateReceiver(TreeSet<Slogan> peerSlogans, RecycleAdapter Adapter) {
         mPeerSlogans = peerSlogans;
         mAdapter = Adapter;
     }
@@ -55,7 +54,7 @@ public class PeerSloganUpdateReceiver extends BroadcastReceiver {
         v(TAG, "Syncing %d previous slogans to %d slogans from %d peers", mPeerSlogans.size(), uniqueSlogans.size(), peers.size());
 
         if (mPeerSlogans.retainAll(uniqueSlogans) || mPeerSlogans.addAll(uniqueSlogans)) {
-            mAdapter.notifyDataSetChanged();
+            mAdapter.notifyDataSetChanged2();
         }
     }
 }

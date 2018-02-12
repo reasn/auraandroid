@@ -8,17 +8,16 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.TreeSet;
 
 import io.auraapp.auraandroid.Communicator.Communicator;
-import io.auraapp.auraandroid.PeerSloganUpdateReceiver;
 import io.auraapp.auraandroid.PermissionMissingActivity;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.PermissionHelper;
@@ -35,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver mMessageReceiver;
 
     final private TreeSet<Slogan> mPeerSlogans = new TreeSet<>(new SloganComparator());
-    private SloganListAdapter mListAdapter;
+    private RecycleAdapter mListAdapter;
     private MySloganManager mMySloganManager;
 
     @Override
@@ -49,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
                 () -> {
                     d(TAG, "My slogans changed");
 
-                    mListAdapter.notifyDataSetChanged();
+                    mListAdapter.notifyDataSetChanged2();
                     // TODO add argument or use added/removed to indicate whether dropped or adopted, update toast
                     Toast.makeText(getApplicationContext(), "Slogan changed ;) ", Toast.LENGTH_LONG).show();
                     advertiseSlogans();
@@ -60,8 +59,6 @@ public class MainActivity extends AppCompatActivity {
 
         final Activity activity = this;
 
-        // TODO make list expandable to show stats for slogans
-        ListView listView = findViewById(R.id.list_view);
         Button button = findViewById(R.id.add_slogan);
         button.setOnClickListener((View $$$) -> {
 
@@ -79,35 +76,44 @@ public class MainActivity extends AppCompatActivity {
                     .show();
         });
 
-        mListAdapter = SloganListAdapter.create(this, mMySloganManager.getMySlogans(), mPeerSlogans);
+        // TODO make list expandable to show stats for slogans
+        RecyclerView listView = findViewById(R.id.list_view);
+
+//        mListAdapter = LegacySloganListAdapter.create(this, mMySloganManager.getMySlogans(), mPeerSlogans);
+        mListAdapter = RecycleAdapter.create(
+                this,
+                mMySloganManager.getMySlogans(),
+                mPeerSlogans,
+                (ListItem item) -> {
+
+                    if (item == null) {
+                        return;
+                    }
+                    if (!item.isMine()) {
+
+                        if (mMySloganManager.spaceAvailable()) {
+                            mMySloganManager.adopt(item.getSlogan());
+                        } else {
+                            // Replace slogan
+                            // TODO implement
+                        }
+                    } else {
+                        new AlertDialog.Builder(activity)
+                                .setPositiveButton("Delete", (DialogInterface $, int $$) -> {
+                                    mMySloganManager.dropSlogan(item.getSlogan());
+                                })
+                                .setNegativeButton("Cancel", (DialogInterface $, int $$) -> {
+                                })
+                                .create()
+                                .show();
+                    }
+                }
+        );
 
         listView.setAdapter(mListAdapter);
 
-        listView.setOnItemClickListener((AdapterView<?> parent, View view, int position, long id) -> {
+        listView.setLayoutManager(new LinearLayoutManager(this));
 
-            ListItem item = mListAdapter.getItem(position);
-            if (item == null) {
-                return;
-            }
-            if (!item.isMine()) {
-
-                if (mMySloganManager.spaceAvailable()) {
-                    mMySloganManager.adopt(item.getSlogan());
-                } else {
-                    // Replace slogan
-                    // TODO implement
-                }
-            } else {
-                new AlertDialog.Builder(activity)
-                        .setPositiveButton("Delete", (DialogInterface $, int $$) -> {
-                            mMySloganManager.dropSlogan(item.getSlogan());
-                        })
-                        .setNegativeButton("Cancel", (DialogInterface $, int $$) -> {
-                        })
-                        .create()
-                        .show();
-            }
-        });
 
         mMySloganManager.init();
     }
