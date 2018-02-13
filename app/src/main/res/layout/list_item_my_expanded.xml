@@ -3,15 +3,15 @@
     android:id="@+id/slogan_row"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:padding="6dip"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="6dip">
 
     <TextView
         android:id="@+id/slogan_text"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:textSize="32sp" />
+        android:gravity="center"
+        android:textSize="26sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,18 +19,20 @@
         android:orientation="horizontal">
 
         <Button
+            style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/edit_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="edit" />
+            android:textSize="22sp" />
 
         <Button
+            style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/drop_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="drop" />
+            android:textSize="22sp" />
     </LinearLayout>
 
 </LinearLayout>

@@ -7,7 +7,9 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
 import io.auraapp.auraandroid.R;
@@ -95,6 +97,13 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     private final CollapseExpandHandler collapseExpandHandler = new CollapseExpandHandler() {
         @Override
         public void flip(ListItem item) {
+            for (int i = 0; i < mItems.size(); i++) {
+                ListItem candidate = mItems.get(i);
+                if (candidate.mExpanded && !candidate.equals(item)) {
+                    candidate.mExpanded = false;
+                    notifyItemChanged(i);
+                }
+            }
             item.mExpanded = !item.mExpanded;
             notifyItemChanged(mItems.indexOf(item));
         }

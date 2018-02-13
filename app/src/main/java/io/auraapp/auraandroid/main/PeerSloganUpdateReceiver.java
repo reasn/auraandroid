@@ -12,7 +12,7 @@ import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.main.list.RecycleAdapter;
 
-import static io.auraapp.auraandroid.Communicator.Communicator.INTENT_PEERS_CHANGED_PEERS;
+import static io.auraapp.auraandroid.Communicator.Communicator.INTENT_PEERS_UPDATE_PEERS_EXTRA;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 import static io.auraapp.auraandroid.common.FormattedLog.w;
 
@@ -38,7 +38,7 @@ public class PeerSloganUpdateReceiver extends BroadcastReceiver {
         }
 
         @SuppressWarnings("unchecked")
-        Set<Peer> peers = (Set<Peer>) extras.getSerializable(INTENT_PEERS_CHANGED_PEERS);
+        Set<Peer> peers = (Set<Peer>) extras.getSerializable(INTENT_PEERS_UPDATE_PEERS_EXTRA);
 
         if (peers == null) {
             w(TAG, "Peers payload is null, ignoring it, intent: %s", intent);

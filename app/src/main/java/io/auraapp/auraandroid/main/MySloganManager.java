@@ -16,9 +16,6 @@ class MySloganManager {
 
     private final Runnable mNotifyChangeCallback;
 
-    private static final String PREFS_BUCKET = "prefs";
-    private static final String PREFS_SLOGANS = "slogans";
-
     private final TreeSet<Slogan> mMySlogans = new TreeSet<>(new SloganComparator());
 
     private final Context mContext;
@@ -30,13 +27,11 @@ class MySloganManager {
 
     void init() {
 
-        SharedPreferences prefs = mContext.getSharedPreferences(PREFS_BUCKET, MODE_PRIVATE);
+        SharedPreferences prefs = mContext.getSharedPreferences(MainActivity.PREFS_BUCKET, MODE_PRIVATE);
         mMySlogans.clear();
-        for (String mySloganText : prefs.getStringSet(PREFS_SLOGANS, new HashSet<>())) {
+        for (String mySloganText : prefs.getStringSet(MainActivity.PREFS_SLOGANS, new HashSet<>())) {
             mMySlogans.add(Slogan.create(mySloganText));
         }
-// move invocation to activity
-        mNotifyChangeCallback.run();
     }
 
     TreeSet<Slogan> getMySlogans() {
@@ -68,12 +63,12 @@ class MySloganManager {
 
     private void persistSlogans() {
 
-        SharedPreferences.Editor editor = mContext.getSharedPreferences(PREFS_BUCKET, MODE_PRIVATE).edit();
+        SharedPreferences.Editor editor = mContext.getSharedPreferences(MainActivity.PREFS_BUCKET, MODE_PRIVATE).edit();
         Set<String> mySloganTexts = new HashSet<>();
         for (Slogan slogan : mMySlogans) {
             mySloganTexts.add(slogan.getText());
         }
-        editor.putStringSet(PREFS_SLOGANS, mySloganTexts);
+        editor.putStringSet(MainActivity.PREFS_SLOGANS, mySloganTexts);
 
         editor.apply();
     }

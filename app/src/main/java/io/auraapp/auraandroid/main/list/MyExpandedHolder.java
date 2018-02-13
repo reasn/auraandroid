@@ -1,6 +1,7 @@
 package io.auraapp.auraandroid.main.list;
 
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
@@ -21,10 +22,14 @@ class MyExpandedHolder extends ItemViewHolder {
         itemView.setOnClickListener((v) -> {
             collapseExpandHandler.flip(mItem);
         });
-        itemView.findViewById(R.id.edit_button).setOnClickListener((View $) -> {
+        Button editButton = itemView.findViewById(R.id.edit_button);
+        editButton.setText("📝");
+        editButton.setOnClickListener((View $) -> {
             onEditHandler.onEdit(mItem.getSlogan());
         });
-        itemView.findViewById(R.id.drop_button).setOnClickListener((View $) -> {
+        Button dropButton = itemView.findViewById(R.id.drop_button);
+        dropButton.setText("❌");
+        dropButton.setOnClickListener((View $) -> {
             onDropHandler.onDrop(mItem.getSlogan());
         });
     }

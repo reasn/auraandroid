@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/slogan_row"
     android:layout_width="match_parent"
-    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:layout_height="wrap_content"
+    android:gravity="fill_horizontal"
     android:orientation="vertical"
     android:padding="6dip">
 
@@ -10,8 +11,8 @@
         android:id="@+id/slogan_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:textSize="32sp" />
+        android:gravity="center"
+        android:textSize="26sp" />
 
 </LinearLayout>
 

@@ -34,11 +34,25 @@ import static io.auraapp.auraandroid.common.FormattedLog.w;
  */
 public class Communicator extends Service {
 
+    // incoming
+    public static final String INTENT_ENABLE_ACTION = "io.aurapp.aura.enableCommunicator";
+    public static final String INTENT_DISABLE_ACTION = "io.aurapp.aura.disableCommunicator";
+    public static final String INTENT_REQUEST_PEERS_ACTION = "io.aurapp.aura.requestPeers";
     public static final String INTENT_MY_SLOGANS_CHANGED_ACTION = "io.aurapp.aura.mySlogansChanged";
-    public static final String INTENT_MY_SLOGANS_CHANGED_SLOGANS = "io.auraapp.aura.mySlogans";
+    public static final String INTENT_MY_SLOGANS_CHANGED_SLOGANS_EXTRA = "io.auraapp.aura.mySlogansExtra";
 
-    public static final String INTENT_PEERS_CHANGED_ACTION = "io.auraapp.aura.peersUpdated";
-    public static final String INTENT_PEERS_CHANGED_PEERS = "io.auraapp.aura.peers";
+    // outgoing
+    public static final String INTENT_HEALTH_UPDATE_ACTION = "io.auraapp.aura.healthUpdated";
+
+    public static final String INTENT_PEERS_UPDATE_ACTION = "io.auraapp.aura.peersUpdated";
+    public static final String INTENT_PEERS_UPDATE_PEERS_EXTRA = "io.auraapp.aura.peersExtra";
+
+    public static final java.lang.String INTENT_COMMUNICATOR_HEALTH_EXTRA = "io.aurapp.aura.healthExtra";
+
+    public static final int HEALTH_DOWN = 987;
+    static final int HEALTH_UP_ALL = 988;
+    static final int HEALTH_UP_SCANNING = 989;
+    static final int HEALTH_BT_DISABLED = 990;
 
     private final static String TAG = "@aura/ble/communicator";
 
@@ -50,6 +64,7 @@ public class Communicator extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        d(TAG, "onStartCommand, intent: %s, flags: %d, startId: %d", intent, flags, startId);
 
         if (!mRunning) {
             mRunning = true;
@@ -133,27 +148,60 @@ public class Communicator extends Service {
 
     private void handleIntent(Intent intent) {
 
-        if (intent == null || !INTENT_MY_SLOGANS_CHANGED_ACTION.equals(intent.getAction())) {
+        if (intent == null) {
+            w(TAG, "Received null intent");
+            return;
+        }
+
+        if (INTENT_ENABLE_ACTION.equals(intent.getAction())) {
+            // TODO implement
+
+            Intent responseIntent = new Intent(INTENT_HEALTH_UPDATE_ACTION);
+            responseIntent.putExtra(INTENT_COMMUNICATOR_HEALTH_EXTRA, health);
+            sendBroadcast(responseIntent);
+
+        } else if (INTENT_DISABLE_ACTION.equals(intent.getAction())) {
+            // TODO implement
+
+            Intent responseIntent = new Intent(INTENT_HEALTH_UPDATE_ACTION);
+            responseIntent.putExtra(INTENT_COMMUNICATOR_HEALTH_EXTRA, health);
+            sendBroadcast(responseIntent);
+
+        } else if (INTENT_REQUEST_PEERS_ACTION.equals(intent.getAction())) {
+
+            mScanner.requestPeers((Set<Peer> peers) -> {
+                Intent responseIntent = new Intent(INTENT_PEERS_UPDATE_ACTION);
+                responseIntent.putExtra(INTENT_PEERS_UPDATE_PEERS_EXTRA, (Serializable) peers);
+                responseIntent.putExtra(INTENT_COMMUNICATOR_HEALTH_EXTRA, health);
+                sendBroadcast(responseIntent);
+                d(TAG, "Sent intent with %d peers, intent: %s", peers.size(), responseIntent.getAction());
+            });
+
+        } else if (INTENT_MY_SLOGANS_CHANGED_ACTION.equals(intent.getAction())) {
+
+            Bundle extras = intent.getExtras();
+
+            if (extras == null) {
+                w(TAG, "No extras on intent");
+                return;
+            }
+
+            @SuppressWarnings("unchecked")
+            String[] mySlogans = extras.getStringArray(INTENT_MY_SLOGANS_CHANGED_SLOGANS_EXTRA);
+            if (mySlogans == null) {
+                w(TAG, "No slogans retrieved from intent");
+                return;
+            }
+            mAdvertiser.setSlogan1(mySlogans.length > 0 ? mySlogans[0] : null);
+            mAdvertiser.setSlogan2(mySlogans.length > 1 ? mySlogans[1] : null);
+            mAdvertiser.setSlogan3(mySlogans.length > 2 ? mySlogans[2] : null);
+
+            Intent responseIntent = new Intent(INTENT_HEALTH_UPDATE_ACTION);
+            responseIntent.putExtra(INTENT_COMMUNICATOR_HEALTH_EXTRA, health);
+            sendBroadcast(responseIntent);
+        } else {
             w(TAG, "Received unknown intent, intent: %s", intent);
-            return;
         }
-
-        Bundle extras = intent.getExtras();
-
-        if (extras == null) {
-            w(TAG, "No extras on intent");
-            return;
-        }
-
-        @SuppressWarnings("unchecked")
-        String[] mySlogans = extras.getStringArray(INTENT_MY_SLOGANS_CHANGED_SLOGANS);
-        if (mySlogans == null) {
-            w(TAG, "No slogans retrieved from intent");
-            return;
-        }
-        mAdvertiser.setSlogan1(mySlogans.length > 0 ? mySlogans[0] : null);
-        mAdvertiser.setSlogan2(mySlogans.length > 1 ? mySlogans[1] : null);
-        mAdvertiser.setSlogan3(mySlogans.length > 2 ? mySlogans[2] : null);
     }
 
     private void initialize() {
@@ -182,8 +230,8 @@ public class Communicator extends Service {
                     if (!(peers instanceof Serializable)) {
                         throw new RuntimeException("peers must be serializable");
                     }
-                    Intent intent = new Intent(INTENT_PEERS_CHANGED_ACTION);
-                    intent.putExtra(INTENT_PEERS_CHANGED_PEERS, (Serializable) peers);
+                    Intent intent = new Intent(INTENT_PEERS_UPDATE_ACTION);
+                    intent.putExtra(INTENT_PEERS_UPDATE_PEERS_EXTRA, (Serializable) peers);
                     sendBroadcast(intent);
 
                     d(TAG, "Sent intent with %d peers, intent: %s", peers.size(), intent.getAction());

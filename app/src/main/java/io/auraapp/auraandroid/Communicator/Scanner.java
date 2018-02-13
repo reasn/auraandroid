@@ -150,7 +150,7 @@ class Scanner {
         }
     }
 
-    private Set<Peer> buildPeers() {
+    Set<Peer> buildPeers() {
         Set<Peer> peers = new HashSet<>();
         for (Device device : devices.values()) {
             Peer peer = new Peer();
@@ -169,6 +169,20 @@ class Scanner {
             peers.add(peer);
         }
         return peers;
+    }
+
+    @FunctionalInterface
+    interface CurrentPeersCallback {
+        void currentPeers(Set<Peer> peers);
+    }
+
+    /**
+     * Avoids concurrent access to mPeers
+     */
+    void requestPeers(CurrentPeersCallback currentPeersCallback) {
+        mHandler.post(() -> {
+            currentPeersCallback.currentPeers(buildPeers());
+        });
     }
 
     private void actOnState() {

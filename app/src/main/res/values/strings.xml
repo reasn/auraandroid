@@ -4,4 +4,8 @@
     <string name="ble_uuid_slogan_1">D58F2517-F61F-4091-A7C7-6842C146A841</string>
     <string name="ble_uuid_slogan_2">D41B65A3-C25A-4B38-923B-429F508745FE</string>
     <string name="ble_uuid_slogan_3">3105C799-A563-400B-BC04-A412CE0D98E9</string>
+    <string name="ui_add_slogan">Add thought</string>
+    <string name="ui_enable_aura_on">Aura is on</string>
+    <string name="ui_enable_aura_off">Aura is off</string>
+    <string name="ui_show_help">Help</string>
 </resources>

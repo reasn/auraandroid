@@ -3,23 +3,21 @@
     android:id="@+id/slogan_row"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:padding="6dip"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="6dip">
 
     <TextView
         android:id="@+id/slogan_text"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:text="Example application"
+        android:gravity="center"
         android:textSize="16sp" />
 
     <Button
         android:id="@+id/adopt_button"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:text="ADOPT" />
+        android:layout_weight="1" />
 
 </LinearLayout>
 
