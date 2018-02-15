@@ -27,11 +27,6 @@ android {
             v2SigningEnabled true
         }
     }
-//    aaptOptions {
-//        // Allows emoji in strings
-//        // thanks to https://stackoverflow.com/questions/35792856/emoji-symbol-in-string-xml-crashes-app
-//        additionalParameters '--utf16'
-//    }
 }
 
 dependencies {

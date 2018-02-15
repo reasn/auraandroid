@@ -7,9 +7,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.TreeSet;
 
 import io.auraapp.auraandroid.R;
@@ -80,7 +78,7 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         mInflater = LayoutInflater.from(context);
     }
 
-    public void notifyDataSetChanged2() {
+    public void notifySlogansChanged() {
         d(TAG, "Updating list, mySlogans: %d, peerSlogans: %d", mMySlogans.size(), mPeerSlogans.size());
         mItems.clear();
 // TODO needs to become way more efficient

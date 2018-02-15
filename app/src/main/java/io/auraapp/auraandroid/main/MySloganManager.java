@@ -14,6 +14,8 @@ import static android.content.Context.MODE_PRIVATE;
 
 class MySloganManager {
 
+    private static final int MAX_SLOGANS = 3;
+
     private final Runnable mNotifyChangeCallback;
 
     private final TreeSet<Slogan> mMySlogans = new TreeSet<>(new SloganComparator());
@@ -39,7 +41,7 @@ class MySloganManager {
     }
 
     boolean spaceAvailable() {
-        return mMySlogans.size() < 3;
+        return mMySlogans.size() < MAX_SLOGANS;
     }
 
     void adopt(Slogan slogan) {

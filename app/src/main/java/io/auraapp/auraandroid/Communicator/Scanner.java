@@ -335,7 +335,7 @@ class Scanner {
 
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
-                v(TAG, "onScanResult callbackType: %d, result: %s", callbackType, result.getDevice().getAddress());
+//                v(TAG, "onScanResult callbackType: %d, result: %s", callbackType, result.getDevice().getAddress());
 
                 handleResults(new ScanResult[]{result});
             }

@@ -19,6 +19,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 
 import java.io.Serializable;
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
@@ -28,8 +29,10 @@ import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.PermissionHelper;
 import io.auraapp.auraandroid.main.MainActivity;
 
+import static io.auraapp.auraandroid.common.EmojiHelper.replaceAppEmoji;
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.w;
+import static java.lang.String.format;
 
 /**
  * Runs in a separate process
@@ -60,6 +63,7 @@ public class Communicator extends Service {
     private boolean mRunning = false;
     private Handler mHandler;
     private boolean mIsRunningInForeground = false;
+    private int mPeerSloganCount = 0;
 
     CommunicatorState mState = new CommunicatorState();
 
@@ -108,18 +112,25 @@ public class Communicator extends Service {
                 slogan2Uuid,
                 slogan3Uuid,
                 this,
-                (Set<Peer> peers) -> {
-                    mHandler.post(() -> {
-                        if (!(peers instanceof Serializable)) {
-                            throw new RuntimeException("peers must be serializable");
-                        }
-                        Intent intent = new Intent(INTENT_PEERS_UPDATE_ACTION);
-                        intent.putExtra(INTENT_PEERS_UPDATE_PEERS_EXTRA, (Serializable) peers);
-                        sendBroadcast(intent);
+                (Set<Peer> peers) -> mHandler.post(() -> {
+                    if (!(peers instanceof Serializable)) {
+                        throw new RuntimeException("peers must be serializable");
+                    }
+                    int peerSloganCount = 0;
+                    for (Peer peer : peers) {
+                        peerSloganCount += peer.mSlogans.size();
+                    }
+                    if (peerSloganCount != mPeerSloganCount) {
+                        mPeerSloganCount = peerSloganCount;
+                        updateForegroundNotification();
+                    }
 
-                        d(TAG, "Sent intent with %d peers, intent: %s", peers.size(), intent.getAction());
-                    });
-                }
+                    Intent intent = new Intent(INTENT_PEERS_UPDATE_ACTION);
+                    intent.putExtra(INTENT_PEERS_UPDATE_PEERS_EXTRA, (Serializable) peers);
+                    sendBroadcast(intent);
+
+                    d(TAG, "Sent intent with %d peers, intent: %s", peers.size(), intent.getAction());
+                })
         );
 
         registerReceiver(new BroadcastReceiver() {
@@ -133,7 +144,6 @@ public class Communicator extends Service {
 
         updateBtState();
         actOnStateWhileWaitingForPermissions();
-//        updateForegroundNotification();
     }
 
     private void actOnStateWhileWaitingForPermissions() {
@@ -155,51 +165,44 @@ public class Communicator extends Service {
                 ? MainActivity.class
                 : PermissionMissingActivity.class;
 
-        // TODO externalize strings
-
-        String title = "";
+        String title;
         String text = "";
         if (!mState.mHasPermission) {
-            title = ":fire: Your Aura is off";
-            text = "Aura needs permissions to run";
+            title = getString(R.string.ui_notification_no_permission_title);
+            text = getString(R.string.ui_notification_no_permission_text);
 
         } else if (!mState.mBtEnabled) {
-            title = ":fire: Your Aura is off";
-            text = "Please activate Bluetooth for Aura to work";
+            title = getString(R.string.ui_notification_bt_disabled_title);
+            text = getString(R.string.ui_notification_bt_disabled_text);
 
         } else if (!mState.mBleSupported) {
-            title = ":fire: Your Aura is off";
-            text = "Your device doesn't support Bluetooth LE";
+            title = getString(R.string.ui_notification_ble_not_supported_title);
+            text = getString(R.string.ui_notification_ble_not_supported_text);
 
         } else if (!mState.mShouldCommunicate) {
-            title = ":fire: Your Aura is off2";
+            title = getString(R.string.ui_notification_disabled_title);
 
         } else {
             if (!mState.mAdvertisingSupported) {
-                title = ":fire: Your Aura is invisible";
-                text = "Your device doesn't support being visible :/";
+                title = getString(R.string.ui_notification_advertising_not_supported_title);
+                text = getString(R.string.ui_notification_advertising_not_supported_text);
             } else if (!mState.mAdvertising) {
                 w(TAG, "Not advertising although it is possible.");
-                title = ":fire: Your Aura is getting ready";
+                title = getString(R.string.ui_notification_on_not_active_title);
             } else if (!mState.mScanning) {
                 w(TAG, "Not scanning although it is possible.");
-                title = ":fire: Your Aura is getting ready";
+                title = getString(R.string.ui_notification_on_not_active_title);
             } else {
-                title = ":fire: Your Aura is on";
+                title = getString(R.string.ui_notification_on_title);
             }
         }
 
-        // TODO suffix with number of peer slogans " (5 💬)"
+        if (mPeerSloganCount > 0) {
+            title += format(Locale.ENGLISH, " - %d :thought_balloon:", mPeerSloganCount);
+        }
 
-        title = title.replaceAll(":fire:", "🔥");
-        text = text.replaceAll(":fire:", "🔥");
-
-//        String title = mState.mHasPermission
-//                ? "🔥 Your Aura is on"
-//                : "🔥 Your Aura is off";
-//        String text = mState.mHasPermission
-//                ? null
-//                : "Click to turn it on";
+        title = replaceAppEmoji(title);
+        text = replaceAppEmoji(text);
 
         Intent showActivityIntent = new Intent(getApplicationContext(), activity);
         showActivityIntent.setAction(Intent.ACTION_MAIN);
@@ -211,7 +214,6 @@ public class Communicator extends Service {
         Notification.Builder builder = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
                 ? new Notification.Builder(this, createNotificationChannel())
                 : new Notification.Builder(this);
-
         builder.setContentTitle(title)
                 .setSmallIcon(android.R.drawable.ic_menu_compass)
                 .setTicker(title)
@@ -248,7 +250,6 @@ public class Communicator extends Service {
     void actOnState(@Nullable Runnable after) {
 
         mHandler.post(() -> {
-
             boolean stateChanged = false;
 
             boolean shouldAdvertise = mState.mBtEnabled

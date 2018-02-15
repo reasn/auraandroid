@@ -19,7 +19,7 @@ import static io.auraapp.auraandroid.common.FormattedLog.v;
 import static io.auraapp.auraandroid.common.FormattedLog.w;
 
 class CommunicatorProxy {
-    private static final String TAG = "@aura/" + CommunicatorProxy.class.getSimpleName();
+    private static final String TAG = "@aura/communicatorProxy";
 
     private CommunicatorState mState = null;
 
@@ -67,7 +67,6 @@ class CommunicatorProxy {
                     return;
                 }
 
-
                 CommunicatorState state = (CommunicatorState) extras.getSerializable(Communicator.INTENT_COMMUNICATOR_STATE_EXTRA);
 
                 w(TAG, "State %s", state);
@@ -88,7 +87,7 @@ class CommunicatorProxy {
     }
 
     void startListening() {
-        d(TAG, "Starting to listen");
+        d(TAG, "Starting to listen for events from communicator");
         IntentFilter filter = new IntentFilter();
         filter.addAction(Communicator.INTENT_COMMUNICATOR_STATE_UPDATED_ACTION);
         filter.addAction(Communicator.INTENT_PEERS_UPDATE_ACTION);
@@ -101,7 +100,7 @@ class CommunicatorProxy {
      * @todo Tell communicator to stop sending intents until further notice
      */
     void stopListening() {
-        d(TAG, "Stoppingg to listen");
+        d(TAG, "Stopping to listen for events from communicator");
         if (mRegistered) {
             mContext.unregisterReceiver(mReceiver);
         }
@@ -125,14 +124,13 @@ class CommunicatorProxy {
     }
 
     void askForPeersUpdate() {
-        d(TAG, "Asking for peers update");
+        v(TAG, "Asking for peers update");
         Intent intent = new Intent(mContext, Communicator.class);
         intent.setAction(Communicator.INTENT_REQUEST_PEERS_ACTION);
         mContext.startService(intent);
     }
 
     void updateMySlogans(Set<Slogan> slogans) {
-
         v(TAG, "Sending %d slogans to communicator", slogans.size());
 
         Intent intent = new Intent(mContext, Communicator.class);

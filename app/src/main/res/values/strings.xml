@@ -1,11 +1,33 @@
 <resources>
     <string name="app_name">Aura</string>
+    <string name="ui_toolbar_title">:fire: Aura</string>
     <string name="ble_uuid_service">47F61476-27FC-450D-BA61-5CA014665C90</string>
     <string name="ble_uuid_slogan_1">D58F2517-F61F-4091-A7C7-6842C146A841</string>
     <string name="ble_uuid_slogan_2">D41B65A3-C25A-4B38-923B-429F508745FE</string>
     <string name="ble_uuid_slogan_3">3105C799-A563-400B-BC04-A412CE0D98E9</string>
     <string name="ui_add_slogan">Add thought</string>
-    <string name="ui_enable_aura_on">Aura is on</string>
-    <string name="ui_enable_aura_off">Aura is off</string>
+    <string name="ui_enable_aura_on">On</string>
+    <string name="ui_enable_aura_off">Off</string>
     <string name="ui_show_help">Help</string>
+
+    <string name="ui_notification_no_permission_title">:fire: Your Aura is off</string>
+    <string name="ui_notification_no_permission_text">Aura needs permissions to run</string>
+
+    <string name="ui_notification_bt_disabled_title">:fire: Your Aura is off</string>
+    <string name="ui_notification_bt_disabled_text">Please activate Bluetooth for Aura to work</string>
+
+    <string name="ui_notification_ble_not_supported_title">:fire: Your Aura is off</string>
+    <string name="ui_notification_ble_not_supported_text">Your device doesn\'t support Bluetooth LE</string>
+
+
+    <string name="ui_notification_disabled_title">:fire: Your Aura is off</string>
+
+
+    <string name="ui_notification_advertising_not_supported_title">:fire: Your Aura is invisible</string>
+    <string name="ui_notification_advertising_not_supported_text">Your device doesn\'t support being visible :/</string>
+
+    <string name="ui_notification_on_not_active_title">:fire: Your Aura is getting ready</string>
+
+    <string name="ui_notification_on_title">:fire: Your Aura is on</string>
+
 </resources>
