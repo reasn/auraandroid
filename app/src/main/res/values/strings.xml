@@ -5,10 +5,24 @@
     <string name="ble_uuid_slogan_1">D58F2517-F61F-4091-A7C7-6842C146A841</string>
     <string name="ble_uuid_slogan_2">D41B65A3-C25A-4B38-923B-429F508745FE</string>
     <string name="ble_uuid_slogan_3">3105C799-A563-400B-BC04-A412CE0D98E9</string>
-    <string name="ui_add_slogan">Add thought</string>
-    <string name="ui_enable_aura_on">On</string>
-    <string name="ui_enable_aura_off">Off</string>
-    <string name="ui_show_help">Help</string>
+
+    <string name="ui_main_add_slogan">:heavy_plus_sign: Add Thought</string>
+    <string name="ui_add_dialog_title">Add Thought</string>
+    <string name="ui_add_dialog_text">A thaought\nsdfasdlasdf  ds</string>
+    <string name="ui_add_dialog_confirm">Add</string>
+    <string name="ui_add_dialog_cancel">Cancel</string>
+    <string name="ui_add_dialog_edit_hint">Your thought</string>
+
+    <string name="ui_drop_dialog_title">Delete Thought</string>
+    <string name="ui_drop_dialog_message">Not longer visible to others\nbla bla \nbla blubb</string>
+
+    <!--Toolbar-->
+
+    <string name="ui_toolbar_enable_on">On</string>
+    <string name="ui_toolbar_enable_off">Off</string>
+    <string name="ui_toolbar_help">Help</string>
+
+    <!--Notifications-->
 
     <string name="ui_notification_no_permission_title">Your Aura is off</string>
     <string name="ui_notification_no_permission_text">Aura needs permissions to run</string>
@@ -19,9 +33,7 @@
     <string name="ui_notification_ble_not_supported_title">Your Aura is off</string>
     <string name="ui_notification_ble_not_supported_text">Your device doesn\'t support Bluetooth LE</string>
 
-
     <string name="ui_notification_disabled_title">Your Aura is off</string>
-
 
     <string name="ui_notification_advertising_not_supported_title">Your Aura is invisible</string>
     <string name="ui_notification_advertising_not_supported_text">Your device doesn\'t support being visible :/</string>

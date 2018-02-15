@@ -17,14 +17,6 @@ import static io.auraapp.auraandroid.common.FormattedLog.d;
 
 public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 
-    private final static int TYPE_MY_COLLAPSED = 144;
-    private final static int TYPE_MY_EXPANDED = 145;
-    private final static int TYPE_PEER_COLLAPSED = 146;
-    private final static int TYPE_PEER_EXPANDED = 147;
-    private final OnEditHandler mOnEditHandler;
-    private final OnAdoptHandler mOnAdoptHandler;
-    private final OnDropHandler mOnDropHandler;
-
     @FunctionalInterface
     public interface OnAdoptHandler {
         void onAdopt(Slogan slogan);
@@ -44,6 +36,14 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     public interface CollapseExpandHandler {
         void flip(ListItem item);
     }
+
+    private final static int TYPE_MY_COLLAPSED = 144;
+    private final static int TYPE_MY_EXPANDED = 145;
+    private final static int TYPE_PEER_COLLAPSED = 146;
+    private final static int TYPE_PEER_EXPANDED = 147;
+    private final OnEditHandler mOnEditHandler;
+    private final OnAdoptHandler mOnAdoptHandler;
+    private final OnDropHandler mOnDropHandler;
 
     private final LayoutInflater mInflater;
     private static final String TAG = "@aura/" + RecycleAdapter.class.getSimpleName();

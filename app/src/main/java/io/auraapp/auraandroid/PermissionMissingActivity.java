@@ -17,14 +17,14 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 public class PermissionMissingActivity extends AppCompatActivity {
 
-    private final static int PERMISSION_REQUEST_CODE_ACCESS_FINE_LOCATION = 149;
+    private final static int REQUEST_CODE_LOCATION_REQUEST = 149;
+    private static final int REQUEST_CODE_APP_SETTINGS = 144;
     private Handler mHandler;
-
-
-    private static final int REQUEST_APP_SETTINGS = 144;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        // TODO add toolbar with icon
 
         // TODO style this
 
@@ -33,7 +33,7 @@ public class PermissionMissingActivity extends AppCompatActivity {
 
         findViewById(R.id.show_permission_dialog).setOnClickListener((View $) -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE_ACCESS_FINE_LOCATION);
+                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION}, REQUEST_CODE_LOCATION_REQUEST);
             } else {
                 throw new RuntimeException("Attempted to show permission dialog for Android < M");
             }
@@ -44,7 +44,7 @@ public class PermissionMissingActivity extends AppCompatActivity {
                 Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
                 intent.addCategory(Intent.CATEGORY_DEFAULT);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivityForResult(intent, REQUEST_APP_SETTINGS);
+                startActivityForResult(intent, REQUEST_CODE_APP_SETTINGS);
 
             } else {
                 throw new RuntimeException("Attempted to show permission dialog for Android < M");

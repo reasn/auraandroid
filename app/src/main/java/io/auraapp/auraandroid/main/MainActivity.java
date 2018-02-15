@@ -9,12 +9,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.TextView;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import java.util.Set;
@@ -23,6 +26,7 @@ import java.util.TreeSet;
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.PermissionMissingActivity;
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.PermissionHelper;
 import io.auraapp.auraandroid.common.Slogan;
@@ -94,21 +98,31 @@ public class MainActivity extends AppCompatActivity {
 
 //        EmojiCompat.init(new BundledEmojiCompatConfig(this));
 
-        Button button = findViewById(R.id.add_slogan);
-        button.setOnClickListener((View $$$) -> {
+        Button addSloganButton = findViewById(R.id.add_slogan);
+        addSloganButton.setText(EmojiHelper.replaceAppEmoji(getString(R.string.ui_main_add_slogan)));
+        addSloganButton.setOnClickListener((View $) -> {
 
             View dialogView = MainActivity.this.getLayoutInflater().inflate(R.layout.dialog_add_slogan, null);
 
-            TextView textView = dialogView.findViewById(R.id.dialog_add_slogan_slogan_text);
-            new AlertDialog.Builder(MainActivity.this)
+            EditText editText = dialogView.findViewById(R.id.dialog_add_slogan_slogan_text);
+
+            AlertDialog alert = new AlertDialog.Builder(MainActivity.this)
+                    .setTitle(R.string.ui_add_dialog_title)
+                    .setIcon(R.mipmap.ic_launcher)
                     .setView(dialogView)
-                    .setPositiveButton("Add", (DialogInterface $, int $$) -> {
-                        mMySloganManager.adopt(Slogan.create(textView.getText().toString()));
+                    .setPositiveButton(getString(R.string.ui_add_dialog_confirm), (DialogInterface $$, int $$$) -> {
+                        mMySloganManager.adopt(Slogan.create(editText.getText().toString()));
                     })
-                    .setNegativeButton("Cancel", (DialogInterface $, int $$) -> {
+                    .setNegativeButton(getString(R.string.ui_add_dialog_cancel), (DialogInterface $$, int $$$) -> {
                     })
-                    .create()
-                    .show();
+                    .create();
+            alert.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+            alert.show();
+            editText.requestFocus();
+            editText.setFilters(new InputFilter[]{
+                    new InputFilter.LengthFilter(160),
+                    (CharSequence source, int start, int end, Spanned dest, int dstart, int dend) -> source.toString().replaceAll("\n", "")
+            });
         });
         createListView();
 
@@ -139,6 +153,9 @@ public class MainActivity extends AppCompatActivity {
                 },
                 (Slogan slogan) -> {
                     new AlertDialog.Builder(MainActivity.this)
+                            .setTitle(R.string.ui_drop_dialog_title)
+                            .setIcon(R.mipmap.ic_launcher)
+                            .setMessage(R.string.ui_drop_dialog_message)
                             .setPositiveButton("Delete", (DialogInterface $, int $$) -> {
                                 mMySloganManager.dropSlogan(slogan);
                             })
@@ -170,8 +187,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Managed programmatically because offText XML attribute has no effect for SwitchCompat in menu item
         enabledSwitch.setText(getString(mAuraEnabled
-                ? R.string.ui_enable_aura_on
-                : R.string.ui_enable_aura_off));
+                ? R.string.ui_toolbar_enable_on
+                : R.string.ui_toolbar_enable_off));
 
         enabledSwitch.setOnCheckedChangeListener((CompoundButton $, boolean isChecked) -> {
             mAuraEnabled = isChecked;
@@ -180,9 +197,9 @@ public class MainActivity extends AppCompatActivity {
                     .apply();
             if (isChecked) {
                 mCommunicatorProxy.enable();
-                enabledSwitch.setText(getString(R.string.ui_enable_aura_on));
+                enabledSwitch.setText(getString(R.string.ui_toolbar_enable_on));
             } else {
-                enabledSwitch.setText(getString(R.string.ui_enable_aura_off));
+                enabledSwitch.setText(getString(R.string.ui_toolbar_enable_off));
                 mCommunicatorProxy.disable();
             }
         });

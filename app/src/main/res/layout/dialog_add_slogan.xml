@@ -4,16 +4,18 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
+    <TextView
+        style="@style/ExplanationBox"
+        android:text="@string/ui_add_dialog_text" />
+
     <EditText
         android:id="@+id/dialog_add_slogan_slogan_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
-        android:layout_marginLeft="4dp"
-        android:layout_marginRight="4dp"
-        android:layout_marginTop="16dp"
-        android:hint="Your text"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:inputType="textEmailAddress" />
+        android:hint="@string/ui_add_dialog_edit_hint"
+        android:inputType="textShortMessage|textMultiLine"
+        android:lines="4" />
+
 </LinearLayout>

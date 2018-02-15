@@ -147,7 +147,7 @@ class Scanner {
         }
     }
 
-    Set<Peer> buildPeers() {
+    private Set<Peer> buildPeers() {
         Set<Peer> peers = new HashSet<>();
         for (Device device : devices.values()) {
             Peer peer = new Peer();
