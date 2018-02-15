@@ -215,7 +215,7 @@ public class Communicator extends Service {
                 ? new Notification.Builder(this, createNotificationChannel())
                 : new Notification.Builder(this);
         builder.setContentTitle(title)
-                .setSmallIcon(android.R.drawable.ic_menu_compass)
+                .setSmallIcon(R.mipmap.ic_notification)
                 .setTicker(title)
                 .setContentIntent(contentIntent);
 

@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,7 +29,6 @@ import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.common.SloganComparator;
 import io.auraapp.auraandroid.main.list.RecycleAdapter;
 
-import static io.auraapp.auraandroid.common.EmojiHelper.replaceAppEmoji;
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
@@ -55,8 +55,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Create toolbar
-        setSupportActionBar(findViewById(R.id.toolbar));
-        getSupportActionBar().setTitle(replaceAppEmoji(getString(R.string.ui_toolbar_title)));
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(R.mipmap.ic_launcher);
 
         // Load preferences
         mAuraEnabled = getSharedPreferences(MainActivity.PREFS_BUCKET, MODE_PRIVATE).getBoolean(MainActivity.PREFS_ENABLED, true);
