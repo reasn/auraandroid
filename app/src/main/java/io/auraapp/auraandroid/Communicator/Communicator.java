@@ -5,9 +5,12 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -42,17 +45,12 @@ public class Communicator extends Service {
     public static final String INTENT_MY_SLOGANS_CHANGED_SLOGANS_EXTRA = "io.auraapp.aura.mySlogansExtra";
 
     // outgoing
-    public static final String INTENT_HEALTH_UPDATE_ACTION = "io.auraapp.aura.healthUpdated";
+    public static final String INTENT_COMMUNICATOR_STATE_UPDATED_ACTION = "io.auraapp.aura.healthUpdated";
 
     public static final String INTENT_PEERS_UPDATE_ACTION = "io.auraapp.aura.peersUpdated";
     public static final String INTENT_PEERS_UPDATE_PEERS_EXTRA = "io.auraapp.aura.peersExtra";
 
-    public static final java.lang.String INTENT_COMMUNICATOR_HEALTH_EXTRA = "io.aurapp.aura.healthExtra";
-
-    public static final int HEALTH_DOWN = 987;
-    static final int HEALTH_UP_ALL = 988;
-    static final int HEALTH_UP_SCANNING = 989;
-    static final int HEALTH_BT_DISABLED = 990;
+    public static final java.lang.String INTENT_COMMUNICATOR_STATE_EXTRA = "io.aurapp.aura.stateExtra";
 
     private final static String TAG = "@aura/ble/communicator";
 
@@ -61,6 +59,14 @@ public class Communicator extends Service {
     private Scanner mScanner;
     private boolean mRunning = false;
     private Handler mHandler;
+    private boolean mIsRunningInForeground = false;
+
+    CommunicatorState mState = new CommunicatorState();
+
+    @FunctionalInterface
+    interface OnBleSupportChangedCallback {
+        void onBleSupportChanged();
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -68,44 +74,132 @@ public class Communicator extends Service {
 
         if (!mRunning) {
             mRunning = true;
-
-            mHandler = new Handler();
-            if (!PermissionHelper.granted(this)) {
-                makeForegroundService(false);
-            }
-            initialize();
-
-            awaitPermissions();
+            init();
         }
         handleIntent(intent);
         return START_STICKY;
     }
 
-    private void awaitPermissions() {
-        if (PermissionHelper.granted(this)) {
-            makeForegroundService(true);
-            mScanner.start();
-            mAdvertiser.start();
-            return;
-        }
-        mHandler.postDelayed(this::awaitPermissions, 500);
+    private void init() {
+        // Can't do this in constructor because R.string resources are not yet available
+        d(TAG, "Initializing communicator");
+        UUID serviceUuid = UUID.fromString(getString(R.string.ble_uuid_service));
+        UUID slogan1Uuid = UUID.fromString(getString(R.string.ble_uuid_slogan_1));
+        UUID slogan2Uuid = UUID.fromString(getString(R.string.ble_uuid_slogan_2));
+        UUID slogan3Uuid = UUID.fromString(getString(R.string.ble_uuid_slogan_3));
+
+        mHandler = new Handler();
+
+        mAdvertiser = new Advertiser(
+                (BluetoothManager) getSystemService(BLUETOOTH_SERVICE),
+                serviceUuid,
+                slogan1Uuid,
+                slogan2Uuid,
+                slogan3Uuid,
+                this,
+                () -> {
+                    updateBtState();
+                    actOnState();
+                }
+        );
+        mScanner = new Scanner(
+                serviceUuid,
+                slogan1Uuid,
+                slogan2Uuid,
+                slogan3Uuid,
+                this,
+                (Set<Peer> peers) -> {
+                    mHandler.post(() -> {
+                        if (!(peers instanceof Serializable)) {
+                            throw new RuntimeException("peers must be serializable");
+                        }
+                        Intent intent = new Intent(INTENT_PEERS_UPDATE_ACTION);
+                        intent.putExtra(INTENT_PEERS_UPDATE_PEERS_EXTRA, (Serializable) peers);
+                        sendBroadcast(intent);
+
+                        d(TAG, "Sent intent with %d peers, intent: %s", peers.size(), intent.getAction());
+                    });
+                }
+        );
+
+        registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context $, Intent intent) {
+                d(TAG, "onReceive, intent: %s", intent);
+                handleIntent(intent);
+            }
+        }, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+        d(TAG, "Started listening to %s events", BluetoothAdapter.ACTION_STATE_CHANGED);
+
+        updateBtState();
+        actOnStateWhileWaitingForPermissions();
+//        updateForegroundNotification();
+    }
+
+    private void actOnStateWhileWaitingForPermissions() {
+        mState.mHasPermission = PermissionHelper.granted(this);
+
+        actOnState(() -> {
+            if (!mState.mHasPermission) {
+                mHandler.postDelayed(this::actOnStateWhileWaitingForPermissions, 500);
+            }
+        });
     }
 
     /**
      * Thanks to https://gist.github.com/kristopherjohnson/6211176
      */
-    private void makeForegroundService(boolean permissionsGranted) {
+    private void updateForegroundNotification() {
 
-        Class activity = permissionsGranted
+        Class activity = mState.mHasPermission
                 ? MainActivity.class
                 : PermissionMissingActivity.class;
 
-        String title = permissionsGranted
-                ? "🔥 Your Aura is on"
-                : "🔥 Your Aura is off";
-        String text = permissionsGranted
-                ? null
-                : "Click to turn it on";
+        // TODO externalize strings
+
+        String title = "";
+        String text = "";
+        if (!mState.mHasPermission) {
+            title = ":fire: Your Aura is off";
+            text = "Aura needs permissions to run";
+
+        } else if (!mState.mBtEnabled) {
+            title = ":fire: Your Aura is off";
+            text = "Please activate Bluetooth for Aura to work";
+
+        } else if (!mState.mBleSupported) {
+            title = ":fire: Your Aura is off";
+            text = "Your device doesn't support Bluetooth LE";
+
+        } else if (!mState.mShouldCommunicate) {
+            title = ":fire: Your Aura is off2";
+
+        } else {
+            if (!mState.mAdvertisingSupported) {
+                title = ":fire: Your Aura is invisible";
+                text = "Your device doesn't support being visible :/";
+            } else if (!mState.mAdvertising) {
+                w(TAG, "Not advertising although it is possible.");
+                title = ":fire: Your Aura is getting ready";
+            } else if (!mState.mScanning) {
+                w(TAG, "Not scanning although it is possible.");
+                title = ":fire: Your Aura is getting ready";
+            } else {
+                title = ":fire: Your Aura is on";
+            }
+        }
+
+        // TODO suffix with number of peer slogans " (5 💬)"
+
+        title = title.replaceAll(":fire:", "🔥");
+        text = text.replaceAll(":fire:", "🔥");
+
+//        String title = mState.mHasPermission
+//                ? "🔥 Your Aura is on"
+//                : "🔥 Your Aura is off";
+//        String text = mState.mHasPermission
+//                ? null
+//                : "Click to turn it on";
 
         Intent showActivityIntent = new Intent(getApplicationContext(), activity);
         showActivityIntent.setAction(Intent.ACTION_MAIN);
@@ -123,7 +217,7 @@ public class Communicator extends Service {
                 .setTicker(title)
                 .setContentIntent(contentIntent);
 
-        if (text != null) {
+        if (text.length() > 0) {
             builder.setContentText(text);
         }
         startForeground(FOREGROUND_NOTIFICATION_ID, builder.build());
@@ -146,6 +240,109 @@ public class Communicator extends Service {
         return channel.getId();
     }
 
+
+    void actOnState() {
+        actOnState(null);
+    }
+
+    void actOnState(@Nullable Runnable after) {
+
+        mHandler.post(() -> {
+
+            boolean stateChanged = false;
+
+            boolean shouldAdvertise = mState.mBtEnabled
+                    && mState.mShouldCommunicate
+                    && mState.mBleSupported
+                    && mState.mAdvertisingSupported
+                    && mState.mHasPermission;
+
+            boolean shouldScan = mState.mBtEnabled
+                    && mState.mShouldCommunicate
+                    && mState.mHasPermission;
+
+            if (shouldAdvertise) {
+                if (!mState.mAdvertising) {
+                    mAdvertiser.start();
+                    stateChanged = true;
+                    mState.mAdvertising = true;
+                }
+
+            } else if (mState.mAdvertising) {
+                mAdvertiser.stop();
+                mState.mAdvertising = false;
+                stateChanged = true;
+            }
+
+            if (shouldScan) {
+                if (!mState.mScanning) {
+                    mScanner.start();
+                    mState.mScanning = true;
+                    stateChanged = true;
+                }
+
+            } else if (mState.mScanning) {
+                mScanner.stop();
+                mState.mScanning = false;
+                stateChanged = true;
+            }
+
+            if (mState.mShouldCommunicate && !mIsRunningInForeground) {
+                updateForegroundNotification();
+                mIsRunningInForeground = true;
+
+            } else if (!mState.mShouldCommunicate && mIsRunningInForeground) {
+                stopForeground(true);
+                mIsRunningInForeground = false;
+            }
+
+            if (stateChanged) {
+                sendState();
+                if (mIsRunningInForeground) {
+                    updateForegroundNotification();
+                }
+            }
+            if (after != null) {
+                after.run();
+            }
+        });
+    }
+
+    /**
+     * Will affect mBtEnabled, mBleSupported
+     */
+    private void updateBtState() {
+        d(TAG, "Updating BT state");
+
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
+            mState.mBtEnabled = true;
+        } else {
+            mState.mBtEnabled = false;
+            d(TAG, "Bluetooth is currently unavailable");
+        }
+
+        if (bluetoothAdapter != null && bluetoothAdapter.getBluetoothLeScanner() != null) {
+            mState.mBleSupported = true;
+        } else {
+            d(TAG, "BLE scanning is currently unavailable");
+            mState.mBleSupported = false;
+        }
+        if (bluetoothAdapter != null && bluetoothAdapter.getBluetoothLeAdvertiser() != null && !mAdvertiser.mUnrecoverableAdvertisingError) {
+            mState.mAdvertisingSupported = true;
+        } else {
+            d(TAG, "BLE advertising is currently unavailable");
+            mState.mAdvertisingSupported = false;
+        }
+    }
+
+    private void sendState() {
+        d(TAG, "Sending state");
+        Intent stateIntent = new Intent(INTENT_COMMUNICATOR_STATE_UPDATED_ACTION);
+        stateIntent.putExtra(INTENT_COMMUNICATOR_STATE_EXTRA, mState);
+        sendBroadcast(stateIntent);
+    }
+
     private void handleIntent(Intent intent) {
 
         if (intent == null) {
@@ -153,31 +350,48 @@ public class Communicator extends Service {
             return;
         }
 
-        if (INTENT_ENABLE_ACTION.equals(intent.getAction())) {
-            // TODO implement
+        final String action = intent.getAction();
 
-            Intent responseIntent = new Intent(INTENT_HEALTH_UPDATE_ACTION);
-            responseIntent.putExtra(INTENT_COMMUNICATOR_HEALTH_EXTRA, health);
-            sendBroadcast(responseIntent);
+        if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
+            final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
+            switch (state) {
+                case BluetoothAdapter.STATE_OFF:
+                    this.mState.mBtEnabled = false;
+                    break;
+                case BluetoothAdapter.STATE_TURNING_OFF:
+                    this.mState.mBtEnabled = false;
+                    break;
+                case BluetoothAdapter.STATE_ON:
+                    updateBtState();
+                    break;
+                case BluetoothAdapter.STATE_TURNING_ON:
+                    this.mState.mBtEnabled = false;
+                    break;
+                default:
+                    w(TAG, "Unknown BT state received, state: %d", state);
+                    break;
+            }
+            actOnState(this::sendState);
 
-        } else if (INTENT_DISABLE_ACTION.equals(intent.getAction())) {
-            // TODO implement
+        } else if (INTENT_ENABLE_ACTION.equals(action)) {
+            mState.mShouldCommunicate = true;
+            actOnState(this::sendState);
 
-            Intent responseIntent = new Intent(INTENT_HEALTH_UPDATE_ACTION);
-            responseIntent.putExtra(INTENT_COMMUNICATOR_HEALTH_EXTRA, health);
-            sendBroadcast(responseIntent);
+        } else if (INTENT_DISABLE_ACTION.equals(action)) {
+            mState.mShouldCommunicate = false;
+            actOnState(this::sendState);
 
-        } else if (INTENT_REQUEST_PEERS_ACTION.equals(intent.getAction())) {
+        } else if (INTENT_REQUEST_PEERS_ACTION.equals(action)) {
 
             mScanner.requestPeers((Set<Peer> peers) -> {
                 Intent responseIntent = new Intent(INTENT_PEERS_UPDATE_ACTION);
                 responseIntent.putExtra(INTENT_PEERS_UPDATE_PEERS_EXTRA, (Serializable) peers);
-                responseIntent.putExtra(INTENT_COMMUNICATOR_HEALTH_EXTRA, health);
+                responseIntent.putExtra(INTENT_COMMUNICATOR_STATE_EXTRA, mState);
                 sendBroadcast(responseIntent);
                 d(TAG, "Sent intent with %d peers, intent: %s", peers.size(), responseIntent.getAction());
             });
 
-        } else if (INTENT_MY_SLOGANS_CHANGED_ACTION.equals(intent.getAction())) {
+        } else if (INTENT_MY_SLOGANS_CHANGED_ACTION.equals(action)) {
 
             Bundle extras = intent.getExtras();
 
@@ -195,48 +409,10 @@ public class Communicator extends Service {
             mAdvertiser.setSlogan1(mySlogans.length > 0 ? mySlogans[0] : null);
             mAdvertiser.setSlogan2(mySlogans.length > 1 ? mySlogans[1] : null);
             mAdvertiser.setSlogan3(mySlogans.length > 2 ? mySlogans[2] : null);
-
-            Intent responseIntent = new Intent(INTENT_HEALTH_UPDATE_ACTION);
-            responseIntent.putExtra(INTENT_COMMUNICATOR_HEALTH_EXTRA, health);
-            sendBroadcast(responseIntent);
+            sendState();
         } else {
             w(TAG, "Received unknown intent, intent: %s", intent);
         }
-    }
-
-    private void initialize() {
-
-        d(TAG, "Starting communicator");
-        UUID serviceUuid = UUID.fromString(getString(R.string.ble_uuid_service));
-        UUID slogan1Uuid = UUID.fromString(getString(R.string.ble_uuid_slogan_1));
-        UUID slogan2Uuid = UUID.fromString(getString(R.string.ble_uuid_slogan_2));
-        UUID slogan3Uuid = UUID.fromString(getString(R.string.ble_uuid_slogan_3));
-
-        mAdvertiser = new Advertiser(
-                (BluetoothManager) getSystemService(BLUETOOTH_SERVICE),
-                serviceUuid,
-                slogan1Uuid,
-                slogan2Uuid,
-                slogan3Uuid,
-                this
-        );
-        mScanner = new Scanner(
-                serviceUuid,
-                slogan1Uuid,
-                slogan2Uuid,
-                slogan3Uuid,
-                this,
-                (Set<Peer> peers) -> {
-                    if (!(peers instanceof Serializable)) {
-                        throw new RuntimeException("peers must be serializable");
-                    }
-                    Intent intent = new Intent(INTENT_PEERS_UPDATE_ACTION);
-                    intent.putExtra(INTENT_PEERS_UPDATE_PEERS_EXTRA, (Serializable) peers);
-                    sendBroadcast(intent);
-
-                    d(TAG, "Sent intent with %d peers, intent: %s", peers.size(), intent.getAction());
-                }
-        );
     }
 
     @Override

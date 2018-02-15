@@ -12,7 +12,6 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
-import android.os.DeadObjectException;
 import android.os.Handler;
 import android.os.ParcelUuid;
 
@@ -47,7 +46,7 @@ class Scanner {
 
     private static Charset UTF8_CHARSET = Charset.forName("UTF-8");
     private final Context mContext;
-    private Handler mHandler;
+    private final Handler mHandler = new Handler();
     private UUID mServiceUuid;
     private UUID mSlogan1Uuid;
     private UUID mSlogan2Uuid;
@@ -78,8 +77,7 @@ class Scanner {
     }
 
     void start() {
-        mHandler = new Handler();
-        scan();
+        startScanning();
         returnControl();
     }
 
@@ -107,7 +105,6 @@ class Scanner {
         mHandler.post(() -> {
             devices.clear();
         });
-        mHandler = null;
     }
 
     /**
@@ -197,7 +194,9 @@ class Scanner {
             try {
                 if (device.shouldDisconnect) {
                     i(TAG, "Disconnecting device, device: %s", address);
-                    device.bt.gatt.close();
+                    if (device.bt.gatt != null) {
+                        device.bt.gatt.close();
+                    }
                     device.bt.gatt = null;
                     device.bt.service = null;
                     device.connected = false;
@@ -287,10 +286,6 @@ class Scanner {
                 device.stats.mSuccessfulRetrievals++;
                 device.shouldDisconnect = true;
             } catch (Exception e) {
-                if (e instanceof DeadObjectException) {
-                    w(TAG, "Thread seems to have been discarded of, caught a DeadObjectException");
-                    return;
-                }
                 e(TAG, "Unhandled exception, device: %s", device.toLogString());
                 throw e;
             }
@@ -309,23 +304,19 @@ class Scanner {
         }
     }
 
-    private void scanningUnsupported() {
-        d(TAG, "Scanning seems to be unsupported on this device");
-        stop();
-        // TODO implement
-    }
-
-    private void scan() {
+    private void startScanning() {
 
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
-            scanningUnsupported();
+            d(TAG, "Bluetooth is currently unavailable");
+            stop();
             return;
         }
         BluetoothLeScanner scanner = bluetoothAdapter.getBluetoothLeScanner();
 
         if (scanner == null) {
-            scanningUnsupported();
+            d(TAG, "Bluetooth is currently unavailable");
+            stop();
             return;
         }
 

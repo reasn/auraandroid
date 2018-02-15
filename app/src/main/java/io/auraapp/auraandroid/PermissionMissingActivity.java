@@ -2,12 +2,13 @@ package io.auraapp.auraandroid;
 
 import android.Manifest;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
 
 import io.auraapp.auraandroid.common.PermissionHelper;
 import io.auraapp.auraandroid.main.MainActivity;
@@ -19,6 +20,9 @@ public class PermissionMissingActivity extends AppCompatActivity {
     private final static int PERMISSION_REQUEST_CODE_ACCESS_FINE_LOCATION = 149;
     private Handler mHandler;
 
+
+    private static final int REQUEST_APP_SETTINGS = 144;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -27,10 +31,21 @@ public class PermissionMissingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_permission_missing);
 
-        Button button = findViewById(R.id.show_permission_dialog);
-        button.setOnClickListener((View $) -> {
+        findViewById(R.id.show_permission_dialog).setOnClickListener((View $) -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE_ACCESS_FINE_LOCATION);
+            } else {
+                throw new RuntimeException("Attempted to show permission dialog for Android < M");
+            }
+        });
+        findViewById(R.id.show_app_settings).setOnClickListener((View $) -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
+                intent.addCategory(Intent.CATEGORY_DEFAULT);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivityForResult(intent, REQUEST_APP_SETTINGS);
+
             } else {
                 throw new RuntimeException("Attempted to show permission dialog for Android < M");
             }

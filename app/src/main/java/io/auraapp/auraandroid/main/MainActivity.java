@@ -19,6 +19,7 @@ import android.widget.Toast;
 import java.util.Set;
 import java.util.TreeSet;
 
+import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.PermissionMissingActivity;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Peer;
@@ -82,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
                         mListAdapter.notifyDataSetChanged2();
                     }
                 },
-                (int communicatorHealth) -> {
+                (CommunicatorState state) -> {
                     // reflect health in UI below switch
                 });
 
@@ -182,8 +183,11 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        if (mAuraEnabled) {
+            mCommunicatorProxy.enable();
+        }
         mCommunicatorProxy.startListening();
-        mCommunicatorProxy.askForPeerUpdate();
+        mCommunicatorProxy.askForPeersUpdate();
     }
 
     @Override

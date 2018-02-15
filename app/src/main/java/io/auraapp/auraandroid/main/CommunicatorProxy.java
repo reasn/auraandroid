@@ -9,27 +9,28 @@ import android.os.Bundle;
 import java.util.Set;
 
 import io.auraapp.auraandroid.Communicator.Communicator;
+import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.Slogan;
 
 import static io.auraapp.auraandroid.Communicator.Communicator.INTENT_PEERS_UPDATE_PEERS_EXTRA;
+import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 import static io.auraapp.auraandroid.common.FormattedLog.w;
 
 class CommunicatorProxy {
     private static final String TAG = "@aura/" + CommunicatorProxy.class.getSimpleName();
 
-    private int mHealth = Communicator.HEALTH_DOWN;
+    private CommunicatorState mState = null;
 
     private final Context mContext;
 
-    private boolean mIsShuttingDown = false;
-    private boolean mIsStarting = false;
     private BroadcastReceiver mReceiver;
+    private boolean mRegistered = false;
 
     @FunctionalInterface
-    public interface HealthChangeCallback {
-        void onHealthChange(int health);
+    public interface StateUpdatedCallback {
+        void onStateUpdated(CommunicatorState state);
     }
 
     @FunctionalInterface
@@ -37,7 +38,7 @@ class CommunicatorProxy {
         void onPeersUpdate(Set<Peer> peers);
     }
 
-    CommunicatorProxy(Context context, PeersUpdateCallback peersUpdateCallback, HealthChangeCallback healthChangeCallback) {
+    CommunicatorProxy(Context context, PeersUpdateCallback peersUpdateCallback, StateUpdatedCallback stateUpdatedCallback) {
         mContext = context;
 
         mReceiver = new BroadcastReceiver() {
@@ -49,7 +50,6 @@ class CommunicatorProxy {
                     w(TAG, "Received invalid intent (extras are null), ignoring it");
                     return;
                 }
-                int health = extras.getInt(Communicator.INTENT_COMMUNICATOR_HEALTH_EXTRA);
 
                 if (Communicator.INTENT_PEERS_UPDATE_ACTION.equals(intent.getAction())) {
 
@@ -62,46 +62,61 @@ class CommunicatorProxy {
                         w(TAG, "Received invalid %s intent, peers: null, intent: %s", Communicator.INTENT_PEERS_UPDATE_ACTION, intent);
                     }
 
-                } else if (!Communicator.INTENT_HEALTH_UPDATE_ACTION.equals(intent.getAction())) {
+                } else if (!Communicator.INTENT_COMMUNICATOR_STATE_UPDATED_ACTION.equals(intent.getAction())) {
                     w(TAG, "Received invalid intent (unknown action \"%s\"), ignoring it", intent.getAction());
                     return;
                 }
 
-                boolean healthChanged = mHealth != health;
-                mHealth = health;
 
+                CommunicatorState state = (CommunicatorState) extras.getSerializable(Communicator.INTENT_COMMUNICATOR_STATE_EXTRA);
 
-                if (healthChanged) {
-                    healthChangeCallback.onHealthChange(mHealth);
+                w(TAG, "State %s", state);
+
+                if (state == null) {
+                    w(TAG, "No state returned by communicator");
+                    return;
+                }
+
+                boolean stateChanged = state.equals(mState);
+
+                mState = state;
+                if (stateChanged) {
+                    stateUpdatedCallback.onStateUpdated(state);
                 }
             }
         };
     }
 
     void startListening() {
-
+        d(TAG, "Starting to listen");
         IntentFilter filter = new IntentFilter();
-        filter.addAction(Communicator.INTENT_HEALTH_UPDATE_ACTION);
+        filter.addAction(Communicator.INTENT_COMMUNICATOR_STATE_UPDATED_ACTION);
         filter.addAction(Communicator.INTENT_PEERS_UPDATE_ACTION);
 
         mContext.registerReceiver(mReceiver, filter);
+        mRegistered = true;
     }
 
     /**
      * @todo Tell communicator to stop sending intents until further notice
      */
     void stopListening() {
-        mContext.unregisterReceiver(mReceiver);
+        d(TAG, "Stoppingg to listen");
+        if (mRegistered) {
+            mContext.unregisterReceiver(mReceiver);
+        }
     }
 
     void enable() {
+        d(TAG, "Enabling communicator");
         Intent intent = new Intent(mContext, Communicator.class);
         intent.setAction(Communicator.INTENT_ENABLE_ACTION);
         mContext.startService(intent);
     }
 
     void disable() {
-        if (mHealth == Communicator.HEALTH_DOWN) {
+        d(TAG, "Disabling communicator");
+        if (!mState.mShouldCommunicate) {
             w(TAG, "Attempting to disable apparently already disabled communicator");
         }
         Intent intent = new Intent(mContext, Communicator.class);
@@ -109,7 +124,8 @@ class CommunicatorProxy {
         mContext.startService(intent);
     }
 
-    void askForPeerUpdate() {
+    void askForPeersUpdate() {
+        d(TAG, "Asking for peers update");
         Intent intent = new Intent(mContext, Communicator.class);
         intent.setAction(Communicator.INTENT_REQUEST_PEERS_ACTION);
         mContext.startService(intent);

@@ -35,6 +35,7 @@ class Advertiser {
     private final UUID mSlogan1Uuid;
     private final UUID mSlogan2Uuid;
     private final UUID mServiceUuid;
+    private final Communicator.OnBleSupportChangedCallback mOnBleSupportChangedCallback;
     private byte[] mSlogan1 = new byte[0];
     private byte[] mSlogan2 = new byte[0];
     private byte[] mSlogan3 = new byte[0];
@@ -43,6 +44,10 @@ class Advertiser {
     private BluetoothGattServer mBluetoothGattServer;
     private Context mContext;
     private BluetoothLeAdvertiser mBluetoothAdvertiser;
+    /**
+     * Unrecoverable errors
+     */
+    boolean mUnrecoverableAdvertisingError = false;
 
     private AdvertiseCallback mAdvertisingCallback = new AdvertiseCallback() {
         @Override
@@ -54,21 +59,27 @@ class Advertiser {
         public void onStartFailure(int errorCode) {
             e(TAG, "onStartFailure, errorCode: %s", BtConst.nameAdvertiseError(errorCode));
             advertisingUnsupported();
+
+            mUnrecoverableAdvertisingError = true;
+            mOnBleSupportChangedCallback.onBleSupportChanged();
         }
     };
+
 
     Advertiser(BluetoothManager bluetoothManager,
                UUID serviceUuid,
                UUID slogan1Uuid,
                UUID slogan2Uuid,
                UUID slogan3Uuid,
-               Context context) {
+               Context context,
+               Communicator.OnBleSupportChangedCallback onBleSupportChangedCallback) {
         mBluetoothManager = bluetoothManager;
         mServiceUuid = serviceUuid;
         mSlogan1Uuid = slogan1Uuid;
         mSlogan2Uuid = slogan2Uuid;
         mSlogan3Uuid = slogan3Uuid;
         mContext = context;
+        mOnBleSupportChangedCallback = onBleSupportChangedCallback;
     }
 
     void setSlogan1(String slogan) {
@@ -191,7 +202,8 @@ class Advertiser {
             BluetoothGattCharacteristic chara = new BluetoothGattCharacteristic(uuid, PROPERTY_READ | PROPERTY_NOTIFY, PERMISSION_READ);
             if (!service.addCharacteristic(chara)) {
                 e(TAG, "Could not add characteristic");
-                advertisingUnsupported();
+                mUnrecoverableAdvertisingError = true;
+                mOnBleSupportChangedCallback.onBleSupportChanged();
             }
         }
         return service;
