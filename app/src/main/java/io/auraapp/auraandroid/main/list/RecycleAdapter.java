@@ -51,20 +51,23 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     private final TreeSet<Slogan> mPeerSlogans;
 
     private final List<ListItem> mItems;
+    private final RecyclerView mListView;
 
     public static RecycleAdapter create(@NonNull Context context,
                                         TreeSet<Slogan> mySlogans,
                                         TreeSet<Slogan> peerSlogans,
+                                        RecyclerView listView,
                                         OnAdoptHandler onAdoptHandler,
                                         OnEditHandler onEditHandler,
                                         OnDropHandler onDropHandler) {
-        return new RecycleAdapter(context, new ArrayList<>(), mySlogans, peerSlogans, onAdoptHandler, onEditHandler, onDropHandler);
+        return new RecycleAdapter(context, new ArrayList<>(), mySlogans, peerSlogans, listView, onAdoptHandler, onEditHandler, onDropHandler);
     }
 
     private RecycleAdapter(@NonNull Context context,
                            List<ListItem> items,
                            TreeSet<Slogan> mySlogans,
                            TreeSet<Slogan> peerSlogans,
+                           RecyclerView listView,
                            OnAdoptHandler onAdoptHandler,
                            OnEditHandler onEditHandler,
                            OnDropHandler onDropHandler) {
@@ -72,6 +75,7 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         mItems = items;
         mMySlogans = mySlogans;
         mPeerSlogans = peerSlogans;
+        mListView = listView;
         mOnAdoptHandler = onAdoptHandler;
         mOnDropHandler = onDropHandler;
         mOnEditHandler = onEditHandler;
@@ -104,6 +108,7 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
             }
             item.mExpanded = !item.mExpanded;
             notifyItemChanged(mItems.indexOf(item));
+            mListView.smoothScrollToPosition(mItems.indexOf(item));
         }
     };
 

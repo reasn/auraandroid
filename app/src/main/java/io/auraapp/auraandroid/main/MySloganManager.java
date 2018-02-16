@@ -56,6 +56,15 @@ class MySloganManager {
         mNotifyChangeCallback.run();
     }
 
+    void replace(Slogan oldSlogan, Slogan newSlogan) {
+        if (mMySlogans.contains(oldSlogan)) {
+            mMySlogans.remove(oldSlogan);
+        }
+        mMySlogans.add(newSlogan);
+        persistSlogans();
+        mNotifyChangeCallback.run();
+    }
+
     void dropSlogan(Slogan slogan) {
         mMySlogans.remove(slogan);
 

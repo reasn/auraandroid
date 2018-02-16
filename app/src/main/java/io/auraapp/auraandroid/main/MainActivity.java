@@ -20,9 +20,13 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -111,35 +115,37 @@ public class MainActivity extends AppCompatActivity {
 
         Button addSloganButton = findViewById(R.id.add_slogan);
         addSloganButton.setText(EmojiHelper.replaceAppEmoji(getString(R.string.ui_main_add_slogan)));
-        addSloganButton.setOnClickListener((View $) -> {
-
-            View dialogView = MainActivity.this.getLayoutInflater().inflate(R.layout.dialog_add_slogan, null);
-
-            EditText editText = dialogView.findViewById(R.id.dialog_add_slogan_slogan_text);
-
-            AlertDialog alert = new AlertDialog.Builder(MainActivity.this)
-                    .setTitle(R.string.ui_add_dialog_title)
-                    .setIcon(R.mipmap.ic_launcher)
-                    .setView(dialogView)
-                    .setPositiveButton(getString(R.string.ui_add_dialog_confirm), (DialogInterface $$, int $$$) -> {
-                        mMySloganManager.adopt(Slogan.create(editText.getText().toString()));
-                    })
-                    .setNegativeButton(getString(R.string.ui_add_dialog_cancel), (DialogInterface $$, int $$$) -> {
-                    })
-                    .create();
-            alert.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-            alert.show();
-            editText.requestFocus();
-            editText.setFilters(new InputFilter[]{
-                    new InputFilter.LengthFilter(160),
-                    (CharSequence source, int start, int end, Spanned dest, int dstart, int dend) -> source.toString().replaceAll("\n", "")
-            });
-        });
+        addSloganButton.setOnClickListener(this::onAddSloganClick);
         createListView();
 
         mMySloganManager.init();
         mListAdapter.notifySlogansChanged();
         mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
+    }
+
+    private void onAddSloganClick(View $) {
+        View dialogView = MainActivity.this.getLayoutInflater().inflate(R.layout.dialog_add_slogan, null);
+
+        EditText editText = dialogView.findViewById(R.id.dialog_add_slogan_slogan_text);
+
+        AlertDialog alert = new AlertDialog.Builder(MainActivity.this)
+                .setTitle(R.string.ui_add_dialog_title)
+                .setIcon(R.mipmap.ic_launcher)
+                .setMessage(R.string.ui_add_dialog_text)
+                .setView(dialogView)
+                .setPositiveButton(R.string.ui_add_dialog_confirm, (DialogInterface $$, int $$$) -> {
+                    mMySloganManager.adopt(Slogan.create(editText.getText().toString()));
+                })
+                .setNegativeButton(R.string.ui_add_dialog_cancel, (DialogInterface $$, int $$$) -> {
+                })
+                .create();
+        alert.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        alert.show();
+        editText.requestFocus();
+        editText.setFilters(new InputFilter[]{
+                new InputFilter.LengthFilter(160),
+                (CharSequence source, int start, int end, Spanned dest, int dstart, int dend) -> source.toString().replaceAll("\n", "")
+        });
     }
 
     /**
@@ -231,12 +237,14 @@ public class MainActivity extends AppCompatActivity {
                 this,
                 mMySloganManager.getMySlogans(),
                 mPeerSlogans,
+                listView,
                 (Slogan slogan) -> {
-                    if (mMySloganManager.spaceAvailable()) {
+                    if (mMySloganManager.getMySlogans().contains(slogan)) {
+                        Toast.makeText(getApplicationContext(), R.string.ui_main_toast_slogan_already_adopted, Toast.LENGTH_LONG).show();
+                    } else if (mMySloganManager.spaceAvailable()) {
                         mMySloganManager.adopt(slogan);
                     } else {
-                        // Replace slogan
-                        // TODO implement
+                        showReplaceDialog(slogan);
                     }
                 },
                 (Slogan slogan) -> {
@@ -260,6 +268,46 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(mListAdapter);
 
         listView.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    private void showReplaceDialog(Slogan newSlogan) {
+        View dialogView = MainActivity.this.getLayoutInflater().inflate(R.layout.dialog_replace_slogan, null);
+
+        RadioGroup radioGroup = dialogView.findViewById(R.id.radio_group);
+
+        Map<Integer, Slogan> map = new HashMap<>();
+
+        for (Slogan slogan : mMySloganManager.getMySlogans()) {
+            RadioButton button = new RadioButton(this);
+            // TODO emoji support
+            String text = slogan.getText().length() < 20
+                    ? slogan.getText()
+                    : slogan.getText().substring(0, 20) + "...";
+            button.setText(text);
+            int id = View.generateViewId();
+            button.setId(id);
+            map.put(id, slogan);
+            radioGroup.addView(button);
+        }
+
+        AlertDialog alert = new AlertDialog.Builder(MainActivity.this)
+                .setTitle(R.string.ui_replace_dialog_title)
+                .setIcon(R.mipmap.ic_launcher)
+                .setMessage(R.string.ui_replace_dialog_message)
+                .setView(dialogView)
+                .setPositiveButton(R.string.ui_replace_dialog_confirm, (DialogInterface $$, int $$$) -> {
+                    mMySloganManager.replace(map.get(radioGroup.getCheckedRadioButtonId()), newSlogan);
+                })
+                .setNegativeButton(R.string.ui_replace_dialog_cancel, (DialogInterface $$, int $$$) -> {
+                })
+                .create();
+
+        alert.show();
+
+        alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+        radioGroup.setOnCheckedChangeListener((RadioGroup $, int checkedId) -> {
+            alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+        });
     }
 
     /**

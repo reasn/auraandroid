@@ -13,6 +13,7 @@
 
     <!--Dialog: Main activity-->
     <string name="ui_main_add_slogan">:heavy_plus_sign: Add Thought</string>
+    <string name="ui_main_toast_slogan_already_adopted">This slogan is already in your Aura</string>
 
     <string name="ui_main_explanation_bt_disabled">Please enable BT</string>
     <string name="ui_main_explanation_bt_turning_on">One second, BT is starting</string>
@@ -34,6 +35,12 @@
     <string name="ui_add_dialog_confirm">Add</string>
     <string name="ui_add_dialog_cancel">Cancel</string>
     <string name="ui_add_dialog_edit_hint">Your thought</string>
+
+    <!--Dialog: Replace Slogan-->
+    <string name="ui_replace_dialog_title">Replace Thought</string>
+    <string name="ui_replace_dialog_message">Only 3 blabal\nPlease choose</string>
+    <string name="ui_replace_dialog_confirm">Replace</string>
+    <string name="ui_replace_dialog_cancel">Cancel</string>
 
     <!--Dialog: Drop Slogan-->
     <string name="ui_drop_dialog_title">Delete Thought</string>
