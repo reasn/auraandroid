@@ -6,24 +6,42 @@
     <string name="ble_uuid_slogan_2">D41B65A3-C25A-4B38-923B-429F508745FE</string>
     <string name="ble_uuid_slogan_3">3105C799-A563-400B-BC04-A412CE0D98E9</string>
 
+    <!--Toolbar-->
+    <string name="ui_toolbar_enable_on">On</string>
+    <string name="ui_toolbar_enable_off">Off</string>
+    <string name="ui_toolbar_help">Help</string>
+
+    <!--Dialog: Main activity-->
     <string name="ui_main_add_slogan">:heavy_plus_sign: Add Thought</string>
+
+    <string name="ui_main_explanation_bt_disabled">Please enable BT</string>
+    <string name="ui_main_explanation_bt_turning_on">One second, BT is starting</string>
+    <string name="ui_main_explanation_ble_not_supported">BLE not supported</string>
+    <string name="ui_main_explanation_disabled">Aura not active, ckick switch top right to enable</string>
+    <string name="ui_main_explanation_advertising_not_supported">Invisible, you can see others</string>
+    <string name="ui_main_explanation_on_not_active">Aura is getting ready</string>
+    <string name="ui_main_explanation_on">Yepp, you\'re on!</string>
+
+    <!--Dialog: BT Stack broken -->
+    <string name="ui_dialog_bt_broken_title">Problem with Bluetooth</string>
+    <string name="ui_dialog_bt_broken_text">A thaought\nsdfasdlasdf  ds</string>
+    <string name="ui_dialog_bt_broken_confirm">Okay</string>
+    <string name="ui_dialog_bt_broken_never_show_again">Don\'t show this message again</string>
+
+    <!--Dialog: Create Slogan-->
     <string name="ui_add_dialog_title">Add Thought</string>
     <string name="ui_add_dialog_text">A thaought\nsdfasdlasdf  ds</string>
     <string name="ui_add_dialog_confirm">Add</string>
     <string name="ui_add_dialog_cancel">Cancel</string>
     <string name="ui_add_dialog_edit_hint">Your thought</string>
 
+    <!--Dialog: Drop Slogan-->
     <string name="ui_drop_dialog_title">Delete Thought</string>
     <string name="ui_drop_dialog_message">Not longer visible to others\nbla bla \nbla blubb</string>
-
-    <!--Toolbar-->
-
-    <string name="ui_toolbar_enable_on">On</string>
-    <string name="ui_toolbar_enable_off">Off</string>
-    <string name="ui_toolbar_help">Help</string>
+    <string name="ui_drop_dialog_confirm">Delete</string>
+    <string name="ui_drop_dialog_cancel">Cancel</string>
 
     <!--Notifications-->
-
     <string name="ui_notification_no_permission_title">Your Aura is off</string>
     <string name="ui_notification_no_permission_text">Aura needs permissions to run</string>
 

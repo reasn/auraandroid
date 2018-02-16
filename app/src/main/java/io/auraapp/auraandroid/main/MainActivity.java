@@ -3,6 +3,7 @@ package io.auraapp.auraandroid.main;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,13 +17,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Set;
 import java.util.TreeSet;
 
+import io.auraapp.auraandroid.Communicator.Communicator;
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.PermissionMissingActivity;
 import io.auraapp.auraandroid.R;
@@ -35,6 +39,7 @@ import io.auraapp.auraandroid.main.list.RecycleAdapter;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
+import static io.auraapp.auraandroid.common.FormattedLog.w;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -43,12 +48,19 @@ public class MainActivity extends AppCompatActivity {
     static final String PREFS_BUCKET = "prefs";
     static final String PREFS_SLOGANS = "slogans";
     static final String PREFS_ENABLED = "enabled";
+    private static final String PREFS_HIDE_BROKEN_BT_STACK_WARNING = "hideBrokenBtStackWarning";
+    private static final int BROKEN_BT_STACK_ALERT_DEBOUNCE = 1000 * 60;
 
     final private TreeSet<Slogan> mPeerSlogans = new TreeSet<>(new SloganComparator());
     private RecycleAdapter mListAdapter;
     private MySloganManager mMySloganManager;
     private CommunicatorProxy mCommunicatorProxy;
     private boolean mAuraEnabled;
+    private boolean inForeground = false;
+    private SharedPreferences mPrefs;
+
+    private long mBrokenBtStackLastVisibleTimestamp;
+    boolean mBrokenBtStackAlertVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +76,8 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setNavigationIcon(R.mipmap.ic_launcher);
 
         // Load preferences
-        mAuraEnabled = getSharedPreferences(MainActivity.PREFS_BUCKET, MODE_PRIVATE).getBoolean(MainActivity.PREFS_ENABLED, true);
+        mPrefs = getSharedPreferences(MainActivity.PREFS_BUCKET, MODE_PRIVATE);
+        mAuraEnabled = mPrefs.getBoolean(MainActivity.PREFS_ENABLED, true);
 
         mMySloganManager = new MySloganManager(
                 this,
@@ -92,9 +105,7 @@ public class MainActivity extends AppCompatActivity {
                         mListAdapter.notifySlogansChanged();
                     }
                 },
-                (CommunicatorState state) -> {
-                    // reflect health in UI below switch
-                });
+                this::updateCommunicatorState);
 
 //        EmojiCompat.init(new BundledEmojiCompatConfig(this));
 
@@ -131,6 +142,86 @@ public class MainActivity extends AppCompatActivity {
         mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
     }
 
+    /**
+     * The order of conditions should be synchronized with that in Communicator::updateForegroundNotification
+     */
+    private void updateCommunicatorState(CommunicatorState state) {
+        int text;
+
+        if (!state.mHasPermission) {
+            throw new RuntimeException("Attempting to render explanation for missing permissions, user should be in MissingPermissionActivity");
+
+        } else if (state.mBtTurningOn) {
+            text = R.string.ui_main_explanation_bt_turning_on;
+
+        } else if (!state.mBtEnabled) {
+            text = R.string.ui_main_explanation_bt_disabled;
+
+        } else if (!state.mBleSupported) {
+            text = R.string.ui_main_explanation_ble_not_supported;
+
+        } else if (!state.mShouldCommunicate) {
+            text = R.string.ui_main_explanation_disabled;
+
+        } else {
+            if (!state.mAdvertisingSupported) {
+                text = R.string.ui_main_explanation_advertising_not_supported;
+            } else if (!state.mAdvertising) {
+                w(TAG, "Not advertising although it is possible.");
+                text = R.string.ui_main_explanation_on_not_active;
+            } else if (!state.mScanning) {
+                w(TAG, "Not scanning although it is possible.");
+                text = R.string.ui_main_explanation_on_not_active;
+            } else {
+                text = R.string.ui_main_explanation_on;
+            }
+        }
+
+        TextView view = findViewById(R.id.communicator_state_explanation);
+
+        if (text == -1) {
+            view.setVisibility(View.GONE);
+        } else {
+            view.setText(text);
+            view.setVisibility(View.VISIBLE);
+        }
+
+        if (state.mRecentBtTurnOnEvents >= Communicator.RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD) {
+            showBrokenBtStackAlert();
+        }
+    }
+
+    private void showBrokenBtStackAlert() {
+        if (!inForeground
+                || mBrokenBtStackAlertVisible
+                || System.currentTimeMillis() - mBrokenBtStackLastVisibleTimestamp > BROKEN_BT_STACK_ALERT_DEBOUNCE
+                || mPrefs.getBoolean(MainActivity.PREFS_HIDE_BROKEN_BT_STACK_WARNING, false)) {
+            return;
+        }
+        mBrokenBtStackAlertVisible = true;
+
+        View dialogView = MainActivity.this.getLayoutInflater().inflate(R.layout.dialog_bt_stack_broken, null);
+        CheckBox checkBox = dialogView.findViewById(R.id.dont_show_again);
+        new AlertDialog.Builder(MainActivity.this)
+                .setTitle(R.string.ui_dialog_bt_broken_title)
+                .setMessage(R.string.ui_dialog_bt_broken_text)
+                .setView(dialogView)
+                .setIcon(R.mipmap.ic_launcher)
+                .setPositiveButton(R.string.ui_dialog_bt_broken_confirm, (DialogInterface $$, int $$$) -> {
+                    if (checkBox.isChecked()) {
+                        mPrefs.edit().putBoolean(MainActivity.PREFS_HIDE_BROKEN_BT_STACK_WARNING, true).apply();
+                    }
+                    mBrokenBtStackAlertVisible = false;
+                    mBrokenBtStackLastVisibleTimestamp = System.currentTimeMillis();
+                })
+                .setOnDismissListener((DialogInterface $) -> {
+                    mBrokenBtStackAlertVisible = false;
+                    mBrokenBtStackLastVisibleTimestamp = System.currentTimeMillis();
+                })
+                .create()
+                .show();
+    }
+
     private void createListView() {
 
         // TODO show stats for slogans
@@ -156,14 +247,13 @@ public class MainActivity extends AppCompatActivity {
                             .setTitle(R.string.ui_drop_dialog_title)
                             .setIcon(R.mipmap.ic_launcher)
                             .setMessage(R.string.ui_drop_dialog_message)
-                            .setPositiveButton("Delete", (DialogInterface $, int $$) -> {
+                            .setPositiveButton(R.string.ui_drop_dialog_confirm, (DialogInterface $, int $$) -> {
                                 mMySloganManager.dropSlogan(slogan);
                             })
-                            .setNegativeButton("Cancel", (DialogInterface $, int $$) -> {
+                            .setNegativeButton(R.string.ui_drop_dialog_cancel, (DialogInterface $, int $$) -> {
                             })
                             .create()
                             .show();
-
                 }
         );
 
@@ -192,9 +282,7 @@ public class MainActivity extends AppCompatActivity {
 
         enabledSwitch.setOnCheckedChangeListener((CompoundButton $, boolean isChecked) -> {
             mAuraEnabled = isChecked;
-            getSharedPreferences(MainActivity.PREFS_BUCKET, MODE_PRIVATE).edit()
-                    .putBoolean(MainActivity.PREFS_ENABLED, isChecked)
-                    .apply();
+            mPrefs.edit().putBoolean(MainActivity.PREFS_ENABLED, isChecked).apply();
             if (isChecked) {
                 mCommunicatorProxy.enable();
                 enabledSwitch.setText(getString(R.string.ui_toolbar_enable_on));
@@ -223,11 +311,14 @@ public class MainActivity extends AppCompatActivity {
         }
         mCommunicatorProxy.startListening();
         mCommunicatorProxy.askForPeersUpdate();
+
+        inForeground = true;
     }
 
     @Override
     protected void onPause() {
         mCommunicatorProxy.stopListening();
+        inForeground = false;
         super.onPause();
     }
 

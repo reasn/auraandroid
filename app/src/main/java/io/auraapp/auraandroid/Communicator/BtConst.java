@@ -1,12 +1,13 @@
 package io.auraapp.auraandroid.Communicator;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.ScanCallback;
 
 class BtConst {
-    static String nameStatus(int status) {
+    static String nameGattStatus(int status) {
         switch (status) {
 
             case BluetoothGatt.GATT_SUCCESS:
@@ -88,6 +89,25 @@ class BtConst {
                 return "SCAN_FAILED_OUT_OF_HARDWARE_RESOURCES";
             default:
                 return "Unknown scan error code: " + errorCode;
+        }
+    }
+
+    static String nameAdapterState(int state) {
+        switch (state) {
+            case BluetoothAdapter.STATE_OFF:
+                return "STATE_OFF";
+
+            case BluetoothAdapter.STATE_TURNING_OFF:
+                return "STATE_TURNING_OFF";
+
+            case BluetoothAdapter.STATE_ON:
+                return "STATE_ON";
+
+            case BluetoothAdapter.STATE_TURNING_ON:
+                return "STATE_TURNING_ON";
+
+            default:
+                return "Unknown adapter state: " + state;
         }
     }
 }

@@ -143,7 +143,7 @@ class Advertiser {
         BluetoothGattServerCallback mGattServerCallback = new BluetoothGattServerCallback() {
 
             public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
-                v(TAG, "onConnectionStateChange device: %s, status: %s, newState: %s", device.getAddress(), BtConst.nameStatus(status), BtConst.nameConnectionState(newState));
+                v(TAG, "onConnectionStateChange device: %s, status: %s, newState: %s", device.getAddress(), BtConst.nameGattStatus(status), BtConst.nameConnectionState(newState));
             }
 
             @Override

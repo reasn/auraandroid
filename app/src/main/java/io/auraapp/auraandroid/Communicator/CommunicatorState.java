@@ -14,6 +14,8 @@ public class CommunicatorState implements Serializable {
 
     public boolean mAdvertising = false;
     public boolean mScanning = false;
+    public int mRecentBtTurnOnEvents = 0;
+    public boolean mBtTurningOn = false;
 
     @Override
     public String toString() {
@@ -25,6 +27,8 @@ public class CommunicatorState implements Serializable {
                 ", mShouldCommunicate=" + mShouldCommunicate +
                 ", mAdvertising=" + mAdvertising +
                 ", mScanning=" + mScanning +
+                ", mRecentBtTurnOnEvents=" + mRecentBtTurnOnEvents +
+                ", mBtTurningOn=" + mBtTurningOn +
                 '}';
     }
 

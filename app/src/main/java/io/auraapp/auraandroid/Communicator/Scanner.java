@@ -373,7 +373,7 @@ class Scanner {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             String address = gatt.getDevice().getAddress();
-            d(TAG, "onConnectionStateChange, gatt: %s, status: %s, newState: %s", address, BtConst.nameStatus(status), BtConst.nameConnectionState(newState));
+            d(TAG, "onConnectionStateChange, gatt: %s, status: %s, newState: %s", address, BtConst.nameGattStatus(status), BtConst.nameConnectionState(newState));
             if (!assertPeer(address, gatt, "onConnectionStateChange")) {
                 return;
             }
@@ -392,14 +392,14 @@ class Scanner {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             String address = gatt.getDevice().getAddress();
-            v(TAG, "onServicesDiscovered, gatt: %s, status: %s", address, BtConst.nameStatus(status));
+            v(TAG, "onServicesDiscovered, gatt: %s, status: %s", address, BtConst.nameGattStatus(status));
             if (!assertPeer(address, gatt, "onServicesDiscovered")) {
                 return;
             }
             Device device = devices.get(address);
 
             if (status != BluetoothGatt.GATT_SUCCESS) {
-                w(TAG, "onServicesDiscovered unsuccessful, status: %s", BtConst.nameStatus(status));
+                w(TAG, "onServicesDiscovered unsuccessful, status: %s", BtConst.nameGattStatus(status));
                 device.shouldDisconnect = true;
                 device.stats.mErrors++;
                 returnControl();
@@ -426,7 +426,7 @@ class Scanner {
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             String address = gatt.getDevice().getAddress();
-            d(TAG, "onCharacteristicRead, gatt: %s, characteristic: %s, status: %s", address, characteristic.getUuid(), BtConst.nameStatus(status));
+            d(TAG, "onCharacteristicRead, gatt: %s, characteristic: %s, status: %s", address, characteristic.getUuid(), BtConst.nameGattStatus(status));
 
             if (!assertPeer(address, gatt, "onCharacteristicRead")) {
                 return;

@@ -21,6 +21,7 @@ import android.support.annotation.RequiresApi;
 import java.io.Serializable;
 import java.util.Locale;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import io.auraapp.auraandroid.PermissionMissingActivity;
@@ -58,11 +59,25 @@ public class Communicator extends Service {
     private final static String TAG = "@aura/ble/communicator";
 
     public static final int FOREGROUND_NOTIFICATION_ID = 1338;
+    /**
+     * The time to remember BT_TURNING_ON events for.
+     * Assumption: If Aura is not working properly because there's a problem with the BT stack,
+     * users might repeatedly turn BT on and off. If that is the case an explanatory dialog will be shown.
+     * This number sets the interval that's being considered "recent" for the number of clicks.
+     * I.e. If set to 2 minutes, and within that timeframe the user clicks more
+     * than RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD times, an alert is shown in MainActivity
+     *
+     * @see MainActivity#showBrokenBtStackAlert
+     */
+    public static final int RECENT_BT_TURNING_ON_EVENTS_RECENT_TIMEFRAME = 1000 * 60 * 2;
+    public static final int RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD = 3;
     private Advertiser mAdvertiser;
     private Scanner mScanner;
     private boolean mRunning = false;
     private Handler mHandler;
     private boolean mIsRunningInForeground = false;
+    private Set<Long> btTurningOnTimestamps = new TreeSet<>();
+
     private int mPeerSloganCount = 0;
 
     CommunicatorState mState = new CommunicatorState();
@@ -70,6 +85,7 @@ public class Communicator extends Service {
     @FunctionalInterface
     interface OnBleSupportChangedCallback {
         void onBleSupportChanged();
+
     }
 
     @Override
@@ -103,7 +119,7 @@ public class Communicator extends Service {
                 this,
                 () -> {
                     updateBtState();
-                    actOnState();
+                    actOnState(false);
                 }
         );
         mScanner = new Scanner(
@@ -149,7 +165,7 @@ public class Communicator extends Service {
     private void actOnStateWhileWaitingForPermissions() {
         mState.mHasPermission = PermissionHelper.granted(this);
 
-        actOnState(() -> {
+        actOnState(false, () -> {
             if (!mState.mHasPermission) {
                 mHandler.postDelayed(this::actOnStateWhileWaitingForPermissions, 500);
             }
@@ -157,6 +173,8 @@ public class Communicator extends Service {
     }
 
     /**
+     * The order of conditions should be synchronized with that in MainActivity::updateCommunicatorState
+     * <p>
      * Thanks to https://gist.github.com/kristopherjohnson/6211176
      */
     private void updateForegroundNotification() {
@@ -225,6 +243,7 @@ public class Communicator extends Service {
         startForeground(FOREGROUND_NOTIFICATION_ID, builder.build());
     }
 
+
     /**
      * Thanks to https://stackoverflow.com/questions/47531742/startforeground-fail-after-upgrade-to-android-8-1
      */
@@ -242,12 +261,11 @@ public class Communicator extends Service {
         return channel.getId();
     }
 
-
-    void actOnState() {
-        actOnState(null);
+    void actOnState(boolean forceSend) {
+        actOnState(forceSend, null);
     }
 
-    void actOnState(@Nullable Runnable after) {
+    void actOnState(boolean forceSend, @Nullable Runnable after) {
 
         mHandler.post(() -> {
             boolean stateChanged = false;
@@ -297,8 +315,10 @@ public class Communicator extends Service {
                 mIsRunningInForeground = false;
             }
 
-            if (stateChanged) {
+            if (stateChanged || forceSend) {
                 sendState();
+            }
+            if (stateChanged) {
                 if (mIsRunningInForeground) {
                     updateForegroundNotification();
                 }
@@ -338,7 +358,7 @@ public class Communicator extends Service {
     }
 
     private void sendState() {
-        d(TAG, "Sending state");
+        d(TAG, "Sending state, state: %s", mState);
         Intent stateIntent = new Intent(INTENT_COMMUNICATOR_STATE_UPDATED_ACTION);
         stateIntent.putExtra(INTENT_COMMUNICATOR_STATE_EXTRA, mState);
         sendBroadcast(stateIntent);
@@ -355,32 +375,50 @@ public class Communicator extends Service {
 
         if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
             final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
+            w(TAG, "Bluetooth state changed, state: %s", BtConst.nameAdapterState(state));
             switch (state) {
                 case BluetoothAdapter.STATE_OFF:
-                    this.mState.mBtEnabled = false;
+                    mState.mBtEnabled = false;
+                    mState.mBtTurningOn = false;
                     break;
+
                 case BluetoothAdapter.STATE_TURNING_OFF:
-                    this.mState.mBtEnabled = false;
+                    mState.mBtEnabled = false;
+                    mState.mBtTurningOn = false;
                     break;
+
                 case BluetoothAdapter.STATE_ON:
+                    mState.mBtTurningOn = false;
                     updateBtState();
                     break;
+
                 case BluetoothAdapter.STATE_TURNING_ON:
-                    this.mState.mBtEnabled = false;
+                    mState.mBtEnabled = false;
+                    mState.mBtTurningOn = true;
+                    // urgh. mutability again. Streams only supported with API level 24+
+                    Set<Long> filtered = new TreeSet<>();
+                    for (Long timestamp : btTurningOnTimestamps) {
+                        if (timestamp > RECENT_BT_TURNING_ON_EVENTS_RECENT_TIMEFRAME) {
+                            filtered.add(timestamp);
+                        }
+                    }
+                    filtered.add(System.currentTimeMillis());
+                    btTurningOnTimestamps = filtered;
+                    mState.mRecentBtTurnOnEvents = btTurningOnTimestamps.size();
                     break;
                 default:
                     w(TAG, "Unknown BT state received, state: %d", state);
                     break;
             }
-            actOnState(this::sendState);
+            actOnState(true);
 
         } else if (INTENT_ENABLE_ACTION.equals(action)) {
             mState.mShouldCommunicate = true;
-            actOnState(this::sendState);
+            actOnState(true);
 
         } else if (INTENT_DISABLE_ACTION.equals(action)) {
             mState.mShouldCommunicate = false;
-            actOnState(this::sendState);
+            actOnState(true);
 
         } else if (INTENT_REQUEST_PEERS_ACTION.equals(action)) {
 

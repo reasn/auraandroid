@@ -21,6 +21,11 @@
             android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
+        <TextView
+            android:id="@+id/communicator_state_explanation"
+            style="@style/ExplanationBox"
+            android:visibility="gone" />
+
         <Button
             android:id="@+id/add_slogan"
             style="?android:attr/buttonBarButtonStyle"
