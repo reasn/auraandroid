@@ -20,7 +20,7 @@
             android:elevation="4dp"
             android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
-
+<!--TODO move explanation and add thought into recycler to make them scrollable-->
         <TextView
             android:id="@+id/communicator_state_explanation"
             style="@style/ExplanationBox"

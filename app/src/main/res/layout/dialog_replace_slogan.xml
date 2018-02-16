@@ -8,6 +8,7 @@
         android:id="@+id/radio_group"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="18dp"
         android:orientation="vertical">
 
     </RadioGroup>

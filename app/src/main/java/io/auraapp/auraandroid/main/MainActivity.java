@@ -83,6 +83,10 @@ public class MainActivity extends AppCompatActivity {
         mPrefs = getSharedPreferences(MainActivity.PREFS_BUCKET, MODE_PRIVATE);
         mAuraEnabled = mPrefs.getBoolean(MainActivity.PREFS_ENABLED, true);
 
+        final Button addSloganButton = findViewById(R.id.add_slogan);
+        addSloganButton.setText(EmojiHelper.replaceAppEmoji(getString(R.string.ui_main_add_slogan)));
+        addSloganButton.setOnClickListener(this::onAddSloganClick);
+
         mMySloganManager = new MySloganManager(
                 this,
                 () -> {
@@ -113,9 +117,6 @@ public class MainActivity extends AppCompatActivity {
 
 //        EmojiCompat.init(new BundledEmojiCompatConfig(this));
 
-        Button addSloganButton = findViewById(R.id.add_slogan);
-        addSloganButton.setText(EmojiHelper.replaceAppEmoji(getString(R.string.ui_main_add_slogan)));
-        addSloganButton.setOnClickListener(this::onAddSloganClick);
         createListView();
 
         mMySloganManager.init();
@@ -124,6 +125,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onAddSloganClick(View $) {
+        if (!mMySloganManager.spaceAvailable()) {
+            Toast.makeText(getApplicationContext(), R.string.ui_main_toast_cannot_add_no_space_available, Toast.LENGTH_LONG).show();
+            return;
+        }
         View dialogView = MainActivity.this.getLayoutInflater().inflate(R.layout.dialog_add_slogan, null);
 
         EditText editText = dialogView.findViewById(R.id.dialog_add_slogan_slogan_text);
