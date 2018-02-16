@@ -37,11 +37,11 @@ public class PermissionMissingActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         toolbar.setNavigationIcon(R.mipmap.ic_launcher);
 
-        ((TextView) findViewById(R.id.permission_explanation)).setText(EmojiHelper.replaceAppEmoji(getString(R.string.ui_permissionsMissing_text)));
-        ((TextView) findViewById(R.id.permission_second_text)).setText(EmojiHelper.replaceAppEmoji(getString(R.string.ui_permissionsMissing_second_text)));
+        ((TextView) findViewById(R.id.permission_explanation)).setText(EmojiHelper.replaceShortCode(getString(R.string.ui_permissionsMissing_text)));
+        ((TextView) findViewById(R.id.permission_second_text)).setText(EmojiHelper.replaceShortCode(getString(R.string.ui_permissionsMissing_second_text)));
 
         Button showPermisisonDialogButton = findViewById(R.id.show_permission_dialog);
-        showPermisisonDialogButton.setText(EmojiHelper.replaceAppEmoji(getString(R.string.ui_permissionsMissing_request)));
+        showPermisisonDialogButton.setText(EmojiHelper.replaceShortCode(getString(R.string.ui_permissionsMissing_request)));
         showPermisisonDialogButton.setOnClickListener((View $) -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION}, REQUEST_CODE_LOCATION_REQUEST);
@@ -50,7 +50,7 @@ public class PermissionMissingActivity extends AppCompatActivity {
             }
         });
         Button showAppSettingsButton = findViewById(R.id.show_app_settings);
-        showAppSettingsButton.setText(EmojiHelper.replaceAppEmoji(getString(R.string.ui_permissionsMissing_appSettings)));
+        showAppSettingsButton.setText(EmojiHelper.replaceShortCode(getString(R.string.ui_permissionsMissing_appSettings)));
         showAppSettingsButton.setOnClickListener((View $) -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 

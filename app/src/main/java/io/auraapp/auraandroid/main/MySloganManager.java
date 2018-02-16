@@ -14,15 +14,24 @@ import static android.content.Context.MODE_PRIVATE;
 
 class MySloganManager {
 
+    @FunctionalInterface
+    interface MySlogansChangedCallback {
+        void onMySlogansChanged(int event);
+    }
+
     private static final int MAX_SLOGANS = 3;
 
-    private final Runnable mNotifyChangeCallback;
+    private final MySlogansChangedCallback mNotifyChangeCallback;
 
     private final TreeSet<Slogan> mMySlogans = new TreeSet<>(new SloganComparator());
 
     private final Context mContext;
 
-    MySloganManager(Context context, Runnable notifyChangeCallback) {
+    final static int EVENT_DROPPED = 1;
+    final static int EVENT_ADOPTED = 2;
+    final static int EVENT_REPLACED = 3;
+
+    MySloganManager(Context context, MySlogansChangedCallback notifyChangeCallback) {
         mContext = context;
         mNotifyChangeCallback = notifyChangeCallback;
     }
@@ -53,7 +62,7 @@ class MySloganManager {
         }
         mMySlogans.add(slogan);
         persistSlogans();
-        mNotifyChangeCallback.run();
+        mNotifyChangeCallback.onMySlogansChanged(EVENT_ADOPTED);
     }
 
     void replace(Slogan oldSlogan, Slogan newSlogan) {
@@ -62,14 +71,14 @@ class MySloganManager {
         }
         mMySlogans.add(newSlogan);
         persistSlogans();
-        mNotifyChangeCallback.run();
+        mNotifyChangeCallback.onMySlogansChanged(EVENT_REPLACED);
     }
 
     void dropSlogan(Slogan slogan) {
         mMySlogans.remove(slogan);
 
         persistSlogans();
-        mNotifyChangeCallback.run();
+        mNotifyChangeCallback.onMySlogansChanged(EVENT_DROPPED);
     }
 
     private void persistSlogans() {

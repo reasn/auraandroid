@@ -30,7 +30,7 @@ import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.PermissionHelper;
 import io.auraapp.auraandroid.main.MainActivity;
 
-import static io.auraapp.auraandroid.common.EmojiHelper.replaceAppEmoji;
+import static io.auraapp.auraandroid.common.EmojiHelper.replaceShortCode;
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.w;
 import static java.lang.String.format;
@@ -219,8 +219,8 @@ public class Communicator extends Service {
             title += format(Locale.ENGLISH, ", %d :thought_balloon:", mPeerSloganCount);
         }
 
-        title = replaceAppEmoji(title);
-        text = replaceAppEmoji(text);
+        title = replaceShortCode(title);
+        text = replaceShortCode(text);
 
         Intent showActivityIntent = new Intent(getApplicationContext(), activity);
         showActivityIntent.setAction(Intent.ACTION_MAIN);

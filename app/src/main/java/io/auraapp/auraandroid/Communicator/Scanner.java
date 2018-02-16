@@ -96,13 +96,12 @@ class Scanner {
 
             Device device = devices.get(address);
             if (device.bt.gatt != null) {
-                // TODO check if already closed?
                 device.bt.gatt.close();
             }
             device.bt.device = null;
             device.bt.service = null;
         }
-        mHandler.post(() -> devices.clear());
+        mHandler.post(devices::clear);
     }
 
     /**

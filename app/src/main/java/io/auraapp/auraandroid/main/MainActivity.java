@@ -86,17 +86,26 @@ public class MainActivity extends AppCompatActivity {
         mAuraEnabled = mPrefs.getBoolean(MainActivity.PREFS_ENABLED, true);
 
         final Button addSloganButton = findViewById(R.id.add_slogan);
-        addSloganButton.setText(EmojiHelper.replaceAppEmoji(getString(R.string.ui_main_add_slogan)));
+        addSloganButton.setText(EmojiHelper.replaceShortCode(getString(R.string.ui_main_add_slogan)));
         addSloganButton.setOnClickListener(this::showAddDialog);
 
         mMySloganManager = new MySloganManager(
                 this,
-                () -> {
+                (int event) -> {
                     d(TAG, "My slogans changed");
                     mListAdapter.notifySlogansChanged();
-                    // TODO add argument or use added/removed to indicate whether dropped or adopted, update toast
-                    Toast.makeText(getApplicationContext(), "Slogan changed ;) ", Toast.LENGTH_LONG).show();
                     mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
+                    switch (event) {
+                        case MySloganManager.EVENT_ADOPTED:
+                            Toast.makeText(this, R.string.ui_main_toast_adopted, Toast.LENGTH_SHORT).show();
+                            break;
+                        case MySloganManager.EVENT_REPLACED:
+                            Toast.makeText(this, R.string.ui_main_toast_replaced, Toast.LENGTH_SHORT).show();
+                            break;
+                        case MySloganManager.EVENT_DROPPED:
+                            Toast.makeText(this, R.string.ui_main_toast_dropped, Toast.LENGTH_SHORT).show();
+                            break;
+                    }
                 }
         );
 
@@ -126,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showAddDialog(View $) {
         if (!mMySloganManager.spaceAvailable()) {
-            Toast.makeText(getApplicationContext(), R.string.ui_main_toast_cannot_add_no_space_available, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.ui_main_toast_cannot_add_no_space_available, Toast.LENGTH_LONG).show();
             return;
         }
         showParametrizedSloganEditDialog(R.string.ui_dialog_add_slogan_title,
@@ -273,7 +282,7 @@ public class MainActivity extends AppCompatActivity {
                 listView,
                 (Slogan slogan) -> {
                     if (mMySloganManager.getMySlogans().contains(slogan)) {
-                        Toast.makeText(getApplicationContext(), R.string.ui_main_toast_slogan_already_adopted, Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, R.string.ui_main_toast_slogan_already_adopted, Toast.LENGTH_LONG).show();
                     } else if (mMySloganManager.spaceAvailable()) {
                         mMySloganManager.adopt(slogan);
                     } else {

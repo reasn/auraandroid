@@ -135,7 +135,6 @@ class Advertiser {
     private void advertisingUnsupported() {
         d(TAG, "Advertising seems to be unsupported on this device");
         stop();
-        // TODO implement
     }
 
     private void startServer() {
