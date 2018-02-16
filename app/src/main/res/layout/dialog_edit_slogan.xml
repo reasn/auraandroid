@@ -5,12 +5,12 @@
     android:orientation="vertical">
 
     <EditText
-        android:id="@+id/dialog_add_slogan_slogan_text"
+        android:id="@+id/dialog_edit_slogan_slogan_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:hint="@string/ui_add_dialog_edit_hint"
+        android:hint="@string/ui_dialog_edit_slogan_edit_hint"
         android:inputType="textShortMessage|textMultiLine"
         android:lines="4" />
 

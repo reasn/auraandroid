@@ -5,6 +5,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +14,7 @@ import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.InputFilter;
 import android.text.Spanned;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,8 +28,6 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -85,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
         final Button addSloganButton = findViewById(R.id.add_slogan);
         addSloganButton.setText(EmojiHelper.replaceAppEmoji(getString(R.string.ui_main_add_slogan)));
-        addSloganButton.setOnClickListener(this::onAddSloganClick);
+        addSloganButton.setOnClickListener(this::showAddDialog);
 
         mMySloganManager = new MySloganManager(
                 this,
@@ -106,9 +107,7 @@ public class MainActivity extends AppCompatActivity {
                     for (Peer peer : peers) {
                         uniqueSlogans.addAll(peer.mSlogans);
                     }
-
                     v(TAG, "Syncing %d previous slogans to %d slogans from %d peers", mPeerSlogans.size(), uniqueSlogans.size(), peers.size());
-
                     if (mPeerSlogans.retainAll(uniqueSlogans) || mPeerSlogans.addAll(uniqueSlogans)) {
                         mListAdapter.notifySlogansChanged();
                     }
@@ -124,24 +123,58 @@ public class MainActivity extends AppCompatActivity {
         mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
     }
 
-    private void onAddSloganClick(View $) {
+    private void showAddDialog(View $) {
         if (!mMySloganManager.spaceAvailable()) {
             Toast.makeText(getApplicationContext(), R.string.ui_main_toast_cannot_add_no_space_available, Toast.LENGTH_LONG).show();
             return;
         }
-        View dialogView = MainActivity.this.getLayoutInflater().inflate(R.layout.dialog_add_slogan, null);
+        showParametrizedSloganEditDialog(R.string.ui_dialog_add_slogan_title,
+                R.string.ui_dialog_add_slogan_text,
+                R.string.ui_dialog_add_slogan_confirm,
+                R.string.ui_dialog_add_slogan_cancel,
+                null,
+                (String sloganText) -> {
+                    mMySloganManager.adopt(Slogan.create(sloganText));
+                });
+    }
 
-        EditText editText = dialogView.findViewById(R.id.dialog_add_slogan_slogan_text);
+    private void showEditDialog(Slogan slogan) {
+        showParametrizedSloganEditDialog(R.string.ui_dialog_edit_slogan_title,
+                R.string.ui_dialog_edit_slogan_text,
+                R.string.ui_dialog_edit_slogan_confirm,
+                R.string.ui_dialog_edit_slogan_cancel,
+                slogan,
+                (String sloganText) -> {
+                    mMySloganManager.replace(slogan, Slogan.create(sloganText));
+                });
+    }
+
+    interface OnSloganEditConfirm {
+        void onConfirm(String text);
+    }
+
+    private void showParametrizedSloganEditDialog(@StringRes int title,
+                                                  @StringRes int message,
+                                                  @StringRes int confirm,
+                                                  @StringRes int cancel,
+                                                  @Nullable Slogan slogan,
+                                                  OnSloganEditConfirm onConfirm) {
+        View dialogView = MainActivity.this.getLayoutInflater().inflate(R.layout.dialog_edit_slogan, null);
+
+        EditText editText = dialogView.findViewById(R.id.dialog_edit_slogan_slogan_text);
+        if (slogan != null) {
+            editText.setText(slogan.getText());
+        }
 
         AlertDialog alert = new AlertDialog.Builder(MainActivity.this)
-                .setTitle(R.string.ui_add_dialog_title)
+                .setTitle(title)
                 .setIcon(R.mipmap.ic_launcher)
-                .setMessage(R.string.ui_add_dialog_text)
+                .setMessage(message)
                 .setView(dialogView)
-                .setPositiveButton(R.string.ui_add_dialog_confirm, (DialogInterface $$, int $$$) -> {
-                    mMySloganManager.adopt(Slogan.create(editText.getText().toString()));
+                .setPositiveButton(confirm, (DialogInterface $$, int $$$) -> {
+                    onConfirm.onConfirm(editText.getText().toString());
                 })
-                .setNegativeButton(R.string.ui_add_dialog_cancel, (DialogInterface $$, int $$$) -> {
+                .setNegativeButton(cancel, (DialogInterface $$, int $$$) -> {
                 })
                 .create();
         alert.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
@@ -252,9 +285,7 @@ public class MainActivity extends AppCompatActivity {
                         showReplaceDialog(slogan);
                     }
                 },
-                (Slogan slogan) -> {
-                    // TODO edit
-                },
+                this::showEditDialog,
                 (Slogan slogan) -> {
                     new AlertDialog.Builder(MainActivity.this)
                             .setTitle(R.string.ui_drop_dialog_title)
@@ -280,7 +311,7 @@ public class MainActivity extends AppCompatActivity {
 
         RadioGroup radioGroup = dialogView.findViewById(R.id.radio_group);
 
-        Map<Integer, Slogan> map = new HashMap<>();
+        SparseArray<Slogan> map = new SparseArray<Slogan>();
 
         for (Slogan slogan : mMySloganManager.getMySlogans()) {
             RadioButton button = new RadioButton(this);
@@ -322,8 +353,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.toolbar_menu, menu);
-        MenuItem item = menu.findItem(R.id.myswitch);
-        item.setActionView(R.layout.appbar_switch);
+        MenuItem item = menu.findItem(R.id.enabledSwitch);
+        item.setActionView(R.layout.toolbar_switch);
 
         SwitchCompat enabledSwitch = item.getActionView().findViewById(R.id.switchForActionBar);
         enabledSwitch.setChecked(mAuraEnabled);

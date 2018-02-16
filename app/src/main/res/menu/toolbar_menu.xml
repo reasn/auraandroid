@@ -3,15 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/myswitch"
-        android:actionLayout="@layout/appbar_switch"
+        android:id="@+id/enabledSwitch"
+        android:actionLayout="@layout/toolbar_switch"
         android:title=""
         app:showAsAction="ifRoom" />
 
+    <!--TODO Add help-->
     <item
         android:id="@+id/action_settings"
         android:icon="@android:drawable/ic_menu_help"
         android:title="@string/ui_toolbar_help"
+        android:visible="false"
         app:showAsAction="ifRoom" />
 
 </menu>

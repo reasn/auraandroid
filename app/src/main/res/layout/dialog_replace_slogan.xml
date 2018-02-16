@@ -10,7 +10,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="18dp"
         android:orientation="vertical">
-
     </RadioGroup>
 
 </LinearLayout>

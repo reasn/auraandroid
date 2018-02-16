@@ -30,12 +30,19 @@
     <string name="ui_dialog_bt_broken_confirm">Okay</string>
     <string name="ui_dialog_bt_broken_never_show_again">Don\'t show this message again</string>
 
-    <!--Dialog: Create Slogan-->
-    <string name="ui_add_dialog_title">Add Thought</string>
-    <string name="ui_add_dialog_text">A thaought\nsdfasdlasdf  ds</string>
-    <string name="ui_add_dialog_confirm">Add</string>
-    <string name="ui_add_dialog_cancel">Cancel</string>
-    <string name="ui_add_dialog_edit_hint">Your thought</string>
+    <!--Dialog: Add Slogan-->
+    <string name="ui_dialog_add_slogan_title">Add Thought</string>
+    <string name="ui_dialog_add_slogan_text">A thaought\nsdfasdlasdf  ds</string>
+    <string name="ui_dialog_add_slogan_confirm">Add</string>
+    <string name="ui_dialog_add_slogan_cancel">Cancel</string>
+
+    <string name="ui_dialog_edit_slogan_edit_hint">Your thought</string>
+    <!--Dialog: Edit Slogan-->
+    <string name="ui_dialog_edit_slogan_title">Edit Thought</string>
+    <string name="ui_dialog_edit_slogan_text">A thaought\nsdfasdlasdf  ds</string>
+    <string name="ui_dialog_edit_slogan_confirm">Save</string>
+    <string name="ui_dialog_edit_slogan_cancel">Cancel</string>
+
 
     <!--Dialog: Replace Slogan-->
     <string name="ui_replace_dialog_title">Replace Thought</string>
