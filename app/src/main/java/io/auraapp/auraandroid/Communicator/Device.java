@@ -16,7 +16,7 @@ class Device {
 
     final PeerStatsSet stats = new PeerStatsSet();
 
-    PeerBtServiceSet bt = new PeerBtServiceSet();
+    final PeerBtServiceSet bt = new PeerBtServiceSet();
 
     boolean isDiscoveringServices = false;
 

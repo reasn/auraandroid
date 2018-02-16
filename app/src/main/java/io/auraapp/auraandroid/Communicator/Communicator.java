@@ -58,7 +58,7 @@ public class Communicator extends Service {
 
     private final static String TAG = "@aura/ble/communicator";
 
-    public static final int FOREGROUND_NOTIFICATION_ID = 1338;
+    private static final int FOREGROUND_NOTIFICATION_ID = 1338;
     /**
      * The time to remember BT_TURNING_ON events for.
      * Assumption: If Aura is not working properly because there's a problem with the BT stack,
@@ -69,7 +69,7 @@ public class Communicator extends Service {
      *
      * @see MainActivity#showBrokenBtStackAlert
      */
-    public static final int RECENT_BT_TURNING_ON_EVENTS_RECENT_TIMEFRAME = 1000 * 60 * 2;
+    private static final int RECENT_BT_TURNING_ON_EVENTS_RECENT_TIMEFRAME = 1000 * 60 * 2;
     public static final int RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD = 3;
     private Advertiser mAdvertiser;
     private Scanner mScanner;
@@ -80,7 +80,7 @@ public class Communicator extends Service {
 
     private int mPeerSloganCount = 0;
 
-    CommunicatorState mState = new CommunicatorState();
+    private final CommunicatorState mState = new CommunicatorState();
 
     @FunctionalInterface
     interface OnBleSupportChangedCallback {
@@ -216,7 +216,7 @@ public class Communicator extends Service {
         }
 
         if (mPeerSloganCount > 0) {
-            title += format(Locale.ENGLISH, " - %d :thought_balloon:", mPeerSloganCount);
+            title += format(Locale.ENGLISH, ", %d :thought_balloon:", mPeerSloganCount);
         }
 
         title = replaceAppEmoji(title);
@@ -261,11 +261,11 @@ public class Communicator extends Service {
         return channel.getId();
     }
 
-    void actOnState(boolean forceSend) {
+    private void actOnState(boolean forceSend) {
         actOnState(forceSend, null);
     }
 
-    void actOnState(boolean forceSend, @Nullable Runnable after) {
+    private void actOnState(boolean forceSend, @Nullable Runnable after) {
 
         mHandler.post(() -> {
             boolean stateChanged = false;

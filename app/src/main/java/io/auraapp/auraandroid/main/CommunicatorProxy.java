@@ -25,7 +25,7 @@ class CommunicatorProxy {
 
     private final Context mContext;
 
-    private BroadcastReceiver mReceiver;
+    private final BroadcastReceiver mReceiver;
     private boolean mRegistered = false;
 
     @FunctionalInterface

@@ -40,16 +40,16 @@ class Advertiser {
     private byte[] mSlogan2 = new byte[0];
     private byte[] mSlogan3 = new byte[0];
 
-    private BluetoothManager mBluetoothManager;
+    private final BluetoothManager mBluetoothManager;
     private BluetoothGattServer mBluetoothGattServer;
-    private Context mContext;
+    private final Context mContext;
     private BluetoothLeAdvertiser mBluetoothAdvertiser;
     /**
      * Unrecoverable errors
      */
     boolean mUnrecoverableAdvertisingError = false;
 
-    private AdvertiseCallback mAdvertisingCallback = new AdvertiseCallback() {
+    private final AdvertiseCallback mAdvertisingCallback = new AdvertiseCallback() {
         @Override
         public void onStartSuccess(AdvertiseSettings settingsInEffect) {
             d(TAG, "onStartSuccess, settings: %s", settingsInEffect);

@@ -19,19 +19,13 @@ class MyExpandedHolder extends ItemViewHolder {
 
         mSloganTextView = itemView.findViewById(R.id.slogan_text);
 
-        itemView.setOnClickListener((v) -> {
-            collapseExpandHandler.flip(mItem);
-        });
+        itemView.setOnClickListener((v) -> collapseExpandHandler.flip(mItem));
         Button editButton = itemView.findViewById(R.id.edit_button);
         editButton.setText("📝");
-        editButton.setOnClickListener((View $) -> {
-            onEditHandler.onEdit(mItem.getSlogan());
-        });
+        editButton.setOnClickListener((View $) -> onEditHandler.onEdit(mItem.getSlogan()));
         Button dropButton = itemView.findViewById(R.id.drop_button);
         dropButton.setText("❌");
-        dropButton.setOnClickListener((View $) -> {
-            onDropHandler.onDrop(mItem.getSlogan());
-        });
+        dropButton.setOnClickListener((View $) -> onDropHandler.onDrop(mItem.getSlogan()));
     }
 
     @Override

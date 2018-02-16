@@ -15,14 +15,10 @@ class PeerExpandedHolder extends ItemViewHolder {
 
         mSloganTextView = itemView.findViewById(R.id.slogan_text);
 
-        itemView.setOnClickListener((v) -> {
-            collapseExpandHandler.flip(mItem);
-        });
+        itemView.setOnClickListener((v) -> collapseExpandHandler.flip(mItem));
         Button adoptButton = itemView.findViewById(R.id.adopt_button);
         adoptButton.setText("❤️");
-        adoptButton.setOnClickListener((View $) -> {
-            mOnAdoptHandler.onAdopt(mItem.getSlogan());
-        });
+        adoptButton.setOnClickListener((View $) -> mOnAdoptHandler.onAdopt(mItem.getSlogan()));
     }
 
     @Override

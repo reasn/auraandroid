@@ -44,13 +44,13 @@ class Scanner {
 
     private final static String TAG = "@aura/ble/scanner";
 
-    private static Charset UTF8_CHARSET = Charset.forName("UTF-8");
+    private final static Charset UTF8_CHARSET = Charset.forName("UTF-8");
     private final Context mContext;
     private final Handler mHandler = new Handler();
-    private UUID mServiceUuid;
-    private UUID mSlogan1Uuid;
-    private UUID mSlogan2Uuid;
-    private UUID mSlogan3Uuid;
+    private final UUID mServiceUuid;
+    private final UUID mSlogan1Uuid;
+    private final UUID mSlogan2Uuid;
+    private final UUID mSlogan3Uuid;
     private boolean mQueued = false;
     private boolean mInactive = false;
 
@@ -58,7 +58,7 @@ class Scanner {
     private static final long PEER_REFRESH_AFTER = 1000 * 20;
     private static final long PEER_CONNECT_TIMEOUT = 1000 * 10;
 
-    private HashMap<String, Device> devices = new HashMap<>();
+    private final HashMap<String, Device> devices = new HashMap<>();
 
     private Set<String> mSlogansAtLastPropagation = new HashSet<>();
 
@@ -102,9 +102,7 @@ class Scanner {
             device.bt.device = null;
             device.bt.service = null;
         }
-        mHandler.post(() -> {
-            devices.clear();
-        });
+        mHandler.post(() -> devices.clear());
     }
 
     /**
@@ -177,9 +175,7 @@ class Scanner {
      * Avoids concurrent access to mPeers
      */
     void requestPeers(CurrentPeersCallback currentPeersCallback) {
-        mHandler.post(() -> {
-            currentPeersCallback.currentPeers(buildPeers());
-        });
+        mHandler.post(() -> currentPeersCallback.currentPeers(buildPeers()));
     }
 
     private void actOnState() {

@@ -1,5 +1,6 @@
 package io.auraapp.auraandroid.main;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
     static final String PREFS_BUCKET = "prefs";
     static final String PREFS_SLOGANS = "slogans";
-    static final String PREFS_ENABLED = "enabled";
+    private static final String PREFS_ENABLED = "enabled";
     private static final String PREFS_HIDE_BROKEN_BT_STACK_WARNING = "hideBrokenBtStackWarning";
     private static final int BROKEN_BT_STACK_ALERT_DEBOUNCE = 1000 * 60;
 
@@ -65,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences mPrefs;
 
     private long mBrokenBtStackLastVisibleTimestamp;
-    boolean mBrokenBtStackAlertVisible = false;
+    private boolean mBrokenBtStackAlertVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,9 +134,7 @@ public class MainActivity extends AppCompatActivity {
                 R.string.ui_dialog_add_slogan_confirm,
                 R.string.ui_dialog_add_slogan_cancel,
                 null,
-                (String sloganText) -> {
-                    mMySloganManager.adopt(Slogan.create(sloganText));
-                });
+                (String sloganText) -> mMySloganManager.adopt(Slogan.create(sloganText)));
     }
 
     private void showEditDialog(Slogan slogan) {
@@ -144,9 +143,7 @@ public class MainActivity extends AppCompatActivity {
                 R.string.ui_dialog_edit_slogan_confirm,
                 R.string.ui_dialog_edit_slogan_cancel,
                 slogan,
-                (String sloganText) -> {
-                    mMySloganManager.replace(slogan, Slogan.create(sloganText));
-                });
+                (String sloganText) -> mMySloganManager.replace(slogan, Slogan.create(sloganText)));
     }
 
     interface OnSloganEditConfirm {
@@ -159,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
                                                   @StringRes int cancel,
                                                   @Nullable Slogan slogan,
                                                   OnSloganEditConfirm onConfirm) {
+        @SuppressLint("InflateParams")
         View dialogView = MainActivity.this.getLayoutInflater().inflate(R.layout.dialog_edit_slogan, null);
 
         EditText editText = dialogView.findViewById(R.id.dialog_edit_slogan_slogan_text);
@@ -171,14 +169,14 @@ public class MainActivity extends AppCompatActivity {
                 .setIcon(R.mipmap.ic_launcher)
                 .setMessage(message)
                 .setView(dialogView)
-                .setPositiveButton(confirm, (DialogInterface $$, int $$$) -> {
-                    onConfirm.onConfirm(editText.getText().toString());
-                })
+                .setPositiveButton(confirm, (DialogInterface $$, int $$$) -> onConfirm.onConfirm(editText.getText().toString()))
                 .setNegativeButton(cancel, (DialogInterface $$, int $$$) -> {
                 })
                 .create();
-        alert.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         alert.show();
+        if (alert.getWindow() != null) {
+            alert.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        }
         editText.requestFocus();
         editText.setFilters(new InputFilter[]{
                 new InputFilter.LengthFilter(160),
@@ -223,12 +221,8 @@ public class MainActivity extends AppCompatActivity {
 
         TextView view = findViewById(R.id.communicator_state_explanation);
 
-        if (text == -1) {
-            view.setVisibility(View.GONE);
-        } else {
-            view.setText(text);
-            view.setVisibility(View.VISIBLE);
-        }
+        view.setText(text);
+        view.setVisibility(View.VISIBLE);
 
         if (state.mRecentBtTurnOnEvents >= Communicator.RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD) {
             showBrokenBtStackAlert();
@@ -244,6 +238,7 @@ public class MainActivity extends AppCompatActivity {
         }
         mBrokenBtStackAlertVisible = true;
 
+        @SuppressLint("InflateParams")
         View dialogView = MainActivity.this.getLayoutInflater().inflate(R.layout.dialog_bt_stack_broken, null);
         CheckBox checkBox = dialogView.findViewById(R.id.dont_show_again);
         new AlertDialog.Builder(MainActivity.this)
@@ -286,19 +281,17 @@ public class MainActivity extends AppCompatActivity {
                     }
                 },
                 this::showEditDialog,
-                (Slogan slogan) -> {
-                    new AlertDialog.Builder(MainActivity.this)
-                            .setTitle(R.string.ui_drop_dialog_title)
-                            .setIcon(R.mipmap.ic_launcher)
-                            .setMessage(R.string.ui_drop_dialog_message)
-                            .setPositiveButton(R.string.ui_drop_dialog_confirm, (DialogInterface $, int $$) -> {
-                                mMySloganManager.dropSlogan(slogan);
-                            })
-                            .setNegativeButton(R.string.ui_drop_dialog_cancel, (DialogInterface $, int $$) -> {
-                            })
-                            .create()
-                            .show();
-                }
+                (Slogan slogan) -> new AlertDialog.Builder(MainActivity.this)
+                        .setTitle(R.string.ui_drop_dialog_title)
+                        .setIcon(R.mipmap.ic_launcher)
+                        .setMessage(R.string.ui_drop_dialog_message)
+                        .setPositiveButton(R.string.ui_drop_dialog_confirm, (DialogInterface $, int $$) -> {
+                            mMySloganManager.dropSlogan(slogan);
+                        })
+                        .setNegativeButton(R.string.ui_drop_dialog_cancel, (DialogInterface $, int $$) -> {
+                        })
+                        .create()
+                        .show()
         );
 
         listView.setAdapter(mListAdapter);
@@ -307,11 +300,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showReplaceDialog(Slogan newSlogan) {
+        @SuppressLint("InflateParams")
         View dialogView = MainActivity.this.getLayoutInflater().inflate(R.layout.dialog_replace_slogan, null);
 
         RadioGroup radioGroup = dialogView.findViewById(R.id.radio_group);
 
-        SparseArray<Slogan> map = new SparseArray<Slogan>();
+        SparseArray<Slogan> map = new SparseArray<>();
 
         for (Slogan slogan : mMySloganManager.getMySlogans()) {
             RadioButton button = new RadioButton(this);
@@ -331,9 +325,9 @@ public class MainActivity extends AppCompatActivity {
                 .setIcon(R.mipmap.ic_launcher)
                 .setMessage(R.string.ui_replace_dialog_message)
                 .setView(dialogView)
-                .setPositiveButton(R.string.ui_replace_dialog_confirm, (DialogInterface $$, int $$$) -> {
-                    mMySloganManager.replace(map.get(radioGroup.getCheckedRadioButtonId()), newSlogan);
-                })
+                .setPositiveButton(R.string.ui_replace_dialog_confirm,
+                        (DialogInterface $$, int $$$) -> mMySloganManager.replace(map.get(radioGroup.getCheckedRadioButtonId()), newSlogan)
+                )
                 .setNegativeButton(R.string.ui_replace_dialog_cancel, (DialogInterface $$, int $$$) -> {
                 })
                 .create();
@@ -341,9 +335,9 @@ public class MainActivity extends AppCompatActivity {
         alert.show();
 
         alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-        radioGroup.setOnCheckedChangeListener((RadioGroup $, int checkedId) -> {
-            alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
-        });
+        radioGroup.setOnCheckedChangeListener(
+                (RadioGroup $, int checkedId) -> alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true)
+        );
     }
 
     /**
@@ -404,10 +398,5 @@ public class MainActivity extends AppCompatActivity {
         mCommunicatorProxy.stopListening();
         inForeground = false;
         super.onPause();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 }

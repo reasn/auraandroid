@@ -7,16 +7,14 @@ import io.auraapp.auraandroid.R;
 
  class CollapsedHolder extends ItemViewHolder {
 
-    private TextView mSloganTextView;
+    private final TextView mSloganTextView;
 
     CollapsedHolder(View itemView, RecycleAdapter.CollapseExpandHandler collapseExpandHandler) {
         super(itemView);
 
         mSloganTextView = itemView.findViewById(R.id.slogan_text);
 
-        itemView.setOnClickListener((v) -> {
-            collapseExpandHandler.flip(mItem);
-        });
+        itemView.setOnClickListener((v) -> collapseExpandHandler.flip(mItem));
     }
 
     void bind(ListItem item) {
