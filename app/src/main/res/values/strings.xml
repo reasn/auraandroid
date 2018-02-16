@@ -1,10 +1,11 @@
 <resources>
     <string name="app_name">Aura</string>
-    <string name="ui_toolbar_title">:fire: Aura</string>
     <string name="ble_uuid_service">47F61476-27FC-450D-BA61-5CA014665C90</string>
     <string name="ble_uuid_slogan_1">D58F2517-F61F-4091-A7C7-6842C146A841</string>
     <string name="ble_uuid_slogan_2">D41B65A3-C25A-4B38-923B-429F508745FE</string>
     <string name="ble_uuid_slogan_3">3105C799-A563-400B-BC04-A412CE0D98E9</string>
+
+    <string name="default_slogan">:ghost: I just installed Aura. Let\'s see what to make of it. :fire:</string>
 
     <!--Toolbar-->
     <string name="ui_toolbar_enable_on">On</string>
@@ -12,56 +13,57 @@
     <string name="ui_toolbar_help">Help</string>
 
     <!--Permissions Missing Activity-->
-    <string name="ui_permissionsMissing_text">Aura can only work with the location permission granted.\n\nRemember: Aura doesn\'t require internet to work and doesn't use it to exchange data.\nYou are safe.</string>
+    <string name="ui_permissionsMissing_text">Aura can only work with some basic permissions.\n\nDon\'t worry, no data will be transmitted via the internet. \nYou are safe.</string>
     <string name="ui_permissionsMissing_request">:fire: Give Aura Location Access</string>
-    <string name="ui_permissionsMissing_second_text">Ifclicking above button no work, got to settings and give perms sousdekf</string>
+    <string name="ui_permissionsMissing_second_text">If clicking the button above doesn\'t work, you have to manually grant Aura the necessary permissions.\nPlease click the button below, then "Permissions" and grant Aura access to your location.</string>
     <string name="ui_permissionsMissing_appSettings">:pencil: Open App Settings</string>
 
     <!--Main Activity-->
-    <string name="ui_main_add_slogan">:heavy_plus_sign: Add Thought</string>
-    <string name="ui_main_toast_slogan_already_adopted">This slogan is already in your Aura</string>
+    <string name="ui_main_add_slogan">:heavy_plus_sign: Add my own thought</string>
+    <string name="ui_main_toast_slogan_already_adopted">This thought is already in your Aura</string>
     <string name="ui_main_toast_cannot_add_no_space_available">Please delete on of your thoughts before adding a new one</string>
     <string name="ui_main_toast_adopted">Thought adopted</string>
     <string name="ui_main_toast_replaced">Thought changed</string>
     <string name="ui_main_toast_dropped">Thought removed</string>
 
-    <string name="ui_main_explanation_bt_disabled">Please enable BT</string>
-    <string name="ui_main_explanation_bt_turning_on">One second, BT is starting</string>
-    <string name="ui_main_explanation_ble_not_supported">BLE not supported</string>
-    <string name="ui_main_explanation_disabled">Aura not active, ckick switch top right to enable</string>
-    <string name="ui_main_explanation_advertising_not_supported">Invisible, you can see others</string>
+    <string name="ui_main_explanation_bt_disabled">Bluetooth is disabled. Please enable it for Aura to work</string>
+    <string name="ui_main_explanation_bt_turning_on">Bluetooth is starting, your Aura is ready shortly</string>
+    <string name="ui_main_explanation_ble_not_supported">Your device does not support Bluetooth LE.\nSadly there\'s no way for Aura to work without it.</string>
+    <string name="ui_main_explanation_disabled">Aura not active, click the switch on the top right to activate it!</string>
+    <string name="ui_main_explanation_advertising_not_supported">Your device doesn\t support to make your Aura visible to others.\nYou can probably see others but nobody can\'t see you.</string>
     <string name="ui_main_explanation_on_not_active">Aura is getting ready</string>
-    <string name="ui_main_explanation_on">Yepp, you\'re on!</string>
+    <string name="ui_main_explanation_on_no_peers">Thoughts of nearby Aura users will automatically show up below. :)</string>
+    <string name="ui_main_explanation_on_peers">Below your thoughts you see ##slogans## of other users</string>
 
     <!--Dialog: BT Stack broken -->
     <string name="ui_dialog_bt_broken_title">Problem with Bluetooth</string>
-    <string name="ui_dialog_bt_broken_text">A thaought\nsdfasdlasdf  ds</string>
+    <string name="ui_dialog_bt_broken_text">It looks like your Bluetooth has been disabled and enabled multiple times\nOnly recently have phone manufacturers started to put high quality Bluetooth chips into their phones.\nIf you experience problems with Bluetooth, restarting your phone might help.</string>
     <string name="ui_dialog_bt_broken_confirm">Okay</string>
     <string name="ui_dialog_bt_broken_never_show_again">Don\'t show this message again</string>
 
     <!--Dialog: Add Slogan-->
     <string name="ui_dialog_add_slogan_title">Add Thought</string>
-    <string name="ui_dialog_add_slogan_text">A thaought\nsdfasdlasdf  ds</string>
+    <string name="ui_dialog_add_slogan_text">TODO A thaought\nsdfasdlasdf  ds</string>
     <string name="ui_dialog_add_slogan_confirm">Add</string>
     <string name="ui_dialog_add_slogan_cancel">Cancel</string>
 
-    <string name="ui_dialog_edit_slogan_edit_hint">Your thought</string>
+    <string name="ui_dialog_edit_slogan_edit_hint">Your Thought</string>
     <!--Dialog: Edit Slogan-->
     <string name="ui_dialog_edit_slogan_title">Edit Thought</string>
-    <string name="ui_dialog_edit_slogan_text">A thaought\nsdfasdlasdf  ds</string>
+    <string name="ui_dialog_edit_slogan_text">TODO A thaought\nsdfasdlasdf  ds</string>
     <string name="ui_dialog_edit_slogan_confirm">Save</string>
     <string name="ui_dialog_edit_slogan_cancel">Cancel</string>
 
 
     <!--Dialog: Replace Slogan-->
-    <string name="ui_replace_dialog_title">Replace Thought</string>
-    <string name="ui_replace_dialog_message">Only 3 blabal\nPlease choose</string>
+    <string name="ui_replace_dialog_title">Adopt Thought</string>
+    <string name="ui_replace_dialog_message">TODO Only ##maxSlogans## blabal\nPlease choose</string>
     <string name="ui_replace_dialog_confirm">Replace</string>
     <string name="ui_replace_dialog_cancel">Cancel</string>
 
     <!--Dialog: Drop Slogan-->
     <string name="ui_drop_dialog_title">Delete Thought</string>
-    <string name="ui_drop_dialog_message">Not longer visible to others\nbla bla \nbla blubb</string>
+    <string name="ui_drop_dialog_message">TODO Not longer visible to others\nbla bla \nbla blubb</string>
     <string name="ui_drop_dialog_confirm">Delete</string>
     <string name="ui_drop_dialog_cancel">Cancel</string>
 

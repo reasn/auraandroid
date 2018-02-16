@@ -54,7 +54,7 @@ class Scanner {
     private boolean mQueued = false;
     private boolean mInactive = false;
 
-    private static final long PEER_FORGET_AFTER = 1000 * 60 * 2;
+    private static final long PEER_FORGET_AFTER = 1000 * 60 * 30;
     private static final long PEER_REFRESH_AFTER = 1000 * 20;
     private static final long PEER_CONNECT_TIMEOUT = 1000 * 10;
 

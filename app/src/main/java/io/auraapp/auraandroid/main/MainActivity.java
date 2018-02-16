@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
     private long mBrokenBtStackLastVisibleTimestamp;
     private boolean mBrokenBtStackAlertVisible = false;
+    private CommunicatorState mCommunicatorState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,9 +121,13 @@ public class MainActivity extends AppCompatActivity {
                     v(TAG, "Syncing %d previous slogans to %d slogans from %d peers", mPeerSlogans.size(), uniqueSlogans.size(), peers.size());
                     if (mPeerSlogans.retainAll(uniqueSlogans) || mPeerSlogans.addAll(uniqueSlogans)) {
                         mListAdapter.notifySlogansChanged();
+                        reflectCommunicatorState();
                     }
                 },
-                this::updateCommunicatorState);
+                (CommunicatorState state) -> {
+                    mCommunicatorState = state;
+                    reflectCommunicatorState();
+                });
 
 //        EmojiCompat.init(new BundledEmojiCompatConfig(this));
 
@@ -196,35 +201,37 @@ public class MainActivity extends AppCompatActivity {
     /**
      * The order of conditions should be synchronized with that in Communicator::updateForegroundNotification
      */
-    private void updateCommunicatorState(CommunicatorState state) {
-        int text;
+    private void reflectCommunicatorState() {
+        String text;
 
-        if (!state.mHasPermission) {
+        if (!mCommunicatorState.mHasPermission) {
             throw new RuntimeException("Attempting to render explanation for missing permissions, user should be in MissingPermissionActivity");
 
-        } else if (state.mBtTurningOn) {
-            text = R.string.ui_main_explanation_bt_turning_on;
+        } else if (mCommunicatorState.mBtTurningOn) {
+            text = getString(R.string.ui_main_explanation_bt_turning_on);
 
-        } else if (!state.mBtEnabled) {
-            text = R.string.ui_main_explanation_bt_disabled;
+        } else if (!mCommunicatorState.mBtEnabled) {
+            text = getString(R.string.ui_main_explanation_bt_disabled);
 
-        } else if (!state.mBleSupported) {
-            text = R.string.ui_main_explanation_ble_not_supported;
+        } else if (!mCommunicatorState.mBleSupported) {
+            text = getString(R.string.ui_main_explanation_ble_not_supported);
 
-        } else if (!state.mShouldCommunicate) {
-            text = R.string.ui_main_explanation_disabled;
+        } else if (!mCommunicatorState.mShouldCommunicate) {
+            text = getString(R.string.ui_main_explanation_disabled);
 
         } else {
-            if (!state.mAdvertisingSupported) {
-                text = R.string.ui_main_explanation_advertising_not_supported;
-            } else if (!state.mAdvertising) {
+            if (!mCommunicatorState.mAdvertisingSupported) {
+                text = getString(R.string.ui_main_explanation_advertising_not_supported);
+            } else if (!mCommunicatorState.mAdvertising) {
                 w(TAG, "Not advertising although it is possible.");
-                text = R.string.ui_main_explanation_on_not_active;
-            } else if (!state.mScanning) {
+                text = getString(R.string.ui_main_explanation_on_not_active);
+            } else if (!mCommunicatorState.mScanning) {
                 w(TAG, "Not scanning although it is possible.");
-                text = R.string.ui_main_explanation_on_not_active;
+                text = getString(R.string.ui_main_explanation_on_not_active);
+            } else if (mPeerSlogans.size() == 0) {
+                text = getString(R.string.ui_main_explanation_on_no_peers);
             } else {
-                text = R.string.ui_main_explanation_on;
+                text = getString(R.string.ui_main_explanation_on_peers).replaceAll("##slogans##", Integer.toString(mPeerSlogans.size()));
             }
         }
 
@@ -233,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
         view.setText(text);
         view.setVisibility(View.VISIBLE);
 
-        if (state.mRecentBtTurnOnEvents >= Communicator.RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD) {
+        if (mCommunicatorState.mRecentBtTurnOnEvents >= Communicator.RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD) {
             showBrokenBtStackAlert();
         }
     }
@@ -332,7 +339,7 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog alert = new AlertDialog.Builder(MainActivity.this)
                 .setTitle(R.string.ui_replace_dialog_title)
                 .setIcon(R.mipmap.ic_launcher)
-                .setMessage(R.string.ui_replace_dialog_message)
+                .setMessage(getString(R.string.ui_replace_dialog_message).replaceAll("##maxSlogans##", Integer.toString(MySloganManager.MAX_SLOGANS)))
                 .setView(dialogView)
                 .setPositiveButton(R.string.ui_replace_dialog_confirm,
                         (DialogInterface $$, int $$$) -> mMySloganManager.replace(map.get(radioGroup.getCheckedRadioButtonId()), newSlogan)

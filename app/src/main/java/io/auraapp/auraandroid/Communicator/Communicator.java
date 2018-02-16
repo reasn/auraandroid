@@ -69,8 +69,8 @@ public class Communicator extends Service {
      *
      * @see MainActivity#showBrokenBtStackAlert
      */
-    private static final int RECENT_BT_TURNING_ON_EVENTS_RECENT_TIMEFRAME = 1000 * 60 * 2;
-    public static final int RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD = 3;
+    private static final int RECENT_BT_TURNING_ON_EVENTS_RECENT_TIMEFRAME = 1000 * 60;
+    public static final int RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD = 2;
     private Advertiser mAdvertiser;
     private Scanner mScanner;
     private boolean mRunning = false;
@@ -216,7 +216,7 @@ public class Communicator extends Service {
         }
 
         if (mPeerSloganCount > 0) {
-            title += format(Locale.ENGLISH, ", %d :thought_balloon:", mPeerSloganCount);
+            title += format(Locale.ENGLISH, ". %d :thought_balloon:", mPeerSloganCount);
         }
 
         title = replaceShortCode(title);

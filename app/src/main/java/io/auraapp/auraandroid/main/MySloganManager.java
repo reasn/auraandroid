@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
+import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.common.SloganComparator;
 
@@ -19,7 +21,7 @@ class MySloganManager {
         void onMySlogansChanged(int event);
     }
 
-    private static final int MAX_SLOGANS = 3;
+    static final int MAX_SLOGANS = 3;
 
     private final MySlogansChangedCallback mNotifyChangeCallback;
 
@@ -38,9 +40,12 @@ class MySloganManager {
 
     void init() {
 
+        Set<String> defaultSlogans = new HashSet<>();
+        defaultSlogans.add(EmojiHelper.replaceShortCode(mContext.getString(R.string.default_slogan)));
+
         SharedPreferences prefs = mContext.getSharedPreferences(MainActivity.PREFS_BUCKET, MODE_PRIVATE);
         mMySlogans.clear();
-        for (String mySloganText : prefs.getStringSet(MainActivity.PREFS_SLOGANS, new HashSet<>())) {
+        for (String mySloganText : prefs.getStringSet(MainActivity.PREFS_SLOGANS, defaultSlogans)) {
             mMySlogans.add(Slogan.create(mySloganText));
         }
     }
