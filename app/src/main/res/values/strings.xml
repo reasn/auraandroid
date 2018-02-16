@@ -11,7 +11,13 @@
     <string name="ui_toolbar_enable_off">Off</string>
     <string name="ui_toolbar_help">Help</string>
 
-    <!--Dialog: Main activity-->
+    <!--Permissions Missing Activity-->
+    <string name="ui_permissionsMissing_text">Aura can only work with the location permission granted.\n\nRemember: Aura doesn\'t require internet to work and doesn't use it to exchange data.\nYou are safe.</string>
+    <string name="ui_permissionsMissing_request">:fire: Give Aura Location Access</string>
+    <string name="ui_permissionsMissing_second_text">Ifclicking above button no work, got to settings and give perms sousdekf</string>
+    <string name="ui_permissionsMissing_appSettings">:pencil: Open App Settings</string>
+
+    <!--Main Activity-->
     <string name="ui_main_add_slogan">:heavy_plus_sign: Add Thought</string>
     <string name="ui_main_toast_slogan_already_adopted">This slogan is already in your Aura</string>
     <string name="ui_main_toast_cannot_add_no_space_available">Please delete on of your thoughts before adding a new one</string>

@@ -1,44 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="bottom|end"
+    android:orientation="vertical"
     tools:context="io.auraapp.auraandroid.main.MainActivity">
 
-    <LinearLayout
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        style="@style/Toolbar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
+    <!--TODO move explanation and add thought into recycler to make them scrollable-->
+    <TextView
+        android:id="@+id/communicator_state_explanation"
+        style="@style/ExplanationBox"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/add_slogan"
+        style="?android:attr/buttonBarButtonStyle"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:text="@string/ui_main_add_slogan" />
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            android:elevation="4dp"
-            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
-<!--TODO move explanation and add thought into recycler to make them scrollable-->
-        <TextView
-            android:id="@+id/communicator_state_explanation"
-            style="@style/ExplanationBox"
-            android:visibility="gone" />
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/list_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        <Button
-            android:id="@+id/add_slogan"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/ui_main_add_slogan" />
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/list_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-        </android.support.v7.widget.RecyclerView>
-    </LinearLayout>
-
-</android.support.constraint.ConstraintLayout>
+    </android.support.v7.widget.RecyclerView>
+</LinearLayout>
