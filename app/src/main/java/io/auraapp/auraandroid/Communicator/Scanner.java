@@ -38,6 +38,11 @@ import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 import static io.auraapp.auraandroid.common.FormattedLog.w;
 
+/**
+ * All methods accessible from the outside post a callback to mHandler to avoid
+ * concurrent modification of any class properties.
+ * The same holds for all callbacks registered externally (in this case typically the BT stack).
+ */
 class Scanner {
 
     @FunctionalInterface
@@ -45,25 +50,27 @@ class Scanner {
         void proximityChanged(Set<Peer> peers);
     }
 
-    private static final boolean HIGH_POWER = true;
-
-    private final ProximityCallback mProximityCallback;
+    @FunctionalInterface
+    interface CurrentPeersCallback {
+        void currentPeers(Set<Peer> peers);
+    }
 
     private final static String TAG = "@aura/ble/scanner";
 
-    private final static Charset UTF8_CHARSET = Charset.forName("UTF-8");
-    private final Context mContext;
-    private final Handler mHandler = new Handler();
-    private boolean mQueued = false;
-    private boolean mInactive = false;
-
+    private static final boolean HIGH_POWER = true;
     private static final long PEER_FORGET_AFTER = 1000 * 60 * 30;
     private static final long PEER_REFRESH_AFTER = 1000 * 20;
     private static final long PEER_CONNECT_TIMEOUT = 1000 * 10;
+    private static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
 
+    private final Context mContext;
+    private final ProximityCallback mProximityCallback;
+    private final Handler mHandler = new Handler();
     private final HashMap<String, Device> devices = new HashMap<>();
 
-    private Set<String> mSlogansAtLastPropagation = new HashSet<>();
+    private Set<String> mSlogansAfterLastPropagation = new HashSet<>();
+    private boolean mQueued = false;
+    private boolean mInactive = false;
 
     Scanner(Context context, ProximityCallback proximityCallback) {
         mContext = context;
@@ -71,8 +78,10 @@ class Scanner {
     }
 
     void start() {
-        startScanning();
-        returnControl();
+        mHandler.post(() -> {
+            startScanning();
+            returnControl();
+        });
     }
 
     private void returnControl() {
@@ -84,18 +93,20 @@ class Scanner {
     }
 
     void stop() {
-        w(TAG, "onStop called, destroying");
-        mInactive = true;
-        for (String address : devices.keySet()) {
+        mHandler.post(() -> {
+            w(TAG, "onStop called, destroying");
+            mInactive = true;
+            for (String address : devices.keySet()) {
 
-            Device device = devices.get(address);
-            if (device.bt.gatt != null) {
-                device.bt.gatt.close();
+                Device device = devices.get(address);
+                if (device.bt.gatt != null) {
+                    device.bt.gatt.close();
+                }
+                device.bt.device = null;
+                device.bt.service = null;
             }
-            device.bt.device = null;
-            device.bt.service = null;
-        }
-        mHandler.post(devices::clear);
+            mHandler.post(devices::clear);
+        });
     }
 
     /**
@@ -112,19 +123,19 @@ class Scanner {
 
         // A kingdom for immutability and first class functions
         Set<String> gone = new HashSet<>();
-        gone.addAll(mSlogansAtLastPropagation);
+        gone.addAll(mSlogansAfterLastPropagation);
         gone.removeAll(slogans);
 
         // A kingdom for immutability and first class functions
         Set<String> found = new HashSet<>();
         found.addAll(slogans);
-        found.removeAll(mSlogansAtLastPropagation);
+        found.removeAll(mSlogansAfterLastPropagation);
 
         if (found.size() > 0 || gone.size() > 0) {
             d(TAG, "Slogans changed, devices: %d, slogans: %d found (%s) and %d gone (%s)", devices.size(), found.size(), found, gone.size(), gone);
 
             mProximityCallback.proximityChanged(buildPeers());
-            mSlogansAtLastPropagation = slogans;
+            mSlogansAfterLastPropagation = slogans;
         } else {
             v(TAG, "No slogans changed, nothing to propagates, slogans: %d", slogans.size());
         }
@@ -143,11 +154,6 @@ class Scanner {
             peers.add(peer);
         }
         return peers;
-    }
-
-    @FunctionalInterface
-    interface CurrentPeersCallback {
-        void currentPeers(Set<Peer> peers);
     }
 
     /**
@@ -234,7 +240,7 @@ class Scanner {
                 // device has a service and is not discovering
 
                 if (device.isFetchingProp) {
-                    v(TAG, "Still fetching slogan, device: %s", address);
+                    v(TAG, "Still fetching prop, device: %s", address);
                     continue;
                 }
 
@@ -262,7 +268,7 @@ class Scanner {
         d(TAG, "Requesting characteristic, gatt: %s, characteristic: %s", device.bt.device.getAddress(), uuid);
         BluetoothGattCharacteristic chara = device.bt.service.getCharacteristic(uuid);
         if (!device.bt.gatt.readCharacteristic(chara)) {
-            d(TAG, "Failed to request slogan. Disconnecting, gatt: %s, characteristic: %s", device.bt.device.getAddress(), uuid);
+            d(TAG, "Failed to request prop. Disconnecting, gatt: %s, characteristic: %s", device.bt.device.getAddress(), uuid);
             device.shouldDisconnect = true;
             device.stats.mErrors++;
         }
@@ -321,6 +327,7 @@ class Scanner {
             @Override
             public void onScanFailed(int errorCode) {
                 d(TAG, "onScanFailed errorCode: %s", BtConst.nameScanError(errorCode));
+                // TODO disable scanning or at least stop
             }
         });
         i(TAG, "started scanning");
@@ -342,67 +349,72 @@ class Scanner {
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-            String address = gatt.getDevice().getAddress();
-            d(TAG, "onConnectionStateChange, gatt: %s, status: %s, newState: %s", address, BtConst.nameGattStatus(status), BtConst.nameConnectionState(newState));
-            if (!assertPeer(address, gatt, "onConnectionStateChange")) {
-                return;
-            }
+            mHandler.post(() -> {
+                String address = gatt.getDevice().getAddress();
+                d(TAG, "onConnectionStateChange, gatt: %s, status: %s, newState: %s", address, BtConst.nameGattStatus(status), BtConst.nameConnectionState(newState));
+                if (!assertPeer(address, gatt, "onConnectionStateChange")) {
+                    return;
+                }
 
-            if (newState == STATE_CONNECTED) {
-                devices.get(address).connected = true;
-                returnControl();
+                if (newState == STATE_CONNECTED) {
+                    devices.get(address).connected = true;
+                    returnControl();
 
-            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                d(TAG, "Disconnected from %s", address);
-                devices.get(address).connected = false;
-                returnControl();
-            }
+                } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                    d(TAG, "Disconnected from %s", address);
+                    devices.get(address).connected = false;
+                    returnControl();
+                }
+            });
         }
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            String address = gatt.getDevice().getAddress();
-            v(TAG, "onServicesDiscovered, gatt: %s, status: %s", address, BtConst.nameGattStatus(status));
-            if (!assertPeer(address, gatt, "onServicesDiscovered")) {
-                return;
-            }
-            Device device = devices.get(address);
+            mHandler.post(() -> {
+                String address = gatt.getDevice().getAddress();
+                v(TAG, "onServicesDiscovered, gatt: %s, status: %s", address, BtConst.nameGattStatus(status));
 
-            if (status != BluetoothGatt.GATT_SUCCESS) {
-                w(TAG, "onServicesDiscovered unsuccessful, status: %s", BtConst.nameGattStatus(status));
-                device.shouldDisconnect = true;
-                device.stats.mErrors++;
+                if (!assertPeer(address, gatt, "onServicesDiscovered")) {
+                    return;
+                }
+                Device device = devices.get(address);
+
+                if (status != BluetoothGatt.GATT_SUCCESS) {
+                    w(TAG, "onServicesDiscovered unsuccessful, status: %s", BtConst.nameGattStatus(status));
+                    device.shouldDisconnect = true;
+                    device.stats.mErrors++;
+                    returnControl();
+                    return;
+                }
+
+
+                d(TAG, "Discovered %d services, gatt: %s, services: %s", gatt.getServices().size(), address, gatt.getServices().toString());
+
+                BluetoothGattService service = gatt.getService(UuidSet.SERVICE);
+
+                if (service == null) {
+                    d(TAG, "Service is null, disconnecting, address: %s", address);
+                    device.shouldDisconnect = true;
+                    device.stats.mErrors++;
+                    returnControl();
+                    return;
+                }
+                device.isDiscoveringServices = false;
+                device.bt.service = service;
                 returnControl();
-                return;
-            }
-
-
-            d(TAG, "Discovered %d services, gatt: %s, services: %s", gatt.getServices().size(), address, gatt.getServices().toString());
-
-            BluetoothGattService service = gatt.getService(UuidSet.SERVICE);
-
-            if (service == null) {
-                d(TAG, "Service is null, disconnecting, address: %s", address);
-                device.shouldDisconnect = true;
-                device.stats.mErrors++;
-                returnControl();
-                return;
-            }
-            device.isDiscoveringServices = false;
-            device.bt.service = service;
-            returnControl();
+            });
         }
 
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            String address = gatt.getDevice().getAddress();
-            d(TAG, "onCharacteristicRead, gatt: %s, characteristic: %s, status: %s", address, characteristic.getUuid(), BtConst.nameGattStatus(status));
-
-            if (!assertPeer(address, gatt, "onCharacteristicRead")) {
-                return;
-            }
-
             mHandler.post(() -> {
+                String address = gatt.getDevice().getAddress();
+                d(TAG, "onCharacteristicRead, gatt: %s, characteristic: %s, status: %s", address, characteristic.getUuid(), BtConst.nameGattStatus(status));
+
+                if (!assertPeer(address, gatt, "onCharacteristicRead")) {
+                    return;
+                }
+
                 Device device = devices.get(address);
 
                 if (status != BluetoothGatt.GATT_SUCCESS) {
@@ -414,7 +426,7 @@ class Scanner {
                 }
                 byte[] value = characteristic.getValue();
                 if (value == null) {
-                    w(TAG, "Retrieved null slogan, address: %s", address);
+                    w(TAG, "Retrieved null prop, address: %s", address);
                     device.shouldDisconnect = true;
                     device.stats.mErrors++;
                     returnControl();
@@ -422,13 +434,13 @@ class Scanner {
                 }
 
                 UUID uuid = characteristic.getUuid();
-                String slogan = new String(value, UTF8_CHARSET);
-                d(TAG, "Retrieved slogan, device: %s, uuid: %s, slogan: %s", address, uuid, slogan);
+                String propValue = new String(value, UTF8_CHARSET);
+                d(TAG, "Retrieved prop, device: %s, uuid: %s, propValue: %s", address, uuid, propValue);
                 try {
-                    device.updateWithReceivedAttribute(uuid, slogan);
+                    device.updateWithReceivedAttribute(uuid, propValue);
                     propagateChanges();
                 } catch (UnknownAdvertisementException e) {
-                    w(TAG, "Characteristic retrieved matches no slogan UUID, address: %s, uuid: %s", address, uuid);
+                    w(TAG, "Characteristic retrieved matches no prop UUID, address: %s, uuid: %s", address, uuid);
                 }
                 device.isFetchingProp = false;
                 returnControl();

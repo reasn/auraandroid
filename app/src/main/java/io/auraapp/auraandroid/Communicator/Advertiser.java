@@ -13,6 +13,7 @@ import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertiseSettings;
 import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.content.Context;
+import android.os.Handler;
 import android.os.ParcelUuid;
 
 import java.util.Arrays;
@@ -27,15 +28,22 @@ import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 import static io.auraapp.auraandroid.common.FormattedLog.w;
 
+/**
+ * All methods accessible from the outside post a callback to mHandler to avoid
+ * concurrent modification of any class properties.
+ * The same holds for all callbacks registered externally (in this case typically the BT stack).
+ */
 class Advertiser {
 
     private final static String TAG = "@aura/ble/advertiser";
-    private final Communicator.OnBleSupportChangedCallback mOnBleSupportChangedCallback;
-    private final AdvertisementSet mAdvertisementSet;
 
     private final BluetoothManager mBluetoothManager;
-    private BluetoothGattServer mBluetoothGattServer;
+    private final AdvertisementSet mAdvertisementSet;
     private final Context mContext;
+    private final Communicator.OnBleSupportChangedCallback mOnBleSupportChangedCallback;
+    private final Handler mHandler = new Handler();
+
+    private BluetoothGattServer mBluetoothGattServer;
     private BluetoothLeAdvertiser mBluetoothAdvertiser;
 
     /**
@@ -64,32 +72,35 @@ class Advertiser {
     }
 
     void start() {
+        mHandler.post(() -> {
+            BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+            if (bluetoothAdapter == null) {
+                advertisingUnsupported(true);
+                return;
+            }
+            mBluetoothAdvertiser = bluetoothAdapter.getBluetoothLeAdvertiser();
 
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (bluetoothAdapter == null) {
-            advertisingUnsupported(true);
-            return;
-        }
-        mBluetoothAdvertiser = bluetoothAdapter.getBluetoothLeAdvertiser();
+            if (mBluetoothAdvertiser == null) {
+                advertisingUnsupported(true);
+                return;
+            }
 
-        if (mBluetoothAdvertiser == null) {
-            advertisingUnsupported(true);
-            return;
-        }
-
-        advertise();
-        startServer();
+            advertise();
+            startServer();
+        });
     }
 
     void stop() {
-        d(TAG, "Making sure advertising is stopped");
-        if (mBluetoothGattServer != null) {
-            mBluetoothGattServer.clearServices();
-            mBluetoothGattServer.close();
-        }
-        if (mBluetoothAdvertiser != null) {
-            mBluetoothAdvertiser.stopAdvertising(mAdvertisingCallback);
-        }
+        mHandler.post(() -> {
+            d(TAG, "Making sure advertising is stopped");
+            if (mBluetoothGattServer != null) {
+                mBluetoothGattServer.clearServices();
+                mBluetoothGattServer.close();
+            }
+            if (mBluetoothAdvertiser != null) {
+                mBluetoothAdvertiser.stopAdvertising(mAdvertisingCallback);
+            }
+        });
     }
 
     private void advertisingUnsupported(boolean recoverable) {
@@ -111,21 +122,22 @@ class Advertiser {
 
             @Override
             public void onCharacteristicReadRequest(BluetoothDevice device, int requestId, int offset, BluetoothGattCharacteristic characteristic) {
+                mHandler.post(() -> {
+                    v(TAG, "onCharacteristicReadRequest device: %s, requestId: %d, offset: %d, characteristic: %s", device.getAddress(), requestId, offset, characteristic.getUuid());
 
-                v(TAG, "onCharacteristicReadRequest device: %s, requestId: %d, offset: %d, characteristic: %s", device.getAddress(), requestId, offset, characteristic.getUuid());
+                    try {
+                        byte[] response = chunk(
+                                mAdvertisementSet.getChunkedResponsePayload(characteristic.getUuid()),
+                                offset);
+                        d(TAG, "sending response, bytes: %d", response.length);
+                        mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, response);
 
-                try {
-                    byte[] response = chunk(
-                            mAdvertisementSet.getChunkedResponsePayload(characteristic.getUuid()),
-                            offset);
-                    d(TAG, "sending response, bytes: %d", response.length);
-                    mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, response);
-
-                } catch (UnknownAdvertisementException e) {
-                    // Invalid characteristic
-                    w(TAG, "Invalid characteristic requested, device: %s, characteristic: %s", device.getAddress(), characteristic.getUuid());
-                    mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_FAILURE, 0, null);
-                }
+                    } catch (UnknownAdvertisementException e) {
+                        // Invalid characteristic
+                        w(TAG, "Invalid characteristic requested, device: %s, characteristic: %s", device.getAddress(), characteristic.getUuid());
+                        mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_FAILURE, 0, null);
+                    }
+                });
             }
         };
 
