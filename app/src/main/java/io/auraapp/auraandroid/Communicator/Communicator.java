@@ -26,6 +26,7 @@ import java.util.UUID;
 
 import io.auraapp.auraandroid.PermissionMissingActivity;
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.PermissionHelper;
 import io.auraapp.auraandroid.main.MainActivity;
@@ -40,21 +41,6 @@ import static java.lang.String.format;
  * Thx to https://medium.com/@rotxed/going-multiprocess-on-android-52975ed8863c
  */
 public class Communicator extends Service {
-
-    // incoming
-    public static final String INTENT_ENABLE_ACTION = "io.aurapp.aura.enableCommunicator";
-    public static final String INTENT_DISABLE_ACTION = "io.aurapp.aura.disableCommunicator";
-    public static final String INTENT_REQUEST_PEERS_ACTION = "io.aurapp.aura.requestPeers";
-    public static final String INTENT_MY_SLOGANS_CHANGED_ACTION = "io.aurapp.aura.mySlogansChanged";
-    public static final String INTENT_MY_SLOGANS_CHANGED_SLOGANS_EXTRA = "io.auraapp.aura.mySlogansExtra";
-
-    // outgoing
-    public static final String INTENT_COMMUNICATOR_STATE_UPDATED_ACTION = "io.auraapp.aura.healthUpdated";
-
-    public static final String INTENT_PEERS_UPDATE_ACTION = "io.auraapp.aura.peersUpdated";
-    public static final String INTENT_PEERS_UPDATE_PEERS_EXTRA = "io.auraapp.aura.peersExtra";
-
-    public static final java.lang.String INTENT_COMMUNICATOR_STATE_EXTRA = "io.aurapp.aura.stateExtra";
 
     private final static String TAG = "@aura/ble/communicator";
 
@@ -141,11 +127,9 @@ public class Communicator extends Service {
                         updateForegroundNotification();
                     }
 
-                    Intent intent = new Intent(INTENT_PEERS_UPDATE_ACTION);
-                    intent.putExtra(INTENT_PEERS_UPDATE_PEERS_EXTRA, (Serializable) peers);
-                    sendBroadcast(intent);
+                    sendBroadcast(IntentFactory.peersUpdate(peers, mState));
 
-                    d(TAG, "Sent intent with %d peers, intent: %s", peers.size(), intent.getAction());
+                    d(TAG, "Sent peers intent with %d peers", peers.size());
                 })
         );
 
@@ -222,12 +206,11 @@ public class Communicator extends Service {
         title = replaceShortCode(title);
         text = replaceShortCode(text);
 
-        Intent showActivityIntent = new Intent(getApplicationContext(), activity);
-        showActivityIntent.setAction(Intent.ACTION_MAIN);
-        showActivityIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-        showActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, showActivityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent contentIntent = PendingIntent.getActivity(
+                this,
+                0,
+                IntentFactory.showActivity(getApplicationContext(), activity),
+                PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification.Builder builder = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
                 ? new Notification.Builder(this, createNotificationChannel())
@@ -359,9 +342,7 @@ public class Communicator extends Service {
 
     private void sendState() {
         d(TAG, "Sending state, state: %s", mState);
-        Intent stateIntent = new Intent(INTENT_COMMUNICATOR_STATE_UPDATED_ACTION);
-        stateIntent.putExtra(INTENT_COMMUNICATOR_STATE_EXTRA, mState);
-        sendBroadcast(stateIntent);
+        sendBroadcast(IntentFactory.communicatorState(mState));
     }
 
     private void handleIntent(Intent intent) {
@@ -412,25 +393,22 @@ public class Communicator extends Service {
             }
             actOnState(true);
 
-        } else if (INTENT_ENABLE_ACTION.equals(action)) {
+        } else if (IntentFactory.INTENT_ENABLE_ACTION.equals(action)) {
             mState.mShouldCommunicate = true;
             actOnState(true);
 
-        } else if (INTENT_DISABLE_ACTION.equals(action)) {
+        } else if (IntentFactory.INTENT_DISABLE_ACTION.equals(action)) {
             mState.mShouldCommunicate = false;
             actOnState(true);
 
-        } else if (INTENT_REQUEST_PEERS_ACTION.equals(action)) {
+        } else if (IntentFactory.INTENT_REQUEST_PEERS_ACTION.equals(action)) {
 
             mScanner.requestPeers((Set<Peer> peers) -> {
-                Intent responseIntent = new Intent(INTENT_PEERS_UPDATE_ACTION);
-                responseIntent.putExtra(INTENT_PEERS_UPDATE_PEERS_EXTRA, (Serializable) peers);
-                responseIntent.putExtra(INTENT_COMMUNICATOR_STATE_EXTRA, mState);
-                sendBroadcast(responseIntent);
-                d(TAG, "Sent intent with %d peers, intent: %s", peers.size(), responseIntent.getAction());
+                sendBroadcast(IntentFactory.peersUpdate(peers, mState));
+                d(TAG, "Sent intent with %d peers, intent: %s", peers.size());
             });
 
-        } else if (INTENT_MY_SLOGANS_CHANGED_ACTION.equals(action)) {
+        } else if (IntentFactory.INTENT_MY_SLOGANS_CHANGED_ACTION.equals(action)) {
 
             Bundle extras = intent.getExtras();
 
@@ -440,7 +418,7 @@ public class Communicator extends Service {
             }
 
             @SuppressWarnings("unchecked")
-            String[] mySlogans = extras.getStringArray(INTENT_MY_SLOGANS_CHANGED_SLOGANS_EXTRA);
+            String[] mySlogans = extras.getStringArray(IntentFactory.INTENT_MY_SLOGANS_CHANGED_SLOGANS_EXTRA);
             if (mySlogans == null) {
                 w(TAG, "No slogans retrieved from intent");
                 return;

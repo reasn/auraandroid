@@ -77,6 +77,10 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
+        // TODO swipe instead of expand
+        // TODO refresh, direct Feedback
+        // TODO ? debug view shat neatly shows interactions with other devices
+
         // Create toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
