@@ -1,9 +1,5 @@
 <resources>
     <string name="app_name">Aura</string>
-    <string name="ble_uuid_service">47F61476-27FC-450D-BA61-5CA014665C90</string>
-    <string name="ble_uuid_slogan_1">D58F2517-F61F-4091-A7C7-6842C146A841</string>
-    <string name="ble_uuid_slogan_2">D41B65A3-C25A-4B38-923B-429F508745FE</string>
-    <string name="ble_uuid_slogan_3">3105C799-A563-400B-BC04-A412CE0D98E9</string>
 
     <string name="default_slogan">:ghost: I just installed Aura. Let\'s see what to make of it. :fire:</string>
 

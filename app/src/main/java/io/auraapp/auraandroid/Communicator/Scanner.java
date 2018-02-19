@@ -36,6 +36,7 @@ import static io.auraapp.auraandroid.common.FormattedLog.w;
 
 class Scanner {
 
+    @FunctionalInterface
     interface ProximityCallback {
         void proximityChanged(Set<Peer> peers);
     }
@@ -47,10 +48,6 @@ class Scanner {
     private final static Charset UTF8_CHARSET = Charset.forName("UTF-8");
     private final Context mContext;
     private final Handler mHandler = new Handler();
-    private final UUID mServiceUuid;
-    private final UUID mSlogan1Uuid;
-    private final UUID mSlogan2Uuid;
-    private final UUID mSlogan3Uuid;
     private boolean mQueued = false;
     private boolean mInactive = false;
 
@@ -62,16 +59,7 @@ class Scanner {
 
     private Set<String> mSlogansAtLastPropagation = new HashSet<>();
 
-    Scanner(UUID serviceUuid,
-            UUID slogan1Uuid,
-            UUID slogan2Uuid,
-            UUID slogan3Uuid,
-            Context context,
-            ProximityCallback proximityCallback) {
-        mServiceUuid = serviceUuid;
-        mSlogan1Uuid = slogan1Uuid;
-        mSlogan2Uuid = slogan2Uuid;
-        mSlogan3Uuid = slogan3Uuid;
+    Scanner(Context context, ProximityCallback proximityCallback) {
         mContext = context;
         mProximityCallback = proximityCallback;
     }
@@ -261,15 +249,15 @@ class Scanner {
                 }
 
                 if (!device.slogan1fresh) {
-                    requestSlogan(device, mSlogan1Uuid);
+                    requestSlogan(device, UuidSet.SLOGAN_1);
                     continue;
                 }
                 if (!device.slogan2fresh) {
-                    requestSlogan(device, mSlogan2Uuid);
+                    requestSlogan(device, UuidSet.SLOGAN_2);
                     continue;
                 }
                 if (!device.slogan3fresh) {
-                    requestSlogan(device, mSlogan3Uuid);
+                    requestSlogan(device, UuidSet.SLOGAN_3);
                     continue;
                 }
 
@@ -323,7 +311,7 @@ class Scanner {
 
         List<ScanFilter> scanFilters = new ArrayList<>();
         scanFilters.add(new ScanFilter.Builder()
-                .setServiceUuid(new ParcelUuid(mServiceUuid))
+                .setServiceUuid(new ParcelUuid(UuidSet.SERVICE))
                 .build());
 
         scanner.startScan(scanFilters, settings, new ScanCallback() {
@@ -404,7 +392,7 @@ class Scanner {
 
             d(TAG, "Discovered %d services, gatt: %s, services: %s", gatt.getServices().size(), address, gatt.getServices().toString());
 
-            BluetoothGattService service = gatt.getService(mServiceUuid);
+            BluetoothGattService service = gatt.getService(UuidSet.SERVICE);
 
             if (service == null) {
                 d(TAG, "Service is null, disconnecting, address: %s", address);
@@ -449,17 +437,17 @@ class Scanner {
             String slogan = new String(value, UTF8_CHARSET);
             d(TAG, "Retrieved slogan, device: %s, uuid: %s, slogan: %s", address, uuid, slogan);
             boolean changed = false;
-            if (mSlogan1Uuid.equals(uuid)) {
+            if (UuidSet.SLOGAN_1.equals(uuid)) {
                 device.slogan1 = slogan;
                 device.slogan1fresh = true;
                 changed = true;
 
-            } else if (mSlogan2Uuid.equals(uuid)) {
+            } else if (UuidSet.SLOGAN_2.equals(uuid)) {
                 device.slogan2 = slogan;
                 device.slogan2fresh = true;
                 changed = true;
 
-            } else if (mSlogan3Uuid.equals(uuid)) {
+            } else if (UuidSet.SLOGAN_3.equals(uuid)) {
                 device.slogan3 = slogan;
                 device.slogan3fresh = true;
                 changed = true;

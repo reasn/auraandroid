@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.UUID;
 
 import io.auraapp.auraandroid.PermissionMissingActivity;
 import io.auraapp.auraandroid.R;
@@ -61,6 +60,7 @@ public class Communicator extends Service {
     private Scanner mScanner;
     private boolean mRunning = false;
     private Handler mHandler;
+    private final AdvertisementSet mAdvertisementSet = new AdvertisementSet();
     private boolean mIsRunningInForeground = false;
     private Set<Long> btTurningOnTimestamps = new TreeSet<>();
 
@@ -89,19 +89,12 @@ public class Communicator extends Service {
     private void init() {
         // Can't do this in constructor because R.string resources are not yet available
         d(TAG, "Initializing communicator");
-        UUID serviceUuid = UUID.fromString(getString(R.string.ble_uuid_service));
-        UUID slogan1Uuid = UUID.fromString(getString(R.string.ble_uuid_slogan_1));
-        UUID slogan2Uuid = UUID.fromString(getString(R.string.ble_uuid_slogan_2));
-        UUID slogan3Uuid = UUID.fromString(getString(R.string.ble_uuid_slogan_3));
 
         mHandler = new Handler();
 
         mAdvertiser = new Advertiser(
                 (BluetoothManager) getSystemService(BLUETOOTH_SERVICE),
-                serviceUuid,
-                slogan1Uuid,
-                slogan2Uuid,
-                slogan3Uuid,
+                mAdvertisementSet,
                 this,
                 () -> {
                     updateBtState();
@@ -109,10 +102,6 @@ public class Communicator extends Service {
                 }
         );
         mScanner = new Scanner(
-                serviceUuid,
-                slogan1Uuid,
-                slogan2Uuid,
-                slogan3Uuid,
                 this,
                 (Set<Peer> peers) -> mHandler.post(() -> {
                     if (!(peers instanceof Serializable)) {
@@ -405,7 +394,7 @@ public class Communicator extends Service {
 
             mScanner.requestPeers((Set<Peer> peers) -> {
                 sendBroadcast(IntentFactory.peersUpdate(peers, mState));
-                d(TAG, "Sent intent with %d peers, intent: %s", peers.size());
+                d(TAG, "Sent intent with %d peers", peers.size());
             });
 
         } else if (IntentFactory.INTENT_MY_SLOGANS_CHANGED_ACTION.equals(action)) {
@@ -423,9 +412,7 @@ public class Communicator extends Service {
                 w(TAG, "No slogans retrieved from intent");
                 return;
             }
-            mAdvertiser.setSlogan1(mySlogans.length > 0 ? mySlogans[0] : null);
-            mAdvertiser.setSlogan2(mySlogans.length > 1 ? mySlogans[1] : null);
-            mAdvertiser.setSlogan3(mySlogans.length > 2 ? mySlogans[2] : null);
+            mAdvertisementSet.setSlogans(mySlogans);
             sendState();
         } else {
             w(TAG, "Received unknown intent, intent: %s", intent);
