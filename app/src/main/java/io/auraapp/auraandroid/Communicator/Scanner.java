@@ -27,7 +27,11 @@ import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.Slogan;
 
 import static android.bluetooth.BluetoothProfile.STATE_CONNECTED;
+import static android.bluetooth.le.ScanSettings.CALLBACK_TYPE_ALL_MATCHES;
+import static android.bluetooth.le.ScanSettings.MATCH_MODE_AGGRESSIVE;
+import static android.bluetooth.le.ScanSettings.MATCH_MODE_STICKY;
 import static android.bluetooth.le.ScanSettings.SCAN_MODE_BALANCED;
+import static android.bluetooth.le.ScanSettings.SCAN_MODE_LOW_LATENCY;
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.e;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
@@ -40,6 +44,8 @@ class Scanner {
     interface ProximityCallback {
         void proximityChanged(Set<Peer> peers);
     }
+
+    private static final boolean HIGH_POWER = true;
 
     private final ProximityCallback mProximityCallback;
 
@@ -101,15 +107,7 @@ class Scanner {
         v(TAG, "Checking if slogan changes need propagation");
         Set<String> slogans = new HashSet<>();
         for (Device device : devices.values()) {
-            if (device.slogan1 != null && !device.slogan1.equals("")) {
-                slogans.add(device.slogan1);
-            }
-            if (device.slogan2 != null && !device.slogan2.equals("")) {
-                slogans.add(device.slogan2);
-            }
-            if (device.slogan3 != null && !device.slogan3.equals("")) {
-                slogans.add(device.slogan3);
-            }
+            slogans.addAll(device.getSlogans());
         }
 
         // A kingdom for immutability and first class functions
@@ -139,14 +137,8 @@ class Scanner {
             peer.mLastSeenTimestamp = device.lastSeenTimestamp;
             peer.mSuccessfulRetrievals = device.stats.mSuccessfulRetrievals;
 
-            if (device.slogan1 != null && !device.slogan1.equals("")) {
-                peer.mSlogans.add(Slogan.create(device.slogan1));
-            }
-            if (device.slogan2 != null && !device.slogan2.equals("")) {
-                peer.mSlogans.add(Slogan.create(device.slogan2));
-            }
-            if (device.slogan3 != null && !device.slogan3.equals("")) {
-                peer.mSlogans.add(Slogan.create(device.slogan3));
+            for (String sloganText : device.getSlogans()) {
+                peer.mSlogans.add(Slogan.create(sloganText));
             }
             peers.add(peer);
         }
@@ -176,7 +168,7 @@ class Scanner {
 
             try {
                 if (device.shouldDisconnect) {
-                    i(TAG, "Disconnecting device, device: %s", address);
+                    i(TAG, "Disconnecting device, slogans known: %d, device: %s", device.getSlogans().size(), address);
                     if (device.bt.gatt != null) {
                         device.bt.gatt.close();
                     }
@@ -186,7 +178,7 @@ class Scanner {
                     device.shouldDisconnect = false;
                     device.lastConnectAttempt = null;
                     device.isDiscoveringServices = false;
-                    device.isFetchingSlogan = false;
+                    device.isFetchingProp = false;
 
                     // Giving the BT some air before we do the next connection attempt
                     continue;
@@ -217,9 +209,7 @@ class Scanner {
                         }
                         device.connectionAttempts++;
                         device.lastConnectAttempt = now;
-                        device.slogan1fresh = false;
-                        device.slogan2fresh = false;
-                        device.slogan3fresh = false;
+                        device.setAllPropertiesOutdated();
                         device.bt.gatt = device.bt.device.connectGatt(mContext, false, mGattCallback);
 
                     } else {
@@ -243,28 +233,19 @@ class Scanner {
 
                 // device has a service and is not discovering
 
-                if (device.isFetchingSlogan) {
+                if (device.isFetchingProp) {
                     v(TAG, "Still fetching slogan, device: %s", address);
                     continue;
                 }
 
-                if (!device.slogan1fresh) {
-                    requestSlogan(device, UuidSet.SLOGAN_1);
-                    continue;
-                }
-                if (!device.slogan2fresh) {
-                    requestSlogan(device, UuidSet.SLOGAN_2);
-                    continue;
-                }
-                if (!device.slogan3fresh) {
-                    requestSlogan(device, UuidSet.SLOGAN_3);
+                UUID nextOutdatedCharaUuid = device.getFirstOutdatedPropertyUuid();
+
+                if (nextOutdatedCharaUuid != null) {
+                    requestCharacteristic(device, nextOutdatedCharaUuid);
                     continue;
                 }
 
-                d(TAG, "All slogans fresh, should disconnect, address: %s", address);
-                d(TAG, "slogan1: %s, device: %s", device.slogan1, address);
-                d(TAG, "slogan2: %s, device: %s", device.slogan2, address);
-                d(TAG, "slogan3: %s, device: %s", device.slogan3, address);
+                i(TAG, "All props fresh, should disconnect, props: %s, address: %s", device.props(), address);
                 device.lastFullRetrievalTimestamp = now;
                 device.stats.mSuccessfulRetrievals++;
                 device.shouldDisconnect = true;
@@ -276,8 +257,8 @@ class Scanner {
         returnControl();
     }
 
-    private void requestSlogan(Device device, UUID uuid) {
-        device.isFetchingSlogan = true;
+    private void requestCharacteristic(Device device, UUID uuid) {
+        device.isFetchingProp = true;
         d(TAG, "Requesting characteristic, gatt: %s, characteristic: %s", device.bt.device.getAddress(), uuid);
         BluetoothGattCharacteristic chara = device.bt.service.getCharacteristic(uuid);
         if (!device.bt.gatt.readCharacteristic(chara)) {
@@ -303,11 +284,18 @@ class Scanner {
             return;
         }
 
-        ScanSettings settings = new ScanSettings.Builder()
-                //   .setCallbackType(CALLBACK_TYPE_ALL_MATCHES)
-                //   .setMatchMode(MATCH_NUM_MAX_ADVERTISEMENT)
-                .setScanMode(SCAN_MODE_BALANCED)
-                .build();
+        ScanSettings.Builder builder = new ScanSettings.Builder()
+                .setScanMode(HIGH_POWER
+                        ? SCAN_MODE_LOW_LATENCY
+                        : SCAN_MODE_BALANCED);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            builder.setCallbackType(CALLBACK_TYPE_ALL_MATCHES);
+            builder.setMatchMode(HIGH_POWER
+                    ? MATCH_MODE_AGGRESSIVE
+                    : MATCH_MODE_STICKY);
+        }
+        ScanSettings settings = builder.build();
 
         List<ScanFilter> scanFilters = new ArrayList<>();
         scanFilters.add(new ScanFilter.Builder()
@@ -319,15 +307,14 @@ class Scanner {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
 //                v(TAG, "onScanResult callbackType: %d, result: %s", callbackType, result.getDevice().getAddress());
-
-                handleResults(new ScanResult[]{result});
+                mHandler.post(() -> handleResults(new ScanResult[]{result}));
             }
 
             @Override
             public void onBatchScanResults(List<ScanResult> results) {
                 v(TAG, "onBatchScanResults callbackType: %d, result: %s", results == null ? "null" : results.toString());
                 if (results != null) {
-                    handleResults((ScanResult[]) results.toArray());
+                    mHandler.post(() -> handleResults((ScanResult[]) results.toArray()));
                 }
             }
 
@@ -415,50 +402,37 @@ class Scanner {
                 return;
             }
 
-            Device device = devices.get(address);
+            mHandler.post(() -> {
+                Device device = devices.get(address);
 
-            if (status != BluetoothGatt.GATT_SUCCESS) {
-                w(TAG, "onCharacteristicRead unsuccessful");
-                device.shouldDisconnect = true;
-                device.stats.mErrors++;
+                if (status != BluetoothGatt.GATT_SUCCESS) {
+                    w(TAG, "onCharacteristicRead unsuccessful");
+                    device.shouldDisconnect = true;
+                    device.stats.mErrors++;
+                    returnControl();
+                    return;
+                }
+                byte[] value = characteristic.getValue();
+                if (value == null) {
+                    w(TAG, "Retrieved null slogan, address: %s", address);
+                    device.shouldDisconnect = true;
+                    device.stats.mErrors++;
+                    returnControl();
+                    return;
+                }
+
+                UUID uuid = characteristic.getUuid();
+                String slogan = new String(value, UTF8_CHARSET);
+                d(TAG, "Retrieved slogan, device: %s, uuid: %s, slogan: %s", address, uuid, slogan);
+                try {
+                    device.updateWithReceivedAttribute(uuid, slogan);
+                    propagateChanges();
+                } catch (UnknownAdvertisementException e) {
+                    w(TAG, "Characteristic retrieved matches no slogan UUID, address: %s, uuid: %s", address, uuid);
+                }
+                device.isFetchingProp = false;
                 returnControl();
-                return;
-            }
-            byte[] value = characteristic.getValue();
-            if (value == null) {
-                w(TAG, "Retrieved null slogan, address: %s", address);
-                device.shouldDisconnect = true;
-                device.stats.mErrors++;
-                returnControl();
-                return;
-            }
-
-            UUID uuid = characteristic.getUuid();
-            String slogan = new String(value, UTF8_CHARSET);
-            d(TAG, "Retrieved slogan, device: %s, uuid: %s, slogan: %s", address, uuid, slogan);
-            boolean changed = false;
-            if (UuidSet.SLOGAN_1.equals(uuid)) {
-                device.slogan1 = slogan;
-                device.slogan1fresh = true;
-                changed = true;
-
-            } else if (UuidSet.SLOGAN_2.equals(uuid)) {
-                device.slogan2 = slogan;
-                device.slogan2fresh = true;
-                changed = true;
-
-            } else if (UuidSet.SLOGAN_3.equals(uuid)) {
-                device.slogan3 = slogan;
-                device.slogan3fresh = true;
-                changed = true;
-            } else {
-                w(TAG, "Characteristic retrieved matches no slogan UUID, address: %s, uuid: %s", address, uuid);
-            }
-            device.isFetchingSlogan = false;
-            if (changed) {
-                propagateChanges();
-            }
-            returnControl();
+            });
         }
     };
 

@@ -11,35 +11,48 @@ class AdvertisementSet {
             UuidSet.SLOGAN_2,
             UuidSet.SLOGAN_3
     };
+    static final UUID[] ADVERTISED_SLOGAN_UUIDS = new UUID[]{
+            UuidSet.SLOGAN_1,
+            UuidSet.SLOGAN_2,
+            UuidSet.SLOGAN_3
+    };
 
-    class UnknownAdvertisementException extends Exception {
-        UnknownAdvertisementException(String message) {
-            super(message);
-        }
-    }
-
-    private byte[][] mSlogans = new byte[3][0];
+    private String[] mSlogans = new String[3];
+    private String mUser;
 
     void setSlogans(String[] slogans) {
 
         for (int i = 0; i < 3; i++) {
-
-            mSlogans[i] = slogans.length >= i && slogans[i] != null
-                    ? slogans[i].getBytes(Charset.forName("UTF-8"))
-                    : new byte[0];
+            mSlogans[i] = slogans.length <= i || slogans[i] == null
+                    ? null
+                    : slogans[i];
         }
     }
 
+    void setUser(String user) {
+        mUser = user;
+    }
+
     byte[] getChunkedResponsePayload(UUID uuid) throws UnknownAdvertisementException {
-        if (UuidSet.SLOGAN_1.equals(uuid)) {
-            return mSlogans[0];
+
+        String prop;
+
+        if (UuidSet.USER.equals(uuid)) {
+            prop = mUser;
+
+        } else if (UuidSet.SLOGAN_1.equals(uuid)) {
+            prop = mSlogans[0];
 
         } else if (UuidSet.SLOGAN_2.equals(uuid)) {
-            return mSlogans[1];
+            prop = mSlogans[1];
 
         } else if (UuidSet.SLOGAN_3.equals(uuid)) {
-            return mSlogans[2];
+            prop = mSlogans[2];
+        } else {
+            throw new UnknownAdvertisementException(uuid);
         }
-        throw new UnknownAdvertisementException("Unknown advertisement with uuid " + uuid.toString());
+        return prop == null
+                ? new byte[0]
+                : prop.getBytes(Charset.forName("UTF-8"));
     }
 }

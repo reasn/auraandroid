@@ -121,7 +121,7 @@ class Advertiser {
                     d(TAG, "sending response, bytes: %d", response.length);
                     mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, response);
 
-                } catch (AdvertisementSet.UnknownAdvertisementException e) {
+                } catch (UnknownAdvertisementException e) {
                     // Invalid characteristic
                     w(TAG, "Invalid characteristic requested, device: %s, characteristic: %s", device.getAddress(), characteristic.getUuid());
                     mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_FAILURE, 0, null);
@@ -165,7 +165,6 @@ class Advertiser {
         }
         return service;
     }
-
 
     /**
      * Inspiration
