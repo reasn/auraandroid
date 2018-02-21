@@ -167,7 +167,8 @@ class Advertiser {
 
         BluetoothGattService service = new BluetoothGattService(UuidSet.SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY);
 
-        for (UUID uuid : AdvertisementSet.ADVERTISED_UUIDS) {
+        // TODO advertise user again
+        for (UUID uuid : AdvertisementSet.ADVERTISED_SLOGAN_UUIDS) {
             BluetoothGattCharacteristic chara = new BluetoothGattCharacteristic(uuid, PROPERTY_READ | PROPERTY_NOTIFY, PERMISSION_READ);
             if (!service.addCharacteristic(chara)) {
                 e(TAG, "Could not add characteristic");
