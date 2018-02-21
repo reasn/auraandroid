@@ -52,6 +52,7 @@ class AdvertisementSet {
 
 
     // TODO advertise and test if ongoing data transfers are interrupted if advertisement is restarted frequently
+    // TODO use one byte as counter for changes to slogans to only fetch if changed
     byte getAttachment() {
         return (byte) mAttachment;
     }
