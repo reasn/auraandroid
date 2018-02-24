@@ -13,6 +13,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.util.SparseArray;
@@ -42,6 +43,7 @@ import io.auraapp.auraandroid.common.PermissionHelper;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.common.SloganComparator;
 import io.auraapp.auraandroid.main.list.RecycleAdapter;
+import io.auraapp.auraandroid.main.list.SwipeCallback;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
@@ -317,6 +319,13 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(mListAdapter);
 
         listView.setLayoutManager(new LinearLayoutManager(this));
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeCallback(this, (Slogan slogan, int action) -> {
+
+            Toast.makeText(MainActivity.this, "whooop " + action, Toast.LENGTH_SHORT).show();
+            mListAdapter.notifyDataSetChanged();
+        }));
+        itemTouchHelper.attachToRecyclerView(listView);
     }
 
     private void showReplaceDialog(Slogan newSlogan) {

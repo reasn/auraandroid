@@ -6,9 +6,9 @@ import android.view.View;
 
 import java.util.Random;
 
-abstract class ItemViewHolder extends RecyclerView.ViewHolder {
+public abstract class ItemViewHolder extends RecyclerView.ViewHolder {
     private final View mItemView;
-    ListItem mItem;
+    public ListItem mItem;
 
     ItemViewHolder(View itemView) {
         super(itemView);
