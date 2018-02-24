@@ -288,43 +288,48 @@ public class MainActivity extends AppCompatActivity {
         // TODO show stats for slogans
         RecyclerView listView = findViewById(R.id.list_view);
 
-        mListAdapter = RecycleAdapter.create(
-                this,
-                mMySloganManager.getMySlogans(),
-                mPeerSlogans,
-                listView,
-                (Slogan slogan) -> {
-                    if (mMySloganManager.getMySlogans().contains(slogan)) {
-                        Toast.makeText(this, R.string.ui_main_toast_slogan_already_adopted, Toast.LENGTH_LONG).show();
-                    } else if (mMySloganManager.spaceAvailable()) {
-                        mMySloganManager.adopt(slogan);
-                    } else {
-                        showReplaceDialog(slogan);
-                    }
-                },
-                this::showEditDialog,
-                (Slogan slogan) -> new AlertDialog.Builder(MainActivity.this)
-                        .setTitle(R.string.ui_drop_dialog_title)
-                        .setIcon(R.mipmap.ic_launcher)
-                        .setMessage(R.string.ui_drop_dialog_message)
-                        .setPositiveButton(R.string.ui_drop_dialog_confirm, (DialogInterface $, int $$) -> {
-                            mMySloganManager.dropSlogan(slogan);
-                        })
-                        .setNegativeButton(R.string.ui_drop_dialog_cancel, (DialogInterface $, int $$) -> {
-                        })
-                        .create()
-                        .show()
-        );
+        mListAdapter = RecycleAdapter.create(this, mMySloganManager.getMySlogans(), mPeerSlogans, listView);
 
         listView.setAdapter(mListAdapter);
 
         listView.setLayoutManager(new LinearLayoutManager(this));
 
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeCallback(this, (Slogan slogan, int action) -> {
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeCallback(
+                this,
+                mListAdapter::notifyListItemChanged,
+                (Slogan slogan, int action) -> {
 
-            Toast.makeText(MainActivity.this, "whooop " + action, Toast.LENGTH_SHORT).show();
-            mListAdapter.notifyDataSetChanged();
-        }));
+                    switch (action) {
+
+                        case SwipeCallback.ACTION_ADOPT:
+                            if (mMySloganManager.getMySlogans().contains(slogan)) {
+                                Toast.makeText(this, R.string.ui_main_toast_slogan_already_adopted, Toast.LENGTH_LONG).show();
+                            } else if (mMySloganManager.spaceAvailable()) {
+                                mMySloganManager.adopt(slogan);
+                            } else {
+                                showReplaceDialog(slogan);
+                            }
+                            break;
+
+                        case SwipeCallback.ACTION_EDIT:
+                            showEditDialog(slogan);
+                            break;
+
+                        case SwipeCallback.ACTION_DROP:
+                            new AlertDialog.Builder(MainActivity.this)
+                                    .setTitle(R.string.ui_drop_dialog_title)
+                                    .setIcon(R.mipmap.ic_launcher)
+                                    .setMessage(R.string.ui_drop_dialog_message)
+                                    .setPositiveButton(R.string.ui_drop_dialog_confirm, (DialogInterface $, int $$) -> {
+                                        mMySloganManager.dropSlogan(slogan);
+                                    })
+                                    .setNegativeButton(R.string.ui_drop_dialog_cancel, (DialogInterface $, int $$) -> {
+                                    })
+                                    .create()
+                                    .show();
+                            break;
+                    }
+                }));
         itemTouchHelper.attachToRecyclerView(listView);
     }
 

@@ -16,16 +16,23 @@ import static io.auraapp.auraandroid.common.FormattedLog.v;
 
 public class SwipeCallback extends ItemTouchHelper.SimpleCallback {
 
+
     @FunctionalInterface
     public interface OnSwipedCallback {
         void onSwiped(Slogan slogan, int action);
     }
 
-    public static int ACTION_ADOPT = 1;
-    public static int ACTION_EDIT = 2;
-    public static int ACTION_DROP = 3;
+    @FunctionalInterface
+    public interface ResetItemViewCallback {
+        void resetItemView(ListItem item);
+    }
+
+    public static final int ACTION_ADOPT = 1;
+    public static final int ACTION_EDIT = 2;
+    public static final int ACTION_DROP = 3;
 
     private final OnSwipedCallback mOnSwipedCallback;
+    private final ResetItemViewCallback mResetItemViewCallback;
 
     private final Drawable mRightIcon;
     private final int mRightIconWidth;
@@ -38,9 +45,10 @@ public class SwipeCallback extends ItemTouchHelper.SimpleCallback {
     private final ColorDrawable mBackground;
     private final int mBackgroundColor;
 
-    public SwipeCallback(Context context, OnSwipedCallback onSwipedCallback) {
+    public SwipeCallback(Context context, ResetItemViewCallback resetItemViewCallback, OnSwipedCallback onSwipedCallback) {
         super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
 
+        mResetItemViewCallback = resetItemViewCallback;
         mOnSwipedCallback = onSwipedCallback;
 
         mRightIcon = ContextCompat.getDrawable(context, android.R.drawable.checkbox_on_background);
@@ -65,11 +73,14 @@ public class SwipeCallback extends ItemTouchHelper.SimpleCallback {
         if (item.isMine()) {
             if (direction == ItemTouchHelper.LEFT) {
                 mOnSwipedCallback.onSwiped(item.getSlogan(), ACTION_EDIT);
+                mResetItemViewCallback.resetItemView(item);
             } else if (direction == ItemTouchHelper.RIGHT) {
                 mOnSwipedCallback.onSwiped(item.getSlogan(), ACTION_DROP);
+                mResetItemViewCallback.resetItemView(item);
             }
         } else if (direction == ItemTouchHelper.LEFT) {
             mOnSwipedCallback.onSwiped(item.getSlogan(), ACTION_ADOPT);
+            mResetItemViewCallback.resetItemView(item);
         }
     }
 

@@ -18,21 +18,6 @@ import static io.auraapp.auraandroid.common.FormattedLog.d;
 public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 
     @FunctionalInterface
-    public interface OnAdoptHandler {
-        void onAdopt(Slogan slogan);
-    }
-
-    @FunctionalInterface
-    public interface OnEditHandler {
-        void onEdit(Slogan slogan);
-    }
-
-    @FunctionalInterface
-    public interface OnDropHandler {
-        void onDrop(Slogan slogan);
-    }
-
-    @FunctionalInterface
     public interface CollapseExpandHandler {
         void flip(ListItem item);
     }
@@ -41,9 +26,6 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     private final static int TYPE_MY_EXPANDED = 145;
     private final static int TYPE_PEER_COLLAPSED = 146;
     private final static int TYPE_PEER_EXPANDED = 147;
-    private final OnEditHandler mOnEditHandler;
-    private final OnAdoptHandler mOnAdoptHandler;
-    private final OnDropHandler mOnDropHandler;
 
     private final LayoutInflater mInflater;
     private static final String TAG = "@aura/" + RecycleAdapter.class.getSimpleName();
@@ -56,29 +38,20 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     public static RecycleAdapter create(@NonNull Context context,
                                         TreeSet<Slogan> mySlogans,
                                         TreeSet<Slogan> peerSlogans,
-                                        RecyclerView listView,
-                                        OnAdoptHandler onAdoptHandler,
-                                        OnEditHandler onEditHandler,
-                                        OnDropHandler onDropHandler) {
-        return new RecycleAdapter(context, new ArrayList<>(), mySlogans, peerSlogans, listView, onAdoptHandler, onEditHandler, onDropHandler);
+                                        RecyclerView listView) {
+        return new RecycleAdapter(context, new ArrayList<>(), mySlogans, peerSlogans, listView);
     }
 
     private RecycleAdapter(@NonNull Context context,
                            List<ListItem> items,
                            TreeSet<Slogan> mySlogans,
                            TreeSet<Slogan> peerSlogans,
-                           RecyclerView listView,
-                           OnAdoptHandler onAdoptHandler,
-                           OnEditHandler onEditHandler,
-                           OnDropHandler onDropHandler) {
+                           RecyclerView listView) {
         super();
         mItems = items;
         mMySlogans = mySlogans;
         mPeerSlogans = peerSlogans;
         mListView = listView;
-        mOnAdoptHandler = onAdoptHandler;
-        mOnDropHandler = onDropHandler;
-        mOnEditHandler = onEditHandler;
         mInflater = LayoutInflater.from(context);
     }
 
@@ -94,6 +67,10 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         }
 //        notifyItemInserted(mItems.size());
         notifyDataSetChanged();
+    }
+
+    public void notifyListItemChanged(ListItem item) {
+        notifyItemChanged(mItems.indexOf(item));
     }
 
     private final CollapseExpandHandler collapseExpandHandler = new CollapseExpandHandler() {
@@ -124,15 +101,12 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
             case TYPE_MY_EXPANDED:
                 return new MyExpandedHolder(
                         mInflater.inflate(R.layout.list_item_my_expanded, parent, false),
-                        collapseExpandHandler,
-                        mOnEditHandler,
-                        mOnDropHandler);
+                        collapseExpandHandler);
 
             case TYPE_PEER_EXPANDED:
                 return new PeerExpandedHolder(
                         mInflater.inflate(R.layout.list_item_peer_expanded, parent, false),
-                        collapseExpandHandler,
-                        mOnAdoptHandler);
+                        collapseExpandHandler);
 
             default:
                 throw new RuntimeException("Invalid viewType " + viewType);
