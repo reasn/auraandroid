@@ -5,7 +5,7 @@ import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
 
- class CollapsedHolder extends ItemViewHolder {
+class CollapsedHolder extends ItemViewHolder {
 
     private final TextView mSloganTextView;
 
@@ -13,8 +13,11 @@ import io.auraapp.auraandroid.R;
         super(itemView);
 
         mSloganTextView = itemView.findViewById(R.id.slogan_text);
-
-        itemView.setOnClickListener((v) -> collapseExpandHandler.flip(mItem));
+        itemView.setOnClickListener((v) -> {
+            if (mItem != null && !mItem.isMine()) {
+                collapseExpandHandler.flip(mItem);
+            }
+        });
     }
 
     void bind(ListItem item) {
