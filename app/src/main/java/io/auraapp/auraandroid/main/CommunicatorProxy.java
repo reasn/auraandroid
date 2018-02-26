@@ -45,7 +45,7 @@ class CommunicatorProxy {
         mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context $, Intent intent) {
-
+                v(TAG, "onReceive, intent: %s", intent.getAction());
                 Bundle extras = intent.getExtras();
                 if (extras == null) {
                     w(TAG, "Received invalid intent (extras are null), ignoring it");
@@ -77,7 +77,7 @@ class CommunicatorProxy {
                     return;
                 }
 
-                boolean stateChanged = state.equals(mState);
+                boolean stateChanged = !state.equals(mState);
 
                 mState = state;
                 if (stateChanged) {
