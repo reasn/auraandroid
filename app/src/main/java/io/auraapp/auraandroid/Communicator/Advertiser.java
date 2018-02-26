@@ -19,6 +19,8 @@ import android.os.ParcelUuid;
 import java.util.Arrays;
 import java.util.UUID;
 
+import io.auraapp.auraandroid.common.CuteHasher;
+
 import static android.bluetooth.BluetoothGattCharacteristic.PERMISSION_READ;
 import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_NOTIFY;
 import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_READ;
@@ -34,6 +36,9 @@ import static io.auraapp.auraandroid.common.FormattedLog.w;
  * The same holds for all callbacks registered externally (in this case typically the BT stack).
  */
 class Advertiser {
+    // TODO keep stats on how often a slogan has been received (max 100)
+    // TODO keep stats on how often a slogan has been adopted (max 100)
+    // TODO do both using separate simple stats/metering module using slogan hashes, not on slogan object itself
 
     private final static String TAG = "@aura/ble/advertiser";
 
@@ -117,13 +122,14 @@ class Advertiser {
         BluetoothGattServerCallback mGattServerCallback = new BluetoothGattServerCallback() {
 
             public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
-                v(TAG, "onConnectionStateChange device: %s, status: %s, newState: %s", device.getAddress(), BtConst.nameGattStatus(status), BtConst.nameConnectionState(newState));
+                v(TAG, "onConnectionStateChange device: %s, status: %s, newState: %s", CuteHasher.hash(device.getAddress()), BtConst.nameGattStatus(status), BtConst.nameConnectionState(newState));
             }
 
             @Override
             public void onCharacteristicReadRequest(BluetoothDevice device, int requestId, int offset, BluetoothGattCharacteristic characteristic) {
                 mHandler.post(() -> {
-                    v(TAG, "onCharacteristicReadRequest device: %s, requestId: %d, offset: %d, characteristic: %s", device.getAddress(), requestId, offset, characteristic.getUuid());
+                    String address = CuteHasher.hash(device.getAddress());
+                    v(TAG, "onCharacteristicReadRequest device: %s, requestId: %d, offset: %d, characteristic: %s", address, requestId, offset, characteristic.getUuid());
 
                     try {
                         byte[] response = chunk(
@@ -134,7 +140,7 @@ class Advertiser {
 
                     } catch (UnknownAdvertisementException e) {
                         // Invalid characteristic
-                        w(TAG, "Invalid characteristic requested, device: %s, characteristic: %s", device.getAddress(), characteristic.getUuid());
+                        w(TAG, "Invalid characteristic requested, device: %s, characteristic: %s", address, characteristic.getUuid());
                         mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_FAILURE, 0, null);
                     }
                 });

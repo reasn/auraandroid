@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import io.auraapp.auraandroid.common.CuteHasher;
 import io.auraapp.auraandroid.common.Peer;
 
 import static android.bluetooth.BluetoothProfile.STATE_CONNECTED;
@@ -207,10 +208,11 @@ class Scanner {
 
     private void requestCharacteristic(Device device, UUID uuid) {
         device.isFetchingProp = true;
-        d(TAG, "Requesting characteristic, gatt: %s, characteristic: %s", device.bt.device.getAddress(), uuid);
+        String address = CuteHasher.hash(device.bt.device.getAddress());
+        d(TAG, "Requesting characteristic, gatt: %s, characteristic: %s", address, uuid);
         BluetoothGattCharacteristic chara = device.bt.service.getCharacteristic(uuid);
         if (!device.bt.gatt.readCharacteristic(chara)) {
-            d(TAG, "Failed to request prop. Disconnecting, gatt: %s, characteristic: %s", device.bt.device.getAddress(), uuid);
+            d(TAG, "Failed to request prop. Disconnecting, gatt: %s, characteristic: %s", address, uuid);
             device.shouldDisconnect = true;
             device.stats.mErrors++;
         }
@@ -254,7 +256,6 @@ class Scanner {
 
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
-//                v(TAG, "onScanResult callbackType: %d, result: %s", callbackType, result.getDevice().getAddress());
                 mHandler.post(() -> handleResults(new ScanResult[]{result}));
             }
 
@@ -292,7 +293,7 @@ class Scanner {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             mHandler.post(() -> {
-                String address = gatt.getDevice().getAddress();
+                String address = CuteHasher.hash(gatt.getDevice().getAddress());
                 d(TAG, "onConnectionStateChange, gatt: %s, status: %s, newState: %s", address, BtConst.nameGattStatus(status), BtConst.nameConnectionState(newState));
                 if (!assertPeer(address, gatt, "onConnectionStateChange")) {
                     return;
@@ -313,7 +314,7 @@ class Scanner {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             mHandler.post(() -> {
-                String address = gatt.getDevice().getAddress();
+                String address = CuteHasher.hash(gatt.getDevice().getAddress());
                 v(TAG, "onServicesDiscovered, gatt: %s, status: %s", address, BtConst.nameGattStatus(status));
 
                 if (!assertPeer(address, gatt, "onServicesDiscovered")) {
@@ -350,7 +351,7 @@ class Scanner {
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             mHandler.post(() -> {
-                String address = gatt.getDevice().getAddress();
+                String address = CuteHasher.hash(gatt.getDevice().getAddress());
                 d(TAG, "onCharacteristicRead, gatt: %s, characteristic: %s, status: %s", address, characteristic.getUuid(), BtConst.nameGattStatus(status));
 
                 if (!assertPeer(address, gatt, "onCharacteristicRead")) {
@@ -393,7 +394,7 @@ class Scanner {
 
     private void handleResults(ScanResult[] results) {
         for (ScanResult result : results) {
-            String address = result.getDevice().getAddress();
+            String address = CuteHasher.hash(result.getDevice().getAddress());
             if (mDevices.containsKey(address)) {
 //                v(TAG, "Nothing to do, device already known, device: %s", address);
                 mDevices.get(address).lastSeenTimestamp = System.currentTimeMillis();

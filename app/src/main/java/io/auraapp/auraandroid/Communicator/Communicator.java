@@ -1,5 +1,6 @@
 package io.auraapp.auraandroid.Communicator;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -25,6 +26,7 @@ import java.util.TreeSet;
 
 import io.auraapp.auraandroid.PermissionMissingActivity;
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.CuteHasher;
 import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.PermissionHelper;
@@ -32,6 +34,7 @@ import io.auraapp.auraandroid.main.MainActivity;
 
 import static io.auraapp.auraandroid.common.EmojiHelper.replaceShortCode;
 import static io.auraapp.auraandroid.common.FormattedLog.d;
+import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.common.FormattedLog.w;
 import static java.lang.String.format;
 
@@ -89,7 +92,6 @@ public class Communicator extends Service {
     private void init() {
         // Can't do this in constructor because R.string resources are not yet available
         d(TAG, "Initializing communicator");
-
         mHandler = new Handler();
 
         mAdvertiser = new Advertiser(
@@ -303,12 +305,17 @@ public class Communicator extends Service {
 
     /**
      * Will affect mBtEnabled, mBleSupported
+     * The HardwareIds rule is suppressed because the id is hashed to a 1024-elements space and only used for logging
      */
+    @SuppressLint("HardwareIds")
     private void updateBtState() {
         d(TAG, "Updating BT state");
 
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
+            if (!mState.mBtEnabled) {
+                i(TAG, "Bluetooth adapter available, local address: %s", CuteHasher.hash(bluetoothAdapter.getAddress()));
+            }
             mState.mBtEnabled = true;
         } else {
             mState.mBtEnabled = false;
