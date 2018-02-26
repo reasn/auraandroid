@@ -10,7 +10,6 @@ import java.util.TreeSet;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Slogan;
-import io.auraapp.auraandroid.common.SloganComparator;
 
 import static android.content.Context.MODE_PRIVATE;
 

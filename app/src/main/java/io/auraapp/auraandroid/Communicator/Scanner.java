@@ -18,13 +18,11 @@ import android.os.ParcelUuid;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import io.auraapp.auraandroid.common.Peer;
-import io.auraapp.auraandroid.common.Slogan;
 
 import static android.bluetooth.BluetoothProfile.STATE_CONNECTED;
 import static android.bluetooth.le.ScanSettings.CALLBACK_TYPE_ALL_MATCHES;
@@ -46,11 +44,6 @@ import static io.auraapp.auraandroid.common.FormattedLog.w;
 class Scanner {
 
     @FunctionalInterface
-    interface ProximityCallback {
-        void proximityChanged(Set<Peer> peers);
-    }
-
-    @FunctionalInterface
     interface CurrentPeersCallback {
         void currentPeers(Set<Peer> peers);
     }
@@ -64,17 +57,16 @@ class Scanner {
     private static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
 
     private final Context mContext;
-    private final ProximityCallback mProximityCallback;
     private final Handler mHandler = new Handler();
-    private final HashMap<String, Device> devices = new HashMap<>();
+    private final HashMap<String, Device> mDevices = new HashMap<>();
+    private PeerBroadcaster mPeerBroadcaster;
 
-    private Set<String> mSlogansAfterLastPropagation = new HashSet<>();
     private boolean mQueued = false;
     private boolean mInactive = false;
 
-    Scanner(Context context, ProximityCallback proximityCallback) {
+    Scanner(Context context, PeerBroadcaster.ProximityCallback proximityCallback) {
         mContext = context;
-        mProximityCallback = proximityCallback;
+        mPeerBroadcaster = new PeerBroadcaster(mDevices, proximityCallback);
     }
 
     void start() {
@@ -96,71 +88,24 @@ class Scanner {
         mHandler.post(() -> {
             w(TAG, "onStop called, destroying");
             mInactive = true;
-            for (String address : devices.keySet()) {
+            for (String address : mDevices.keySet()) {
 
-                Device device = devices.get(address);
+                Device device = mDevices.get(address);
                 if (device.bt.gatt != null) {
                     device.bt.gatt.close();
                 }
                 device.bt.device = null;
                 device.bt.service = null;
             }
-            mHandler.post(devices::clear);
+            mHandler.post(mDevices::clear);
         });
-    }
-
-    /**
-     * Updated contain all peers for which slogans have been retrieved and their slogans.
-     * mProximityCallback is invoked only if new slogans were found or existing ones are gone.
-     */
-    private void propagateChanges() {
-
-        v(TAG, "Checking if slogan changes need propagation");
-        Set<String> slogans = new HashSet<>();
-        for (Device device : devices.values()) {
-            slogans.addAll(device.getSlogans());
-        }
-
-        // A kingdom for immutability and first class functions
-        Set<String> gone = new HashSet<>();
-        gone.addAll(mSlogansAfterLastPropagation);
-        gone.removeAll(slogans);
-
-        // A kingdom for immutability and first class functions
-        Set<String> found = new HashSet<>();
-        found.addAll(slogans);
-        found.removeAll(mSlogansAfterLastPropagation);
-
-        if (found.size() > 0 || gone.size() > 0) {
-            d(TAG, "Slogans changed, devices: %d, slogans: %d found (%s) and %d gone (%s)", devices.size(), found.size(), found, gone.size(), gone);
-
-            mProximityCallback.proximityChanged(buildPeers());
-            mSlogansAfterLastPropagation = slogans;
-        } else {
-            v(TAG, "No slogans changed, nothing to propagates, slogans: %d", slogans.size());
-        }
-    }
-
-    private Set<Peer> buildPeers() {
-        Set<Peer> peers = new HashSet<>();
-        for (Device device : devices.values()) {
-            Peer peer = new Peer();
-            peer.mLastSeenTimestamp = device.lastSeenTimestamp;
-            peer.mSuccessfulRetrievals = device.stats.mSuccessfulRetrievals;
-
-            for (String sloganText : device.getSlogans()) {
-                peer.mSlogans.add(Slogan.create(sloganText));
-            }
-            peers.add(peer);
-        }
-        return peers;
     }
 
     /**
      * Avoids concurrent access to mPeers
      */
     void requestPeers(CurrentPeersCallback currentPeersCallback) {
-        mHandler.post(() -> currentPeersCallback.currentPeers(buildPeers()));
+        mHandler.post(() -> currentPeersCallback.currentPeers(mPeerBroadcaster.getPeers()));
     }
 
     private void actOnState() {
@@ -168,9 +113,9 @@ class Scanner {
 
         long now = System.currentTimeMillis();
 
-        for (String address : devices.keySet()) {
+        for (String address : mDevices.keySet()) {
 
-            Device device = devices.get(address);
+            Device device = mDevices.get(address);
 
             try {
                 if (device.shouldDisconnect) {
@@ -182,7 +127,7 @@ class Scanner {
                     device.bt.service = null;
                     device.connected = false;
                     device.shouldDisconnect = false;
-                    device.lastConnectAttempt = null;
+                    device.lastConnectAttempt = 0;
                     device.isDiscoveringServices = false;
                     device.isFetchingProp = false;
 
@@ -191,28 +136,25 @@ class Scanner {
                 }
 
                 if (!device.connected) {
-                    if (device.lastConnectAttempt != null && now - device.lastConnectAttempt <= PEER_CONNECT_TIMEOUT) {
+                    if (device.lastConnectAttempt != 0 && now - device.lastConnectAttempt <= PEER_CONNECT_TIMEOUT) {
 //                        v(TAG, "Nothing to do, connection attempt is in progress, device: %s", address);
 
-                    } else if (device.lastConnectAttempt != null && now - device.lastConnectAttempt > PEER_CONNECT_TIMEOUT) {
+                    } else if (device.lastConnectAttempt != 0 && now - device.lastConnectAttempt > PEER_CONNECT_TIMEOUT) {
                         d(TAG, "Connection timeout, closing gatt, device: %s", address);
                         device.shouldDisconnect = true;
                         device.stats.mErrors++;
 
                     } else if (now - device.lastSeenTimestamp > PEER_FORGET_AFTER) {
+                        // lastSeenTimestamp may be 0
                         v(TAG, "Forgetting device, device: %s", address);
                         device.bt.device = null;
                         mHandler.post(() -> {
-                            devices.remove(address);
-                            propagateChanges();
+                            mDevices.remove(address);
+                            mPeerBroadcaster.propagateChanges(true);
                         });
 
-                    } else if (device.lastFullRetrievalTimestamp == null || now - device.lastFullRetrievalTimestamp > PEER_REFRESH_AFTER) {
-                        if (device.lastFullRetrievalTimestamp == null) {
-                            d(TAG, "Connecting to gatt server (no prior successful retrieval), device: %s", address);
-                        } else {
-                            d(TAG, "Connecting to gatt server to refresh, device: %s", address);
-                        }
+                    } else if (device.nextFetch == 0 || device.nextFetch < now) {
+                        d(TAG, "Connecting to gatt server, device: %s", address);
                         device.connectionAttempts++;
                         device.lastConnectAttempt = now;
                         device.setAllPropertiesOutdated();
@@ -252,7 +194,7 @@ class Scanner {
                 }
 
                 i(TAG, "All props fresh, should disconnect, props: %s, address: %s", device.props(), address);
-                device.lastFullRetrievalTimestamp = now;
+                device.nextFetch = now + PEER_REFRESH_AFTER;
                 device.stats.mSuccessfulRetrievals++;
                 device.shouldDisconnect = true;
             } catch (Exception e) {
@@ -334,7 +276,7 @@ class Scanner {
     }
 
     private boolean assertPeer(String address, BluetoothGatt gatt, String operation) {
-        if (devices.containsKey(address)) {
+        if (mDevices.containsKey(address)) {
             return true;
         }
         d(TAG, "No peer available for connection change (probably already forgotten), operation: %s, address: %s", operation, address);
@@ -357,12 +299,12 @@ class Scanner {
                 }
 
                 if (newState == STATE_CONNECTED) {
-                    devices.get(address).connected = true;
+                    mDevices.get(address).connected = true;
                     returnControl();
 
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     d(TAG, "Disconnected from %s", address);
-                    devices.get(address).connected = false;
+                    mDevices.get(address).connected = false;
                     returnControl();
                 }
             });
@@ -377,7 +319,7 @@ class Scanner {
                 if (!assertPeer(address, gatt, "onServicesDiscovered")) {
                     return;
                 }
-                Device device = devices.get(address);
+                Device device = mDevices.get(address);
 
                 if (status != BluetoothGatt.GATT_SUCCESS) {
                     w(TAG, "onServicesDiscovered unsuccessful, status: %s", BtConst.nameGattStatus(status));
@@ -415,7 +357,7 @@ class Scanner {
                     return;
                 }
 
-                Device device = devices.get(address);
+                Device device = mDevices.get(address);
 
                 if (status != BluetoothGatt.GATT_SUCCESS) {
                     w(TAG, "onCharacteristicRead unsuccessful");
@@ -437,8 +379,9 @@ class Scanner {
                 String propValue = new String(value, UTF8_CHARSET);
                 d(TAG, "Retrieved prop, device: %s, uuid: %s, propValue: %s", address, uuid, propValue);
                 try {
-                    device.updateWithReceivedAttribute(uuid, propValue);
-                    propagateChanges();
+                    if (device.updateWithReceivedAttribute(uuid, propValue)) {
+                        mPeerBroadcaster.propagateChanges(false);
+                    }
                 } catch (UnknownAdvertisementException e) {
                     w(TAG, "Characteristic retrieved matches no prop UUID, address: %s, uuid: %s", address, uuid);
                 }
@@ -451,15 +394,16 @@ class Scanner {
     private void handleResults(ScanResult[] results) {
         for (ScanResult result : results) {
             String address = result.getDevice().getAddress();
-            if (devices.containsKey(address)) {
+            if (mDevices.containsKey(address)) {
 //                v(TAG, "Nothing to do, device already known, device: %s", address);
-                devices.get(address).lastSeenTimestamp = System.currentTimeMillis();
+                mDevices.get(address).lastSeenTimestamp = System.currentTimeMillis();
+                mPeerBroadcaster.propagateChanges(false);
             } else {
                 i(TAG, "Device %s is yet unknown", address);
                 mHandler.post(() -> {
                     Device device = Device.create(result.getDevice());
                     device.lastSeenTimestamp = System.currentTimeMillis();
-                    devices.put(address, device);
+                    mDevices.put(address, device);
                 });
             }
         }

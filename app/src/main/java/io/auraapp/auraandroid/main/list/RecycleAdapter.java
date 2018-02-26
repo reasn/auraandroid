@@ -12,6 +12,7 @@ import java.util.TreeSet;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Slogan;
+import io.auraapp.auraandroid.main.PeerSlogan;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 
@@ -30,14 +31,14 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     private final LayoutInflater mInflater;
     private static final String TAG = "@aura/" + RecycleAdapter.class.getSimpleName();
     private final TreeSet<Slogan> mMySlogans;
-    private final TreeSet<Slogan> mPeerSlogans;
+    private final TreeSet<PeerSlogan> mPeerSlogans;
 
     private final List<ListItem> mItems;
     private final RecyclerView mListView;
 
     public static RecycleAdapter create(@NonNull Context context,
                                         TreeSet<Slogan> mySlogans,
-                                        TreeSet<Slogan> peerSlogans,
+                                        TreeSet<PeerSlogan> peerSlogans,
                                         RecyclerView listView) {
         return new RecycleAdapter(context, new ArrayList<>(), mySlogans, peerSlogans, listView);
     }
@@ -45,7 +46,7 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     private RecycleAdapter(@NonNull Context context,
                            List<ListItem> items,
                            TreeSet<Slogan> mySlogans,
-                           TreeSet<Slogan> peerSlogans,
+                           TreeSet<PeerSlogan> peerSlogans,
                            RecyclerView listView) {
         super();
         mItems = items;
@@ -60,10 +61,10 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         mItems.clear();
 // TODO needs to become way more efficient
         for (Slogan mySlogan : mMySlogans) {
-            mItems.add(new ListItem(mySlogan, true));
+            mItems.add(new ListItem(mySlogan, null));
         }
-        for (Slogan peerSlogan : mPeerSlogans) {
-            mItems.add(new ListItem(peerSlogan, false));
+        for (PeerSlogan peerSlogan : mPeerSlogans) {
+            mItems.add(new ListItem(peerSlogan.mSlogan, peerSlogan.mPeers));
         }
 //        notifyItemInserted(mItems.size());
         notifyDataSetChanged();

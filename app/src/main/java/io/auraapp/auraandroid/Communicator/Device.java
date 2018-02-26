@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -16,9 +17,9 @@ import static java.lang.String.format;
 
 class Device {
 
-    Long lastFullRetrievalTimestamp = null;
-    Long lastSeenTimestamp = null;
-    Long lastConnectAttempt = null;
+    long nextFetch = 0;
+    long lastSeenTimestamp = 0;
+    long lastConnectAttempt = 0;
 
     final PeerStatsSet stats = new PeerStatsSet();
 
@@ -47,9 +48,9 @@ class Device {
         }
     }
 
-    static Device create(BluetoothDevice device) {
+    static Device create(BluetoothDevice btDevice) {
         Device peer = new Device();
-        peer.bt.device = device;
+        peer.bt.device = btDevice;
         return peer;
     }
 
@@ -74,14 +75,17 @@ class Device {
         return slogans;
     }
 
-    void updateWithReceivedAttribute(UUID uuid, String value) throws UnknownAdvertisementException {
+    boolean updateWithReceivedAttribute(UUID uuid, String value) throws UnknownAdvertisementException {
 
         if (!Arrays.asList(AdvertisementSet.ADVERTISED_UUIDS).contains(uuid)) {
             throw new UnknownAdvertisementException(uuid);
         }
 
+        boolean changed = !Objects.equals(mPropertyMap.get(uuid), value);
         mPropertyMap.put(uuid, value);
         mFreshMap.put(uuid, true);
+
+        return changed;
     }
 
     UUID getFirstOutdatedPropertyUuid() {
@@ -97,7 +101,7 @@ class Device {
     String toLogString() {
         return format(
                 Locale.ENGLISH,
-                "lastFullRetrievalTimestamp: %d"
+                "nextFetch: %d"
                         + ", lastSeenTimestamp: %d"
                         + ", lastConnectAttempt: %d"
                         + ", isDiscoveringServices: %s"
@@ -108,7 +112,7 @@ class Device {
                         + ", stats: (%s)"
                         + ", isFetchingProp: %s"
                         + ", mPropertyMap: %s",
-                lastFullRetrievalTimestamp,
+                nextFetch,
                 lastSeenTimestamp,
                 lastConnectAttempt,
                 isDiscoveringServices ? "yes" : "no",

@@ -30,6 +30,8 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -41,7 +43,6 @@ import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.PermissionHelper;
 import io.auraapp.auraandroid.common.Slogan;
-import io.auraapp.auraandroid.common.SloganComparator;
 import io.auraapp.auraandroid.main.list.RecycleAdapter;
 import io.auraapp.auraandroid.main.list.SwipeCallback;
 
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String PREFS_HIDE_BROKEN_BT_STACK_WARNING = "hideBrokenBtStackWarning";
     private static final int BROKEN_BT_STACK_ALERT_DEBOUNCE = 1000 * 60;
 
-    final private TreeSet<Slogan> mPeerSlogans = new TreeSet<>(new SloganComparator());
+    final private TreeSet<PeerSlogan> mPeerSlogans = new TreeSet<>(new PeerSloganComparator());
     private RecycleAdapter mListAdapter;
     private MySloganManager mMySloganManager;
     private CommunicatorProxy mCommunicatorProxy;
@@ -120,13 +121,20 @@ public class MainActivity extends AppCompatActivity {
                 this,
                 (Set<Peer> peers) -> {
 
-                    final Set<Slogan> uniqueSlogans = new TreeSet<>();
+                    Map<String, PeerSlogan> uniqueSloganMap = new HashMap<>();
                     for (Peer peer : peers) {
-                        uniqueSlogans.addAll(peer.mSlogans);
+                        for (Slogan slogan : peer.mSlogans) {
+                            if (!uniqueSloganMap.containsKey(slogan.getText())) {
+                                uniqueSloganMap.put(slogan.getText(), new PeerSlogan(slogan));
+                            }
+                            uniqueSloganMap.get(slogan.getText()).mPeers.add(peer);
+                        }
                     }
-                    v(TAG, "Syncing %d previous slogans to %d slogans from %d peers", mPeerSlogans.size(), uniqueSlogans.size(), peers.size());
-                    if (mPeerSlogans.retainAll(uniqueSlogans) || mPeerSlogans.addAll(uniqueSlogans)) {
+                    v(TAG, "Syncing %d previous slogans to %d slogans from %d peers", mPeerSlogans.size(), uniqueSloganMap.size(), peers.size());
+
+                    if (mPeerSlogans.retainAll(uniqueSloganMap.values()) || mPeerSlogans.addAll(uniqueSloganMap.values())) {
                         mListAdapter.notifySlogansChanged();
+                        // Needs invocation because some checks take the number of slogans into account
                         reflectCommunicatorState();
                     }
                 },

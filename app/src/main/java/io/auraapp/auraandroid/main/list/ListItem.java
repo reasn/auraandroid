@@ -1,15 +1,21 @@
 package io.auraapp.auraandroid.main.list;
 
+import android.support.annotation.Nullable;
+
+import java.util.Set;
+
+import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.Slogan;
 
 public class ListItem {
     private final Slogan mSlogan;
-    private final boolean mMine;
+    @Nullable
+    private final Set<Peer> mPeers;
     boolean mExpanded = false;
 
-    ListItem(Slogan slogan, boolean mine) {
+    ListItem(Slogan slogan, @Nullable Set<Peer> peers) {
         mSlogan = slogan;
-        mMine = mine;
+        mPeers = peers;
     }
 
     Slogan getSlogan() {
@@ -17,7 +23,12 @@ public class ListItem {
     }
 
     boolean isMine() {
-        return mMine;
+        return mPeers == null;
+    }
+
+    @Nullable
+    public Set<Peer> getPeers() {
+        return mPeers;
     }
 
     @Override
@@ -27,10 +38,17 @@ public class ListItem {
 
         ListItem listItem = (ListItem) o;
 
-        return mMine == listItem.mMine && (
-                mSlogan != null
-                        ? mSlogan.equals(listItem.mSlogan)
-                        : listItem.mSlogan == null
-        );
+        if (mExpanded != listItem.mExpanded) return false;
+        if (mSlogan != null ? !mSlogan.equals(listItem.mSlogan) : listItem.mSlogan != null)
+            return false;
+        return mPeers != null ? mPeers.equals(listItem.mPeers) : listItem.mPeers == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mSlogan != null ? mSlogan.hashCode() : 0;
+        result = 31 * result + (mPeers != null ? mPeers.hashCode() : 0);
+        result = 31 * result + (mExpanded ? 1 : 0);
+        return result;
     }
 }
