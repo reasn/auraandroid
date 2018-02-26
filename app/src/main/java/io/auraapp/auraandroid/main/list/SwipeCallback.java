@@ -121,7 +121,7 @@ public class SwipeCallback extends ItemTouchHelper.SimpleCallback {
         mRightIcon.draw(canvas);
 
         // The `dX / 4` reduces the maximum distance the item can be swiped
-        super.onChildDraw(canvas, recyclerView, viewHolder, dX / 4, dY, actionState, isCurrentlyActive);
+        super.onChildDraw(canvas, recyclerView, viewHolder, dX / 5, dY, actionState, isCurrentlyActive);
     }
 
 
