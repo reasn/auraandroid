@@ -60,13 +60,14 @@ class PeerBroadcaster {
     }
 
     private void rebuildPeers(boolean setChanged) {
-        if (setChanged) {
+        // TODO reenable
+//        if (setChanged || mPeerMap == null) {
             mPeerMap = new HashMap<>();
             for (String address : mDevices.keySet()) {
                 Peer peer = new Peer();
                 peer.mAddress = address;
                 mPeerMap.put(address, peer);
-            }
+//            }
         }
 
         for (String address : mDevices.keySet()) {

@@ -211,10 +211,18 @@ class Scanner {
         String address = CuteHasher.hash(device.bt.device.getAddress());
         d(TAG, "Requesting characteristic, gatt: %s, characteristic: %s", address, uuid);
         BluetoothGattCharacteristic chara = device.bt.service.getCharacteristic(uuid);
+        if (chara == null) {
+            w(TAG, "Remote seems to not advertise characteristic. Disconnecting, address: %s, characteristic: %s", address, uuid);
+            device.shouldDisconnect = true;
+            device.stats.mErrors++;
+            returnControl();
+            return;
+        }
         if (!device.bt.gatt.readCharacteristic(chara)) {
             d(TAG, "Failed to request prop. Disconnecting, gatt: %s, characteristic: %s", address, uuid);
             device.shouldDisconnect = true;
             device.stats.mErrors++;
+            returnControl();
         }
     }
 
