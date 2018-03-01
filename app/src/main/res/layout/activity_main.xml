@@ -13,9 +13,15 @@
         style="@style/Toolbar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
-    <!--TODO move explanation and add thought into recycler to make them scrollable-->
+    <!--TODO move explanation and add item into recycler to make it scrollable-->
     <TextView
         android:id="@+id/communicator_state_explanation"
+        style="@style/ExplanationBox"
+        android:visibility="gone" />
+
+    <!--TODO move explanation and add item into recycler to make it scrollable-->
+    <TextView
+        android:id="@+id/peers_state_explanation"
         style="@style/ExplanationBox"
         android:visibility="gone" />
 

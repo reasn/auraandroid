@@ -20,7 +20,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
@@ -86,7 +85,14 @@ public class Communicator extends Service {
             mRunning = true;
             init();
         }
-        handleIntent(intent);
+        if (intent == null) {
+            // Both intents to start the service and ones with actual payload end up in this method.
+            // Intents to only start the service are null and can be ignored.
+            actOnState(false);
+        } else {
+            // handleIntent implicitly calls actOnState()
+            handleIntent(intent);
+        }
         return START_STICKY;
     }
 
@@ -104,10 +110,8 @@ public class Communicator extends Service {
                     actOnState(false);
                 }
         );
-        final HashMap<String, Device> devices = new HashMap<>();
 
         PeerBroadcaster broadcaster = new PeerBroadcaster(
-                devices,
                 (Set<Peer> peers) -> mHandler.post(() -> {
                     if (!(peers instanceof Serializable)) {
                         throw new RuntimeException("peers must be serializable");
@@ -127,12 +131,12 @@ public class Communicator extends Service {
                     sendBroadcast(IntentFactory.peersUpdate(peers, mState));
                     d(TAG, "Sent peers intent with %d peers", peers.size());
                 }),
-                (String address, long timestamp) -> {
-                    sendBroadcast(IntentFactory.peerLastSeen(address, timestamp));
-                    d(TAG, "Sent last seen intent, address: %s, timestamp: %d", CuteHasher.hash(address), timestamp);
+                (Peer peer) -> {
+                    sendBroadcast(IntentFactory.peerUpdate(peer));
+                    d(TAG, "Sent peer update intent, addressHash: %s", CuteHasher.hash(peer.mAddress));
                 });
 
-        mScanner = new Scanner(this, devices, broadcaster);
+        mScanner = new Scanner(this, broadcaster);
 
         registerReceiver(new BroadcastReceiver() {
             @Override

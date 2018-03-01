@@ -2,7 +2,6 @@ package io.auraapp.auraandroid.Communicator;
 
 import android.os.Handler;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -13,69 +12,57 @@ import io.auraapp.auraandroid.common.Timer;
 
 class PeerBroadcaster {
 
+    private static final String TIMEOUT_ID_ALL_PEERS = "all-peers";
+
     @FunctionalInterface
     interface PeersChangedCallback {
         void peersChanged(Set<Peer> peers);
     }
 
     @FunctionalInterface
-    interface PeerSeenCallback {
-        void peerSeen(String address, long timestamp);
+    interface PeerChangedCallback {
+        void peerChanged(Peer peer);
     }
 
-    private static final int DEBOUNCE = 1000;
-    private final HashMap<String, Device> mDevices;
-    private final PeersChangedCallback mPeersChangedCallback;
-    private final PeerSeenCallback mPeerSeenCallback;
+    private static final int DEBOUNCE = 5000;
+
+    private final PeersChangedCallback mPeersListCallback;
+    private final PeerChangedCallback mPeerChangedCallback;
     private final Timer mTimer = new Timer(new Handler());
 
-    private final Map<String, Timer.Timeout> mLastSeenTimeoutMap = new HashMap<>();
-    private Timer.Timeout mAllPeersTimeout;
-
-    private Map<String, Peer> mPeerMap;
-
-    PeerBroadcaster(HashMap<String, Device> devices, PeersChangedCallback peersChangedCallback, PeerSeenCallback peerSeenCallback) {
-        mDevices = devices;
-        mPeersChangedCallback = peersChangedCallback;
-        mPeerSeenCallback = peerSeenCallback;
+    PeerBroadcaster(PeersChangedCallback peersChangedCallback, PeerChangedCallback peerChangedCallback) {
+        mPeersListCallback = peersChangedCallback;
+        mPeerChangedCallback = peerChangedCallback;
     }
 
-    void propagateLastSeen(String address, long timestamp) {
-        mTimer.clear(mLastSeenTimeoutMap.get(address));
-        mLastSeenTimeoutMap.put(address, mTimer.set(() -> {
-            mLastSeenTimeoutMap.remove(address);
-            mPeerSeenCallback.peerSeen(address, timestamp);
-        }, DEBOUNCE));
+    void propagatePeer(Device device) {
+//        mTimer.clear(device.mAddress);
+        mTimer.debounce(device.mAddress, () -> mPeerChangedCallback.peerChanged(buildPeer(device)), DEBOUNCE);
     }
 
-    void propagateAllPeers() {
-        mTimer.clear(mAllPeersTimeout);
-        rebuildPeers();
-        mAllPeersTimeout = mTimer.set(() -> mPeersChangedCallback.peersChanged(getPeers()), DEBOUNCE);
+    void propagatePeerList(Map<String, Device> deviceMap) {
+        mTimer.clear(TIMEOUT_ID_ALL_PEERS);
+        mTimer.set(TIMEOUT_ID_ALL_PEERS, () -> mPeersListCallback.peersChanged(buildPeers(deviceMap)), DEBOUNCE);
     }
 
-    Set<Peer> getPeers() {
-        if (mPeerMap == null) {
-            rebuildPeers();
+    Set<Peer> buildPeers(Map<String, Device> deviceMap) {
+        Set<Peer> peers = new HashSet<>();
+        for (Device device : deviceMap.values()) {
+            peers.add(buildPeer(device));
         }
-        return new HashSet<>(mPeerMap.values());
+        return peers;
     }
 
-    private void rebuildPeers() {
-        mPeerMap = new HashMap<>();
-        for (String address : mDevices.keySet()) {
-            final Device device = mDevices.get(address);
+    private Peer buildPeer(Device device) {
+        final Peer peer = new Peer();
+        peer.mAddress = device.mAddress;
 
-            final Peer peer = new Peer();
-            peer.mAddress = address;
-
-            peer.mLastSeenTimestamp = device.lastSeenTimestamp;
-            peer.mNextFetch = device.nextFetch;
-            peer.mSuccessfulRetrievals = device.stats.mSuccessfulRetrievals;
-            for (String sloganText : device.getSlogans()) {
-                peer.mSlogans.add(Slogan.create(sloganText));
-            }
-            mPeerMap.put(address, peer);
+        peer.mLastSeenTimestamp = device.lastSeenTimestamp;
+        peer.mNextFetch = device.mNextFetch;
+        peer.mSuccessfulRetrievals = device.stats.mSuccessfulRetrievals;
+        for (String sloganText : device.getSlogans()) {
+            peer.mSlogans.add(Slogan.create(sloganText));
         }
+        return peer;
     }
 }

@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -14,12 +13,10 @@ import java.util.UUID;
 
 import io.auraapp.auraandroid.common.PeerStatsSet;
 
-import static java.lang.String.format;
-
 class Device {
 
-    final String mAddressHash;
-    long nextFetch = 0;
+    final String mAddress;
+    long mNextFetch = 0;
     long lastSeenTimestamp = 0;
     long lastConnectAttempt = 0;
 
@@ -38,9 +35,9 @@ class Device {
     private final Map<UUID, Boolean> mFreshMap;
     private final Map<UUID, String> mPropertyMap;
 
-    private Device(String addressHash) {
+    private Device(String address) {
         mFreshMap = new HashMap<>();
-        mAddressHash = addressHash;
+        mAddress = address;
 
         setAllPropertiesOutdated();
 
@@ -101,31 +98,22 @@ class Device {
         return null;
     }
 
-    String toLogString() {
-        return format(
-                Locale.ENGLISH,
-                "nextFetch: %d"
-                        + ", lastSeenTimestamp: %d"
-                        + ", lastConnectAttempt: %d"
-                        + ", isDiscoveringServices: %s"
-                        + ", bt: (%s)"
-                        + ", connected: %s"
-                        + ", shouldDisconnect: %s"
-                        + ", connectionAttempts: %d"
-                        + ", stats: (%s)"
-                        + ", isFetchingProp: %s"
-                        + ", mPropertyMap: %s",
-                nextFetch,
-                lastSeenTimestamp,
-                lastConnectAttempt,
-                isDiscoveringServices ? "yes" : "no",
-                bt.toLogString(),
-                connected ? "yes" : "no",
-                shouldDisconnect ? "yes" : "no",
-                connectionAttempts,
-                stats.toLogString(),
-                isFetchingProp ? "yes" : "no",
-                mPropertyMap.values().toString()
-        );
+    @Override
+    public String toString() {
+        return "Device{" +
+                "mAddress='" + mAddress + '\'' +
+                ", mNextFetch=" + mNextFetch +
+                ", lastSeenTimestamp=" + lastSeenTimestamp +
+                ", lastConnectAttempt=" + lastConnectAttempt +
+                ", stats=" + stats +
+                ", bt=" + bt +
+                ", isDiscoveringServices=" + isDiscoveringServices +
+                ", connected=" + connected +
+                ", shouldDisconnect=" + shouldDisconnect +
+                ", connectionAttempts=" + connectionAttempts +
+                ", isFetchingProp=" + isFetchingProp +
+                ", mFreshMap=" + mFreshMap +
+                ", mPropertyMap=" + mPropertyMap +
+                '}';
     }
 }

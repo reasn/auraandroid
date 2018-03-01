@@ -25,9 +25,8 @@ public class IntentFactory {
     public static final String INTENT_PEERS_UPDATE_EXTRA_PEERS = prefix + "extraPeers";
     public static final String INTENT_COMMUNICATOR_EXTRA_STATE = prefix + "extraState";
 
-    public static final String INTENT_PEER_SEEN_ACTION = prefix + "peerSeen";
-    public static final String INTENT_PEER_SEEN_EXTRA_ADDRESS = prefix + "extraAddress";
-    public static final String INTENT_PEER_SEEN_EXTRA_TIMESTAMP = prefix + "extraTimestamp";
+    public static final String INTENT_PEER_UPDATE_ACTION = prefix + "peerChanged";
+    public static final String INTENT_PEER_UPDATE_EXTRA_PEER = prefix + "extraPeer";
 
 
     public static Intent peersUpdate(Set<Peer> peers, CommunicatorState state) {
@@ -37,10 +36,9 @@ public class IntentFactory {
         return intent;
     }
 
-    public static Intent peerLastSeen(String address, long timestamp) {
-        Intent intent = new Intent(IntentFactory.INTENT_PEER_SEEN_ACTION);
-        intent.putExtra(IntentFactory.INTENT_PEER_SEEN_EXTRA_ADDRESS, (Serializable) address);
-        intent.putExtra(IntentFactory.INTENT_PEER_SEEN_EXTRA_TIMESTAMP, (Serializable) timestamp);
+    public static Intent peerUpdate(Peer peer) {
+        Intent intent = new Intent(IntentFactory.INTENT_PEER_UPDATE_ACTION);
+        intent.putExtra(IntentFactory.INTENT_PEER_UPDATE_EXTRA_PEER, peer);
         return intent;
     }
 

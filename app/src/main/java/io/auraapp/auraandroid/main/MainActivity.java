@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AppCompatActivity;
@@ -31,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -39,6 +41,7 @@ import io.auraapp.auraandroid.Communicator.Communicator;
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.PermissionMissingActivity;
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.CuteHasher;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.PermissionHelper;
@@ -71,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
     private long mBrokenBtStackLastVisibleTimestamp;
     private boolean mBrokenBtStackAlertVisible = false;
     private CommunicatorState mCommunicatorState;
+    private Set<Peer> mPeers = new HashSet<>();
+    private final Handler mHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
                 this,
                 (Set<Peer> peers) -> {
 
+                    mPeers = peers;
                     Map<String, PeerSlogan> peerSloganMap = new HashMap<>();
                     for (Peer peer : peers) {
                         for (Slogan slogan : peer.mSlogans) {
@@ -134,16 +140,15 @@ public class MainActivity extends AppCompatActivity {
 
                     if (mPeerSlogans.retainAll(peerSloganMap.values()) || mPeerSlogans.addAll(peerSloganMap.values())) {
                         mListAdapter.notifySlogansChanged();
-                        // Needs invocation because some checks take the number of slogans into account
-                        reflectCommunicatorState();
+                        reflectPeers();
                     }
                 },
-                (String address, long timestamp) -> {
+                (Peer updatedPeer) -> {
                     for (PeerSlogan slogan : mPeerSlogans) {
                         boolean changed = false;
                         for (Peer peer : slogan.mPeers) {
-                            if (peer.mAddress.equals(address)) {
-                                peer.mLastSeenTimestamp = timestamp;
+                            if (peer.mAddress.equals(updatedPeer.mAddress)) {
+                                peer.updateWith(updatedPeer);
                                 changed = true;
                             }
                         }
@@ -151,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
                             mListAdapter.notifyPeerSloganChanged(slogan);
                         }
                     }
+                    reflectPeers();
                 },
                 (CommunicatorState state) -> {
                     mCommunicatorState = state;
@@ -216,6 +222,7 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .create();
         alert.show();
+        // TODO keyboard seemingly doesn't work
         if (alert.getWindow() != null) {
             alert.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         }
@@ -257,21 +264,54 @@ public class MainActivity extends AppCompatActivity {
             } else if (!mCommunicatorState.mScanning) {
                 w(TAG, "Not scanning although it is possible.");
                 text = getString(R.string.ui_main_explanation_on_not_active);
-            } else if (mPeerSlogans.size() == 0) {
-                text = getString(R.string.ui_main_explanation_on_no_peers);
             } else {
-                text = getString(R.string.ui_main_explanation_on_peers).replaceAll("##slogans##", Integer.toString(mPeerSlogans.size()));
+                text = null;
             }
         }
 
         TextView view = findViewById(R.id.communicator_state_explanation);
+        TextView peersState = findViewById(R.id.peers_state_explanation);
 
-        view.setText(text);
-        view.setVisibility(View.VISIBLE);
+        if (text == null) {
+            peersState.setVisibility(View.VISIBLE);
+            view.setVisibility(View.GONE);
+        } else {
+            peersState.setVisibility(View.GONE);
+            view.setVisibility(View.VISIBLE);
+            view.setText(EmojiHelper.replaceShortCode(text));
+        }
 
         if (mCommunicatorState.mRecentBtTurnOnEvents >= Communicator.RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD) {
             showBrokenBtStackAlert();
         }
+    }
+
+    private void reflectPeers() {
+        String text;
+        if (mPeerSlogans.size() == 0) {
+            text = getString(R.string.ui_main_explanation_on_no_peers);
+        } else {
+            text = getString(R.string.ui_main_explanation_on_peers).replaceAll("##slogans##", Integer.toString(mPeerSlogans.size()));
+
+            StringBuilder peerString = new StringBuilder();
+            long now = System.currentTimeMillis();
+            for (Peer peer : mPeers) {
+                if (peerString.length() > 0) {
+                    peerString.append(", ");
+                }
+                peerString.append(CuteHasher.hash(peer.mAddress)).append(": ").append(Math.round((now - peer.mNextFetch) / 1000));
+//                peerString.append(CuteHasher.hash(peer.mAddress)).append(": ").append(peer.mNextFetch);
+            }
+
+            text += "\n" + peerString;
+        }
+
+        TextView peersState = findViewById(R.id.peers_state_explanation);
+        peersState.setText(EmojiHelper.replaceShortCode(text));
+
+        // Make sure this is always updated
+        mHandler.removeCallbacks(this::reflectPeers);
+        mHandler.postDelayed(this::reflectPeers, 1000);
     }
 
     private void showBrokenBtStackAlert() {
@@ -452,12 +492,16 @@ public class MainActivity extends AppCompatActivity {
         mCommunicatorProxy.askForPeersUpdate();
 
         inForeground = true;
+
+        reflectPeers();
     }
 
     @Override
     protected void onPause() {
         mCommunicatorProxy.stopListening();
         inForeground = false;
+
+        mHandler.removeCallbacks(this::reflectPeers);
         super.onPause();
     }
 }

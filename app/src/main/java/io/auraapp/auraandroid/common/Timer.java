@@ -4,14 +4,10 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 
-public class Timer {
+import java.util.HashMap;
+import java.util.Map;
 
-    public class Timeout {
-        @Override
-        public boolean equals(Object obj) {
-            return obj == this;
-        }
-    }
+public class Timer {
 
     private final Handler mHandler;
 
@@ -19,19 +15,36 @@ public class Timer {
         this.mHandler = handler;
     }
 
-    public Timeout set(Runnable runnable, long millis) {
+    public void set(String id, Runnable runnable, long millis) {
 
         Message message = Message.obtain(mHandler, runnable);
-        Timeout timeout = new Timeout();
-        message.obj = timeout;
+        message.obj = id;
         mHandler.sendMessageDelayed(message, millis);
-
-        return timeout;
     }
 
-    public void clear(@Nullable Timeout timeout) {
-        if (timeout != null) {
-            mHandler.removeCallbacksAndMessages(timeout);
+    public void clear(@Nullable String id) {
+        if (id != null) {
+            mHandler.removeCallbacksAndMessages(id);
         }
+    }
+
+
+    private final Map<String, Long> mLastRun = new HashMap<>();
+
+    public void debounce(String id, Runnable runnable, long millis) {
+        clear(id);
+
+        String clearId = "clear-debounce-" + id;
+        clear(clearId);
+
+        long now = System.currentTimeMillis();
+        Long lastRun = mLastRun.get(id);
+        if (lastRun == null || lastRun < now - millis) {
+            mLastRun.put(id, now);
+            runnable.run();
+            set(clearId, () -> mLastRun.remove(id), millis);
+            return;
+        }
+        set(id, runnable, millis);
     }
 }

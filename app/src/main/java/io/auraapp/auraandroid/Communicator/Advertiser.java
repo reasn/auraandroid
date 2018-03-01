@@ -205,6 +205,6 @@ class Advertiser {
                 .build();
 
         mBluetoothAdvertiser.startAdvertising(settings, data, mAdvertisingCallback);
-        i(TAG, "started advertising");
+        i(TAG, "started advertising, service: %s", UuidSet.SERVICE);
     }
 }

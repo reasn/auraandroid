@@ -10,6 +10,7 @@ import java.util.Set;
 
 import io.auraapp.auraandroid.Communicator.Communicator;
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
+import io.auraapp.auraandroid.common.CuteHasher;
 import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.Slogan;
@@ -21,9 +22,8 @@ import static io.auraapp.auraandroid.common.FormattedLog.w;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_COMMUNICATOR_STATE_UPDATED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEERS_UPDATE_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEERS_UPDATE_EXTRA_PEERS;
-import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_SEEN_ACTION;
-import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_SEEN_EXTRA_ADDRESS;
-import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_SEEN_EXTRA_TIMESTAMP;
+import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATE_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATE_EXTRA_PEER;
 
 class CommunicatorProxy {
     private static final String TAG = "@aura/communicatorProxy";
@@ -41,16 +41,16 @@ class CommunicatorProxy {
     }
 
     @FunctionalInterface
-    public interface PeersChangedCallback {
-        void onPeersChanged(Set<Peer> peers);
+    public interface PeerSetChangedCallback {
+        void onSetListChanged(Set<Peer> peers);
     }
 
     @FunctionalInterface
-    public interface PeerSeenCallback {
-        void onPeerSeen(String address, long timestamp);
+    public interface PeerChangedCallback {
+        void onPeerChanged(Peer peer);
     }
 
-    CommunicatorProxy(Context context, PeersChangedCallback peersChangedCallback, PeerSeenCallback peerSeenCallback, StateUpdatedCallback stateUpdatedCallback) {
+    CommunicatorProxy(Context context, PeerSetChangedCallback peerSetChangedCallback, PeerChangedCallback peerChangedCallback, StateUpdatedCallback stateUpdatedCallback) {
         mContext = context;
 
         mReceiver = new BroadcastReceiver() {
@@ -63,25 +63,27 @@ class CommunicatorProxy {
                     return;
                 }
 
-                if (INTENT_PEER_SEEN_ACTION.equals(intent.getAction())) {
-                    String address = extras.getString(INTENT_PEER_SEEN_EXTRA_ADDRESS);
-                    long timestamp = extras.getLong(INTENT_PEER_SEEN_EXTRA_TIMESTAMP);
-                    if (address == null || timestamp < 1) {
-                        w(TAG, "Received invalid %s intent, address: %s, timestamp: %d", INTENT_PEER_SEEN_ACTION, address, timestamp);
+                if (INTENT_PEER_UPDATE_ACTION.equals(intent.getAction())) {
+
+                    @SuppressWarnings("unchecked")
+                    Peer peer = (Peer) extras.getSerializable(INTENT_PEER_UPDATE_EXTRA_PEER);
+                    if (peer != null) {
+                        peerChangedCallback.onPeerChanged(peer);
+                        v(TAG, "Peer updated, peer: %s, slogans: %d", CuteHasher.hash(peer.mAddress), peer.mSlogans.size());
                     } else {
-                        peerSeenCallback.onPeerSeen(address, timestamp);
+                        w(TAG, "Received invalid %s intent, peer: null", INTENT_PEER_UPDATE_ACTION);
                     }
-                    // INTENT_PEER_SEEN_ACTION is sent quite often and therefore not accompanied by
+                    // INTENT_PEER_UPDATE_ACTION is sent quite often and therefore not accompanied by
                     // communicator state. Return here to not generate warnings about the missing state
                     return;
 
                 } else if (INTENT_PEERS_UPDATE_ACTION.equals(intent.getAction())) {
-
                     @SuppressWarnings("unchecked")
                     Set<Peer> peers = (Set<Peer>) extras.getSerializable(INTENT_PEERS_UPDATE_EXTRA_PEERS);
 
                     if (peers != null) {
-                        peersChangedCallback.onPeersChanged(peers);
+                        v(TAG, "Peer list changed, peers: %d", peers.size());
+                        peerSetChangedCallback.onSetListChanged(peers);
                     } else {
                         w(TAG, "Received invalid %s intent, peers: null, intent: %s", INTENT_PEERS_UPDATE_ACTION, intent);
                     }

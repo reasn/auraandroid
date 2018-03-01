@@ -12,6 +12,15 @@ public class Peer implements Serializable {
     public long mNextFetch = 0;
     public String mAddress;
 
+    public void updateWith(Peer peer) {
+        mLastSeenTimestamp = peer.mLastSeenTimestamp;
+        mSlogans.clear();
+        mSlogans.addAll(peer.mSlogans);
+        mSuccessfulRetrievals = peer.mSuccessfulRetrievals;
+        mNextFetch = peer.mNextFetch;
+        mAddress = peer.mAddress;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -35,4 +44,5 @@ public class Peer implements Serializable {
         result = 31 * result + (mAddress != null ? mAddress.hashCode() : 0);
         return result;
     }
+
 }
