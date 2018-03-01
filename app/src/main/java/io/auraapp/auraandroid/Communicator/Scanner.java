@@ -59,15 +59,16 @@ class Scanner {
 
     private final Context mContext;
     private final Handler mHandler = new Handler();
-    private final HashMap<String, Device> mDevices = new HashMap<>();
-    private PeerBroadcaster mPeerBroadcaster;
+    private final HashMap<String, Device> mDevices;
+    private final PeerBroadcaster mPeerBroadcaster;
 
     private boolean mQueued = false;
     private boolean mInactive = false;
 
-    Scanner(Context context, PeerBroadcaster.PeersChangedCallback peersChangedCallback, PeerBroadcaster.PeerSeenCallback peerSeenCallback) {
+    Scanner(Context context, HashMap<String, Device> devices, PeerBroadcaster peerBroadcaster) {
         mContext = context;
-        mPeerBroadcaster = new PeerBroadcaster(mDevices, peersChangedCallback, peerSeenCallback);
+        mDevices = devices;
+        mPeerBroadcaster = peerBroadcaster;
     }
 
     void start() {
@@ -363,7 +364,7 @@ class Scanner {
             mHandler.post(() -> {
                 String address = gatt.getDevice().getAddress();
                 String addressHash = CuteHasher.hash(address);
-                d(TAG, "onCharacteristicRead, gatt: %s, characteristic: %s, status: %s", addressHash, characteristic.getUuid(), BtConst.nameGattStatus(status));
+                v(TAG, "onCharacteristicRead, gatt: %s, characteristic: %s, status: %s", addressHash, characteristic.getUuid(), BtConst.nameGattStatus(status));
 
                 if (!assertPeer(address, gatt, "onCharacteristicRead")) {
                     return;

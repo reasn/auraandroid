@@ -20,6 +20,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
@@ -103,8 +104,10 @@ public class Communicator extends Service {
                     actOnState(false);
                 }
         );
-        mScanner = new Scanner(
-                this,
+        final HashMap<String, Device> devices = new HashMap<>();
+
+        PeerBroadcaster broadcaster = new PeerBroadcaster(
+                devices,
                 (Set<Peer> peers) -> mHandler.post(() -> {
                     if (!(peers instanceof Serializable)) {
                         throw new RuntimeException("peers must be serializable");
@@ -127,8 +130,9 @@ public class Communicator extends Service {
                 (String address, long timestamp) -> {
                     sendBroadcast(IntentFactory.peerLastSeen(address, timestamp));
                     d(TAG, "Sent last seen intent, address: %s, timestamp: %d", CuteHasher.hash(address), timestamp);
-                }
-        );
+                });
+
+        mScanner = new Scanner(this, devices, broadcaster);
 
         registerReceiver(new BroadcastReceiver() {
             @Override

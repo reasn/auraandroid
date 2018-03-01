@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                         if (changed) {
-                            mListAdapter.notifySloganChanged(slogan);
+                            mListAdapter.notifyPeerSloganChanged(slogan);
                         }
                     }
                 },

@@ -15,6 +15,7 @@ import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.Slogan;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
+import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 import static io.auraapp.auraandroid.common.FormattedLog.w;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_COMMUNICATOR_STATE_UPDATED_ACTION;
@@ -92,10 +93,9 @@ class CommunicatorProxy {
 
                 CommunicatorState state = (CommunicatorState) extras.getSerializable(IntentFactory.INTENT_COMMUNICATOR_EXTRA_STATE);
 
-                w(TAG, "State %s", state);
 
                 if (state == null) {
-                    w(TAG, "No state returned by communicator");
+                    w(TAG, "No state returned by communicator, intent: %s", intent);
                     return;
                 }
 
@@ -103,6 +103,7 @@ class CommunicatorProxy {
 
                 mState = state;
                 if (stateChanged) {
+                    i(TAG, "Communicator state changed, state: %s", state);
                     stateUpdatedCallback.onStateUpdated(state);
                 }
             }

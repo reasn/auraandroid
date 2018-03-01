@@ -59,10 +59,12 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         mInflater = LayoutInflater.from(context);
     }
 
-    public void notifySloganChanged(PeerSlogan slogan) {
+    public void notifyPeerSloganChanged(PeerSlogan slogan) {
         for (ListItem item : mItems) {
             if (item.getSlogan().equals(slogan.mSlogan)) {
-                notifyItemChanged(mItems.indexOf(item));
+                int index = mItems.indexOf(item);
+                d(TAG, "Peer slogan changed, index: %d, peerSlogan: %s", slogan);
+                notifyItemChanged(index);
                 break;
             }
         }

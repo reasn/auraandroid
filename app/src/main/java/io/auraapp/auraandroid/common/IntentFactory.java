@@ -33,6 +33,7 @@ public class IntentFactory {
     public static Intent peersUpdate(Set<Peer> peers, CommunicatorState state) {
         Intent intent = new Intent(IntentFactory.INTENT_PEERS_UPDATE_ACTION);
         intent.putExtra(IntentFactory.INTENT_PEERS_UPDATE_EXTRA_PEERS, (Serializable) peers);
+        intent.putExtra(IntentFactory.INTENT_COMMUNICATOR_EXTRA_STATE, state);
         return intent;
     }
 

@@ -15,7 +15,7 @@ class AdvertisementSet {
 
     static final UUID[] ADVERTISED_UUIDS = new UUID[]{
             // User is currently not advertised, see Advertiser#createSloganService()
-//            UuidSet.USER,
+            UuidSet.USER,
             UuidSet.SLOGAN_1,
             UuidSet.SLOGAN_2,
             UuidSet.SLOGAN_3
