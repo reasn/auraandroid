@@ -13,13 +13,13 @@
         android:gravity="center"
         android:textSize="26sp" />
 
-    <Button
-        android:id="@+id/adopt_button"
-        style="?android:attr/buttonBarButtonStyle"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:textSize="22sp"  />
+
+    <TextView
+        android:id="@+id/lastSeen"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="26sp" />
 
 </LinearLayout>
 

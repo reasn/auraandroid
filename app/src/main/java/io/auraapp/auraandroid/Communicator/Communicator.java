@@ -109,19 +109,25 @@ public class Communicator extends Service {
                     if (!(peers instanceof Serializable)) {
                         throw new RuntimeException("peers must be serializable");
                     }
-                    int peerSloganCount = 0;
-                    for (Peer peer : peers) {
-                        peerSloganCount += peer.mSlogans.size();
-                    }
-                    if (peerSloganCount != mPeerSloganCount) {
-                        mPeerSloganCount = peerSloganCount;
-                        updateForegroundNotification();
+                    {
+                        // Update notification
+                        int peerSloganCount = 0;
+                        for (Peer peer : peers) {
+                            peerSloganCount += peer.mSlogans.size();
+                        }
+                        if (peerSloganCount != mPeerSloganCount) {
+                            mPeerSloganCount = peerSloganCount;
+                            updateForegroundNotification();
+                        }
                     }
 
                     sendBroadcast(IntentFactory.peersUpdate(peers, mState));
-
                     d(TAG, "Sent peers intent with %d peers", peers.size());
-                })
+                }),
+                (String address, long timestamp) -> {
+                    sendBroadcast(IntentFactory.peerLastSeen(address, timestamp));
+                    d(TAG, "Sent last seen intent, address: %s, timestamp: %d", CuteHasher.hash(address), timestamp);
+                }
         );
 
         registerReceiver(new BroadcastReceiver() {
@@ -414,7 +420,7 @@ public class Communicator extends Service {
             }
 
             @SuppressWarnings("unchecked")
-            String[] mySlogans = extras.getStringArray(IntentFactory.INTENT_MY_SLOGANS_CHANGED_SLOGANS_EXTRA);
+            String[] mySlogans = extras.getStringArray(IntentFactory.INTENT_MY_SLOGANS_CHANGED_EXTRA_SLOGANS);
             if (mySlogans == null) {
                 w(TAG, "No slogans retrieved from intent");
                 return;

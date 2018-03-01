@@ -128,8 +128,8 @@ class Advertiser {
             @Override
             public void onCharacteristicReadRequest(BluetoothDevice device, int requestId, int offset, BluetoothGattCharacteristic characteristic) {
                 mHandler.post(() -> {
-                    String address = CuteHasher.hash(device.getAddress());
-                    v(TAG, "onCharacteristicReadRequest device: %s, requestId: %d, offset: %d, characteristic: %s", address, requestId, offset, characteristic.getUuid());
+                    String addressHash = CuteHasher.hash(device.getAddress());
+                    v(TAG, "onCharacteristicReadRequest device: %s, requestId: %d, offset: %d, characteristic: %s", addressHash, requestId, offset, characteristic.getUuid());
 
                     try {
                         byte[] response = chunk(
@@ -140,7 +140,7 @@ class Advertiser {
 
                     } catch (UnknownAdvertisementException e) {
                         // Invalid characteristic
-                        w(TAG, "Invalid characteristic requested, device: %s, characteristic: %s", address, characteristic.getUuid());
+                        w(TAG, "Invalid characteristic requested, device: %s, characteristic: %s", addressHash, characteristic.getUuid());
                         mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_FAILURE, 0, null);
                     }
                 });

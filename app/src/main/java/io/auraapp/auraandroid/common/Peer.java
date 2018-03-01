@@ -11,4 +11,28 @@ public class Peer implements Serializable {
     public int mSuccessfulRetrievals = 0;
     public long mNextFetch = 0;
     public String mAddress;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Peer peer = (Peer) o;
+
+        if (mLastSeenTimestamp != peer.mLastSeenTimestamp) return false;
+        if (mSuccessfulRetrievals != peer.mSuccessfulRetrievals) return false;
+        if (mNextFetch != peer.mNextFetch) return false;
+        if (!mSlogans.equals(peer.mSlogans)) return false;
+        return mAddress != null ? mAddress.equals(peer.mAddress) : peer.mAddress == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (mLastSeenTimestamp ^ (mLastSeenTimestamp >>> 32));
+        result = 31 * result + mSlogans.hashCode();
+        result = 31 * result + mSuccessfulRetrievals;
+        result = 31 * result + (int) (mNextFetch ^ (mNextFetch >>> 32));
+        result = 31 * result + (mAddress != null ? mAddress.hashCode() : 0);
+        return result;
+    }
 }

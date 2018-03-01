@@ -1,5 +1,6 @@
 package io.auraapp.auraandroid.main.list;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.util.Set;
@@ -13,7 +14,7 @@ public class ListItem {
     private final Set<Peer> mPeers;
     boolean mExpanded = false;
 
-    ListItem(Slogan slogan, @Nullable Set<Peer> peers) {
+    ListItem(@NonNull Slogan slogan, @Nullable Set<Peer> peers) {
         mSlogan = slogan;
         mPeers = peers;
     }

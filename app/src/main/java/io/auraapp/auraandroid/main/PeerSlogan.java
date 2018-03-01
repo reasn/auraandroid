@@ -1,14 +1,14 @@
 package io.auraapp.auraandroid.main;
 
+import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.Slogan;
 
 public class PeerSlogan {
     public final Slogan mSlogan;
-    public final Set<Peer> mPeers = new TreeSet<>();
+    public final Set<Peer> mPeers = new HashSet<>();
 
     PeerSlogan(Slogan slogan) {
         this.mSlogan = slogan;

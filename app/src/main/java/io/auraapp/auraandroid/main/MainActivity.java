@@ -121,21 +121,35 @@ public class MainActivity extends AppCompatActivity {
                 this,
                 (Set<Peer> peers) -> {
 
-                    Map<String, PeerSlogan> uniqueSloganMap = new HashMap<>();
+                    Map<String, PeerSlogan> peerSloganMap = new HashMap<>();
                     for (Peer peer : peers) {
                         for (Slogan slogan : peer.mSlogans) {
-                            if (!uniqueSloganMap.containsKey(slogan.getText())) {
-                                uniqueSloganMap.put(slogan.getText(), new PeerSlogan(slogan));
+                            if (!peerSloganMap.containsKey(slogan.getText())) {
+                                peerSloganMap.put(slogan.getText(), new PeerSlogan(slogan));
                             }
-                            uniqueSloganMap.get(slogan.getText()).mPeers.add(peer);
+                            peerSloganMap.get(slogan.getText()).mPeers.add(peer);
                         }
                     }
-                    v(TAG, "Syncing %d previous slogans to %d slogans from %d peers", mPeerSlogans.size(), uniqueSloganMap.size(), peers.size());
+                    v(TAG, "Syncing %d previous slogans to %d slogans from %d peers", mPeerSlogans.size(), peerSloganMap.size(), peers.size());
 
-                    if (mPeerSlogans.retainAll(uniqueSloganMap.values()) || mPeerSlogans.addAll(uniqueSloganMap.values())) {
+                    if (mPeerSlogans.retainAll(peerSloganMap.values()) || mPeerSlogans.addAll(peerSloganMap.values())) {
                         mListAdapter.notifySlogansChanged();
                         // Needs invocation because some checks take the number of slogans into account
                         reflectCommunicatorState();
+                    }
+                },
+                (String address, long timestamp) -> {
+                    for (PeerSlogan slogan : mPeerSlogans) {
+                        boolean changed = false;
+                        for (Peer peer : slogan.mPeers) {
+                            if (peer.mAddress.equals(address)) {
+                                peer.mLastSeenTimestamp = timestamp;
+                                changed = true;
+                            }
+                        }
+                        if (changed) {
+                            mListAdapter.notifySloganChanged(slogan);
+                        }
                     }
                 },
                 (CommunicatorState state) -> {
@@ -219,7 +233,8 @@ public class MainActivity extends AppCompatActivity {
         String text;
 
         if (!mCommunicatorState.mHasPermission) {
-            throw new RuntimeException("Attempting to render explanation for missing permissions, user should be in MissingPermissionActivity");
+            sendToPermissionMissingActivity();
+            return;
 
         } else if (mCommunicatorState.mBtTurningOn) {
             text = getString(R.string.ui_main_explanation_bt_turning_on);
@@ -415,14 +430,18 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    private void sendToPermissionMissingActivity() {
+        Intent intent = new Intent(this, PermissionMissingActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        startActivity(intent);
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
 
         if (!PermissionHelper.granted(this)) {
-            Intent intent = new Intent(this, PermissionMissingActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-            startActivity(intent);
+            sendToPermissionMissingActivity();
             return;
         }
 

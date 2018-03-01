@@ -1,6 +1,7 @@
 package io.auraapp.auraandroid.Communicator;
 
 import android.bluetooth.BluetoothDevice;
+import android.support.annotation.NonNull;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import static java.lang.String.format;
 
 class Device {
 
+    final String mAddressHash;
     long nextFetch = 0;
     long lastSeenTimestamp = 0;
     long lastConnectAttempt = 0;
@@ -36,8 +38,9 @@ class Device {
     private final Map<UUID, Boolean> mFreshMap;
     private final Map<UUID, String> mPropertyMap;
 
-    private Device() {
+    private Device(String addressHash) {
         mFreshMap = new HashMap<>();
+        mAddressHash = addressHash;
 
         setAllPropertiesOutdated();
 
@@ -48,10 +51,10 @@ class Device {
         }
     }
 
-    static Device create(BluetoothDevice btDevice) {
-        Device peer = new Device();
-        peer.bt.device = btDevice;
-        return peer;
+    static Device create(@NonNull BluetoothDevice btDevice) {
+        Device device = new Device(btDevice.getAddress());
+        device.bt.device = btDevice;
+        return device;
     }
 
     Map<UUID, String> props() {

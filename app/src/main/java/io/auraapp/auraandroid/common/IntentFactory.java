@@ -17,18 +17,29 @@ public class IntentFactory {
     public static final String INTENT_DISABLE_ACTION = prefix + "disableCommunicator";
     public static final String INTENT_REQUEST_PEERS_ACTION = prefix + "requestPeers";
     public static final String INTENT_MY_SLOGANS_CHANGED_ACTION = prefix + "mySlogansChanged";
-    public static final String INTENT_MY_SLOGANS_CHANGED_SLOGANS_EXTRA = prefix + "mySlogansExtra";
+    public static final String INTENT_MY_SLOGANS_CHANGED_EXTRA_SLOGANS = prefix + "mySlogansExtra";
 
     // from Communicator
     public static final String INTENT_COMMUNICATOR_STATE_UPDATED_ACTION = prefix + "healthUpdated";
     public static final String INTENT_PEERS_UPDATE_ACTION = prefix + "peersUpdated";
-    public static final String INTENT_PEERS_UPDATE_PEERS_EXTRA = prefix + "peersExtra";
-    public static final String INTENT_COMMUNICATOR_STATE_EXTRA = prefix + "stateExtra";
+    public static final String INTENT_PEERS_UPDATE_EXTRA_PEERS = prefix + "extraPeers";
+    public static final String INTENT_COMMUNICATOR_EXTRA_STATE = prefix + "extraState";
+
+    public static final String INTENT_PEER_SEEN_ACTION = prefix + "peerSeen";
+    public static final String INTENT_PEER_SEEN_EXTRA_ADDRESS = prefix + "extraAddress";
+    public static final String INTENT_PEER_SEEN_EXTRA_TIMESTAMP = prefix + "extraTimestamp";
 
 
     public static Intent peersUpdate(Set<Peer> peers, CommunicatorState state) {
         Intent intent = new Intent(IntentFactory.INTENT_PEERS_UPDATE_ACTION);
-        intent.putExtra(IntentFactory.INTENT_PEERS_UPDATE_PEERS_EXTRA, (Serializable) peers);
+        intent.putExtra(IntentFactory.INTENT_PEERS_UPDATE_EXTRA_PEERS, (Serializable) peers);
+        return intent;
+    }
+
+    public static Intent peerLastSeen(String address, long timestamp) {
+        Intent intent = new Intent(IntentFactory.INTENT_PEER_SEEN_ACTION);
+        intent.putExtra(IntentFactory.INTENT_PEER_SEEN_EXTRA_ADDRESS, (Serializable) address);
+        intent.putExtra(IntentFactory.INTENT_PEER_SEEN_EXTRA_TIMESTAMP, (Serializable) timestamp);
         return intent;
     }
 
@@ -42,7 +53,7 @@ public class IntentFactory {
 
     public static Intent communicatorState(CommunicatorState state) {
         Intent intent = new Intent(IntentFactory.INTENT_COMMUNICATOR_STATE_UPDATED_ACTION);
-        intent.putExtra(IntentFactory.INTENT_COMMUNICATOR_STATE_EXTRA, state);
+        intent.putExtra(IntentFactory.INTENT_COMMUNICATOR_EXTRA_STATE, state);
         return intent;
     }
 }

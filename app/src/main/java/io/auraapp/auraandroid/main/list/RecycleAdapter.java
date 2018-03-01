@@ -18,6 +18,8 @@ import static io.auraapp.auraandroid.common.FormattedLog.d;
 
 public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 
+    private final Context mContext;
+
     @FunctionalInterface
     public interface CollapseExpandHandler {
         void flip(ListItem item);
@@ -49,11 +51,21 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
                            TreeSet<PeerSlogan> peerSlogans,
                            RecyclerView listView) {
         super();
+        mContext = context;
         mItems = items;
         mMySlogans = mySlogans;
         mPeerSlogans = peerSlogans;
         mListView = listView;
         mInflater = LayoutInflater.from(context);
+    }
+
+    public void notifySloganChanged(PeerSlogan slogan) {
+        for (ListItem item : mItems) {
+            if (item.getSlogan().equals(slogan.mSlogan)) {
+                notifyItemChanged(mItems.indexOf(item));
+                break;
+            }
+        }
     }
 
     public void notifySlogansChanged() {
@@ -107,6 +119,7 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
             case TYPE_PEER_EXPANDED:
                 return new PeerExpandedHolder(
                         mInflater.inflate(R.layout.list_item_peer_expanded, parent, false),
+                        mContext,
                         collapseExpandHandler);
 
             default:

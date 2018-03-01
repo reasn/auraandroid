@@ -31,6 +31,8 @@
     <string name="ui_main_explanation_on_no_peers">Thoughts of nearby Aura users will automatically show up below. :)</string>
     <string name="ui_main_explanation_on_peers">Below your thoughts you see ##slogans## slogans of other users.</string>
 
+    <string name="ui_main_peer_slogan_last_seen">Last seen ##elapsed## ago.</string>
+
     <!--Dialog: BT Stack broken -->
     <string name="ui_dialog_bt_broken_title">Problem with Bluetooth</string>
     <string name="ui_dialog_bt_broken_text">It looks like your Bluetooth has been disabled and enabled multiple times\nOnly recently have phone manufacturers started to put high quality Bluetooth chips into their phones.\nIf you experience problems with Bluetooth, restarting your phone might help.</string>
@@ -49,7 +51,6 @@
     <string name="ui_dialog_edit_slogan_text">TODO A thaought\nsdfasdlasdf  ds</string>
     <string name="ui_dialog_edit_slogan_confirm">Save</string>
     <string name="ui_dialog_edit_slogan_cancel">Cancel</string>
-
 
     <!--Dialog: Replace Slogan-->
     <string name="ui_replace_dialog_title">Adopt Thought</string>

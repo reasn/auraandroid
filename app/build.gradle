@@ -6,8 +6,8 @@ android {
         applicationId "io.auraapp.auraandroid"
         minSdkVersion 22
         targetSdkVersion 27
-        versionCode 8
-        versionName "1.0.0-alpha-3"
+        versionCode 9
+        versionName "1.0.0-alpha-4"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

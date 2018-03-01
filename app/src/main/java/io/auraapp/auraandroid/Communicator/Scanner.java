@@ -65,9 +65,9 @@ class Scanner {
     private boolean mQueued = false;
     private boolean mInactive = false;
 
-    Scanner(Context context, PeerBroadcaster.ProximityCallback proximityCallback) {
+    Scanner(Context context, PeerBroadcaster.PeersChangedCallback peersChangedCallback, PeerBroadcaster.PeerSeenCallback peerSeenCallback) {
         mContext = context;
-        mPeerBroadcaster = new PeerBroadcaster(mDevices, proximityCallback);
+        mPeerBroadcaster = new PeerBroadcaster(mDevices, peersChangedCallback, peerSeenCallback);
     }
 
     void start() {
@@ -151,7 +151,7 @@ class Scanner {
                         device.bt.device = null;
                         mHandler.post(() -> {
                             mDevices.remove(address);
-                            mPeerBroadcaster.propagateChanges(true);
+                            mPeerBroadcaster.propagateAllPeers();
                         });
 
                     } else if (device.nextFetch == 0 || device.nextFetch < now) {
@@ -208,18 +208,18 @@ class Scanner {
 
     private void requestCharacteristic(Device device, UUID uuid) {
         device.isFetchingProp = true;
-        String address = CuteHasher.hash(device.bt.device.getAddress());
-        d(TAG, "Requesting characteristic, gatt: %s, characteristic: %s", address, uuid);
+        String addressHash = CuteHasher.hash(device.bt.device.getAddress());
+        d(TAG, "Requesting characteristic, gatt: %s, characteristic: %s", addressHash, uuid);
         BluetoothGattCharacteristic chara = device.bt.service.getCharacteristic(uuid);
         if (chara == null) {
-            w(TAG, "Remote seems to not advertise characteristic. Disconnecting, address: %s, characteristic: %s", address, uuid);
+            w(TAG, "Remote seems to not advertise characteristic. Disconnecting, addressHash: %s, characteristic: %s", addressHash, uuid);
             device.shouldDisconnect = true;
             device.stats.mErrors++;
             returnControl();
             return;
         }
         if (!device.bt.gatt.readCharacteristic(chara)) {
-            d(TAG, "Failed to request prop. Disconnecting, gatt: %s, characteristic: %s", address, uuid);
+            d(TAG, "Failed to request prop. Disconnecting, gatt: %s, characteristic: %s", addressHash, uuid);
             device.shouldDisconnect = true;
             device.stats.mErrors++;
             returnControl();
@@ -301,8 +301,9 @@ class Scanner {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             mHandler.post(() -> {
-                String address = CuteHasher.hash(gatt.getDevice().getAddress());
-                d(TAG, "onConnectionStateChange, gatt: %s, status: %s, newState: %s", address, BtConst.nameGattStatus(status), BtConst.nameConnectionState(newState));
+                String address = gatt.getDevice().getAddress();
+                String addressHash = CuteHasher.hash(address);
+                d(TAG, "onConnectionStateChange, gatt: %s, status: %s, newState: %s", addressHash, BtConst.nameGattStatus(status), BtConst.nameConnectionState(newState));
                 if (!assertPeer(address, gatt, "onConnectionStateChange")) {
                     return;
                 }
@@ -312,7 +313,7 @@ class Scanner {
                     returnControl();
 
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                    d(TAG, "Disconnected from %s", address);
+                    d(TAG, "Disconnected from %s", addressHash);
                     mDevices.get(address).connected = false;
                     returnControl();
                 }
@@ -322,8 +323,9 @@ class Scanner {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             mHandler.post(() -> {
-                String address = CuteHasher.hash(gatt.getDevice().getAddress());
-                v(TAG, "onServicesDiscovered, gatt: %s, status: %s", address, BtConst.nameGattStatus(status));
+                String address = gatt.getDevice().getAddress();
+                String addressHash = CuteHasher.hash(address);
+                v(TAG, "onServicesDiscovered, gatt: %s, status: %s", addressHash, BtConst.nameGattStatus(status));
 
                 if (!assertPeer(address, gatt, "onServicesDiscovered")) {
                     return;
@@ -339,12 +341,12 @@ class Scanner {
                 }
 
 
-                d(TAG, "Discovered %d services, gatt: %s, services: %s", gatt.getServices().size(), address, gatt.getServices().toString());
+                d(TAG, "Discovered %d services, gatt: %s, services: %s", gatt.getServices().size(), addressHash, gatt.getServices().toString());
 
                 BluetoothGattService service = gatt.getService(UuidSet.SERVICE);
 
                 if (service == null) {
-                    d(TAG, "Service is null, disconnecting, address: %s", address);
+                    d(TAG, "Service is null, disconnecting, addressHash: %s", addressHash);
                     device.shouldDisconnect = true;
                     device.stats.mErrors++;
                     returnControl();
@@ -359,8 +361,9 @@ class Scanner {
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             mHandler.post(() -> {
-                String address = CuteHasher.hash(gatt.getDevice().getAddress());
-                d(TAG, "onCharacteristicRead, gatt: %s, characteristic: %s, status: %s", address, characteristic.getUuid(), BtConst.nameGattStatus(status));
+                String address = gatt.getDevice().getAddress();
+                String addressHash = CuteHasher.hash(address);
+                d(TAG, "onCharacteristicRead, gatt: %s, characteristic: %s, status: %s", addressHash, characteristic.getUuid(), BtConst.nameGattStatus(status));
 
                 if (!assertPeer(address, gatt, "onCharacteristicRead")) {
                     return;
@@ -377,7 +380,7 @@ class Scanner {
                 }
                 byte[] value = characteristic.getValue();
                 if (value == null) {
-                    w(TAG, "Retrieved null prop, address: %s", address);
+                    w(TAG, "Retrieved null prop, addressHash: %s", addressHash);
                     device.shouldDisconnect = true;
                     device.stats.mErrors++;
                     returnControl();
@@ -386,10 +389,10 @@ class Scanner {
 
                 UUID uuid = characteristic.getUuid();
                 String propValue = new String(value, UTF8_CHARSET);
-                d(TAG, "Retrieved prop, device: %s, uuid: %s, propValue: %s", address, uuid, propValue);
+                d(TAG, "Retrieved prop, addressHash: %s, uuid: %s, propValue: %s", addressHash, uuid, propValue);
                 try {
                     if (device.updateWithReceivedAttribute(uuid, propValue)) {
-                        mPeerBroadcaster.propagateChanges(false);
+                        mPeerBroadcaster.propagateAllPeers();
                     }
                 } catch (UnknownAdvertisementException e) {
                     w(TAG, "Characteristic retrieved matches no prop UUID, address: %s, uuid: %s", address, uuid);
@@ -402,13 +405,15 @@ class Scanner {
 
     private void handleResults(ScanResult[] results) {
         for (ScanResult result : results) {
-            String address = CuteHasher.hash(result.getDevice().getAddress());
+
+            String address = result.getDevice().getAddress();
             if (mDevices.containsKey(address)) {
-//                v(TAG, "Nothing to do, device already known, device: %s", address);
-                mDevices.get(address).lastSeenTimestamp = System.currentTimeMillis();
-                mPeerBroadcaster.propagateChanges(false);
+//                v(TAG, "Nothing to do, device already known, device: %s", addressHash);
+                long now = System.currentTimeMillis();
+                mDevices.get(address).lastSeenTimestamp = now;
+                mPeerBroadcaster.propagateLastSeen(address, now);
             } else {
-                i(TAG, "Device %s is yet unknown", address);
+                i(TAG, "Device %s is yet unknown", CuteHasher.hash(address));
                 mHandler.post(() -> {
                     Device device = Device.create(result.getDevice());
                     device.lastSeenTimestamp = System.currentTimeMillis();

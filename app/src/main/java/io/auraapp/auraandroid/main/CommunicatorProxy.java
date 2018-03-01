@@ -17,7 +17,12 @@ import io.auraapp.auraandroid.common.Slogan;
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 import static io.auraapp.auraandroid.common.FormattedLog.w;
-import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEERS_UPDATE_PEERS_EXTRA;
+import static io.auraapp.auraandroid.common.IntentFactory.INTENT_COMMUNICATOR_STATE_UPDATED_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEERS_UPDATE_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEERS_UPDATE_EXTRA_PEERS;
+import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_SEEN_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_SEEN_EXTRA_ADDRESS;
+import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_SEEN_EXTRA_TIMESTAMP;
 
 class CommunicatorProxy {
     private static final String TAG = "@aura/communicatorProxy";
@@ -35,11 +40,16 @@ class CommunicatorProxy {
     }
 
     @FunctionalInterface
-    public interface PeersUpdateCallback {
-        void onPeersUpdate(Set<Peer> peers);
+    public interface PeersChangedCallback {
+        void onPeersChanged(Set<Peer> peers);
     }
 
-    CommunicatorProxy(Context context, PeersUpdateCallback peersUpdateCallback, StateUpdatedCallback stateUpdatedCallback) {
+    @FunctionalInterface
+    public interface PeerSeenCallback {
+        void onPeerSeen(String address, long timestamp);
+    }
+
+    CommunicatorProxy(Context context, PeersChangedCallback peersChangedCallback, PeerSeenCallback peerSeenCallback, StateUpdatedCallback stateUpdatedCallback) {
         mContext = context;
 
         mReceiver = new BroadcastReceiver() {
@@ -52,23 +62,35 @@ class CommunicatorProxy {
                     return;
                 }
 
-                if (IntentFactory.INTENT_PEERS_UPDATE_ACTION.equals(intent.getAction())) {
+                if (INTENT_PEER_SEEN_ACTION.equals(intent.getAction())) {
+                    String address = extras.getString(INTENT_PEER_SEEN_EXTRA_ADDRESS);
+                    long timestamp = extras.getLong(INTENT_PEER_SEEN_EXTRA_TIMESTAMP);
+                    if (address == null || timestamp < 1) {
+                        w(TAG, "Received invalid %s intent, address: %s, timestamp: %d", INTENT_PEER_SEEN_ACTION, address, timestamp);
+                    } else {
+                        peerSeenCallback.onPeerSeen(address, timestamp);
+                    }
+                    // INTENT_PEER_SEEN_ACTION is sent quite often and therefore not accompanied by
+                    // communicator state. Return here to not generate warnings about the missing state
+                    return;
+
+                } else if (INTENT_PEERS_UPDATE_ACTION.equals(intent.getAction())) {
 
                     @SuppressWarnings("unchecked")
-                    Set<Peer> peers = (Set<Peer>) extras.getSerializable(INTENT_PEERS_UPDATE_PEERS_EXTRA);
+                    Set<Peer> peers = (Set<Peer>) extras.getSerializable(INTENT_PEERS_UPDATE_EXTRA_PEERS);
 
                     if (peers != null) {
-                        peersUpdateCallback.onPeersUpdate(peers);
+                        peersChangedCallback.onPeersChanged(peers);
                     } else {
-                        w(TAG, "Received invalid %s intent, peers: null, intent: %s", IntentFactory.INTENT_PEERS_UPDATE_ACTION, intent);
+                        w(TAG, "Received invalid %s intent, peers: null, intent: %s", INTENT_PEERS_UPDATE_ACTION, intent);
                     }
 
-                } else if (!IntentFactory.INTENT_COMMUNICATOR_STATE_UPDATED_ACTION.equals(intent.getAction())) {
+                } else if (!INTENT_COMMUNICATOR_STATE_UPDATED_ACTION.equals(intent.getAction())) {
                     w(TAG, "Received invalid intent (unknown action \"%s\"), ignoring it", intent.getAction());
                     return;
                 }
 
-                CommunicatorState state = (CommunicatorState) extras.getSerializable(IntentFactory.INTENT_COMMUNICATOR_STATE_EXTRA);
+                CommunicatorState state = (CommunicatorState) extras.getSerializable(IntentFactory.INTENT_COMMUNICATOR_EXTRA_STATE);
 
                 w(TAG, "State %s", state);
 
@@ -90,8 +112,8 @@ class CommunicatorProxy {
     void startListening() {
         d(TAG, "Starting to listen for events from communicator");
         IntentFilter filter = new IntentFilter();
-        filter.addAction(IntentFactory.INTENT_COMMUNICATOR_STATE_UPDATED_ACTION);
-        filter.addAction(IntentFactory.INTENT_PEERS_UPDATE_ACTION);
+        filter.addAction(INTENT_COMMUNICATOR_STATE_UPDATED_ACTION);
+        filter.addAction(INTENT_PEERS_UPDATE_ACTION);
 
         mContext.registerReceiver(mReceiver, filter);
         mRegistered = true;
@@ -142,7 +164,7 @@ class CommunicatorProxy {
         for (Slogan slogan : slogans) {
             mySloganStrings[index++] = slogan.getText();
         }
-        intent.putExtra(IntentFactory.INTENT_MY_SLOGANS_CHANGED_SLOGANS_EXTRA, mySloganStrings);
+        intent.putExtra(IntentFactory.INTENT_MY_SLOGANS_CHANGED_EXTRA_SLOGANS, mySloganStrings);
 
         mContext.startService(intent);
     }
