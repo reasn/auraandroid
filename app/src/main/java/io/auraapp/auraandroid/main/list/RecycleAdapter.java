@@ -25,7 +25,6 @@ import io.auraapp.auraandroid.main.list.item.MySloganListItem;
 import io.auraapp.auraandroid.main.list.item.PeerCollapsedHolder;
 import io.auraapp.auraandroid.main.list.item.PeerExpandedHolder;
 import io.auraapp.auraandroid.main.list.item.PeerSloganListItem;
-import io.auraapp.auraandroid.main.list.item.PeersStateItem;
 import io.auraapp.auraandroid.main.list.item.StatusCollapsedHolder;
 import io.auraapp.auraandroid.main.list.item.StatusItem;
 
@@ -92,7 +91,7 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         timer.setSerializedInterval("redraw", () -> {
             long now = System.currentTimeMillis();
             for (ListItem item : mItems) {
-                if (item instanceof PeersStateItem) {
+                if (item instanceof StatusItem) {
                     notifyItemChanged(mItems.indexOf(item));
                 } else if (item instanceof PeerSloganListItem && now - ((PeerSloganListItem) item).getLastSeen() > 10000) {
                     notifyItemChanged(mItems.indexOf(item));
