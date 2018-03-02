@@ -11,7 +11,6 @@ public class MyExpandedHolder extends ItemViewHolder {
 
     public MyExpandedHolder(View itemView) {
         super(itemView);
-
         mSloganTextView = itemView.findViewById(R.id.slogan_text);
     }
 

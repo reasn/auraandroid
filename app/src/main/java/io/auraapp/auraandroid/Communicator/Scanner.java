@@ -13,7 +13,6 @@ import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.os.Handler;
-import android.os.ParcelUuid;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -54,7 +53,7 @@ class Scanner {
 
     private static final boolean HIGH_POWER = true;
     private static final long PEER_FORGET_AFTER = 1000 * 60 * 30;
-    private static final long PEER_REFRESH_AFTER = 1000 * 20;
+    private static final long PEER_REFRESH_AFTER = 1000 * 30;
     private static final long PEER_CONNECT_TIMEOUT = 1000 * 10;
     private static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
     private final Communicator.OnErrorCallback mOnErrorCallback;
@@ -271,7 +270,7 @@ class Scanner {
 
         List<ScanFilter> scanFilters = new ArrayList<>();
         scanFilters.add(new ScanFilter.Builder()
-                .setServiceUuid(new ParcelUuid(UuidSet.SERVICE))
+                .setServiceUuid(UuidSet.SERVICE_PARCEL)
                 .build());
 
         scanner.startScan(scanFilters, settings, new ScanCallback() {
@@ -420,10 +419,23 @@ class Scanner {
         for (ScanResult result : results) {
 
             final String address = result.getDevice().getAddress();
+
+            byte[] data = result.getScanRecord().getServiceData(UuidSet.SERVICE_DATA_PARCEL);
+            byte version = 0;
+            boolean hasVersion = data != null && data.length > 0;
+            if (!hasVersion) {
+                w(TAG, "No service data present, addressHash: %s", CuteHasher.hash(address));
+            } else {
+                version = data[0];
+            }
             final Device device = mDeviceMap.get(address);
             if (device != null) {
                 v(TAG, "Nothing to do, device already known, addressHash: %s", CuteHasher.hash(address));
                 device.lastSeenTimestamp = System.currentTimeMillis();
+                if (hasVersion && device.mAdvertisementVersion != version) {
+                    device.mNextFetch = System.currentTimeMillis();
+                    device.mAdvertisementVersion = version;
+                }
                 mPeerBroadcaster.propagatePeer(device);
             } else {
                 i(TAG, "Device yet unknown, addressHash: %s", CuteHasher.hash(address));

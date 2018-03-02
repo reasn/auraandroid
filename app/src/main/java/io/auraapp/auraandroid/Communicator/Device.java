@@ -32,6 +32,8 @@ class Device {
 
     boolean isFetchingProp = false;
 
+    byte mAdvertisementVersion = 0;
+
     private final Map<UUID, Boolean> mFreshMap;
     private final Map<UUID, String> mPropertyMap;
 

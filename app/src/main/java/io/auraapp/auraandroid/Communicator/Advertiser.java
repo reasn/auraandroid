@@ -14,7 +14,6 @@ import android.bluetooth.le.AdvertiseSettings;
 import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.content.Context;
 import android.os.Handler;
-import android.os.ParcelUuid;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -88,6 +87,40 @@ class Advertiser {
             advertise();
             startServer();
         });
+    }
+
+    byte mAdvertisementVersion = 0;
+
+    void increaseAdvertisementVersion() {
+        mAdvertisementVersion++;
+        mBluetoothAdvertiser.stopAdvertising(mAdvertisingCallback);
+        advertise();
+    }
+
+    /**
+     * Inspiration
+     * - https://code.tutsplus.com/tutorials/how-to-advertise-android-as-a-bluetooth-le-peripheral--cms-25426
+     */
+    private void advertise() {
+
+        AdvertiseSettings settings = new AdvertiseSettings.Builder()
+                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                .setConnectable(true)
+                // Disable timeout for advertising
+                .setTimeout(0)
+                .build();
+
+        AdvertiseData data = new AdvertiseData.Builder()
+                .setIncludeTxPowerLevel(false)
+                .setIncludeDeviceName(false)
+                .addServiceUuid(UuidSet.SERVICE_PARCEL)
+                .addServiceData(UuidSet.SERVICE_DATA_PARCEL, new byte[]{mAdvertisementVersion})
+
+                .build();
+
+        mBluetoothAdvertiser.startAdvertising(settings, data, mAdvertisingCallback);
+        i(TAG, "started advertising, service: %s", UuidSet.SERVICE);
     }
 
     void stop() {
@@ -175,29 +208,5 @@ class Advertiser {
             }
         }
         return service;
-    }
-
-    /**
-     * Inspiration
-     * - https://code.tutsplus.com/tutorials/how-to-advertise-android-as-a-bluetooth-le-peripheral--cms-25426
-     */
-    private void advertise() {
-
-        AdvertiseSettings settings = new AdvertiseSettings.Builder()
-                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
-                .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
-                .setConnectable(true)
-                // Disable timeout for advertising
-                .setTimeout(0)
-                .build();
-
-        AdvertiseData data = new AdvertiseData.Builder()
-                .setIncludeTxPowerLevel(false)
-                .setIncludeDeviceName(false)
-                .addServiceUuid(new ParcelUuid(UuidSet.SERVICE))
-                .build();
-
-        mBluetoothAdvertiser.startAdvertising(settings, data, mAdvertisingCallback);
-        i(TAG, "started advertising, service: %s", UuidSet.SERVICE);
     }
 }

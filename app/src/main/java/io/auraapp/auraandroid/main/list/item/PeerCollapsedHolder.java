@@ -14,11 +14,7 @@ public class PeerCollapsedHolder extends ItemViewHolder {
         super(itemView);
 
         mSloganTextView = itemView.findViewById(R.id.slogan_text);
-        itemView.setOnClickListener((v) -> {
-            if (mItem != null) {
-                collapseExpandHandler.flip(mItem);
-            }
-        });
+        itemView.setOnClickListener($ -> collapseExpandHandler.flip(mItem));
     }
 
     public void bind(ListItem item) {

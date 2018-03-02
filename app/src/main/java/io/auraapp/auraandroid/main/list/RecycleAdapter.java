@@ -25,7 +25,7 @@ import io.auraapp.auraandroid.main.list.item.MySloganListItem;
 import io.auraapp.auraandroid.main.list.item.PeerCollapsedHolder;
 import io.auraapp.auraandroid.main.list.item.PeerExpandedHolder;
 import io.auraapp.auraandroid.main.list.item.PeerSloganListItem;
-import io.auraapp.auraandroid.main.list.item.StatusCollapsedHolder;
+import io.auraapp.auraandroid.main.list.item.StatusHolder;
 import io.auraapp.auraandroid.main.list.item.StatusItem;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
@@ -127,6 +127,9 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     private final CollapseExpandHandler collapseExpandHandler = new CollapseExpandHandler() {
         @Override
         public void flip(ListItem item) {
+            if (item == null) {
+                return;
+            }
             for (int i = 0; i < mItems.size(); i++) {
                 ListItem candidate = mItems.get(i);
                 if (candidate.mExpanded && !candidate.equals(item)) {
@@ -144,9 +147,18 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         switch (viewType) {
             case TYPE_STATUS_COLLAPSED:
-                return new StatusCollapsedHolder(
+                return new StatusHolder(
+                        false,
                         mContext,
-                        mInflater.inflate(R.layout.list_item_status_collapsed, parent, false));
+                        mInflater.inflate(R.layout.list_item_status_collapsed, parent, false),
+                        collapseExpandHandler);
+
+            case TYPE_STATUS_EXPANDED:
+                return new StatusHolder(
+                        true,
+                        mContext,
+                        mInflater.inflate(R.layout.list_item_status_expanded, parent, false),
+                        collapseExpandHandler);
 
             case TYPE_MY_COLLAPSED:
                 return new MyCollapsedHolder(mInflater.inflate(R.layout.list_item_collapsed, parent, false));

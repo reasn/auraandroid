@@ -441,7 +441,11 @@ public class Communicator extends Service {
                 w(TAG, "No slogans retrieved from intent");
                 return;
             }
+            boolean currentlyAdvertisingOnDifferentSlogans = mAdvertisementSet.mSlogansSet;
             mAdvertisementSet.setSlogans(mySlogans);
+            if (currentlyAdvertisingOnDifferentSlogans) {
+                mAdvertiser.increaseAdvertisementVersion();
+            }
             sendState();
         } else {
             w(TAG, "Received unknown intent, intent: %s", intent);

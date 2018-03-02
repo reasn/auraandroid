@@ -22,15 +22,15 @@
     <string name="ui_main_toast_replaced">Thought changed</string>
     <string name="ui_main_toast_dropped">Thought removed</string>
 
-    <string name="ui_main_explanation_bt_restart_required">TODO Bluetooth is fucked. Please restart.</string>
-    <string name="ui_main_explanation_bt_disabled">Bluetooth is disabled. Please enable it for Aura to work.</string>
-    <string name="ui_main_explanation_bt_turning_on">Bluetooth is starting, your Aura is ready shortly.</string>
-    <string name="ui_main_explanation_ble_not_supported">Your device does not support Bluetooth LE.\nSadly there\'s no way for Aura to work without it.</string>
-    <string name="ui_main_explanation_disabled">Aura not active, click the switch on the top right to activate it!</string>
-    <string name="ui_main_explanation_advertising_not_supported">Your device doesn\t support to make your Aura visible to others.\nYou can probably see others but nobody can\'t see you.</string>
-    <string name="ui_main_explanation_on_not_active">Aura is getting ready.</string>
-    <string name="ui_main_explanation_on_no_slogans">Get close to other Aura users to see their thoughts.</string>
-    <string name="ui_main_explanation_on_peers">You found ##slogans## :thought_balloon: nearby.</string>
+    <string name="ui_main_status_headline_communicator_bt_restart_required">:warning: Bluetooth crashed.</string>
+    <string name="ui_main_status_headline_communicator_bt_disabled">:warning: Bluetooth is disabled.</string>
+    <string name="ui_main_status_headline_communicator_bt_turning_on">:hourglass: Bluetooth is starting.</string>
+    <string name="ui_main_status_headline_communicator_ble_not_supported">:dizzy_face: Device unsupported.</string>
+    <string name="ui_main_status_headline_communicator_disabled">:sleeping_sign: Aura disabled.</string>
+    <string name="ui_main_status_headline_communicator_advertising_not_supported">:broken_heart: You\'re invisible.</string>
+    <string name="ui_main_status_headline_communicator_on_not_active">:hourglass: Aura is getting ready.</string>
+    <string name="ui_main_status_headline_communicator_on">:fire: Aura is on.</string>
+    <string name="ui_main_status_headline_communicator_peers">Found ##slogans##:thought_balloon: from ##peers##:silhouette_head:</string>
 
     <string name="ui_main_peer_slogan_last_seen_lt_10s">Nearby</string>
     <string name="ui_main_peer_slogan_last_seen_lt_1min">Less than a minute ago</string>

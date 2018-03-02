@@ -27,10 +27,11 @@ class AdvertisementSet {
     };
 
     private String[] mSlogans = new String[3];
+    boolean mSlogansSet = false;
     private String mUser;
 
     void setSlogans(String[] slogans) {
-
+        mSlogansSet = true;
         for (int i = 0; i < 3; i++) {
             mSlogans[i] = slogans.length <= i || slogans[i] == null
                     ? null

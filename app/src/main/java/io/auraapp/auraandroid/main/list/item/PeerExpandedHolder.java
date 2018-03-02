@@ -24,7 +24,7 @@ public class PeerExpandedHolder extends ItemViewHolder {
         mSloganTextView = itemView.findViewById(R.id.slogan_text);
         mLastSeenTextView = itemView.findViewById(R.id.lastSeen);
 
-        itemView.setOnClickListener((v) -> collapseExpandHandler.flip(mItem));
+        itemView.setOnClickListener($ -> collapseExpandHandler.flip(mItem));
     }
 
     @Override

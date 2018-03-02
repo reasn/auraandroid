@@ -7,6 +7,12 @@ public class EmojiHelper {
         return input.replaceAll(":fire:", "🔥")
                 .replaceAll(":thought_balloon:", "💭")
                 .replaceAll(":pencil:", "📝")
+                .replaceAll(":warning:", "⚠️")
+                .replaceAll(":hourglass:", "⏳")
+                .replaceAll(":dizzy_face:", "😵")
+                .replaceAll(":sleeping_sign:", "💤")
+                .replaceAll(":broken_heart:", "💔")
+                .replaceAll(":silhouette_head:", "👤")
                 .replaceAll(":ghost:", "👻")
                 .replaceAll(":heavy_plus_sign:", "➕");
     }

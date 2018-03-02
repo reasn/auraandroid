@@ -14,7 +14,10 @@ import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.main.list.item.ItemViewHolder;
 import io.auraapp.auraandroid.main.list.item.ListItem;
 import io.auraapp.auraandroid.main.list.item.MySloganListItem;
+import io.auraapp.auraandroid.main.list.item.PeerCollapsedHolder;
+import io.auraapp.auraandroid.main.list.item.PeerExpandedHolder;
 import io.auraapp.auraandroid.main.list.item.PeerSloganListItem;
+import io.auraapp.auraandroid.main.list.item.StatusHolder;
 
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
@@ -50,7 +53,7 @@ public class SwipeCallback extends ItemTouchHelper.SimpleCallback {
     private final int mBackgroundColor;
 
     public SwipeCallback(Context context, ResetItemViewCallback resetItemViewCallback, OnSwipedCallback onSwipedCallback) {
-        super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
+        super(0, 0);
 
         mResetItemViewCallback = resetItemViewCallback;
         mOnSwipedCallback = onSwipedCallback;
@@ -65,6 +68,17 @@ public class SwipeCallback extends ItemTouchHelper.SimpleCallback {
 
         mBackground = new ColorDrawable();
         mBackgroundColor = Color.parseColor("#f44336");
+    }
+
+    @Override
+    public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+        if (viewHolder instanceof StatusHolder) {
+            return 0;
+        }
+        if (viewHolder instanceof PeerCollapsedHolder || viewHolder instanceof PeerExpandedHolder) {
+            return ItemTouchHelper.LEFT;
+        }
+        return ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
     }
 
     @Override

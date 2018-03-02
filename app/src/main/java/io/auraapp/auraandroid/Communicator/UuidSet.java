@@ -1,9 +1,20 @@
 package io.auraapp.auraandroid.Communicator;
 
+import android.os.ParcelUuid;
+
 import java.util.UUID;
 
 class UuidSet {
     static final UUID SERVICE = UUID.fromString("47F61476-27FC-450D-BA61-5CA014665C90");
+    static final ParcelUuid SERVICE_PARCEL = new ParcelUuid(SERVICE);
+
+    /**
+     * Adds a 16 bit UUID from (1) to the BT base UUID as described in (29
+     * (1) https://www.bluetooth.com/specifications/assigned-numbers/16-bit-uuids-for-members
+     * (2) https://stackoverflow.com/questions/36212020/how-can-i-convert-a-bluetooth-16-bit-service-uuid-into-a-128-bit-uuid
+     */
+    static final UUID SERVICE_DATA = UUID.fromString("0000FE6E-0000-1000-8000-00805F9B34FB");
+    static final ParcelUuid SERVICE_DATA_PARCEL = new ParcelUuid(SERVICE_DATA);
 
     static final UUID USER = UUID.fromString("0A12350F-DEB0-467D-8B6F-1A05FFE9761D");
 
