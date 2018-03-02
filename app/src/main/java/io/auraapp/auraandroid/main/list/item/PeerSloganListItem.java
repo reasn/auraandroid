@@ -1,4 +1,4 @@
-package io.auraapp.auraandroid.main.list;
+package io.auraapp.auraandroid.main.list.item;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -8,19 +8,19 @@ import java.util.Set;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.Slogan;
 
-class PeerSloganListItem extends ListItem {
+public class PeerSloganListItem extends ListItem {
 
     private final Slogan mSlogan;
     private final Set<Peer> mPeers;
 
-    PeerSloganListItem(@NonNull Slogan slogan, @NonNull Set<Peer> peers) {
+    public PeerSloganListItem(@NonNull Slogan slogan, @NonNull Set<Peer> peers) {
         super(slogan.getText());
         mSlogan = slogan;
         mPeers = peers;
     }
 
     @Override
-    void updateWith(@NonNull ListItem newItem) {
+    public void updateWith(@NonNull ListItem newItem) {
         if (!(newItem instanceof PeerSloganListItem)) {
             throw new RuntimeException("Cannot update " + PeerSloganListItem.class.getSimpleName() + " with " + newItem.getClass().getSimpleName());
         }
@@ -33,11 +33,11 @@ class PeerSloganListItem extends ListItem {
         return mPeers;
     }
 
-    Slogan getSlogan() {
+    public Slogan getSlogan() {
         return mSlogan;
     }
 
-    long getLastSeen() {
+    public long getLastSeen() {
         if (mPeers == null) {
             throw new RuntimeException("Cannot determine lastSeen for item that has no peers");
         }

@@ -11,6 +11,10 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 
 import io.auraapp.auraandroid.common.Slogan;
+import io.auraapp.auraandroid.main.list.item.ItemViewHolder;
+import io.auraapp.auraandroid.main.list.item.ListItem;
+import io.auraapp.auraandroid.main.list.item.MySloganListItem;
+import io.auraapp.auraandroid.main.list.item.PeerSloganListItem;
 
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 

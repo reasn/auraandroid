@@ -17,10 +17,22 @@ import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.common.Timer;
 import io.auraapp.auraandroid.main.PeerSlogan;
 import io.auraapp.auraandroid.main.SloganComparator;
+import io.auraapp.auraandroid.main.list.item.ItemViewHolder;
+import io.auraapp.auraandroid.main.list.item.ListItem;
+import io.auraapp.auraandroid.main.list.item.MyCollapsedHolder;
+import io.auraapp.auraandroid.main.list.item.MyExpandedHolder;
+import io.auraapp.auraandroid.main.list.item.MySloganListItem;
+import io.auraapp.auraandroid.main.list.item.PeerCollapsedHolder;
+import io.auraapp.auraandroid.main.list.item.PeerExpandedHolder;
+import io.auraapp.auraandroid.main.list.item.PeerSloganListItem;
+import io.auraapp.auraandroid.main.list.item.PeersStateItem;
+import io.auraapp.auraandroid.main.list.item.StatusCollapsedHolder;
+import io.auraapp.auraandroid.main.list.item.StatusItem;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 
 public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
+
 
     @FunctionalInterface
     public interface CollapseExpandHandler {
@@ -29,6 +41,10 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 
     private static final String TAG = "@aura/" + RecycleAdapter.class.getSimpleName();
 
+    private static final int TYPE_STATUS_COLLAPSED = 140;
+    private static final int TYPE_STATUS_EXPANDED = 141;
+    private static final int TYPE_PEERS_STATE_COLLAPSED = 142;
+    private static final int TYPE_PEERS_STATE_EXPANDED = 143;
     private final static int TYPE_MY_COLLAPSED = 144;
     private final static int TYPE_MY_EXPANDED = 145;
     private final static int TYPE_PEER_COLLAPSED = 146;
@@ -41,11 +57,7 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     private final List<ListItem> mItems;
     private final RecyclerView mListView;
 
-    public static RecycleAdapter create(@NonNull Context context, RecyclerView listView) {
-        return new RecycleAdapter(context, new ArrayList<>(), listView);
-    }
-
-    private RecycleAdapter(@NonNull Context context, List<ListItem> items, RecyclerView listView) {
+    public RecycleAdapter(@NonNull Context context, List<ListItem> items, RecyclerView listView) {
         super();
         mContext = context;
         mItems = items;
@@ -77,19 +89,16 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
      * Ensures that the lastFetch information is properly reflected in items
      */
     public void onResume() {
-        regularlyRedrawOutOfSightItems();
-    }
-
-    private void regularlyRedrawOutOfSightItems() {
-        timer.set("redraw", () -> {
+        timer.setSerializedInterval("redraw", () -> {
             long now = System.currentTimeMillis();
             for (ListItem item : mItems) {
-                if (item instanceof PeerSloganListItem && now - ((PeerSloganListItem) item).getLastSeen() > 10000) {
+                if (item instanceof PeersStateItem) {
+                    notifyItemChanged(mItems.indexOf(item));
+                } else if (item instanceof PeerSloganListItem && now - ((PeerSloganListItem) item).getLastSeen() > 10000) {
                     notifyItemChanged(mItems.indexOf(item));
                 }
             }
-            regularlyRedrawOutOfSightItems();
-        }, 10000);
+        }, 1000);
     }
 
     public void onPause() {
@@ -135,6 +144,11 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     @Override
     public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         switch (viewType) {
+            case TYPE_STATUS_COLLAPSED:
+                return new StatusCollapsedHolder(
+                        mContext,
+                        mInflater.inflate(R.layout.list_item_status_collapsed, parent, false));
+
             case TYPE_MY_COLLAPSED:
                 return new MyCollapsedHolder(mInflater.inflate(R.layout.list_item_collapsed, parent, false));
 
@@ -165,6 +179,12 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     @Override
     public int getItemViewType(int position) {
         ListItem item = mItems.get(position);
+        if (item instanceof StatusItem) {
+            return item.mExpanded
+                    ? TYPE_STATUS_EXPANDED
+                    : TYPE_STATUS_COLLAPSED;
+        }
+
         return item instanceof MySloganListItem
                 ? (
                 item.mExpanded

@@ -15,11 +15,20 @@ public class Timer {
         this.mHandler = handler;
     }
 
-    public void set(String id, Runnable runnable, long millis) {
-
+    public void setTimeout(String id, Runnable runnable, long timeout) {
         Message message = Message.obtain(mHandler, runnable);
         message.obj = id;
-        mHandler.sendMessageDelayed(message, millis);
+        mHandler.sendMessageDelayed(message, timeout);
+    }
+
+    public void setSerializedInterval(String id, Runnable runnable, long interval) {
+        setTimeout(
+                id,
+                () -> {
+                    runnable.run();
+                    setSerializedInterval(id, runnable, interval);
+                },
+                interval);
     }
 
     public void clear(@Nullable String id) {
@@ -42,9 +51,9 @@ public class Timer {
         if (lastRun == null || lastRun < now - millis) {
             mLastRun.put(id, now);
             runnable.run();
-            set(clearId, () -> mLastRun.remove(id), millis);
+            setTimeout(clearId, () -> mLastRun.remove(id), millis);
             return;
         }
-        set(id, runnable, millis);
+        setTimeout(id, runnable, millis);
     }
 }

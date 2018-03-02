@@ -1,23 +1,23 @@
-package io.auraapp.auraandroid.main.list;
+package io.auraapp.auraandroid.main.list.item;
 
 import android.support.annotation.NonNull;
 
 import io.auraapp.auraandroid.common.Slogan;
 
-class MySloganListItem extends ListItem {
+public class MySloganListItem extends ListItem {
 
     private final Slogan mSlogan;
 
-    MySloganListItem(@NonNull Slogan slogan) {
+    public MySloganListItem(@NonNull Slogan slogan) {
         super(slogan.getText());
         mSlogan = slogan;
     }
 
-    Slogan getSlogan() {
+    public Slogan getSlogan() {
         return mSlogan;
     }
 
     @Override
-    void updateWith(ListItem newItem) {
+    public void updateWith(ListItem newItem) {
     }
 }

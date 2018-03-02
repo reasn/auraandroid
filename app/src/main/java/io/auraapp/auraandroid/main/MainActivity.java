@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AppCompatActivity;
@@ -28,10 +27,11 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -39,17 +39,17 @@ import io.auraapp.auraandroid.Communicator.Communicator;
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.PermissionMissingActivity;
 import io.auraapp.auraandroid.R;
-import io.auraapp.auraandroid.common.CuteHasher;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.PermissionHelper;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.main.list.RecycleAdapter;
 import io.auraapp.auraandroid.main.list.SwipeCallback;
+import io.auraapp.auraandroid.main.list.item.ListItem;
+import io.auraapp.auraandroid.main.list.item.StatusItem;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
-import static io.auraapp.auraandroid.common.FormattedLog.w;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean mBrokenBtStackAlertVisible = false;
     private CommunicatorState mCommunicatorState;
     private Set<Peer> mPeers = new HashSet<>();
-    private final Handler mHandler = new Handler();
+    private StatusItem mStatusItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
                     mPeers = peers;
                     mSloganGroupMap = PeerMapTransformer.buildMapFromPeerList(peers);
                     mListAdapter.notifyPeerSloganListChanged(mSloganGroupMap);
-                    reflectPeers();
+                    reflectStatus();
                 },
                 (Peer peer) -> {
                     for (Peer candidate : mPeers) {
@@ -136,11 +136,11 @@ public class MainActivity extends AppCompatActivity {
                     mPeers.add(peer);
                     mSloganGroupMap = PeerMapTransformer.buildMapFromPeerAndPreviousMap(peer, mSloganGroupMap);
                     mListAdapter.notifyPeerSloganListChanged(mSloganGroupMap);
-                    reflectPeers();
+                    reflectStatus();
                 },
                 (CommunicatorState state) -> {
                     mCommunicatorState = state;
-                    reflectCommunicatorState();
+                    reflectStatus();
                 });
 
 //        EmojiCompat.init(new BundledEmojiCompatConfig(this));
@@ -216,98 +216,20 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * The order of conditions should be synchronized with that in Communicator::updateForegroundNotification
-     */
-    private void reflectCommunicatorState() {
-        String text;
-
+    private void reflectStatus() {
         if (!mCommunicatorState.mHasPermission) {
             sendToPermissionMissingActivity();
             return;
-        } else if (mCommunicatorState.mBluetoothRestartRequired) {
-            text = getString(R.string.ui_main_explanation_bt_restart_required);
-
-        } else if (mCommunicatorState.mBtTurningOn) {
-            text = getString(R.string.ui_main_explanation_bt_turning_on);
-
-        } else if (!mCommunicatorState.mBtEnabled) {
-            text = getString(R.string.ui_main_explanation_bt_disabled);
-
-        } else if (!mCommunicatorState.mBleSupported) {
-            text = getString(R.string.ui_main_explanation_ble_not_supported);
-
-        } else if (!mCommunicatorState.mShouldCommunicate) {
-            text = getString(R.string.ui_main_explanation_disabled);
-
-        } else {
-            if (!mCommunicatorState.mAdvertisingSupported) {
-                text = getString(R.string.ui_main_explanation_advertising_not_supported);
-            } else if (!mCommunicatorState.mAdvertising) {
-                w(TAG, "Not advertising although it is possible.");
-                text = getString(R.string.ui_main_explanation_on_not_active);
-            } else if (!mCommunicatorState.mScanning) {
-                w(TAG, "Not scanning although it is possible.");
-                text = getString(R.string.ui_main_explanation_on_not_active);
-            } else {
-                text = null;
-            }
         }
 
-        TextView view = findViewById(R.id.communicator_state_explanation);
-        TextView peersState = findViewById(R.id.peers_state_explanation);
-
-        if (text == null) {
-            peersState.setVisibility(View.VISIBLE);
-            view.setVisibility(View.GONE);
-        } else {
-            peersState.setVisibility(View.GONE);
-            view.setVisibility(View.VISIBLE);
-            view.setText(EmojiHelper.replaceShortCode(text));
-        }
+        mStatusItem.mState = mCommunicatorState;
+        mStatusItem.mPeers = mPeers;
+        mStatusItem.mPeerSloganMap = mSloganGroupMap;
+        mListAdapter.notifyListItemChanged(mStatusItem);
 
         if (mCommunicatorState.mRecentBtTurnOnEvents >= Communicator.RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD) {
             showBrokenBtStackAlert();
         }
-    }
-
-    private void reflectPeers() {
-
-        mHandler.removeCallbacks(this::reflectPeers);
-
-        String text;
-        if (mSloganGroupMap.size() == 0) {
-            text = getString(R.string.ui_main_explanation_on_no_slogans);
-        } else {
-            text = getString(R.string.ui_main_explanation_on_peers).replaceAll("##slogans##", Integer.toString(mSloganGroupMap.size()));
-        }
-
-        StringBuilder peerString = new StringBuilder();
-        long now = System.currentTimeMillis();
-        for (Peer peer : mPeers) {
-            if (peerString.length() > 0) {
-                peerString.append(", ");
-            }
-            peerString.append(CuteHasher.hash(peer.mAddress))
-                    .append(": ");
-
-            int timeToNextFetch = Math.round((peer.mNextFetch - now) / 1000);
-            if (timeToNextFetch < 0) {
-                peerString.append("fetching");
-            } else {
-                peerString.append(timeToNextFetch)
-                        .append("s");
-
-            }
-        }
-
-        text += "\n" + peerString;
-
-        TextView peersState = findViewById(R.id.peers_state_explanation);
-        peersState.setText(EmojiHelper.replaceShortCode(text));
-
-        // Make sure this is always updated
-        mHandler.postDelayed(this::reflectPeers, 1000);
     }
 
     private void showBrokenBtStackAlert() {
@@ -347,7 +269,12 @@ public class MainActivity extends AppCompatActivity {
         // TODO show stats for slogans
         RecyclerView listView = findViewById(R.id.list_view);
 
-        mListAdapter = RecycleAdapter.create(this, listView);
+        List<ListItem> builtinItems = new ArrayList<>();
+
+        mStatusItem = new StatusItem(mCommunicatorState, mPeers, mSloganGroupMap);
+        builtinItems.add(mStatusItem);
+
+        mListAdapter = new RecycleAdapter(this, builtinItems, listView);
 
         listView.setAdapter(mListAdapter);
 
@@ -489,7 +416,6 @@ public class MainActivity extends AppCompatActivity {
 
         inForeground = true;
 
-        reflectPeers();
         mListAdapter.onResume();
     }
 
@@ -498,7 +424,6 @@ public class MainActivity extends AppCompatActivity {
         mCommunicatorProxy.stopListening();
         inForeground = false;
 
-        mHandler.removeCallbacks(this::reflectPeers);
         mListAdapter.onPause();
         super.onPause();
     }

@@ -1,22 +1,22 @@
-package io.auraapp.auraandroid.main.list;
+package io.auraapp.auraandroid.main.list.item;
 
 import android.view.View;
 import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
 
-class MyExpandedHolder extends ItemViewHolder {
+public class MyExpandedHolder extends ItemViewHolder {
 
     private final TextView mSloganTextView;
 
-    MyExpandedHolder(View itemView) {
+    public MyExpandedHolder(View itemView) {
         super(itemView);
 
         mSloganTextView = itemView.findViewById(R.id.slogan_text);
     }
 
     @Override
-    void bind(ListItem item) {
+    public void bind(ListItem item) {
         if (!(item instanceof MySloganListItem)) {
             throw new RuntimeException("Expecting " + MySloganListItem.class.getSimpleName());
         }

@@ -1,15 +1,16 @@
-package io.auraapp.auraandroid.main.list;
+package io.auraapp.auraandroid.main.list.item;
 
 import android.view.View;
 import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.main.list.RecycleAdapter;
 
-class PeerCollapsedHolder extends ItemViewHolder {
+public class PeerCollapsedHolder extends ItemViewHolder {
 
     private final TextView mSloganTextView;
 
-    PeerCollapsedHolder(View itemView, RecycleAdapter.CollapseExpandHandler collapseExpandHandler) {
+    public PeerCollapsedHolder(View itemView, RecycleAdapter.CollapseExpandHandler collapseExpandHandler) {
         super(itemView);
 
         mSloganTextView = itemView.findViewById(R.id.slogan_text);
@@ -20,7 +21,7 @@ class PeerCollapsedHolder extends ItemViewHolder {
         });
     }
 
-    void bind(ListItem item) {
+    public void bind(ListItem item) {
         if (!(item instanceof PeerSloganListItem)) {
             throw new RuntimeException("Expecting " + PeerSloganListItem.class.getSimpleName());
         }

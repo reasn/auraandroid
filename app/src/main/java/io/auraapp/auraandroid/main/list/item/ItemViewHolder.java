@@ -1,4 +1,4 @@
-package io.auraapp.auraandroid.main.list;
+package io.auraapp.auraandroid.main.list.item;
 
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
@@ -6,18 +6,18 @@ import android.view.View;
 
 import java.util.Random;
 
-abstract class ItemViewHolder extends RecyclerView.ViewHolder {
+public abstract class ItemViewHolder extends RecyclerView.ViewHolder {
     private final View mItemView;
-    ListItem mItem;
+    public ListItem mItem;
 
-    ItemViewHolder(View itemView) {
+    public ItemViewHolder(View itemView) {
         super(itemView);
         mItemView = itemView;
     }
 
-    abstract void bind(ListItem item);
+    public abstract void bind(ListItem item);
 
-    final void setItem(ListItem listItem) {
+    public final void setItem(ListItem listItem) {
         mItem = listItem;
         bind(listItem);
         Random rnd = new Random();

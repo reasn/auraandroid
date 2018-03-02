@@ -1,21 +1,22 @@
-package io.auraapp.auraandroid.main.list;
+package io.auraapp.auraandroid.main.list.item;
 
 import android.content.Context;
 import android.view.View;
 import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.main.list.RecycleAdapter;
 
 import static io.auraapp.auraandroid.common.FormattedLog.e;
 
-class PeerExpandedHolder extends ItemViewHolder {
+public class PeerExpandedHolder extends ItemViewHolder {
 
     private static final String TAG = "aura/list/" + PeerExpandedHolder.class.getSimpleName();
     private final TextView mSloganTextView;
     private final TextView mLastSeenTextView;
     private final Context mContext;
 
-    PeerExpandedHolder(View itemView, Context context, RecycleAdapter.CollapseExpandHandler collapseExpandHandler) {
+    public PeerExpandedHolder(View itemView, Context context, RecycleAdapter.CollapseExpandHandler collapseExpandHandler) {
         super(itemView);
 
         mContext = context;
@@ -27,7 +28,7 @@ class PeerExpandedHolder extends ItemViewHolder {
     }
 
     @Override
-    void bind(ListItem item) {
+    public void bind(ListItem item) {
 
         if (item == null) {
             e(TAG, "Trying to bind %s to null ListItem", PeerExpandedHolder.class.getSimpleName());
