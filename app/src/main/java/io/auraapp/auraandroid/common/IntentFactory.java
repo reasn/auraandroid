@@ -20,25 +20,26 @@ public class IntentFactory {
     public static final String INTENT_MY_SLOGANS_CHANGED_EXTRA_SLOGANS = prefix + "mySlogansExtra";
 
     // from Communicator
-    public static final String INTENT_COMMUNICATOR_STATE_UPDATED_ACTION = prefix + "healthUpdated";
-    public static final String INTENT_PEERS_UPDATE_ACTION = prefix + "peersUpdated";
-    public static final String INTENT_PEERS_UPDATE_EXTRA_PEERS = prefix + "extraPeers";
     public static final String INTENT_COMMUNICATOR_EXTRA_STATE = prefix + "extraState";
 
-    public static final String INTENT_PEER_UPDATE_ACTION = prefix + "peerChanged";
-    public static final String INTENT_PEER_UPDATE_EXTRA_PEER = prefix + "extraPeer";
+    public static final String INTENT_COMMUNICATOR_STATE_UPDATED_ACTION = prefix + "communicatorStateUpdated";
 
+    public static final String INTENT_PEER_LIST_UPDATED_ACTION = prefix + "peerListUpdated";
+    public static final String INTENT_PEER_LIST_UPDATED_EXTRA_PEERS = prefix + "extraPeerList";
 
-    public static Intent peersUpdate(Set<Peer> peers, CommunicatorState state) {
-        Intent intent = new Intent(IntentFactory.INTENT_PEERS_UPDATE_ACTION);
-        intent.putExtra(IntentFactory.INTENT_PEERS_UPDATE_EXTRA_PEERS, (Serializable) peers);
-        intent.putExtra(IntentFactory.INTENT_COMMUNICATOR_EXTRA_STATE, state);
+    public static final String INTENT_PEER_UPDATED_ACTION = prefix + "peerUpdated";
+    public static final String INTENT_PEER_UPDATED_EXTRA_PEER = prefix + "extraPeer";
+
+    public static Intent peerListUpdated(Set<Peer> peers, CommunicatorState state) {
+        Intent intent = new Intent(INTENT_PEER_LIST_UPDATED_ACTION);
+        intent.putExtra(INTENT_PEER_LIST_UPDATED_EXTRA_PEERS, (Serializable) peers);
+        intent.putExtra(INTENT_COMMUNICATOR_EXTRA_STATE, state);
         return intent;
     }
 
-    public static Intent peerUpdate(Peer peer) {
-        Intent intent = new Intent(IntentFactory.INTENT_PEER_UPDATE_ACTION);
-        intent.putExtra(IntentFactory.INTENT_PEER_UPDATE_EXTRA_PEER, peer);
+    public static Intent peerUpdated(Peer peer) {
+        Intent intent = new Intent(INTENT_PEER_UPDATED_ACTION);
+        intent.putExtra(INTENT_PEER_UPDATED_EXTRA_PEER, peer);
         return intent;
     }
 
@@ -51,8 +52,8 @@ public class IntentFactory {
     }
 
     public static Intent communicatorState(CommunicatorState state) {
-        Intent intent = new Intent(IntentFactory.INTENT_COMMUNICATOR_STATE_UPDATED_ACTION);
-        intent.putExtra(IntentFactory.INTENT_COMMUNICATOR_EXTRA_STATE, state);
+        Intent intent = new Intent(INTENT_COMMUNICATOR_STATE_UPDATED_ACTION);
+        intent.putExtra(INTENT_COMMUNICATOR_EXTRA_STATE, state);
         return intent;
     }
 }

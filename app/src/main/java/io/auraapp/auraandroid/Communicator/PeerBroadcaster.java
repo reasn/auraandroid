@@ -12,7 +12,7 @@ import io.auraapp.auraandroid.common.Timer;
 
 class PeerBroadcaster {
 
-    private static final String TIMEOUT_ID_ALL_PEERS = "all-peers";
+    private static final String DEBOUNCE_ID_ALL_PEERS = "all-peers";
 
     @FunctionalInterface
     interface PeersChangedCallback {
@@ -24,7 +24,7 @@ class PeerBroadcaster {
         void peerChanged(Peer peer);
     }
 
-    private static final int DEBOUNCE = 5000;
+    private static final int DEBOUNCE = 3000;
 
     private final PeersChangedCallback mPeersListCallback;
     private final PeerChangedCallback mPeerChangedCallback;
@@ -36,13 +36,11 @@ class PeerBroadcaster {
     }
 
     void propagatePeer(Device device) {
-//        mTimer.clear(device.mAddress);
         mTimer.debounce(device.mAddress, () -> mPeerChangedCallback.peerChanged(buildPeer(device)), DEBOUNCE);
     }
 
     void propagatePeerList(Map<String, Device> deviceMap) {
-        mTimer.clear(TIMEOUT_ID_ALL_PEERS);
-        mTimer.set(TIMEOUT_ID_ALL_PEERS, () -> mPeersListCallback.peersChanged(buildPeers(deviceMap)), DEBOUNCE);
+        mTimer.debounce(DEBOUNCE_ID_ALL_PEERS, () -> mPeersListCallback.peersChanged(buildPeers(deviceMap)), DEBOUNCE);
     }
 
     Set<Peer> buildPeers(Map<String, Device> deviceMap) {
@@ -54,8 +52,7 @@ class PeerBroadcaster {
     }
 
     private Peer buildPeer(Device device) {
-        final Peer peer = new Peer();
-        peer.mAddress = device.mAddress;
+        final Peer peer = new Peer(device.mAddress);
 
         peer.mLastSeenTimestamp = device.lastSeenTimestamp;
         peer.mNextFetch = device.mNextFetch;

@@ -20,10 +20,10 @@ import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 import static io.auraapp.auraandroid.common.FormattedLog.w;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_COMMUNICATOR_STATE_UPDATED_ACTION;
-import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEERS_UPDATE_ACTION;
-import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEERS_UPDATE_EXTRA_PEERS;
-import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATE_ACTION;
-import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATE_EXTRA_PEER;
+import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_LIST_UPDATED_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_LIST_UPDATED_EXTRA_PEERS;
+import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATED_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATED_EXTRA_PEER;
 
 class CommunicatorProxy {
     private static final String TAG = "@aura/communicatorProxy";
@@ -42,7 +42,7 @@ class CommunicatorProxy {
 
     @FunctionalInterface
     public interface PeerSetChangedCallback {
-        void onSetListChanged(Set<Peer> peers);
+        void onPeerSetChanged(Set<Peer> peers);
     }
 
     @FunctionalInterface
@@ -63,29 +63,29 @@ class CommunicatorProxy {
                     return;
                 }
 
-                if (INTENT_PEER_UPDATE_ACTION.equals(intent.getAction())) {
+                if (INTENT_PEER_UPDATED_ACTION.equals(intent.getAction())) {
 
                     @SuppressWarnings("unchecked")
-                    Peer peer = (Peer) extras.getSerializable(INTENT_PEER_UPDATE_EXTRA_PEER);
+                    Peer peer = (Peer) extras.getSerializable(INTENT_PEER_UPDATED_EXTRA_PEER);
                     if (peer != null) {
                         peerChangedCallback.onPeerChanged(peer);
                         v(TAG, "Peer updated, peer: %s, slogans: %d", CuteHasher.hash(peer.mAddress), peer.mSlogans.size());
                     } else {
-                        w(TAG, "Received invalid %s intent, peer: null", INTENT_PEER_UPDATE_ACTION);
+                        w(TAG, "Received invalid %s intent, peer: null", INTENT_PEER_UPDATED_ACTION);
                     }
-                    // INTENT_PEER_UPDATE_ACTION is sent quite often and therefore not accompanied by
+                    // INTENT_PEER_UPDATED_ACTION is sent quite often and therefore not accompanied by
                     // communicator state. Return here to not generate warnings about the missing state
                     return;
 
-                } else if (INTENT_PEERS_UPDATE_ACTION.equals(intent.getAction())) {
+                } else if (INTENT_PEER_LIST_UPDATED_ACTION.equals(intent.getAction())) {
                     @SuppressWarnings("unchecked")
-                    Set<Peer> peers = (Set<Peer>) extras.getSerializable(INTENT_PEERS_UPDATE_EXTRA_PEERS);
+                    Set<Peer> peers = (Set<Peer>) extras.getSerializable(INTENT_PEER_LIST_UPDATED_EXTRA_PEERS);
 
                     if (peers != null) {
                         v(TAG, "Peer list changed, peers: %d", peers.size());
-                        peerSetChangedCallback.onSetListChanged(peers);
+                        peerSetChangedCallback.onPeerSetChanged(peers);
                     } else {
-                        w(TAG, "Received invalid %s intent, peers: null, intent: %s", INTENT_PEERS_UPDATE_ACTION, intent);
+                        w(TAG, "Received invalid %s intent, peers: null, intent: %s", INTENT_PEER_LIST_UPDATED_ACTION, intent);
                     }
 
                 } else if (!INTENT_COMMUNICATOR_STATE_UPDATED_ACTION.equals(intent.getAction())) {
@@ -113,13 +113,14 @@ class CommunicatorProxy {
     }
 
     void startListening() {
-        d(TAG, "Starting to listen for events from communicator");
         IntentFilter filter = new IntentFilter();
         filter.addAction(INTENT_COMMUNICATOR_STATE_UPDATED_ACTION);
-        filter.addAction(INTENT_PEERS_UPDATE_ACTION);
+        filter.addAction(INTENT_PEER_LIST_UPDATED_ACTION);
+        filter.addAction(INTENT_PEER_UPDATED_ACTION);
 
         mContext.registerReceiver(mReceiver, filter);
         mRegistered = true;
+        d(TAG, "Started to listen for events from communicator");
     }
 
     /**

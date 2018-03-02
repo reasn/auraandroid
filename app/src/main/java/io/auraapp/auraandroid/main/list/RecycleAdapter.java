@@ -7,23 +7,28 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.main.PeerSlogan;
+import io.auraapp.auraandroid.main.SloganComparator;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
+import static io.auraapp.auraandroid.common.FormattedLog.v;
 
 public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
-
-    private final Context mContext;
 
     @FunctionalInterface
     public interface CollapseExpandHandler {
         void flip(ListItem item);
     }
+
+    private static final String TAG = "@aura/" + RecycleAdapter.class.getSimpleName();
 
     private final static int TYPE_MY_COLLAPSED = 144;
     private final static int TYPE_MY_EXPANDED = 145;
@@ -31,30 +36,19 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     private final static int TYPE_PEER_EXPANDED = 147;
 
     private final LayoutInflater mInflater;
-    private static final String TAG = "@aura/" + RecycleAdapter.class.getSimpleName();
-    private final TreeSet<Slogan> mMySlogans;
-    private final TreeSet<PeerSlogan> mPeerSlogans;
+    private final Context mContext;
 
     private final List<ListItem> mItems;
     private final RecyclerView mListView;
 
-    public static RecycleAdapter create(@NonNull Context context,
-                                        TreeSet<Slogan> mySlogans,
-                                        TreeSet<PeerSlogan> peerSlogans,
-                                        RecyclerView listView) {
-        return new RecycleAdapter(context, new ArrayList<>(), mySlogans, peerSlogans, listView);
+    public static RecycleAdapter create(@NonNull Context context, RecyclerView listView) {
+        return new RecycleAdapter(context, new ArrayList<>(), listView);
     }
 
-    private RecycleAdapter(@NonNull Context context,
-                           List<ListItem> items,
-                           TreeSet<Slogan> mySlogans,
-                           TreeSet<PeerSlogan> peerSlogans,
-                           RecyclerView listView) {
+    private RecycleAdapter(@NonNull Context context, List<ListItem> items, RecyclerView listView) {
         super();
         mContext = context;
         mItems = items;
-        mMySlogans = mySlogans;
-        mPeerSlogans = peerSlogans;
         mListView = listView;
         mInflater = LayoutInflater.from(context);
     }
@@ -63,25 +57,67 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         for (ListItem item : mItems) {
             if (item.getSlogan().equals(slogan.mSlogan)) {
                 int index = mItems.indexOf(item);
-                d(TAG, "Peer slogan changed, index: %d, peerSlogan: %s", slogan);
+                d(TAG, "Peer slogan changed, index: %d, peerSlogan: %s", index, slogan);
                 notifyItemChanged(index);
                 break;
             }
         }
     }
 
-    public void notifySlogansChanged() {
-        d(TAG, "Updating list, mySlogans: %d, peerSlogans: %d", mMySlogans.size(), mPeerSlogans.size());
-        mItems.clear();
-// TODO needs to become way more efficient
-        for (Slogan mySlogan : mMySlogans) {
-            mItems.add(new ListItem(mySlogan, null));
+    public void notifyPeerSlogansChanged(TreeMap<String, PeerSlogan> mSloganGroupMap) {
+        // TODO implement
+    }
+
+    public void notifyMySlogansChanged(TreeSet<Slogan> mySlogans) {
+        d(TAG, "Updating list, mySlogans: %d", mySlogans.size());
+
+        final List<ListItem> newItems = new ArrayList<>();
+        for (Slogan mySlogan : mySlogans) {
+            newItems.add(new ListItem(mySlogan, null));
         }
-        for (PeerSlogan peerSlogan : mPeerSlogans) {
-            mItems.add(new ListItem(peerSlogan.mSlogan, peerSlogan.mPeers));
+
+        Set<Runnable> mutations = new HashSet<>();
+
+        // Remove absent items
+        for (ListItem item : mItems) {
+            if (!newItems.contains(item)) {
+                mutations.add(() -> {
+                    int index = mItems.indexOf(item);
+                    v(TAG, "Removing item %s at %d", item.getSlogan(), index);
+                    mItems.remove(item);
+                    notifyItemRemoved(index);
+                });
+            }
         }
-//        notifyItemInserted(mItems.size());
-        notifyDataSetChanged();
+
+        for (Runnable r : mutations) {
+            r.run();
+        }
+        mutations.clear();
+
+        // Add new items
+        SloganComparator c = new SloganComparator();
+        for (ListItem newItem : newItems) {
+            if (!mItems.contains(newItem)) {
+                mutations.add(() -> {
+                    int index;
+                    // Determine the index of the first item that's supposed to be after newItem
+                    for (index = 0; index < mItems.size(); index++) {
+                        ListItem item = mItems.get(index);
+                        if (!item.isMine() || c.compare(item.getSlogan(), newItem.getSlogan()) > 0) {
+                            break;
+                        }
+                    }
+                    v(TAG, "Inserting item %s at %d", newItem.getSlogan(), index);
+                    mItems.add(index, newItem);
+                    notifyItemInserted(index);
+                });
+            }
+        }
+
+        for (Runnable r : mutations) {
+            r.run();
+        }
     }
 
     public void notifyListItemChanged(ListItem item) {

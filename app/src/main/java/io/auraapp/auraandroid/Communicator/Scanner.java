@@ -201,8 +201,8 @@ class Scanner {
                 device.mNextFetch = now + PEER_REFRESH_AFTER;
                 i(TAG, "All props fresh, should disconnect, nextFetch: %d, props: %s, addressHash: %s", device.mNextFetch, device.props(), addressHash);
                 device.stats.mSuccessfulRetrievals++;
-                mPeerBroadcaster.propagatePeer(device);
                 device.shouldDisconnect = true;
+                mPeerBroadcaster.propagatePeer(device);
             } catch (Exception e) {
                 e(TAG, "Unhandled exception, device: %s", device);
                 throw e;

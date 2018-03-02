@@ -31,10 +31,9 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import io.auraapp.auraandroid.Communicator.Communicator;
@@ -106,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
                 this,
                 (int event) -> {
                     d(TAG, "My slogans changed");
-                    mListAdapter.notifySlogansChanged();
+                    mListAdapter.notifyMySlogansChanged(mMySloganManager.getMySlogans());
                     mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
                     switch (event) {
                         case MySloganManager.EVENT_ADOPTED:
@@ -121,41 +120,30 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
-
         mCommunicatorProxy = new CommunicatorProxy(
                 this,
                 (Set<Peer> peers) -> {
-
-                    mPeers = peers;
-                    Map<String, PeerSlogan> peerSloganMap = new HashMap<>();
-                    for (Peer peer : peers) {
-                        for (Slogan slogan : peer.mSlogans) {
-                            if (!peerSloganMap.containsKey(slogan.getText())) {
-                                peerSloganMap.put(slogan.getText(), new PeerSlogan(slogan));
-                            }
-                            peerSloganMap.get(slogan.getText()).mPeers.add(peer);
-                        }
-                    }
-                    v(TAG, "Syncing %d previous slogans to %d slogans from %d peers", mPeerSlogans.size(), peerSloganMap.size(), peers.size());
-
-                    if (mPeerSlogans.retainAll(peerSloganMap.values()) || mPeerSlogans.addAll(peerSloganMap.values())) {
-                        mListAdapter.notifySlogansChanged();
-                        reflectPeers();
-                    }
+                    mSloganGroupMap = PeerMapTransformer.buildMapFromPeerList(peers);
+                    mListAdapter.notifyPeerSlogansChanged(mSloganGroupMap);
+                    reflectPeers();
                 },
-                (Peer updatedPeer) -> {
-                    for (PeerSlogan slogan : mPeerSlogans) {
-                        boolean changed = false;
-                        for (Peer peer : slogan.mPeers) {
-                            if (peer.mAddress.equals(updatedPeer.mAddress)) {
-                                peer.updateWith(updatedPeer);
-                                changed = true;
-                            }
-                        }
-                        if (changed) {
-                            mListAdapter.notifyPeerSloganChanged(slogan);
-                        }
-                    }
+                (Peer peer) -> {
+                    mSloganGroupMap = PeerMapTransformer.buildMapFromPeerAndPreviousMap(peer, mSloganGroupMap);
+                    mListAdapter.notifyPeerSlogansChanged(mSloganGroupMap);
+                    reflectPeers();
+
+//                    for (PeerSlogan slogan : mPeerSlogans) {
+//                        boolean changed = false;
+//                        for (Peer peer : slogan.mPeers) {
+//                            if (peer.mAddress.equals(updatedPeer.mAddress)) {
+//                                peer.updateWith(updatedPeer);
+//                                changed = true;
+//                            }
+//                        }
+//                        if (changed) {
+//                            mListAdapter.notifyPeerSloganChanged(slogan);
+//                        }
+//                    }
                     reflectPeers();
                 },
                 (CommunicatorState state) -> {
@@ -168,9 +156,12 @@ public class MainActivity extends AppCompatActivity {
         createListView();
 
         mMySloganManager.init();
-        mListAdapter.notifySlogansChanged();
+        mListAdapter.notifyMySlogansChanged(mMySloganManager.getMySlogans());
         mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
     }
+
+    TreeMap<String, PeerSlogan> mSloganGroupMap = new TreeMap<>();
+
 
     private void showAddDialog(View $) {
         if (!mMySloganManager.spaceAvailable()) {
@@ -287,30 +278,32 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void reflectPeers() {
+
+        mHandler.removeCallbacks(this::reflectPeers);
+
         String text;
         if (mPeerSlogans.size() == 0) {
-            text = getString(R.string.ui_main_explanation_on_no_peers);
+            text = getString(R.string.ui_main_explanation_on_no_slogans);
         } else {
             text = getString(R.string.ui_main_explanation_on_peers).replaceAll("##slogans##", Integer.toString(mPeerSlogans.size()));
-
-            StringBuilder peerString = new StringBuilder();
-            long now = System.currentTimeMillis();
-            for (Peer peer : mPeers) {
-                if (peerString.length() > 0) {
-                    peerString.append(", ");
-                }
-                peerString.append(CuteHasher.hash(peer.mAddress)).append(": ").append(Math.round((now - peer.mNextFetch) / 1000));
-//                peerString.append(CuteHasher.hash(peer.mAddress)).append(": ").append(peer.mNextFetch);
-            }
-
-            text += "\n" + peerString;
         }
+
+        StringBuilder peerString = new StringBuilder();
+        long now = System.currentTimeMillis();
+        for (Peer peer : mPeers) {
+            if (peerString.length() > 0) {
+                peerString.append(", ");
+            }
+            peerString.append(CuteHasher.hash(peer.mAddress)).append(": ").append(Math.round((now - peer.mNextFetch) / 1000));
+            peerString.append(" / ").append(peer.mNextFetch);
+        }
+
+        text += "\n" + peerString;
 
         TextView peersState = findViewById(R.id.peers_state_explanation);
         peersState.setText(EmojiHelper.replaceShortCode(text));
 
         // Make sure this is always updated
-        mHandler.removeCallbacks(this::reflectPeers);
         mHandler.postDelayed(this::reflectPeers, 1000);
     }
 
@@ -351,7 +344,7 @@ public class MainActivity extends AppCompatActivity {
         // TODO show stats for slogans
         RecyclerView listView = findViewById(R.id.list_view);
 
-        mListAdapter = RecycleAdapter.create(this, mMySloganManager.getMySlogans(), mPeerSlogans, listView);
+        mListAdapter = RecycleAdapter.create(this, listView);
 
         listView.setAdapter(mListAdapter);
 

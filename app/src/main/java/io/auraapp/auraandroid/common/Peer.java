@@ -12,6 +12,10 @@ public class Peer implements Serializable {
     public long mNextFetch = 0;
     public String mAddress;
 
+    public Peer(String address) {
+        mAddress = address;
+    }
+
     public void updateWith(Peer peer) {
         mLastSeenTimestamp = peer.mLastSeenTimestamp;
         mSlogans.clear();
@@ -19,6 +23,17 @@ public class Peer implements Serializable {
         mSuccessfulRetrievals = peer.mSuccessfulRetrievals;
         mNextFetch = peer.mNextFetch;
         mAddress = peer.mAddress;
+    }
+
+    @Override
+    public String toString() {
+        return "Peer{" +
+                "mLastSeenTimestamp=" + mLastSeenTimestamp +
+                ", mSlogans=" + mSlogans +
+                ", mSuccessfulRetrievals=" + mSuccessfulRetrievals +
+                ", mNextFetch=" + mNextFetch +
+                ", mAddress='" + mAddress + '\'' +
+                '}';
     }
 
     @Override
@@ -32,7 +47,7 @@ public class Peer implements Serializable {
         if (mSuccessfulRetrievals != peer.mSuccessfulRetrievals) return false;
         if (mNextFetch != peer.mNextFetch) return false;
         if (!mSlogans.equals(peer.mSlogans)) return false;
-        return mAddress != null ? mAddress.equals(peer.mAddress) : peer.mAddress == null;
+        return mAddress.equals(peer.mAddress);
     }
 
     @Override
@@ -41,8 +56,7 @@ public class Peer implements Serializable {
         result = 31 * result + mSlogans.hashCode();
         result = 31 * result + mSuccessfulRetrievals;
         result = 31 * result + (int) (mNextFetch ^ (mNextFetch >>> 32));
-        result = 31 * result + (mAddress != null ? mAddress.hashCode() : 0);
+        result = 31 * result + mAddress.hashCode();
         return result;
     }
-
 }

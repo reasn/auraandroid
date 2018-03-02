@@ -128,11 +128,11 @@ public class Communicator extends Service {
                         }
                     }
 
-                    sendBroadcast(IntentFactory.peersUpdate(peers, mState));
-                    d(TAG, "Sent peers intent with %d peers", peers.size());
+                    sendBroadcast(IntentFactory.peerListUpdated(peers, mState));
+                    d(TAG, "Sent peer list intent with %d peers", peers.size());
                 }),
                 (Peer peer) -> {
-                    sendBroadcast(IntentFactory.peerUpdate(peer));
+                    sendBroadcast(IntentFactory.peerUpdated(peer));
                     d(TAG, "Sent peer update intent, addressHash: %s", CuteHasher.hash(peer.mAddress));
                 });
 
@@ -414,7 +414,7 @@ public class Communicator extends Service {
         } else if (IntentFactory.INTENT_REQUEST_PEERS_ACTION.equals(action)) {
 
             mScanner.requestPeers((Set<Peer> peers) -> {
-                sendBroadcast(IntentFactory.peersUpdate(peers, mState));
+                sendBroadcast(IntentFactory.peerListUpdated(peers, mState));
                 d(TAG, "Sent intent with %d peers", peers.size());
             });
 
