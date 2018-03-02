@@ -9,7 +9,7 @@ import java.util.Set;
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
-class ListSynchronizer {
+class ListSynchronizer<T extends ListItem> {
 
     private static final String TAG = "aura/list/listSynchronizer";
 
@@ -42,10 +42,11 @@ class ListSynchronizer {
             for (ListItem newItem : newItems) {
                 if (item.compareIndex(newItem) == 0) {
                     found = true;
-                    if (item.equals(newItem)) {
+                    if (!item.equals(newItem)) {
+                        item.updateWith(newItem);
                         int index = items.indexOf(item);
-                        items.remove(index);
-                        items.add(index, newItem);
+//                        items.remove(index);
+//                        items.add(index, newItem);
                         notificationReceiver.notifyItemChanged(index);
                     }
                     break;
@@ -54,7 +55,7 @@ class ListSynchronizer {
             if (!found) {
                 mutations.add(() -> {
                     int index = items.indexOf(item);
-                    v(TAG, "Removing item %s at %d", item.getSlogan(), index);
+                    v(TAG, "Removing item %s at %d", item.getIndex(), index);
                     items.remove(item);
                     notificationReceiver.notifyItemRemoved(index);
                 });
@@ -88,7 +89,7 @@ class ListSynchronizer {
                             break;
                         }
                     }
-                    v(TAG, "Inserting item %s at %d", newItem.getSlogan(), index);
+                    v(TAG, "Inserting item %s at %d", newItem.getIndex(), index);
                     items.add(index, newItem);
                     notificationReceiver.notifyItemInserted(index);
                 });

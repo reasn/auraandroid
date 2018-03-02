@@ -70,17 +70,21 @@ public class SwipeCallback extends ItemTouchHelper.SimpleCallback {
             throw new RuntimeException("Dragged item must be instance of " + ItemViewHolder.class);
         }
         ListItem item = ((ItemViewHolder) viewHolder).mItem;
-        if (item.isMine()) {
+        if (item instanceof MySloganListItem) {
+            MySloganListItem castItem = (MySloganListItem) item;
             if (direction == ItemTouchHelper.LEFT) {
-                mOnSwipedCallback.onSwiped(item.getSlogan(), ACTION_EDIT);
+                mOnSwipedCallback.onSwiped(castItem.getSlogan(), ACTION_EDIT);
                 mResetItemViewCallback.resetItemView(item);
             } else if (direction == ItemTouchHelper.RIGHT) {
-                mOnSwipedCallback.onSwiped(item.getSlogan(), ACTION_DROP);
+                mOnSwipedCallback.onSwiped(castItem.getSlogan(), ACTION_DROP);
                 mResetItemViewCallback.resetItemView(item);
             }
-        } else if (direction == ItemTouchHelper.LEFT) {
-            mOnSwipedCallback.onSwiped(item.getSlogan(), ACTION_ADOPT);
-            mResetItemViewCallback.resetItemView(item);
+        } else if (item instanceof PeerSloganListItem) {
+            PeerSloganListItem castItem = (PeerSloganListItem) item;
+            if (direction == ItemTouchHelper.LEFT) {
+                mOnSwipedCallback.onSwiped(castItem.getSlogan(), ACTION_ADOPT);
+                mResetItemViewCallback.resetItemView(item);
+            }
         }
     }
 

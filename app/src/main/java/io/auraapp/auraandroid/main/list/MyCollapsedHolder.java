@@ -5,22 +5,19 @@ import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
 
-class MyExpandedHolder extends ItemViewHolder {
+class MyCollapsedHolder extends ItemViewHolder {
 
     private final TextView mSloganTextView;
 
-    MyExpandedHolder(View itemView) {
+    MyCollapsedHolder(View itemView) {
         super(itemView);
-
         mSloganTextView = itemView.findViewById(R.id.slogan_text);
     }
 
-    @Override
     void bind(ListItem item) {
         if (!(item instanceof MySloganListItem)) {
             throw new RuntimeException("Expecting " + MySloganListItem.class.getSimpleName());
         }
-        MySloganListItem castItem = (MySloganListItem) item;
-        mSloganTextView.setText(castItem.getSlogan().getText());
+        mSloganTextView.setText(((MySloganListItem) item).getSlogan().getText());
     }
 }

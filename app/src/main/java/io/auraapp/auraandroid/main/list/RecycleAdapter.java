@@ -1,6 +1,7 @@
 package io.auraapp.auraandroid.main.list;
 
 import android.content.Context;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import java.util.TreeSet;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Slogan;
+import io.auraapp.auraandroid.common.Timer;
 import io.auraapp.auraandroid.main.PeerSlogan;
 import io.auraapp.auraandroid.main.SloganComparator;
 
@@ -33,6 +35,7 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     private final static int TYPE_PEER_EXPANDED = 147;
 
     private final LayoutInflater mInflater;
+    private final Timer timer = new Timer(new Handler());
     private final Context mContext;
 
     private final List<ListItem> mItems;
@@ -55,16 +58,42 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 
         final List<ListItem> newItems = new ArrayList<>();
         for (PeerSlogan peerSlogan : peerSloganMap.values()) {
-            newItems.add(new ListItem(peerSlogan.mSlogan, peerSlogan.mPeers));
+            newItems.add(new PeerSloganListItem(peerSlogan.mSlogan, peerSlogan.mPeers));
         }
         SloganComparator c = new SloganComparator();
         ListSynchronizer.syncLists(
                 mItems,
                 newItems,
                 this,
-                (ListItem item) -> !item.isMine(),
-                (ListItem item, ListItem newItem) -> c.compare(item.getSlogan(), newItem.getSlogan()) > 0
+                item -> item instanceof PeerSloganListItem,
+                (item, newItem) ->
+                        item instanceof PeerSloganListItem
+                                && newItem instanceof PeerSloganListItem
+                                && c.compare(((PeerSloganListItem) item).getSlogan(), ((PeerSloganListItem) newItem).getSlogan()) > 0
         );
+    }
+
+    /**
+     * Ensures that the lastFetch information is properly reflected in items
+     */
+    public void onResume() {
+        regularlyRedrawOutOfSightItems();
+    }
+
+    private void regularlyRedrawOutOfSightItems() {
+        timer.set("redraw", () -> {
+            long now = System.currentTimeMillis();
+            for (ListItem item : mItems) {
+                if (item instanceof PeerSloganListItem && now - ((PeerSloganListItem) item).getLastSeen() > 10000) {
+                    notifyItemChanged(mItems.indexOf(item));
+                }
+            }
+            regularlyRedrawOutOfSightItems();
+        }, 10000);
+    }
+
+    public void onPause() {
+        timer.clear("redraw");
     }
 
     public void notifyMySlogansChanged(TreeSet<Slogan> mySlogans) {
@@ -72,14 +101,14 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 
         final List<ListItem> newItems = new ArrayList<>();
         for (Slogan mySlogan : mySlogans) {
-            newItems.add(new ListItem(mySlogan, null));
+            newItems.add(new MySloganListItem(mySlogan));
         }
         ListSynchronizer.syncLists(
                 mItems,
                 newItems,
                 this,
-                ListItem::isMine,
-                (ListItem item, ListItem newItem) -> item.isMine() || item.compareIndex(newItem) > 0
+                item -> item instanceof MySloganListItem,
+                (item, newItem) -> item instanceof MySloganListItem || item.compareIndex(newItem) > 0
         );
     }
 
@@ -107,14 +136,14 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         switch (viewType) {
             case TYPE_MY_COLLAPSED:
-            case TYPE_PEER_COLLAPSED:
-                return new CollapsedHolder(
-                        mInflater.inflate(R.layout.list_item_collapsed, parent, false),
-                        collapseExpandHandler);
+                return new MyCollapsedHolder(mInflater.inflate(R.layout.list_item_collapsed, parent, false));
 
             case TYPE_MY_EXPANDED:
-                return new MyExpandedHolder(
-                        mInflater.inflate(R.layout.list_item_my_expanded, parent, false),
+                return new MyExpandedHolder(mInflater.inflate(R.layout.list_item_my_expanded, parent, false));
+
+            case TYPE_PEER_COLLAPSED:
+                return new PeerCollapsedHolder(
+                        mInflater.inflate(R.layout.list_item_collapsed, parent, false),
                         collapseExpandHandler);
 
             case TYPE_PEER_EXPANDED:
@@ -136,7 +165,7 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     @Override
     public int getItemViewType(int position) {
         ListItem item = mItems.get(position);
-        return item.isMine()
+        return item instanceof MySloganListItem
                 ? (
                 item.mExpanded
                         ? TYPE_MY_EXPANDED

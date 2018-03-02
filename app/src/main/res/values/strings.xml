@@ -32,7 +32,13 @@
     <string name="ui_main_explanation_on_no_slogans">Get close to other Aura users to see their thoughts.</string>
     <string name="ui_main_explanation_on_peers">You found ##slogans## :thought_balloon: nearby.</string>
 
-    <string name="ui_main_peer_slogan_last_seen">Last seen ##elapsed## ago.</string>
+    <string name="ui_main_peer_slogan_last_seen_lt_10s">Nearby</string>
+    <string name="ui_main_peer_slogan_last_seen_lt_1min">Less than a minute ago</string>
+    <string name="ui_main_peer_slogan_last_seen_lt_10min">Less than ##elapsed_minutes##"min ago</string>
+    <string name="ui_main_peer_slogan_last_seen_lt_30min">Less than 30min ago</string>
+    <string name="ui_main_peer_slogan_last_seen_lt_45min">Less than 45min ago</string>
+    <string name="ui_main_peer_slogan_last_seen_lte_1h">Less than an hour ago</string>
+    <string name="ui_main_peer_slogan_last_seen_gt_1h">More than an hour ago</string>
 
     <!--Dialog: BT Stack broken -->
     <string name="ui_dialog_bt_broken_title">Problem with Bluetooth</string>

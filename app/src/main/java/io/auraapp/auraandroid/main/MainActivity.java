@@ -490,6 +490,7 @@ public class MainActivity extends AppCompatActivity {
         inForeground = true;
 
         reflectPeers();
+        mListAdapter.onResume();
     }
 
     @Override
@@ -498,6 +499,7 @@ public class MainActivity extends AppCompatActivity {
         inForeground = false;
 
         mHandler.removeCallbacks(this::reflectPeers);
+        mListAdapter.onPause();
         super.onPause();
     }
 }

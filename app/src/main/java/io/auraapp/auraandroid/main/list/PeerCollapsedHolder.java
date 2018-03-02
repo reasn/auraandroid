@@ -5,22 +5,25 @@ import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
 
-class CollapsedHolder extends ItemViewHolder {
+class PeerCollapsedHolder extends ItemViewHolder {
 
     private final TextView mSloganTextView;
 
-    CollapsedHolder(View itemView, RecycleAdapter.CollapseExpandHandler collapseExpandHandler) {
+    PeerCollapsedHolder(View itemView, RecycleAdapter.CollapseExpandHandler collapseExpandHandler) {
         super(itemView);
 
         mSloganTextView = itemView.findViewById(R.id.slogan_text);
         itemView.setOnClickListener((v) -> {
-            if (mItem != null && !mItem.isMine()) {
+            if (mItem != null) {
                 collapseExpandHandler.flip(mItem);
             }
         });
     }
 
     void bind(ListItem item) {
-        mSloganTextView.setText(item.getSlogan().getText());
+        if (!(item instanceof PeerSloganListItem)) {
+            throw new RuntimeException("Expecting " + PeerSloganListItem.class.getSimpleName());
+        }
+        mSloganTextView.setText(((PeerSloganListItem) item).getSlogan().getText());
     }
 }

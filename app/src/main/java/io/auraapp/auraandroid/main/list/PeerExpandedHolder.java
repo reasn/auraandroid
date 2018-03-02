@@ -4,10 +4,7 @@ import android.content.Context;
 import android.view.View;
 import android.widget.TextView;
 
-import java.util.Set;
-
 import io.auraapp.auraandroid.R;
-import io.auraapp.auraandroid.common.Peer;
 
 import static io.auraapp.auraandroid.common.FormattedLog.e;
 
@@ -32,28 +29,39 @@ class PeerExpandedHolder extends ItemViewHolder {
     @Override
     void bind(ListItem item) {
 
-        long lastSeen = 0;
         if (item == null) {
             e(TAG, "Trying to bind %s to null ListItem", PeerExpandedHolder.class.getSimpleName());
             return;
         }
-        Set<Peer> peers = item.getPeers();
-        if (peers == null) {
-            e(TAG, "Trying to bind %s with peers=null to ListItem", PeerExpandedHolder.class.getSimpleName());
+        if (!(item instanceof PeerSloganListItem)) {
+            e(TAG, "Trying to bind %s with %s", PeerExpandedHolder.class.getSimpleName(), item.getClass().getSimpleName());
             return;
         }
-        for (Peer peer : peers) {
-            if (peer.mLastSeenTimestamp > lastSeen) {
-                lastSeen = peer.mLastSeenTimestamp;
-            }
+        PeerSloganListItem castItem = (PeerSloganListItem) item;
+
+        long lastSeen = castItem.getLastSeen();
+        long elapsedSeconds = Math.round((System.currentTimeMillis() - lastSeen) / 1000);
+
+        String text;
+        if (elapsedSeconds < 10) {
+            text = mContext.getString(R.string.ui_main_peer_slogan_last_seen_lt_10s);
+        } else if (elapsedSeconds < 60) {
+            text = mContext.getString(R.string.ui_main_peer_slogan_last_seen_lt_1min);
+        } else if (elapsedSeconds < 10 * 60) {
+            text = mContext.getString(R.string.ui_main_peer_slogan_last_seen_lt_10min)
+                    .replace("##elapsed_minutes##", (int) Math.ceil(elapsedSeconds / 60) + "");
+        } else if (elapsedSeconds < 30 * 60) {
+            text = mContext.getString(R.string.ui_main_peer_slogan_last_seen_lt_30min);
+        } else if (elapsedSeconds < 45 * 60) {
+            text = mContext.getString(R.string.ui_main_peer_slogan_last_seen_lt_45min);
+        } else if (elapsedSeconds < 61 * 60) {
+            text = mContext.getString(R.string.ui_main_peer_slogan_last_seen_lte_1h);
+        } else {
+            text = mContext.getString(R.string.ui_main_peer_slogan_last_seen_gt_1h);
         }
 
-        // TODO prettify
-        mLastSeenTextView.setText(
-                mContext.getString(R.string.ui_main_peer_slogan_last_seen)
-                        .replace("##elapsed##", (System.currentTimeMillis() - lastSeen) + "s")
-        );
+        mLastSeenTextView.setText(text);
 
-        mSloganTextView.setText(item.getSlogan().getText());
+        mSloganTextView.setText(castItem.getSlogan().getText());
     }
 }
