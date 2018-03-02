@@ -34,7 +34,6 @@ import android.widget.Toast;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import io.auraapp.auraandroid.Communicator.Communicator;
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
@@ -62,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String PREFS_HIDE_BROKEN_BT_STACK_WARNING = "hideBrokenBtStackWarning";
     private static final int BROKEN_BT_STACK_ALERT_DEBOUNCE = 1000 * 60;
 
-    final private TreeSet<PeerSlogan> mPeerSlogans = new TreeSet<>(new PeerSloganComparator());
     private RecycleAdapter mListAdapter;
     private MySloganManager mMySloganManager;
     private CommunicatorProxy mCommunicatorProxy;
@@ -123,11 +121,19 @@ public class MainActivity extends AppCompatActivity {
         mCommunicatorProxy = new CommunicatorProxy(
                 this,
                 (Set<Peer> peers) -> {
+                    mPeers = peers;
                     mSloganGroupMap = PeerMapTransformer.buildMapFromPeerList(peers);
                     mListAdapter.notifyPeerSloganListChanged(mSloganGroupMap);
                     reflectPeers();
                 },
                 (Peer peer) -> {
+                    for (Peer candidate : mPeers) {
+                        if (candidate.mAddress.equals(peer.mAddress)) {
+                            mPeers.remove(candidate);
+                            break;
+                        }
+                    }
+                    mPeers.add(peer);
                     mSloganGroupMap = PeerMapTransformer.buildMapFromPeerAndPreviousMap(peer, mSloganGroupMap);
                     mListAdapter.notifyPeerSloganListChanged(mSloganGroupMap);
                     reflectPeers();
@@ -270,10 +276,10 @@ public class MainActivity extends AppCompatActivity {
         mHandler.removeCallbacks(this::reflectPeers);
 
         String text;
-        if (mPeerSlogans.size() == 0) {
+        if (mSloganGroupMap.size() == 0) {
             text = getString(R.string.ui_main_explanation_on_no_slogans);
         } else {
-            text = getString(R.string.ui_main_explanation_on_peers).replaceAll("##slogans##", Integer.toString(mPeerSlogans.size()));
+            text = getString(R.string.ui_main_explanation_on_peers).replaceAll("##slogans##", Integer.toString(mSloganGroupMap.size()));
         }
 
         StringBuilder peerString = new StringBuilder();
@@ -282,8 +288,17 @@ public class MainActivity extends AppCompatActivity {
             if (peerString.length() > 0) {
                 peerString.append(", ");
             }
-            peerString.append(CuteHasher.hash(peer.mAddress)).append(": ").append(Math.round((now - peer.mNextFetch) / 1000));
-            peerString.append(" / ").append(peer.mNextFetch);
+            peerString.append(CuteHasher.hash(peer.mAddress))
+                    .append(": ");
+
+            int timeToNextFetch = Math.round((peer.mNextFetch - now) / 1000);
+            if (timeToNextFetch < 0) {
+                peerString.append("fetching");
+            } else {
+                peerString.append(timeToNextFetch)
+                        .append("s");
+
+            }
         }
 
         text += "\n" + peerString;

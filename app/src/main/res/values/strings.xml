@@ -29,7 +29,7 @@
     <string name="ui_main_explanation_disabled">Aura not active, click the switch on the top right to activate it!</string>
     <string name="ui_main_explanation_advertising_not_supported">Your device doesn\t support to make your Aura visible to others.\nYou can probably see others but nobody can\'t see you.</string>
     <string name="ui_main_explanation_on_not_active">Aura is getting ready.</string>
-    <string name="ui_main_explanation_on_no_slogans">Thoughts of nearby Aura users will automatically show up below. :)</string>
+    <string name="ui_main_explanation_on_no_slogans">Get close to other Aura users to see their thoughts.</string>
     <string name="ui_main_explanation_on_peers">You found ##slogans## :thought_balloon: nearby.</string>
 
     <string name="ui_main_peer_slogan_last_seen">Last seen ##elapsed## ago.</string>
