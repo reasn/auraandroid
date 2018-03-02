@@ -44,6 +44,7 @@ import static io.auraapp.auraandroid.common.FormattedLog.w;
  */
 class Scanner {
 
+
     @FunctionalInterface
     interface CurrentPeersCallback {
         void currentPeers(Set<Peer> peers);
@@ -56,6 +57,7 @@ class Scanner {
     private static final long PEER_REFRESH_AFTER = 1000 * 20;
     private static final long PEER_CONNECT_TIMEOUT = 1000 * 10;
     private static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
+    private final Communicator.OnErrorCallback mOnErrorCallback;
 
     private final Context mContext;
     private final Handler mHandler = new Handler();
@@ -68,9 +70,10 @@ class Scanner {
     private boolean mQueued = false;
     private boolean mInactive = false;
 
-    Scanner(Context context, PeerBroadcaster peerBroadcaster) {
+    Scanner(Context context, PeerBroadcaster peerBroadcaster, Communicator.OnErrorCallback onErrorCallback) {
         mContext = context;
         mPeerBroadcaster = peerBroadcaster;
+        mOnErrorCallback = onErrorCallback;
     }
 
     void start() {
@@ -163,6 +166,12 @@ class Scanner {
                         device.connectionAttempts++;
                         device.lastConnectAttempt = now;
                         device.setAllPropertiesOutdated();
+                        if (device.bt.device == null) {
+                            i(TAG, "BluetoothDevice is null, maybe BT has just been disabled, addressHash: %s", addressHash);
+                            device.shouldDisconnect = true;
+                            device.stats.mErrors++;
+                            continue;
+                        }
                         device.bt.gatt = device.bt.device.connectGatt(mContext, false, mGattCallback);
 
                     } else {
@@ -283,7 +292,7 @@ class Scanner {
             @Override
             public void onScanFailed(int errorCode) {
                 w(TAG, "onScanFailed errorCode: %s", BtConst.nameScanError(errorCode));
-                // TODO disable scanning or at least stop
+                mHandler.post(mOnErrorCallback::onUnrecoverableError);
             }
         });
         i(TAG, "started scanning");

@@ -22,6 +22,7 @@
     <string name="ui_main_toast_replaced">Thought changed</string>
     <string name="ui_main_toast_dropped">Thought removed</string>
 
+    <string name="ui_main_explanation_bt_restart_required">TODO Bluetooth is fucked. Please restart.</string>
     <string name="ui_main_explanation_bt_disabled">Bluetooth is disabled. Please enable it for Aura to work.</string>
     <string name="ui_main_explanation_bt_turning_on">Bluetooth is starting, your Aura is ready shortly.</string>
     <string name="ui_main_explanation_ble_not_supported">Your device does not support Bluetooth LE.\nSadly there\'s no way for Aura to work without it.</string>

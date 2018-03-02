@@ -16,6 +16,7 @@ public class CommunicatorState implements Serializable {
     public boolean mScanning = false;
     public int mRecentBtTurnOnEvents = 0;
     public boolean mBtTurningOn = false;
+    public boolean mBluetoothRestartRequired;
 
     @Override
     public String toString() {
@@ -29,6 +30,7 @@ public class CommunicatorState implements Serializable {
                 ", mScanning=" + mScanning +
                 ", mRecentBtTurnOnEvents=" + mRecentBtTurnOnEvents +
                 ", mBtTurningOn=" + mBtTurningOn +
+                ", mBluetoothRestartRequired=" + mBluetoothRestartRequired +
                 '}';
     }
 
@@ -45,6 +47,24 @@ public class CommunicatorState implements Serializable {
         if (mHasPermission != that.mHasPermission) return false;
         if (mShouldCommunicate != that.mShouldCommunicate) return false;
         if (mAdvertising != that.mAdvertising) return false;
-        return mScanning == that.mScanning;
+        if (mScanning != that.mScanning) return false;
+        if (mRecentBtTurnOnEvents != that.mRecentBtTurnOnEvents) return false;
+        if (mBtTurningOn != that.mBtTurningOn) return false;
+        return mBluetoothRestartRequired == that.mBluetoothRestartRequired;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (mBtEnabled ? 1 : 0);
+        result = 31 * result + (mBleSupported ? 1 : 0);
+        result = 31 * result + (mAdvertisingSupported ? 1 : 0);
+        result = 31 * result + (mHasPermission ? 1 : 0);
+        result = 31 * result + (mShouldCommunicate ? 1 : 0);
+        result = 31 * result + (mAdvertising ? 1 : 0);
+        result = 31 * result + (mScanning ? 1 : 0);
+        result = 31 * result + mRecentBtTurnOnEvents;
+        result = 31 * result + (mBtTurningOn ? 1 : 0);
+        result = 31 * result + (mBluetoothRestartRequired ? 1 : 0);
+        return result;
     }
 }

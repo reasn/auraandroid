@@ -45,16 +45,11 @@ class Advertiser {
     private final BluetoothManager mBluetoothManager;
     private final AdvertisementSet mAdvertisementSet;
     private final Context mContext;
-    private final Communicator.OnBleSupportChangedCallback mOnBleSupportChangedCallback;
+    private final Communicator.OnErrorCallback mOnErrorCallback;
     private final Handler mHandler = new Handler();
 
     private BluetoothGattServer mBluetoothGattServer;
     private BluetoothLeAdvertiser mBluetoothAdvertiser;
-
-    /**
-     * Unrecoverable errors
-     */
-    boolean mUnrecoverableAdvertisingError = false;
 
     private final AdvertiseCallback mAdvertisingCallback = new AdvertiseCallback() {
         @Override
@@ -65,15 +60,15 @@ class Advertiser {
         @Override
         public void onStartFailure(int errorCode) {
             e(TAG, "onStartFailure, errorCode: %s", BtConst.nameAdvertiseError(errorCode));
-            advertisingUnsupported(false);
+            mHandler.post(() -> advertisingUnsupported(false));
         }
     };
 
-    Advertiser(BluetoothManager bluetoothManager, AdvertisementSet advertisementSet, Context context, Communicator.OnBleSupportChangedCallback onBleSupportChangedCallback) {
+    Advertiser(BluetoothManager bluetoothManager, AdvertisementSet advertisementSet, Context context, Communicator.OnErrorCallback onErrorCallback) {
         mBluetoothManager = bluetoothManager;
         mAdvertisementSet = advertisementSet;
         mContext = context;
-        mOnBleSupportChangedCallback = onBleSupportChangedCallback;
+        mOnErrorCallback = onErrorCallback;
     }
 
     void start() {
@@ -112,8 +107,7 @@ class Advertiser {
         d(TAG, "Advertising seems to be unsupported on this device");
         stop();
         if (!recoverable) {
-            mUnrecoverableAdvertisingError = true;
-            mOnBleSupportChangedCallback.onBleSupportChanged();
+            mOnErrorCallback.onUnrecoverableError();
         }
     }
 
@@ -177,8 +171,7 @@ class Advertiser {
             BluetoothGattCharacteristic chara = new BluetoothGattCharacteristic(uuid, PROPERTY_READ | PROPERTY_NOTIFY, PERMISSION_READ);
             if (!service.addCharacteristic(chara)) {
                 e(TAG, "Could not add characteristic");
-                mUnrecoverableAdvertisingError = true;
-                mOnBleSupportChangedCallback.onBleSupportChanged();
+                mOnErrorCallback.onUnrecoverableError();
             }
         }
         return service;

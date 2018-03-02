@@ -64,8 +64,18 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         }
     }
 
-    public void notifyPeerSlogansChanged(TreeMap<String, PeerSlogan> mSloganGroupMap) {
-        // TODO implement
+    public void notifyPeerSloganListChanged(TreeMap<String, PeerSlogan> peerSloganMap) {
+        d(TAG, "Updating list, peer slogans: %d", peerSloganMap.size());
+
+        final List<ListItem> newItems = new ArrayList<>();
+        for (PeerSlogan peerSlogan : peerSloganMap.values()) {
+            newItems.add(new ListItem(peerSlogan.mSlogan, peerSlogan.mPeers));
+        }
+        SloganComparator c = new SloganComparator();
+        syncLists(newItems,
+                (ListItem item) -> !item.isMine(),
+                (ListItem item, ListItem newItem) -> c.compare(item.getSlogan(), newItem.getSlogan()) > 0
+        );
     }
 
     public void notifyMySlogansChanged(TreeSet<Slogan> mySlogans) {
@@ -75,12 +85,47 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         for (Slogan mySlogan : mySlogans) {
             newItems.add(new ListItem(mySlogan, null));
         }
+        syncLists(newItems,
+                ListItem::isMine,
+                (ListItem item, ListItem newItem) -> item.isMine() || item.compareIndex(newItem) > 0
+        );
+    }
+
+    @FunctionalInterface
+    interface ApplicabilityCallback {
+        boolean isApplicable(ListItem item);
+    }
+
+    @FunctionalInterface
+    interface CompareCallback {
+        boolean isGreaterThan(ListItem item, ListItem newItem);
+    }
+
+    private void syncLists(List<ListItem> newItems, ApplicabilityCallback applicabilityCallback, CompareCallback compareCallback) {
+        d(TAG, "Updating list, mySlogans: %d", newItems.size());
 
         Set<Runnable> mutations = new HashSet<>();
 
-        // Remove absent items
+        // Update changed and remove absent items
         for (ListItem item : mItems) {
-            if (!newItems.contains(item)) {
+
+            if (!applicabilityCallback.isApplicable(item)) {
+                continue;
+            }
+            boolean found = false;
+            for (ListItem newItem : newItems) {
+                if (item.compareIndex(newItem) == 0) {
+                    found = true;
+                    if (item.equals(newItem)) {
+                        int index = mItems.indexOf(item);
+                        mItems.remove(index);
+                        mItems.add(index, newItem);
+                        notifyItemChanged(index);
+                    }
+                    break;
+                }
+            }
+            if (!found) {
                 mutations.add(() -> {
                     int index = mItems.indexOf(item);
                     v(TAG, "Removing item %s at %d", item.getSlogan(), index);
@@ -96,23 +141,26 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         mutations.clear();
 
         // Add new items
-        SloganComparator c = new SloganComparator();
         for (ListItem newItem : newItems) {
-            if (!mItems.contains(newItem)) {
-                mutations.add(() -> {
-                    int index;
-                    // Determine the index of the first item that's supposed to be after newItem
-                    for (index = 0; index < mItems.size(); index++) {
-                        ListItem item = mItems.get(index);
-                        if (!item.isMine() || c.compare(item.getSlogan(), newItem.getSlogan()) > 0) {
-                            break;
-                        }
-                    }
-                    v(TAG, "Inserting item %s at %d", newItem.getSlogan(), index);
-                    mItems.add(index, newItem);
-                    notifyItemInserted(index);
-                });
+            if (mItems.contains(newItem)) {
+                continue;
             }
+            mutations.add(() -> {
+                int index;
+                // Determine the index of the first item that's supposed to be after newItem
+                for (index = 0; index < mItems.size(); index++) {
+                    ListItem item = mItems.get(index);
+                    if (!applicabilityCallback.isApplicable(item)) {
+                        continue;
+                    }
+                    if (compareCallback.isGreaterThan(item, newItem)) {
+                        break;
+                    }
+                }
+                v(TAG, "Inserting item %s at %d", newItem.getSlogan(), index);
+                mItems.add(index, newItem);
+                notifyItemInserted(index);
+            });
         }
 
         for (Runnable r : mutations) {

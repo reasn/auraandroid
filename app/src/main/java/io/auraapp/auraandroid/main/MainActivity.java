@@ -124,26 +124,12 @@ public class MainActivity extends AppCompatActivity {
                 this,
                 (Set<Peer> peers) -> {
                     mSloganGroupMap = PeerMapTransformer.buildMapFromPeerList(peers);
-                    mListAdapter.notifyPeerSlogansChanged(mSloganGroupMap);
+                    mListAdapter.notifyPeerSloganListChanged(mSloganGroupMap);
                     reflectPeers();
                 },
                 (Peer peer) -> {
                     mSloganGroupMap = PeerMapTransformer.buildMapFromPeerAndPreviousMap(peer, mSloganGroupMap);
-                    mListAdapter.notifyPeerSlogansChanged(mSloganGroupMap);
-                    reflectPeers();
-
-//                    for (PeerSlogan slogan : mPeerSlogans) {
-//                        boolean changed = false;
-//                        for (Peer peer : slogan.mPeers) {
-//                            if (peer.mAddress.equals(updatedPeer.mAddress)) {
-//                                peer.updateWith(updatedPeer);
-//                                changed = true;
-//                            }
-//                        }
-//                        if (changed) {
-//                            mListAdapter.notifyPeerSloganChanged(slogan);
-//                        }
-//                    }
+                    mListAdapter.notifyPeerSloganListChanged(mSloganGroupMap);
                     reflectPeers();
                 },
                 (CommunicatorState state) -> {
@@ -233,6 +219,8 @@ public class MainActivity extends AppCompatActivity {
         if (!mCommunicatorState.mHasPermission) {
             sendToPermissionMissingActivity();
             return;
+        } else if (mCommunicatorState.mBluetoothRestartRequired) {
+            text = getString(R.string.ui_main_explanation_bt_restart_required);
 
         } else if (mCommunicatorState.mBtTurningOn) {
             text = getString(R.string.ui_main_explanation_bt_turning_on);

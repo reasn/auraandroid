@@ -68,8 +68,8 @@ class CommunicatorProxy {
                     @SuppressWarnings("unchecked")
                     Peer peer = (Peer) extras.getSerializable(INTENT_PEER_UPDATED_EXTRA_PEER);
                     if (peer != null) {
-                        peerChangedCallback.onPeerChanged(peer);
                         v(TAG, "Peer updated, peer: %s, slogans: %d", CuteHasher.hash(peer.mAddress), peer.mSlogans.size());
+                        peerChangedCallback.onPeerChanged(peer);
                     } else {
                         w(TAG, "Received invalid %s intent, peer: null", INTENT_PEER_UPDATED_ACTION);
                     }
@@ -82,7 +82,7 @@ class CommunicatorProxy {
                     Set<Peer> peers = (Set<Peer>) extras.getSerializable(INTENT_PEER_LIST_UPDATED_EXTRA_PEERS);
 
                     if (peers != null) {
-                        v(TAG, "Peer list changed, peers: %d", peers.size());
+                        v(TAG, "Peer list changed, (%d) peers: %s", peers.size(), peers);
                         peerSetChangedCallback.onPeerSetChanged(peers);
                     } else {
                         w(TAG, "Received invalid %s intent, peers: null, intent: %s", INTENT_PEER_LIST_UPDATED_ACTION, intent);

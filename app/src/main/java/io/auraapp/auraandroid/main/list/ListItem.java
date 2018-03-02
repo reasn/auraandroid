@@ -8,13 +8,14 @@ import java.util.Set;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.Slogan;
 
-public class ListItem {
+public class ListItem extends AbstractListItem{
     private final Slogan mSlogan;
     @Nullable
     private final Set<Peer> mPeers;
     boolean mExpanded = false;
 
     ListItem(@NonNull Slogan slogan, @Nullable Set<Peer> peers) {
+        super(slogan.getText());
         mSlogan = slogan;
         mPeers = peers;
     }

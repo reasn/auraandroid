@@ -72,8 +72,8 @@ public class Communicator extends Service {
     private final CommunicatorState mState = new CommunicatorState();
 
     @FunctionalInterface
-    interface OnBleSupportChangedCallback {
-        void onBleSupportChanged();
+    interface OnErrorCallback {
+        void onUnrecoverableError();
 
     }
 
@@ -106,8 +106,9 @@ public class Communicator extends Service {
                 mAdvertisementSet,
                 this,
                 () -> {
+                    mState.mBluetoothRestartRequired = true;
                     updateBtState();
-                    actOnState(false);
+                    actOnState(true);
                 }
         );
 
@@ -133,10 +134,17 @@ public class Communicator extends Service {
                 }),
                 (Peer peer) -> {
                     sendBroadcast(IntentFactory.peerUpdated(peer));
-                    d(TAG, "Sent peer update intent, addressHash: %s", CuteHasher.hash(peer.mAddress));
+                    d(TAG, "Sent peer update intent, addressHash: %s, slogans: %d", CuteHasher.hash(peer.mAddress), peer.mSlogans.size());
                 });
 
-        mScanner = new Scanner(this, broadcaster);
+        mScanner = new Scanner(
+                this,
+                broadcaster,
+                () -> {
+                    mState.mBluetoothRestartRequired = true;
+                    updateBtState();
+                    actOnState(true);
+                });
 
         registerReceiver(new BroadcastReceiver() {
             @Override
@@ -333,6 +341,8 @@ public class Communicator extends Service {
             mState.mBtEnabled = true;
         } else {
             mState.mBtEnabled = false;
+            // Disabling BT resets the necessity to restart BT
+            mState.mBluetoothRestartRequired = false;
             d(TAG, "Bluetooth is currently unavailable");
         }
 
@@ -342,7 +352,7 @@ public class Communicator extends Service {
             d(TAG, "BLE scanning is currently unavailable");
             mState.mBleSupported = false;
         }
-        if (bluetoothAdapter != null && bluetoothAdapter.getBluetoothLeAdvertiser() != null && !mAdvertiser.mUnrecoverableAdvertisingError) {
+        if (bluetoothAdapter != null && bluetoothAdapter.getBluetoothLeAdvertiser() != null) {
             mState.mAdvertisingSupported = true;
         } else {
             d(TAG, "BLE advertising is currently unavailable");
@@ -369,13 +379,11 @@ public class Communicator extends Service {
             w(TAG, "Bluetooth state changed, state: %s", BtConst.nameAdapterState(state));
             switch (state) {
                 case BluetoothAdapter.STATE_OFF:
-                    mState.mBtEnabled = false;
-                    mState.mBtTurningOn = false;
-                    break;
-
                 case BluetoothAdapter.STATE_TURNING_OFF:
                     mState.mBtEnabled = false;
                     mState.mBtTurningOn = false;
+                    // Disabling BT resets the necessity to restart BT
+                    mState.mBluetoothRestartRequired = false;
                     break;
 
                 case BluetoothAdapter.STATE_ON:

@@ -13,4 +13,13 @@ public class PeerSlogan {
     PeerSlogan(Slogan slogan) {
         this.mSlogan = slogan;
     }
+
+    boolean hasPeerWithAddress(String address) {
+        for (Peer candidate : mPeers) {
+            if (candidate.mAddress.equals(address)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
