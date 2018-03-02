@@ -142,25 +142,31 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 
         // Add new items
         for (ListItem newItem : newItems) {
-            if (mItems.contains(newItem)) {
-                continue;
-            }
-            mutations.add(() -> {
-                int index;
-                // Determine the index of the first item that's supposed to be after newItem
-                for (index = 0; index < mItems.size(); index++) {
-                    ListItem item = mItems.get(index);
-                    if (!applicabilityCallback.isApplicable(item)) {
-                        continue;
-                    }
-                    if (compareCallback.isGreaterThan(item, newItem)) {
-                        break;
-                    }
+            boolean found = false;
+            for (ListItem candidate : mItems) {
+                if (candidate.compareIndex(newItem) == 0) {
+                    found = true;
+                    break;
                 }
-                v(TAG, "Inserting item %s at %d", newItem.getSlogan(), index);
-                mItems.add(index, newItem);
-                notifyItemInserted(index);
-            });
+            }
+            if (!found) {
+                mutations.add(() -> {
+                    int index;
+                    // Determine the index of the first item that's supposed to be after newItem
+                    for (index = 0; index < mItems.size(); index++) {
+                        ListItem item = mItems.get(index);
+                        if (!applicabilityCallback.isApplicable(item)) {
+                            continue;
+                        }
+                        if (compareCallback.isGreaterThan(item, newItem)) {
+                            break;
+                        }
+                    }
+                    v(TAG, "Inserting item %s at %d", newItem.getSlogan(), index);
+                    mItems.add(index, newItem);
+                    notifyItemInserted(index);
+                });
+            }
         }
 
         for (Runnable r : mutations) {
