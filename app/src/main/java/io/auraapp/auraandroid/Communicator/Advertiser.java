@@ -15,10 +15,11 @@ import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.content.Context;
 import android.os.Handler;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.UUID;
 
-import io.auraapp.auraandroid.common.CuteHasher;
+import io.auraapp.auraandroid.common.Timer;
 
 import static android.bluetooth.BluetoothGattCharacteristic.PERMISSION_READ;
 import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_NOTIFY;
@@ -39,13 +40,21 @@ class Advertiser {
     // TODO keep stats on how often a slogan has been adopted (max 100)
     // TODO do both using separate simple stats/metering module using slogan hashes, not on slogan object itself
 
+    @FunctionalInterface
+    interface StateChangeCallback {
+        void onStateChange(byte version, int id);
+    }
+
     private final static String TAG = "@aura/ble/advertiser";
+    private static final long ID_SHUFFLE_INTERVAL = 60 * 60 * 1000;
 
     private final BluetoothManager mBluetoothManager;
     private final AdvertisementSet mAdvertisementSet;
     private final Context mContext;
+    private final StateChangeCallback mStateChangeCallback;
     private final Communicator.OnErrorCallback mOnErrorCallback;
     private final Handler mHandler = new Handler();
+    private final Timer mTimer = new Timer(mHandler);
 
     private BluetoothGattServer mBluetoothGattServer;
     private BluetoothLeAdvertiser mBluetoothAdvertiser;
@@ -63,10 +72,15 @@ class Advertiser {
         }
     };
 
-    Advertiser(BluetoothManager bluetoothManager, AdvertisementSet advertisementSet, Context context, Communicator.OnErrorCallback onErrorCallback) {
+    Advertiser(BluetoothManager bluetoothManager,
+               AdvertisementSet advertisementSet,
+               Context context,
+               StateChangeCallback stateChangeCallback,
+               Communicator.OnErrorCallback onErrorCallback) {
         mBluetoothManager = bluetoothManager;
         mAdvertisementSet = advertisementSet;
         mContext = context;
+        mStateChangeCallback = stateChangeCallback;
         mOnErrorCallback = onErrorCallback;
     }
 
@@ -84,17 +98,34 @@ class Advertiser {
                 return;
             }
 
+            shuffleId();
             advertise();
             startServer();
+            mTimer.setSerializedInterval("shuffle-id", () -> {
+                shuffleId();
+                mBluetoothAdvertiser.stopAdvertising(mAdvertisingCallback);
+                advertise();
+            }, ID_SHUFFLE_INTERVAL);
         });
     }
 
-    byte mAdvertisementVersion = 0;
+    private byte mVersion = 0;
 
-    void increaseAdvertisementVersion() {
-        mAdvertisementVersion++;
+    void increaseVersion() {
+        mVersion++;
         mBluetoothAdvertiser.stopAdvertising(mAdvertisingCallback);
         advertise();
+        mStateChangeCallback.onStateChange(mVersion, mId);
+    }
+
+    private int mId = 0;
+
+    private void shuffleId() {
+        while (mId == 0) {
+//            mId = (int) (Math.round(Math.random() * Integer.MAX_VALUE * 2) - Integer.MAX_VALUE);
+            mId = (int) Math.round(Math.random() * 100);
+        }
+        mStateChangeCallback.onStateChange(mVersion, mId);
     }
 
     /**
@@ -111,21 +142,25 @@ class Advertiser {
                 .setTimeout(0)
                 .build();
 
+        byte[] id = ByteBuffer.allocate(4).putInt(mId).array();
+        byte[] additionalData = Arrays.copyOf(new byte[]{mVersion}, 1 + id.length);
+        System.arraycopy(id, 0, additionalData, 1, id.length);
+
         AdvertiseData data = new AdvertiseData.Builder()
                 .setIncludeTxPowerLevel(false)
                 .setIncludeDeviceName(false)
                 .addServiceUuid(UuidSet.SERVICE_PARCEL)
-                .addServiceData(UuidSet.SERVICE_DATA_PARCEL, new byte[]{mAdvertisementVersion})
-
+                .addServiceData(UuidSet.SERVICE_DATA_PARCEL, additionalData)
                 .build();
 
         mBluetoothAdvertiser.startAdvertising(settings, data, mAdvertisingCallback);
-        i(TAG, "started advertising, service: %s", UuidSet.SERVICE);
+        i(TAG, "started advertising, id: %d, version: %d, service: %s", mId, mVersion, UuidSet.SERVICE);
     }
 
     void stop() {
         mHandler.post(() -> {
             d(TAG, "Making sure advertising is stopped");
+            mTimer.clear("shuffle-id");
             if (mBluetoothGattServer != null) {
                 mBluetoothGattServer.clearServices();
                 mBluetoothGattServer.close();
@@ -149,14 +184,13 @@ class Advertiser {
         BluetoothGattServerCallback mGattServerCallback = new BluetoothGattServerCallback() {
 
             public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
-                v(TAG, "onConnectionStateChange device: %s, status: %s, newState: %s", CuteHasher.hash(device.getAddress()), BtConst.nameGattStatus(status), BtConst.nameConnectionState(newState));
+                v(TAG, "onConnectionStateChange address: %s, status: %s, newState: %s", device.getAddress(), BtConst.nameGattStatus(status), BtConst.nameConnectionState(newState));
             }
 
             @Override
             public void onCharacteristicReadRequest(BluetoothDevice device, int requestId, int offset, BluetoothGattCharacteristic characteristic) {
                 mHandler.post(() -> {
-                    String addressHash = CuteHasher.hash(device.getAddress());
-                    v(TAG, "onCharacteristicReadRequest device: %s, requestId: %d, offset: %d, characteristic: %s", addressHash, requestId, offset, characteristic.getUuid());
+                    v(TAG, "onCharacteristicReadRequest address: %s, requestId: %d, offset: %d, characteristic: %s", device.getAddress(), requestId, offset, characteristic.getUuid());
 
                     try {
                         byte[] response = chunk(
@@ -167,7 +201,7 @@ class Advertiser {
 
                     } catch (UnknownAdvertisementException e) {
                         // Invalid characteristic
-                        w(TAG, "Invalid characteristic requested, device: %s, characteristic: %s", addressHash, characteristic.getUuid());
+                        w(TAG, "Invalid characteristic requested, address: %s, characteristic: %s", device.getAddress(), characteristic.getUuid());
                         mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_FAILURE, 0, null);
                     }
                 });

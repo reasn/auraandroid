@@ -1,6 +1,8 @@
 package io.auraapp.auraandroid.main;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import io.auraapp.auraandroid.common.Peer;
@@ -29,6 +31,27 @@ class PeerMapTransformer {
                 entry.mPeers.add(peer);
             }
         }
+
+        Set<Runnable> mutations = new HashSet<>();
+        // In case a slogan had just peer as peer and peer doesn't have that slogan anymore, remove it
+        for (String sloganText : map.keySet()) {
+            boolean hasSlogan = false;
+            for (Slogan slogan : peer.mSlogans) {
+                if (slogan.getText().equals(sloganText)) {
+                    hasSlogan = true;
+                    break;
+                }
+            }
+            if (!hasSlogan
+                    && map.get(sloganText).mPeers.size() == 1
+                    && map.get(sloganText).mPeers.iterator().next().mId.equals(peer.mId)) {
+                mutations.add(() -> map.remove(sloganText));
+            }
+        }
+        for (Runnable r : mutations) {
+            r.run();
+        }
+
         return map;
     }
 

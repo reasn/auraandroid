@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
                 },
                 (Peer peer) -> {
                     for (Peer candidate : mPeers) {
-                        if (candidate.mAddress.equals(peer.mAddress)) {
+                        if (candidate.mId.equals(peer.mId)) {
                             mPeers.remove(candidate);
                             break;
                         }
@@ -152,6 +152,9 @@ public class MainActivity extends AppCompatActivity {
         mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
     }
 
+    /**
+     * slogan:PeerSlogan
+     */
     TreeMap<String, PeerSlogan> mSloganGroupMap = new TreeMap<>();
 
 

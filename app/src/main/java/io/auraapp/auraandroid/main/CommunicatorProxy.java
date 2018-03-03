@@ -10,7 +10,6 @@ import java.util.Set;
 
 import io.auraapp.auraandroid.Communicator.Communicator;
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
-import io.auraapp.auraandroid.common.CuteHasher;
 import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.Slogan;
@@ -68,7 +67,7 @@ class CommunicatorProxy {
                     @SuppressWarnings("unchecked")
                     Peer peer = (Peer) extras.getSerializable(INTENT_PEER_UPDATED_EXTRA_PEER);
                     if (peer != null) {
-                        v(TAG, "Peer updated, peer: %s, slogans: %d", CuteHasher.hash(peer.mAddress), peer.mSlogans.size());
+                        v(TAG, "Peer updated, peer: %s, slogans: %d", peer.mId, peer.mSlogans.size());
                         peerChangedCallback.onPeerChanged(peer);
                     } else {
                         w(TAG, "Received invalid %s intent, peer: null", INTENT_PEER_UPDATED_ACTION);

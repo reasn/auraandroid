@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 public class CommunicatorState implements Serializable {
 
+    public int mId;
+    public byte mVersion;
     public boolean mBtEnabled = false;
     public boolean mBleSupported = false;
     public boolean mAdvertisingSupported = false;
@@ -21,7 +23,9 @@ public class CommunicatorState implements Serializable {
     @Override
     public String toString() {
         return "CommunicatorState{" +
-                "mBtEnabled=" + mBtEnabled +
+                "mId=" + mId +
+                ", mVersion=" + mVersion +
+                ", mBtEnabled=" + mBtEnabled +
                 ", mBleSupported=" + mBleSupported +
                 ", mAdvertisingSupported=" + mAdvertisingSupported +
                 ", mHasPermission=" + mHasPermission +
@@ -41,6 +45,8 @@ public class CommunicatorState implements Serializable {
 
         CommunicatorState that = (CommunicatorState) o;
 
+        if (mId != that.mId) return false;
+        if (mVersion != that.mVersion) return false;
         if (mBtEnabled != that.mBtEnabled) return false;
         if (mBleSupported != that.mBleSupported) return false;
         if (mAdvertisingSupported != that.mAdvertisingSupported) return false;
@@ -55,7 +61,9 @@ public class CommunicatorState implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = (mBtEnabled ? 1 : 0);
+        int result = mId;
+        result = 31 * result + (int) mVersion;
+        result = 31 * result + (mBtEnabled ? 1 : 0);
         result = 31 * result + (mBleSupported ? 1 : 0);
         result = 31 * result + (mAdvertisingSupported ? 1 : 0);
         result = 31 * result + (mHasPermission ? 1 : 0);

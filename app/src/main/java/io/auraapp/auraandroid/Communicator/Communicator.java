@@ -1,6 +1,5 @@
 package io.auraapp.auraandroid.Communicator;
 
-import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -26,7 +25,6 @@ import java.util.TreeSet;
 
 import io.auraapp.auraandroid.PermissionMissingActivity;
 import io.auraapp.auraandroid.R;
-import io.auraapp.auraandroid.common.CuteHasher;
 import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.PermissionHelper;
@@ -105,6 +103,11 @@ public class Communicator extends Service {
                 (BluetoothManager) getSystemService(BLUETOOTH_SERVICE),
                 mAdvertisementSet,
                 this,
+                (byte version, int id) -> {
+                    mState.mVersion = version;
+                    mState.mId = id;
+                    sendState();
+                },
                 () -> {
                     mState.mBluetoothRestartRequired = true;
                     updateBtState();
@@ -134,7 +137,7 @@ public class Communicator extends Service {
                 }),
                 (Peer peer) -> {
                     sendBroadcast(IntentFactory.peerUpdated(peer));
-                    d(TAG, "Sent peer update intent, addressHash: %s, slogans: %d", CuteHasher.hash(peer.mAddress), peer.mSlogans.size());
+                    d(TAG, "Sent peer update intent, id: %s, slogans: %d", peer.mId, peer.mSlogans.size());
                 });
 
         mScanner = new Scanner(
@@ -329,14 +332,13 @@ public class Communicator extends Service {
      * Will affect mBtEnabled, mBleSupported
      * The HardwareIds rule is suppressed because the id is hashed to a 1024-elements space and only used for logging
      */
-    @SuppressLint("HardwareIds")
     private void updateBtState() {
         d(TAG, "Updating BT state");
 
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
             if (!mState.mBtEnabled) {
-                i(TAG, "Bluetooth adapter available, local address: %s", CuteHasher.hash(bluetoothAdapter.getAddress()));
+                i(TAG, "Bluetooth adapter available");
             }
             mState.mBtEnabled = true;
         } else {
@@ -444,7 +446,7 @@ public class Communicator extends Service {
             boolean currentlyAdvertisingOnDifferentSlogans = mAdvertisementSet.mSlogansSet;
             mAdvertisementSet.setSlogans(mySlogans);
             if (currentlyAdvertisingOnDifferentSlogans) {
-                mAdvertiser.increaseAdvertisementVersion();
+                mAdvertiser.increaseVersion();
             }
             sendState();
         } else {

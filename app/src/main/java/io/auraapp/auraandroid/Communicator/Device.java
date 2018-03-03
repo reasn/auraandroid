@@ -15,7 +15,7 @@ import io.auraapp.auraandroid.common.PeerStatsSet;
 
 class Device {
 
-    final String mAddress;
+    final String mId;
     long mNextFetch = 0;
     long lastSeenTimestamp = 0;
     long lastConnectAttempt = 0;
@@ -37,9 +37,9 @@ class Device {
     private final Map<UUID, Boolean> mFreshMap;
     private final Map<UUID, String> mPropertyMap;
 
-    private Device(String address) {
+    private Device(String id) {
         mFreshMap = new HashMap<>();
-        mAddress = address;
+        mId = id;
 
         setAllPropertiesOutdated();
 
@@ -50,8 +50,8 @@ class Device {
         }
     }
 
-    static Device create(@NonNull BluetoothDevice btDevice) {
-        Device device = new Device(btDevice.getAddress());
+    static Device create(String id, @NonNull BluetoothDevice btDevice) {
+        Device device = new Device(id);
         device.bt.device = btDevice;
         return device;
     }
@@ -103,7 +103,7 @@ class Device {
     @Override
     public String toString() {
         return "Device{" +
-                "mAddress='" + mAddress + '\'' +
+                "mId='" + mId + '\'' +
                 ", mNextFetch=" + mNextFetch +
                 ", lastSeenTimestamp=" + lastSeenTimestamp +
                 ", lastConnectAttempt=" + lastConnectAttempt +

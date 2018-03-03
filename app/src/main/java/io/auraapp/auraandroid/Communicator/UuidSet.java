@@ -14,6 +14,7 @@ class UuidSet {
      * (2) https://stackoverflow.com/questions/36212020/how-can-i-convert-a-bluetooth-16-bit-service-uuid-into-a-128-bit-uuid
      */
     static final UUID SERVICE_DATA = UUID.fromString("0000FE6E-0000-1000-8000-00805F9B34FB");
+//    static final UUID SERVICE_DATA = UUID.fromString("04BF4B10-A922-47C5-84E9-50F2DDD6C9E0"); // random
     static final ParcelUuid SERVICE_DATA_PARCEL = new ParcelUuid(SERVICE_DATA);
 
     static final UUID USER = UUID.fromString("0A12350F-DEB0-467D-8B6F-1A05FFE9761D");

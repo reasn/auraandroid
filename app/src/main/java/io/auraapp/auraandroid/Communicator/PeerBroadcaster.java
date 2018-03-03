@@ -3,7 +3,6 @@ package io.auraapp.auraandroid.Communicator;
 import android.os.Handler;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import io.auraapp.auraandroid.common.Peer;
@@ -36,14 +35,14 @@ class PeerBroadcaster {
     }
 
     void propagatePeer(Device device) {
-        mTimer.debounce(device.mAddress, () -> mPeerChangedCallback.peerChanged(buildPeer(device)), DEBOUNCE);
+        mTimer.debounce(device.mId, () -> mPeerChangedCallback.peerChanged(buildPeer(device)), DEBOUNCE);
     }
 
-    void propagatePeerList(Map<String, Device> deviceMap) {
+    void propagatePeerList(DeviceMap deviceMap) {
         mTimer.debounce(DEBOUNCE_ID_ALL_PEERS, () -> mPeersListCallback.peersChanged(buildPeers(deviceMap)), DEBOUNCE);
     }
 
-    Set<Peer> buildPeers(Map<String, Device> deviceMap) {
+    Set<Peer> buildPeers(DeviceMap deviceMap) {
         Set<Peer> peers = new HashSet<>();
         for (Device device : deviceMap.values()) {
             peers.add(buildPeer(device));
@@ -52,7 +51,7 @@ class PeerBroadcaster {
     }
 
     private Peer buildPeer(Device device) {
-        final Peer peer = new Peer(device.mAddress);
+        final Peer peer = new Peer(device.mId);
 
         peer.mLastSeenTimestamp = device.lastSeenTimestamp;
         peer.mNextFetch = device.mNextFetch;

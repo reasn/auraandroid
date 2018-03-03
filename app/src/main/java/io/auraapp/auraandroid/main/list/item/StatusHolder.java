@@ -44,7 +44,7 @@ public class StatusHolder extends ItemViewHolder {
             return;
         }
         if (mExpanded) {
-            bindExpanded(peerSloganMap, peers);
+            bindExpanded(communicatorState, peerSloganMap, peers);
         } else {
             bindCollapsed(communicatorState, peerSloganMap, peers);
         }
@@ -101,7 +101,7 @@ public class StatusHolder extends ItemViewHolder {
 //        }
         return mContext.getString(R.string.ui_main_status_headline_communicator_peers)
                 .replace("##slogans##", peerSloganMap.size() + "")
-                .replace("##peers##", peers.size()+ "");
+                .replace("##peers##", peers.size() + "");
 //        long timeToNextFetch = Integer.MAX_VALUE;
 //        long now = System.currentTimeMillis();
 //        for (Peer peer : peers) {
@@ -110,17 +110,22 @@ public class StatusHolder extends ItemViewHolder {
     }
 
     // TODO should fill list view
-    private void bindExpanded(TreeMap<String, PeerSlogan> peerSloganMap, Set<Peer> peers) {
+    private void bindExpanded(CommunicatorState state, TreeMap<String, PeerSlogan> peerSloganMap, Set<Peer> peers) {
 
         String peersText = mContext.getString(R.string.ui_main_status_headline_communicator_on).replaceAll("##slogans##", Integer.toString(peerSloganMap.size()));
 
         StringBuilder peerString = new StringBuilder();
         long now = System.currentTimeMillis();
+        peerString.append("\nMe: ")
+                .append(CuteHasher.hash(state.mId + ""))
+                .append(" (")
+                .append(((int) state.mVersion))
+                .append(")\n");
         for (Peer peer : peers) {
             if (peerString.length() > 0) {
                 peerString.append(", ");
             }
-            peerString.append(CuteHasher.hash(peer.mAddress))
+            peerString.append(CuteHasher.hash(peer.mId))
                     .append(": ");
 
             int timeToNextFetch = Math.round((peer.mNextFetch - now) / 1000);
