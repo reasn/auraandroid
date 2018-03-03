@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -23,7 +24,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -41,7 +41,6 @@ import io.auraapp.auraandroid.Communicator.Communicator;
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.PermissionMissingActivity;
 import io.auraapp.auraandroid.R;
-import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.PermissionHelper;
 import io.auraapp.auraandroid.common.Slogan;
@@ -96,8 +95,8 @@ public class MainActivity extends AppCompatActivity {
         mPrefs = getSharedPreferences(MainActivity.PREFS_BUCKET, MODE_PRIVATE);
         mAuraEnabled = mPrefs.getBoolean(MainActivity.PREFS_ENABLED, true);
 
-        final Button addSloganButton = findViewById(R.id.add_slogan);
-        addSloganButton.setText(EmojiHelper.replaceShortCode(getString(R.string.ui_main_add_slogan)));
+        final FloatingActionButton addSloganButton = findViewById(R.id.add_slogan);
+//        addSloganButton.setText(EmojiHelper.replaceShortCode(getString(R.string.ui_main_add_slogan)));
         addSloganButton.setOnClickListener(this::showAddDialog);
 
         mMySloganManager = new MySloganManager(
