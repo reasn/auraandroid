@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String PREFS_ENABLED = "enabled";
     private static final String PREFS_HIDE_BROKEN_BT_STACK_WARNING = "hideBrokenBtStackWarning";
     private static final int BROKEN_BT_STACK_ALERT_DEBOUNCE = 1000 * 60;
-    private static final long SWIPE_TO_REFRESH_DURATION = 1000 * 3;
+    private static final long SWIPE_TO_REFRESH_DURATION = 1000 * 2;
 
     private RecycleAdapter mListAdapter;
     private MySloganManager mMySloganManager;
@@ -153,17 +153,6 @@ public class MainActivity extends AppCompatActivity {
         mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
 
         ((SwipeRefreshLayout) findViewById(R.id.swiperefresh)).setOnRefreshListener(this::refresh);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menu_refresh) {
-            ((SwipeRefreshLayout) findViewById(R.id.swiperefresh)).setRefreshing(true);
-            refresh();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-
     }
 
     /**

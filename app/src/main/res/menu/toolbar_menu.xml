@@ -16,10 +16,4 @@
         android:visible="false"
         app:showAsAction="ifRoom" />
 
-    <item
-        android:id="@+id/menu_refresh"
-        android:title="@string/ui_toolbar_refresh"
-        app:showAsAction="never" />
-
-
 </menu>

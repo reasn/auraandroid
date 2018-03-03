@@ -122,8 +122,7 @@ class Advertiser {
 
     private void shuffleId() {
         while (mId == 0) {
-//            mId = (int) (Math.round(Math.random() * Integer.MAX_VALUE * 2) - Integer.MAX_VALUE);
-            mId = (int) Math.round(Math.random() * 100);
+            mId = (int) (Math.round(Math.random() * Integer.MAX_VALUE * 2) - Integer.MAX_VALUE);
         }
         mStateChangeCallback.onStateChange(mVersion, mId);
     }
