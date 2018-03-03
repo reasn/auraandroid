@@ -7,6 +7,7 @@
     <string name="ui_toolbar_enable_on">On</string>
     <string name="ui_toolbar_enable_off">Off</string>
     <string name="ui_toolbar_help">Help</string>
+    <string name="ui_toolbar_refresh">Refresh</string>
 
     <!--Permissions Missing Activity-->
     <string name="ui_permissionsMissing_text">Aura can only work with some basic permissions.\n\nDon\'t worry, no data will be transmitted via the internet. \nYou are safe.</string>
@@ -21,6 +22,12 @@
     <string name="ui_main_toast_adopted">Thought adopted</string>
     <string name="ui_main_toast_replaced">Thought changed</string>
     <string name="ui_main_toast_dropped">Thought removed</string>
+
+    <string name="ui_main_toast_refresh_no_peers">No Aura users nearby to refresh</string>
+    <plurals name="ui_main_toast_refresh">
+        <item quantity="one">Refreshing one peer</item>
+        <item quantity="other">Refreshing %d peers</item>
+    </plurals>
 
     <string name="ui_main_status_headline_communicator_bt_restart_required">:warning: Bluetooth crashed.</string>
     <string name="ui_main_status_headline_communicator_bt_disabled">:warning: Bluetooth is disabled.</string>

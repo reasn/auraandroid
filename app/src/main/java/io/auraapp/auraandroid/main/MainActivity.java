@@ -6,8 +6,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -49,6 +51,7 @@ import io.auraapp.auraandroid.main.list.item.ListItem;
 import io.auraapp.auraandroid.main.list.item.StatusItem;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
+import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
 public class MainActivity extends AppCompatActivity {
@@ -60,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String PREFS_ENABLED = "enabled";
     private static final String PREFS_HIDE_BROKEN_BT_STACK_WARNING = "hideBrokenBtStackWarning";
     private static final int BROKEN_BT_STACK_ALERT_DEBOUNCE = 1000 * 60;
+    private static final long SWIPE_TO_REFRESH_DURATION = 1000 * 3;
 
     private RecycleAdapter mListAdapter;
     private MySloganManager mMySloganManager;
@@ -73,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
     private CommunicatorState mCommunicatorState;
     private Set<Peer> mPeers = new HashSet<>();
     private StatusItem mStatusItem;
+    private final Handler mHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,10 +86,6 @@ public class MainActivity extends AppCompatActivity {
         v(TAG, "onCreate, intent: %s", getIntent().getAction());
 
         setContentView(R.layout.activity_main);
-
-        // TODO swipe instead of expand
-        // TODO refresh, direct Feedback
-        // TODO ? debug view shat neatly shows interactions with other devices
 
         // Create toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -150,13 +151,39 @@ public class MainActivity extends AppCompatActivity {
         mMySloganManager.init();
         mListAdapter.notifyMySlogansChanged(mMySloganManager.getMySlogans());
         mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
+
+        ((SwipeRefreshLayout) findViewById(R.id.swiperefresh)).setOnRefreshListener(this::refresh);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_refresh) {
+            ((SwipeRefreshLayout) findViewById(R.id.swiperefresh)).setRefreshing(true);
+            refresh();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+
+    }
+
+    /**
+     * As the advertisement of peers are continuously monitored, triggering a refresh has zero impact.
+     * As the user indicated a wish for an update, we briefly toast the current status.
+     */
+    void refresh() {
+        i(TAG, "Pretend");
+        String text = mPeers.size() == 0
+                ? getString(R.string.ui_main_toast_refresh_no_peers)
+                : getResources().getQuantityString(R.plurals.ui_main_toast_refresh, mPeers.size());
+
+        Toast.makeText(this, text, Toast.LENGTH_LONG).show();
+        mHandler.postDelayed(() -> ((SwipeRefreshLayout) findViewById(R.id.swiperefresh)).setRefreshing(false), SWIPE_TO_REFRESH_DURATION);
     }
 
     /**
      * slogan:PeerSlogan
      */
     TreeMap<String, PeerSlogan> mSloganGroupMap = new TreeMap<>();
-
 
     private void showAddDialog(View $) {
         if (!mMySloganManager.spaceAvailable()) {

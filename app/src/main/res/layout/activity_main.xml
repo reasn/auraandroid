@@ -13,18 +13,6 @@
         style="@style/Toolbar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
-    <!--TODO move explanation and add item into recycler to make it scrollable-->
-    <TextView
-        android:id="@+id/communicator_state_explanation"
-        style="@style/ExplanationBox"
-        android:visibility="gone" />
-
-    <!--TODO move explanation and add item into recycler to make it scrollable-->
-    <TextView
-        android:id="@+id/peers_state_explanation"
-        style="@style/ExplanationBox"
-        android:visibility="gone" />
-
     <Button
         android:id="@+id/add_slogan"
         style="?android:attr/buttonBarButtonStyle"
@@ -32,10 +20,15 @@
         android:layout_height="wrap_content"
         android:text="@string/ui_main_add_slogan" />
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/list_view"
+    <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/swiperefresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    </android.support.v7.widget.RecyclerView>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/list_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 </LinearLayout>
