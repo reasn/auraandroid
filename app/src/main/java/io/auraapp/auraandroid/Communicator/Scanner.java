@@ -9,7 +9,6 @@ import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
-import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
@@ -24,11 +23,6 @@ import java.util.UUID;
 import io.auraapp.auraandroid.common.Peer;
 
 import static android.bluetooth.BluetoothProfile.STATE_CONNECTED;
-import static android.bluetooth.le.ScanSettings.CALLBACK_TYPE_ALL_MATCHES;
-import static android.bluetooth.le.ScanSettings.MATCH_MODE_AGGRESSIVE;
-import static android.bluetooth.le.ScanSettings.MATCH_MODE_STICKY;
-import static android.bluetooth.le.ScanSettings.SCAN_MODE_BALANCED;
-import static android.bluetooth.le.ScanSettings.SCAN_MODE_LOW_LATENCY;
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.e;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
@@ -41,7 +35,6 @@ import static io.auraapp.auraandroid.common.FormattedLog.w;
  * The same holds for all callbacks registered externally (in this case typically the BT stack).
  */
 class Scanner {
-
 
     @FunctionalInterface
     interface CurrentPeersCallback {
@@ -256,14 +249,14 @@ class Scanner {
 
         ScanSettings.Builder builder = new ScanSettings.Builder()
                 .setScanMode(HIGH_POWER
-                        ? SCAN_MODE_LOW_LATENCY
-                        : SCAN_MODE_BALANCED);
+                        ? ScanSettings.SCAN_MODE_LOW_LATENCY
+                        : ScanSettings.SCAN_MODE_BALANCED);
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            builder.setCallbackType(CALLBACK_TYPE_ALL_MATCHES);
+            builder.setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES);
             builder.setMatchMode(HIGH_POWER
-                    ? MATCH_MODE_AGGRESSIVE
-                    : MATCH_MODE_STICKY);
+                    ? ScanSettings.MATCH_MODE_AGGRESSIVE
+                    : ScanSettings.MATCH_MODE_STICKY);
         }
         ScanSettings settings = builder.build();
 
@@ -300,15 +293,11 @@ class Scanner {
         if (mDeviceMap.has(address)) {
             return true;
         }
-        d(TAG, "No peer available for connection change (probably already forgotten), operation: %s, address: %s", operation, address);
-
-        // TODO can this throw errors? Are they safe to be ignored?;
+        d(TAG, "No peer available for connection change (probably already forgotten). Closing gatt, operation: %s, address: %s", operation, address);
         gatt.close();
-
         return false;
     }
 
-    // TODO extract
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -411,82 +400,12 @@ class Scanner {
         }
     };
 
-    interface AdditionalData {
-        boolean isPresent();
-
-        byte getVersion();
-
-        int getId();
-    }
-
-    /**
-     * Thanks
-     * https://stackoverflow.com/questions/5399798/byte-array-and-int-conversion-in-java/11419863
-     */
-    private AdditionalData unpackAdditionalData(ScanRecord scanRecord) {
-
-        AdditionalData absent = new AdditionalData() {
-            @Override
-            public boolean isPresent() {
-                return false;
-            }
-
-            @Override
-            public byte getVersion() {
-                return 0;
-            }
-
-            @Override
-            public int getId() {
-                return 0;
-            }
-        };
-
-        if (scanRecord == null) {
-            w(TAG, "Scan record is null");
-            return absent;
-        }
-        byte[] additionalData = scanRecord.getServiceData(UuidSet.SERVICE_DATA_PARCEL);
-        if (additionalData == null) {
-            w(TAG, "Additional data missing, null");
-            return absent;
-        } else if (additionalData.length < 5) {
-            w(TAG, "Additional data invalid, length: %d", additionalData.length);
-            return absent;
-        }
-
-        final byte version = additionalData[0];
-
-        int value = 0;
-        for (int i = 1; i < 5; i++) {
-            int shift = (4 - 1 - i + 1) * 8;
-            value += (additionalData[i] & 0x000000FF) << shift;
-        }
-        final int id = value;
-        return new AdditionalData() {
-            @Override
-            public boolean isPresent() {
-                return true;
-            }
-
-            @Override
-            public byte getVersion() {
-                return version;
-            }
-
-            @Override
-            public int getId() {
-                return id;
-            }
-        };
-    }
-
     private void handleResults(ScanResult[] results) {
         for (ScanResult result : results) {
 
             String address = result.getDevice().getAddress();
 
-            AdditionalData additionalData = unpackAdditionalData(result.getScanRecord());
+            AdditionalDataUnpacker.Result additionalData = AdditionalDataUnpacker.unpack(result.getScanRecord());
 
             final String id = additionalData.isPresent()
                     ? "" + additionalData.getId()
@@ -497,7 +416,7 @@ class Scanner {
             final Device device = mDeviceMap.get(address);
             if (device != null) {
                 if (!result.getDevice().equals(device.bt.device)) {
-                    // This is the case if the advertisement is restarted
+                    // This is the case if the advertisement is restarted, e.g. in case the version changes
                     i(TAG, "Resetting remote device instance, BT address changed since last seen, id: %s", id);
                     device.bt.device = result.getDevice();
                 }

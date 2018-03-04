@@ -1,6 +1,7 @@
 package io.auraapp.auraandroid.main.list;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +10,7 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -22,9 +24,13 @@ import io.auraapp.auraandroid.main.list.item.ListItem;
 import io.auraapp.auraandroid.main.list.item.MyCollapsedHolder;
 import io.auraapp.auraandroid.main.list.item.MyExpandedHolder;
 import io.auraapp.auraandroid.main.list.item.MySloganListItem;
+import io.auraapp.auraandroid.main.list.item.MySlogansHeadingHolder;
+import io.auraapp.auraandroid.main.list.item.MySlogansHeadingItem;
 import io.auraapp.auraandroid.main.list.item.PeerCollapsedHolder;
 import io.auraapp.auraandroid.main.list.item.PeerExpandedHolder;
 import io.auraapp.auraandroid.main.list.item.PeerSloganListItem;
+import io.auraapp.auraandroid.main.list.item.PeersHeadingHolder;
+import io.auraapp.auraandroid.main.list.item.PeersHeadingItem;
 import io.auraapp.auraandroid.main.list.item.StatusHolder;
 import io.auraapp.auraandroid.main.list.item.StatusItem;
 
@@ -42,8 +48,8 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 
     private static final int TYPE_STATUS_COLLAPSED = 140;
     private static final int TYPE_STATUS_EXPANDED = 141;
-    private static final int TYPE_PEERS_STATE_COLLAPSED = 142;
-    private static final int TYPE_PEERS_STATE_EXPANDED = 143;
+    private static final int TYPE_MY_SLOGANS_HEADING = 142;
+    private static final int TYPE_PEERS_HEADING = 143;
     private final static int TYPE_MY_COLLAPSED = 144;
     private final static int TYPE_MY_EXPANDED = 145;
     private final static int TYPE_PEER_COLLAPSED = 146;
@@ -56,12 +62,48 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     private final List<ListItem> mItems;
     private final RecyclerView mListView;
 
+    private final CollapseExpandHandler collapseExpandHandler = new CollapseExpandHandler() {
+        @Override
+        public void flip(ListItem item) {
+            if (item == null) {
+                return;
+            }
+            for (int i = 0; i < mItems.size(); i++) {
+                ListItem candidate = mItems.get(i);
+                if (candidate.mExpanded && !candidate.equals(item)) {
+                    candidate.mExpanded = false;
+                    notifyItemChanged(i);
+                }
+            }
+            item.mExpanded = !item.mExpanded;
+            notifyItemChanged(mItems.indexOf(item));
+            mListView.smoothScrollToPosition(mItems.indexOf(item));
+        }
+    };
+
     public RecycleAdapter(@NonNull Context context, List<ListItem> items, RecyclerView listView) {
         super();
         mContext = context;
         mItems = items;
         mListView = listView;
         mInflater = LayoutInflater.from(context);
+    }
+
+    public void notifyMySlogansChanged(TreeSet<Slogan> mySlogans) {
+        d(TAG, "Updating list, mySlogans: %d", mySlogans.size());
+
+        final List<ListItem> newItems = new ArrayList<>();
+        for (Slogan mySlogan : mySlogans) {
+            newItems.add(new MySloganListItem(mySlogan));
+        }
+        ListSynchronizer.syncLists(
+                mItems,
+                newItems,
+                this,
+                existingItem -> existingItem instanceof MySloganListItem,
+                existingItem -> existingItem instanceof PeersHeadingItem,
+                (item, newItem) -> item instanceof PeersHeadingItem || item instanceof MySloganListItem || item.compareIndex(newItem) > 0
+        );
     }
 
     public void notifyPeerSloganListChanged(TreeMap<String, PeerSlogan> peerSloganMap) {
@@ -76,13 +118,19 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
                 mItems,
                 newItems,
                 this,
-                item -> item instanceof PeerSloganListItem,
+                existingItem -> existingItem instanceof PeerSloganListItem,
+                existingItem -> existingItem instanceof PeerSloganListItem,
                 (item, newItem) ->
                         item instanceof PeerSloganListItem
                                 && newItem instanceof PeerSloganListItem
                                 && c.compare(((PeerSloganListItem) item).getSlogan(), ((PeerSloganListItem) newItem).getSlogan()) > 0
         );
     }
+
+    public void notifyListItemChanged(ListItem item) {
+        notifyItemChanged(mItems.indexOf(item));
+    }
+
 
     /**
      * Ensures that the lastFetch information is properly reflected in items
@@ -104,47 +152,9 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         timer.clear("redraw");
     }
 
-    public void notifyMySlogansChanged(TreeSet<Slogan> mySlogans) {
-        d(TAG, "Updating list, mySlogans: %d", mySlogans.size());
-
-        final List<ListItem> newItems = new ArrayList<>();
-        for (Slogan mySlogan : mySlogans) {
-            newItems.add(new MySloganListItem(mySlogan));
-        }
-        ListSynchronizer.syncLists(
-                mItems,
-                newItems,
-                this,
-                item -> item instanceof MySloganListItem,
-                (item, newItem) -> item instanceof MySloganListItem || item.compareIndex(newItem) > 0
-        );
-    }
-
-    public void notifyListItemChanged(ListItem item) {
-        notifyItemChanged(mItems.indexOf(item));
-    }
-
-    private final CollapseExpandHandler collapseExpandHandler = new CollapseExpandHandler() {
-        @Override
-        public void flip(ListItem item) {
-            if (item == null) {
-                return;
-            }
-            for (int i = 0; i < mItems.size(); i++) {
-                ListItem candidate = mItems.get(i);
-                if (candidate.mExpanded && !candidate.equals(item)) {
-                    candidate.mExpanded = false;
-                    notifyItemChanged(i);
-                }
-            }
-            item.mExpanded = !item.mExpanded;
-            notifyItemChanged(mItems.indexOf(item));
-            mListView.smoothScrollToPosition(mItems.indexOf(item));
-        }
-    };
-
+    @NonNull
     @Override
-    public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         switch (viewType) {
             case TYPE_STATUS_COLLAPSED:
                 return new StatusHolder(
@@ -160,11 +170,22 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
                         mInflater.inflate(R.layout.list_item_status_expanded, parent, false),
                         collapseExpandHandler);
 
+            case TYPE_MY_SLOGANS_HEADING:
+                return new MySlogansHeadingHolder(
+                        mInflater.inflate(R.layout.list_item_heading, parent, false),
+                        mContext);
+
             case TYPE_MY_COLLAPSED:
                 return new MyCollapsedHolder(mInflater.inflate(R.layout.list_item_collapsed, parent, false));
 
             case TYPE_MY_EXPANDED:
                 return new MyExpandedHolder(mInflater.inflate(R.layout.list_item_my_expanded, parent, false));
+
+            case TYPE_PEERS_HEADING:
+                return new PeersHeadingHolder(
+                        mInflater.inflate(R.layout.list_item_heading, parent, false),
+                        mContext
+                );
 
             case TYPE_PEER_COLLAPSED:
                 return new PeerCollapsedHolder(
@@ -183,8 +204,28 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(ItemViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
         holder.setItem(mItems.get(position));
+
+        if (holder instanceof StatusHolder) {
+            // Do nothing, StatusHolder takes care of coloring itself
+
+        } else if ((holder instanceof MyCollapsedHolder || holder instanceof MyExpandedHolder)) {
+            if (position % 2 == 1) {
+                holder.itemView.setBackgroundColor(Color.parseColor("#ececec"));
+            } else {
+                holder.itemView.setBackgroundColor(Color.parseColor("#ffffff"));
+            }
+
+        } else if (holder instanceof PeerCollapsedHolder || holder instanceof PeerExpandedHolder) {
+            Random rnd = new Random();
+            int color = Color.argb(
+                    255,
+                    rnd.nextInt(100) + 156,
+                    rnd.nextInt(100) + 156,
+                    rnd.nextInt(100) + 156);
+            holder.itemView.setBackgroundColor(color);
+        }
     }
 
     @Override
@@ -194,6 +235,12 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
             return item.mExpanded
                     ? TYPE_STATUS_EXPANDED
                     : TYPE_STATUS_COLLAPSED;
+        }
+        if (item instanceof MySlogansHeadingItem) {
+            return TYPE_MY_SLOGANS_HEADING;
+        }
+        if (item instanceof PeersHeadingItem) {
+            return TYPE_PEERS_HEADING;
         }
 
         return item instanceof MySloganListItem

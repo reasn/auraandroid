@@ -15,7 +15,6 @@ import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.content.Context;
 import android.os.Handler;
 
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -109,22 +108,17 @@ class Advertiser {
         });
     }
 
-    private byte mVersion = 0;
-
     void increaseVersion() {
-        mVersion++;
+        mAdvertisementSet.increaseVersion();
         mBluetoothAdvertiser.stopAdvertising(mAdvertisingCallback);
         advertise();
-        mStateChangeCallback.onStateChange(mVersion, mId);
+        mStateChangeCallback.onStateChange(mAdvertisementSet.mVersion, mAdvertisementSet.mId);
     }
 
-    private int mId = 0;
 
     private void shuffleId() {
-        while (mId == 0) {
-            mId = (int) (Math.round(Math.random() * Integer.MAX_VALUE * 2) - Integer.MAX_VALUE);
-        }
-        mStateChangeCallback.onStateChange(mVersion, mId);
+        mAdvertisementSet.shuffleId();
+        mStateChangeCallback.onStateChange(mAdvertisementSet.mVersion, mAdvertisementSet.mId);
     }
 
     /**
@@ -141,19 +135,16 @@ class Advertiser {
                 .setTimeout(0)
                 .build();
 
-        byte[] id = ByteBuffer.allocate(4).putInt(mId).array();
-        byte[] additionalData = Arrays.copyOf(new byte[]{mVersion}, 1 + id.length);
-        System.arraycopy(id, 0, additionalData, 1, id.length);
 
         AdvertiseData data = new AdvertiseData.Builder()
                 .setIncludeTxPowerLevel(false)
                 .setIncludeDeviceName(false)
                 .addServiceUuid(UuidSet.SERVICE_PARCEL)
-                .addServiceData(UuidSet.SERVICE_DATA_PARCEL, additionalData)
+                .addServiceData(UuidSet.SERVICE_DATA_PARCEL, mAdvertisementSet.getAdditionalData())
                 .build();
 
         mBluetoothAdvertiser.startAdvertising(settings, data, mAdvertisingCallback);
-        i(TAG, "started advertising, id: %d, version: %d, service: %s", mId, mVersion, UuidSet.SERVICE);
+        i(TAG, "started advertising, id: %d, version: %d, service: %s", mAdvertisementSet.mId, mAdvertisementSet.mVersion, UuidSet.SERVICE);
     }
 
     void stop() {

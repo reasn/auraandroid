@@ -14,7 +14,7 @@ public class MyCollapsedHolder extends ItemViewHolder {
         mSloganTextView = itemView.findViewById(R.id.slogan_text);
     }
 
-    public void bind(ListItem item) {
+    public void bind(ListItem item, View itemView) {
         if (!(item instanceof MySloganListItem)) {
             throw new RuntimeException("Expecting " + MySloganListItem.class.getSimpleName());
         }

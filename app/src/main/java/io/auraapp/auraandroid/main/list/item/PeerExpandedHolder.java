@@ -24,11 +24,11 @@ public class PeerExpandedHolder extends ItemViewHolder {
         mSloganTextView = itemView.findViewById(R.id.slogan_text);
         mLastSeenTextView = itemView.findViewById(R.id.lastSeen);
 
-        itemView.setOnClickListener($ -> collapseExpandHandler.flip(mItem));
+        itemView.setOnClickListener($ -> collapseExpandHandler.flip(getLastBoundItem()));
     }
 
     @Override
-    public void bind(ListItem item) {
+    public void bind(ListItem item, View itemView) {
 
         if (item == null) {
             e(TAG, "Trying to bind %s to null ListItem", PeerExpandedHolder.class.getSimpleName());

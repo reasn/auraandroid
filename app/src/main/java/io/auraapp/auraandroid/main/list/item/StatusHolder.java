@@ -29,10 +29,10 @@ public class StatusHolder extends ItemViewHolder {
         mExpanded = expanded;
         mContext = context;
         mExplanationTextView = itemView.findViewById(R.id.communicator_state_explanation);
-        itemView.setOnClickListener($ -> collapseExpandHandler.flip(mItem));
+        itemView.setOnClickListener($ -> collapseExpandHandler.flip(getLastBoundItem()));
     }
 
-    public void bind(ListItem item) {
+    public void bind(ListItem item, View itemView) {
         if (!(item instanceof StatusItem)) {
             throw new RuntimeException("Expecting " + StatusItem.class.getSimpleName());
         }

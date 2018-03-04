@@ -18,7 +18,7 @@
     <!--Main Activity-->
     <string name="ui_main_add_slogan">:heavy_plus_sign: Add my own thought</string>
     <string name="ui_main_toast_slogan_already_adopted">This thought is already in your Aura</string>
-    <string name="ui_main_toast_cannot_add_no_space_available">Please delete on of your thoughts before adding a new one</string>
+    <string name="ui_main_toast_cannot_add_no_space_available">Please delete on of your :thought_balloon: before adding a new one</string>
     <string name="ui_main_toast_adopted">Thought adopted</string>
     <string name="ui_main_toast_replaced">Thought changed</string>
     <string name="ui_main_toast_dropped">Thought removed</string>
@@ -36,8 +36,27 @@
     <string name="ui_main_status_headline_communicator_disabled">:sleeping_sign: Aura disabled.</string>
     <string name="ui_main_status_headline_communicator_advertising_not_supported">:broken_heart: You\'re invisible.</string>
     <string name="ui_main_status_headline_communicator_on_not_active">:hourglass: Aura is getting ready.</string>
-    <string name="ui_main_status_headline_communicator_on">:fire: Aura is on.</string>
-    <string name="ui_main_status_headline_communicator_peers">Found ##slogans##:thought_balloon: from ##peers##:silhouette_head:</string>
+    <string name="ui_main_status_headline_communicator_on">Aura is on.</string>
+    <string name="ui_main_status_headline_communicator_peers">Found ##slogans## :thought_balloon: from ##peers## :silhouette_head:</string>
+
+    <plurals name="ui_main_my_slogans_heading">
+        <item quantity="zero">You don't have any :thought_balloon:</item>
+        <item quantity="one">You have :thought_balloon:</item>
+        <item quantity="other">You have %d :thought_balloon:</item>
+    </plurals>
+    <string name="ui_main_my_slogans_heading_no_slogans_text">TODO bla bla, \n add a slogan, big button</string>
+
+    <string name="ui_main_peers_heading_no_peers">Nobody Nearby</string>
+    <string name="ui_main_peers_heading_no_peers_text">TODO bla bla\nbla</string>
+
+    <string name="ui_main_peers_heading_no_slogans_text">TODO bla bla\nPeer found, no slogans</string>
+
+    <plurals name="ui_main_peers_heading_slogans">
+        <item quantity="zero">No :thought_balloon: Nearby</item>
+        <item quantity="one">One :thought_balloon: Nearby</item>
+        <item quantity="other">%d :thought_balloon: Nearby</item>
+    </plurals>
+
 
     <string name="ui_main_peer_slogan_last_seen_lt_10s">Nearby</string>
     <string name="ui_main_peer_slogan_last_seen_lt_1min">Less than a minute ago</string>

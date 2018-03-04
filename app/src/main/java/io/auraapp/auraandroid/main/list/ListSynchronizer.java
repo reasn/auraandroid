@@ -21,6 +21,11 @@ class ListSynchronizer<T extends ListItem> {
     }
 
     @FunctionalInterface
+    interface NewItemCanBeInsertedBeforeCallback {
+        boolean canBeInsertedBefore(ListItem item);
+    }
+
+    @FunctionalInterface
     interface CompareCallback {
         boolean isGreaterThan(ListItem item, ListItem newItem);
     }
@@ -29,6 +34,7 @@ class ListSynchronizer<T extends ListItem> {
                           List<ListItem> newItems,
                           RecyclerView.Adapter<?> notificationReceiver,
                           ApplicabilityCallback applicabilityCallback,
+                          NewItemCanBeInsertedBeforeCallback newItemCanBeInsertedBeforeCallback,
                           CompareCallback compareCallback) {
         d(TAG, "Updating list, mySlogans: %d", newItems.size());
 
@@ -74,6 +80,7 @@ class ListSynchronizer<T extends ListItem> {
             boolean found = false;
             for (ListItem candidate : items) {
                 if (candidate.compareIndex(newItem) == 0) {
+                    // newItem is already in, nothing to do
                     found = true;
                     break;
                 }
@@ -84,7 +91,7 @@ class ListSynchronizer<T extends ListItem> {
                     // Determine the index of the first item that's supposed to be after newItem
                     for (index = 0; index < items.size(); index++) {
                         ListItem item = items.get(index);
-                        if (!applicabilityCallback.isApplicable(item)) {
+                        if (!newItemCanBeInsertedBeforeCallback.canBeInsertedBefore(item)) {
                             continue;
                         }
                         if (compareCallback.isGreaterThan(item, newItem)) {

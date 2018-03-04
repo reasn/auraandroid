@@ -13,11 +13,12 @@ import android.view.View;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.main.list.item.ItemViewHolder;
 import io.auraapp.auraandroid.main.list.item.ListItem;
+import io.auraapp.auraandroid.main.list.item.MyCollapsedHolder;
+import io.auraapp.auraandroid.main.list.item.MyExpandedHolder;
 import io.auraapp.auraandroid.main.list.item.MySloganListItem;
 import io.auraapp.auraandroid.main.list.item.PeerCollapsedHolder;
 import io.auraapp.auraandroid.main.list.item.PeerExpandedHolder;
 import io.auraapp.auraandroid.main.list.item.PeerSloganListItem;
-import io.auraapp.auraandroid.main.list.item.StatusHolder;
 
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
@@ -72,13 +73,13 @@ public class SwipeCallback extends ItemTouchHelper.SimpleCallback {
 
     @Override
     public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-        if (viewHolder instanceof StatusHolder) {
-            return 0;
-        }
         if (viewHolder instanceof PeerCollapsedHolder || viewHolder instanceof PeerExpandedHolder) {
             return ItemTouchHelper.LEFT;
         }
-        return ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+        if (viewHolder instanceof MyExpandedHolder || viewHolder instanceof MyCollapsedHolder) {
+            return ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+        }
+        return 0;
     }
 
     @Override
@@ -87,7 +88,7 @@ public class SwipeCallback extends ItemTouchHelper.SimpleCallback {
         if (!(viewHolder instanceof ItemViewHolder)) {
             throw new RuntimeException("Dragged item must be instance of " + ItemViewHolder.class);
         }
-        ListItem item = ((ItemViewHolder) viewHolder).mItem;
+        ListItem item = ((ItemViewHolder) viewHolder).getLastBoundItem();
         if (item instanceof MySloganListItem) {
             MySloganListItem castItem = (MySloganListItem) item;
             if (direction == ItemTouchHelper.LEFT) {

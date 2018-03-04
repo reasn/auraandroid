@@ -41,12 +41,15 @@ import io.auraapp.auraandroid.Communicator.Communicator;
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.PermissionMissingActivity;
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.PermissionHelper;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.main.list.RecycleAdapter;
 import io.auraapp.auraandroid.main.list.SwipeCallback;
 import io.auraapp.auraandroid.main.list.item.ListItem;
+import io.auraapp.auraandroid.main.list.item.MySlogansHeadingItem;
+import io.auraapp.auraandroid.main.list.item.PeersHeadingItem;
 import io.auraapp.auraandroid.main.list.item.StatusItem;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
@@ -65,6 +68,9 @@ public class MainActivity extends AppCompatActivity {
     private static final long SWIPE_TO_REFRESH_DURATION = 1000 * 2;
 
     private RecycleAdapter mListAdapter;
+    private StatusItem mStatusItem;
+    private PeersHeadingItem mPeersHeadingItem;
+
     private MySloganManager mMySloganManager;
     private CommunicatorProxy mCommunicatorProxy;
     private boolean mAuraEnabled;
@@ -75,8 +81,12 @@ public class MainActivity extends AppCompatActivity {
     private boolean mBrokenBtStackAlertVisible = false;
     private CommunicatorState mCommunicatorState;
     private Set<Peer> mPeers = new HashSet<>();
-    private StatusItem mStatusItem;
     private final Handler mHandler = new Handler();
+    /**
+     * slogan:PeerSlogan
+     */
+    TreeMap<String, PeerSlogan> mPeerSloganMap = new TreeMap<>();
+    private MySlogansHeadingItem mMySlogansHeadingItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +106,6 @@ public class MainActivity extends AppCompatActivity {
         mAuraEnabled = mPrefs.getBoolean(MainActivity.PREFS_ENABLED, true);
 
         final FloatingActionButton addSloganButton = findViewById(R.id.add_slogan);
-//        addSloganButton.setText(EmojiHelper.replaceShortCode(getString(R.string.ui_main_add_slogan)));
         addSloganButton.setOnClickListener(this::showAddDialog);
 
         mMySloganManager = new MySloganManager(
@@ -122,8 +131,8 @@ public class MainActivity extends AppCompatActivity {
                 this,
                 (Set<Peer> peers) -> {
                     mPeers = peers;
-                    mSloganGroupMap = PeerMapTransformer.buildMapFromPeerList(peers);
-                    mListAdapter.notifyPeerSloganListChanged(mSloganGroupMap);
+                    mPeerSloganMap = PeerMapTransformer.buildMapFromPeerList(peers);
+                    mListAdapter.notifyPeerSloganListChanged(mPeerSloganMap);
                     reflectStatus();
                 },
                 (Peer peer) -> {
@@ -134,8 +143,8 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                     mPeers.add(peer);
-                    mSloganGroupMap = PeerMapTransformer.buildMapFromPeerAndPreviousMap(peer, mSloganGroupMap);
-                    mListAdapter.notifyPeerSloganListChanged(mSloganGroupMap);
+                    mPeerSloganMap = PeerMapTransformer.buildMapFromPeerAndPreviousMap(peer, mPeerSloganMap);
+                    mListAdapter.notifyPeerSloganListChanged(mPeerSloganMap);
                     reflectStatus();
                 },
                 (CommunicatorState state) -> {
@@ -159,23 +168,19 @@ public class MainActivity extends AppCompatActivity {
      * As the user indicated a wish for an update, we briefly toast the current status.
      */
     void refresh() {
-        i(TAG, "Pretend");
+        i(TAG, "Showing swipe to refresh indicator to transport sense of immediacy");
         String text = mPeers.size() == 0
                 ? getString(R.string.ui_main_toast_refresh_no_peers)
-                : getResources().getQuantityString(R.plurals.ui_main_toast_refresh, mPeers.size());
+                : getResources().getQuantityString(R.plurals.ui_main_toast_refresh, mPeers.size(), mPeers.size());
 
-        Toast.makeText(this, text, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
         mHandler.postDelayed(() -> ((SwipeRefreshLayout) findViewById(R.id.swiperefresh)).setRefreshing(false), SWIPE_TO_REFRESH_DURATION);
     }
 
-    /**
-     * slogan:PeerSlogan
-     */
-    TreeMap<String, PeerSlogan> mSloganGroupMap = new TreeMap<>();
 
     private void showAddDialog(View $) {
         if (!mMySloganManager.spaceAvailable()) {
-            Toast.makeText(this, R.string.ui_main_toast_cannot_add_no_space_available, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, EmojiHelper.replaceShortCode(getString(R.string.ui_main_toast_cannot_add_no_space_available)), Toast.LENGTH_LONG).show();
             return;
         }
         showParametrizedSloganEditDialog(R.string.ui_dialog_add_slogan_title,
@@ -222,11 +227,10 @@ public class MainActivity extends AppCompatActivity {
                 .setNegativeButton(cancel, (DialogInterface $$, int $$$) -> {
                 })
                 .create();
-        alert.show();
-        // TODO keyboard seemingly doesn't work
         if (alert.getWindow() != null) {
             alert.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         }
+        alert.show();
         editText.requestFocus();
         editText.setFilters(new InputFilter[]{
                 new InputFilter.LengthFilter(160),
@@ -235,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void reflectStatus() {
-        v(TAG, "Reflecting status, peers: %d, slogans: %d, state: %s", mPeers.size(), mSloganGroupMap.size(), mCommunicatorState);
+        v(TAG, "Reflecting status, peers: %d, slogans: %d, state: %s", mPeers.size(), mPeerSloganMap.size(), mCommunicatorState);
         if (!mCommunicatorState.mHasPermission) {
             sendToPermissionMissingActivity();
             return;
@@ -243,8 +247,14 @@ public class MainActivity extends AppCompatActivity {
 
         mStatusItem.mState = mCommunicatorState;
         mStatusItem.mPeers = mPeers;
-        mStatusItem.mPeerSloganMap = mSloganGroupMap;
-        mListAdapter.notifyListItemChanged(mStatusItem);
+        mStatusItem.mPeerSloganMap = mPeerSloganMap;
+
+        mMySlogansHeadingItem.mMySlogansCount = mMySloganManager.getMySlogans().size();
+        mListAdapter.notifyListItemChanged(mMySlogansHeadingItem);
+
+        mPeersHeadingItem.mPeerCount = mPeers.size();
+        mPeersHeadingItem.mSloganCount = mPeerSloganMap.size();
+        mListAdapter.notifyListItemChanged(mPeersHeadingItem);
 
         if (mCommunicatorState.mRecentBtTurnOnEvents >= Communicator.RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD) {
             showBrokenBtStackAlert();
@@ -290,8 +300,14 @@ public class MainActivity extends AppCompatActivity {
 
         List<ListItem> builtinItems = new ArrayList<>();
 
-        mStatusItem = new StatusItem(mCommunicatorState, mPeers, mSloganGroupMap);
+        mStatusItem = new StatusItem(mCommunicatorState, mPeers, mPeerSloganMap);
         builtinItems.add(mStatusItem);
+
+        mMySlogansHeadingItem = new MySlogansHeadingItem(mMySloganManager.getMySlogans().size());
+        builtinItems.add(mMySlogansHeadingItem);
+
+        mPeersHeadingItem = new PeersHeadingItem(mPeers.size(), mPeerSloganMap.size());
+        builtinItems.add(mPeersHeadingItem);
 
         mListAdapter = new RecycleAdapter(this, builtinItems, listView);
 
