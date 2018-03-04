@@ -89,7 +89,7 @@ public class Communicator extends Service {
             actOnState(false);
         } else {
             // handleIntent implicitly calls actOnState()
-            handleIntent(intent);
+            mHandler.post(() -> handleIntent(intent));
         }
         return START_STICKY;
     }
@@ -153,7 +153,7 @@ public class Communicator extends Service {
             @Override
             public void onReceive(Context $, Intent intent) {
                 d(TAG, "onReceive, intent: %s", intent);
-                handleIntent(intent);
+                mHandler.post(() -> handleIntent(intent));
             }
         }, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
         d(TAG, "Started listening to %s events", BluetoothAdapter.ACTION_STATE_CHANGED);
@@ -445,7 +445,7 @@ public class Communicator extends Service {
             }
             boolean currentlyAdvertisingOnDifferentSlogans = mAdvertisementSet.mSlogansSet;
             mAdvertisementSet.setSlogans(mySlogans);
-            if (currentlyAdvertisingOnDifferentSlogans) {
+            if (currentlyAdvertisingOnDifferentSlogans && mState.mAdvertising) {
                 mAdvertiser.increaseVersion();
             }
             sendState();
