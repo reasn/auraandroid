@@ -254,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
         mMySlogansHeadingItem.mMySlogansCount = mMySloganManager.getMySlogans().size();
         mListAdapter.notifyListItemChanged(mMySlogansHeadingItem);
 
-        mPeersHeadingItem.mPeerCount = mPeers.size();
+        mPeersHeadingItem.mPeers = mPeers;
         mPeersHeadingItem.mSloganCount = mPeerSloganMap.size();
         mListAdapter.notifyListItemChanged(mPeersHeadingItem);
 
@@ -308,7 +308,7 @@ public class MainActivity extends AppCompatActivity {
         mMySlogansHeadingItem = new MySlogansHeadingItem(mMySloganManager.getMySlogans().size());
         builtinItems.add(mMySlogansHeadingItem);
 
-        mPeersHeadingItem = new PeersHeadingItem(mPeers.size(), mPeerSloganMap.size());
+        mPeersHeadingItem = new PeersHeadingItem(mPeers, mPeerSloganMap.size());
         builtinItems.add(mPeersHeadingItem);
 
         mListAdapter = new RecycleAdapter(this, builtinItems, listView);

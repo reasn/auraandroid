@@ -55,11 +55,6 @@
         <item quantity="one">One :silhouette_head: nearby.</item>
         <item quantity="other">%d :silhouette_head: nearby.</item>
     </plurals>
-    <plurals name="ui_main_status_summary_peers_fetching">
-        <item quantity="zero">Updating...</item>
-        <item quantity="one">One :silhouette_head: nearby. Updating...</item>
-        <item quantity="other">%d :silhouette_head: nearby. Updating...</item>
-    </plurals>
     <string name="ui_main_status_summary_peers_no_peers_text">
         TODO bla bla nobody around, download aura, restart BT
     </string>

@@ -2,14 +2,17 @@ package io.auraapp.auraandroid.main.list.item;
 
 import android.content.Context;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.EmojiHelper;
+import io.auraapp.auraandroid.common.Peer;
 
 public class PeersHeadingHolder extends ItemViewHolder {
 
     private final TextView mHeadingTextView;
+    private final ProgressBar mProgressBar;
     private Context mContext;
     private TextView mInfoTextView;
 
@@ -17,6 +20,7 @@ public class PeersHeadingHolder extends ItemViewHolder {
         super(itemView);
         mContext = context;
         mHeadingTextView = itemView.findViewById(R.id.heading);
+        mProgressBar = itemView.findViewById(R.id.progressBar);
         mInfoTextView = itemView.findViewById(R.id.info);
     }
 
@@ -28,7 +32,7 @@ public class PeersHeadingHolder extends ItemViewHolder {
         PeersHeadingItem castItem = ((PeersHeadingItem) item);
         String heading;
         String info = null;
-        if (castItem.mPeerCount == 0) {
+        if (castItem.mPeers.size() == 0) {
             heading = mContext.getString(R.string.ui_main_peers_heading_no_peers);
             info = mContext.getString(R.string.ui_main_peers_heading_no_peers_text);
         } else {
@@ -37,6 +41,20 @@ public class PeersHeadingHolder extends ItemViewHolder {
                 info = mContext.getString(R.string.ui_main_peers_heading_no_slogans_text);
             }
         }
+
+        long now = System.currentTimeMillis();
+        boolean fetching = false;
+        for (Peer peer : castItem.mPeers) {
+            if (peer.mNextFetch <= now) {
+                fetching = true;
+                break;
+            }
+        }
+        mProgressBar.setVisibility(
+                fetching
+                        ? View.VISIBLE
+                        : View.GONE
+        );
 
         mHeadingTextView.setText(EmojiHelper.replaceShortCode(heading));
         if (info != null) {

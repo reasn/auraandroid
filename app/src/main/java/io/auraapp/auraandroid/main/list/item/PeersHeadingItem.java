@@ -1,13 +1,17 @@
 package io.auraapp.auraandroid.main.list.item;
 
+import java.util.Set;
+
+import io.auraapp.auraandroid.common.Peer;
+
 public class PeersHeadingItem extends ListItem {
 
-    public int mPeerCount;
+    public Set<Peer> mPeers;
     public int mSloganCount;
 
-    public PeersHeadingItem(int peerCount, int sloganCount) {
+    public PeersHeadingItem(Set<Peer> peers, int sloganCount) {
         super("peers-heading");
-        mPeerCount = peerCount;
+        mPeers = peers;
         mSloganCount = sloganCount;
     }
 

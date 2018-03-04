@@ -2,6 +2,7 @@ package io.auraapp.auraandroid.main.list.item;
 
 import android.content.Context;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.Set;
@@ -24,6 +25,7 @@ public class StatusHolder extends ItemViewHolder {
     private final TextView mHeadingTextView;
     private final Context mContext;
     private final boolean mExpanded;
+    private final LinearLayout mInfoWrapper;
     private TextView mInfoTextView;
 
     public StatusHolder(boolean expanded, Context context, View itemView, RecycleAdapter.CollapseExpandHandler collapseExpandHandler) {
@@ -31,8 +33,9 @@ public class StatusHolder extends ItemViewHolder {
         mExpanded = expanded;
         mContext = context;
         mSummaryTextView = itemView.findViewById(R.id.status_summary);
+        mInfoWrapper = itemView.findViewById(R.id.status_info_wrapper);
         mHeadingTextView = itemView.findViewById(R.id.status_heading);
-        mInfoTextView = itemView.findViewById(R.id.communicator_state_info);
+        mInfoTextView = itemView.findViewById(R.id.status_info);
         itemView.setOnClickListener($ -> collapseExpandHandler.flip(getLastBoundItem()));
     }
 
@@ -67,8 +70,7 @@ public class StatusHolder extends ItemViewHolder {
         if (communicatorInfo == null && peersInfo == null) {
             mSummaryTextView.setText(EmojiHelper.replaceShortCode(communicatorSummary + " " + peersSummary));
             mSummaryTextView.setVisibility(View.VISIBLE);
-            mInfoTextView.setVisibility(View.GONE);
-            mHeadingTextView.setVisibility(View.GONE);
+            mInfoWrapper.setVisibility(View.GONE);
             return;
         }
 
@@ -82,8 +84,7 @@ public class StatusHolder extends ItemViewHolder {
         ));
 
         mSummaryTextView.setVisibility(View.GONE);
-        mHeadingTextView.setVisibility(View.VISIBLE);
-        mInfoTextView.setVisibility(View.VISIBLE);
+        mInfoWrapper.setVisibility(View.VISIBLE);
     }
 
     private String[] buildCommunicatorState(CommunicatorState state) {
@@ -134,18 +135,7 @@ public class StatusHolder extends ItemViewHolder {
                 nearbyPeers++;
             }
         }
-        boolean fetching = false;
-        for (Peer peer : peers) {
-            if (peer.mNextFetch <= now) {
-                fetching = true;
-            }
-        }
-        String summary = mContext.getResources().getQuantityString(
-                fetching
-                        ? R.plurals.ui_main_status_summary_peers_fetching
-                        : R.plurals.ui_main_status_summary_peers,
-                nearbyPeers,
-                nearbyPeers);
+        String summary = mContext.getResources().getQuantityString(R.plurals.ui_main_status_summary_peers, nearbyPeers, nearbyPeers);
 
         String info = peers.size() == 0
                 ? mContext.getString(R.string.ui_main_status_summary_peers_no_peers_text)
