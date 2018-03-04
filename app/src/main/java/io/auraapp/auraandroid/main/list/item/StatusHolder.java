@@ -20,15 +20,19 @@ import static io.auraapp.auraandroid.common.FormattedLog.w;
 public class StatusHolder extends ItemViewHolder {
 
     private static final String TAG = "aura/main/list/item/" + StatusHolder.class.getSimpleName();
-    private final TextView mExplanationTextView;
+    private final TextView mSummaryTextView;
+    private final TextView mHeadingTextView;
     private final Context mContext;
     private final boolean mExpanded;
+    private TextView mInfoTextView;
 
     public StatusHolder(boolean expanded, Context context, View itemView, RecycleAdapter.CollapseExpandHandler collapseExpandHandler) {
         super(itemView);
         mExpanded = expanded;
         mContext = context;
-        mExplanationTextView = itemView.findViewById(R.id.communicator_state_explanation);
+        mSummaryTextView = itemView.findViewById(R.id.status_summary);
+        mHeadingTextView = itemView.findViewById(R.id.status_heading);
+        mInfoTextView = itemView.findViewById(R.id.communicator_state_info);
         itemView.setOnClickListener($ -> collapseExpandHandler.flip(getLastBoundItem()));
     }
 
@@ -51,68 +55,109 @@ public class StatusHolder extends ItemViewHolder {
     }
 
     private void bindCollapsed(CommunicatorState communicatorState, TreeMap<String, PeerSlogan> peerSloganMap, Set<Peer> peers) {
-        mExplanationTextView.setText(EmojiHelper.replaceShortCode(
-                buildCommunicatorState(communicatorState) + " " + buildPeerOverview(peerSloganMap, peers)
+
+        String[] communicatorResult = buildCommunicatorState(communicatorState);
+        String communicatorSummary = communicatorResult[0];
+        String communicatorInfo = communicatorResult[1];
+
+        String[] peersResult = buildPeerOverview(peerSloganMap, peers);
+        String peersSummary = peersResult[0];
+        String peersInfo = peersResult[1];
+
+        if (communicatorInfo == null && peersInfo == null) {
+            mSummaryTextView.setText(EmojiHelper.replaceShortCode(communicatorSummary + " " + peersSummary));
+            mSummaryTextView.setVisibility(View.VISIBLE);
+            mInfoTextView.setVisibility(View.GONE);
+            mHeadingTextView.setVisibility(View.GONE);
+            return;
+        }
+
+        mHeadingTextView.setText(EmojiHelper.replaceShortCode(communicatorSummary));
+
+        // communicatorState is more important than peersInfo because impacting proper operation of the app
+        mInfoTextView.setText(EmojiHelper.replaceShortCode(
+                communicatorInfo != null
+                        ? communicatorInfo
+                        : peersInfo
         ));
+
+        mSummaryTextView.setVisibility(View.GONE);
+        mHeadingTextView.setVisibility(View.VISIBLE);
+        mInfoTextView.setVisibility(View.VISIBLE);
     }
 
-    private String buildCommunicatorState(CommunicatorState state) {
-        String text;
+    private String[] buildCommunicatorState(CommunicatorState state) {
+        String summary;
+        String info = null;
         // The order of conditions should be synchronized with that in Communicator::updateForegroundNotification
         if (state.mBluetoothRestartRequired) {
-            text = mContext.getString(R.string.ui_main_status_headline_communicator_bt_restart_required);
+            summary = mContext.getString(R.string.ui_main_status_summary_communicator_bt_restart_required);
+            info = mContext.getString(R.string.ui_main_status_info_communicator_bt_restart_required);
 
         } else if (state.mBtTurningOn) {
-            text = mContext.getString(R.string.ui_main_status_headline_communicator_bt_turning_on);
+            summary = mContext.getString(R.string.ui_main_status_summary_communicator_bt_turning_on);
 
         } else if (!state.mBtEnabled) {
-            text = mContext.getString(R.string.ui_main_status_headline_communicator_bt_disabled);
+            summary = mContext.getString(R.string.ui_main_status_summary_communicator_bt_disabled);
+            info = mContext.getString(R.string.ui_main_status_info_communicator_bt_disabled);
 
         } else if (!state.mBleSupported) {
-            text = mContext.getString(R.string.ui_main_status_headline_communicator_ble_not_supported);
+            summary = mContext.getString(R.string.ui_main_status_summary_communicator_ble_not_supported);
+            info = mContext.getString(R.string.ui_main_status_info_communicator_ble_not_supported);
 
         } else if (!state.mShouldCommunicate) {
-            text = mContext.getString(R.string.ui_main_status_headline_communicator_disabled);
+            summary = mContext.getString(R.string.ui_main_status_summary_communicator_disabled);
+            info = mContext.getString(R.string.ui_main_status_info_communicator_disabled);
 
         } else {
             if (!state.mAdvertisingSupported) {
-                text = mContext.getString(R.string.ui_main_status_headline_communicator_advertising_not_supported);
+                summary = mContext.getString(R.string.ui_main_status_summary_communicator_advertising_not_supported);
+                info = mContext.getString(R.string.ui_main_status_info_communicator_advertising_not_supported);
             } else if (!state.mAdvertising) {
                 w(TAG, "Not advertising although it is possible.");
-                text = mContext.getString(R.string.ui_main_status_headline_communicator_on_not_active);
+                summary = mContext.getString(R.string.ui_main_status_summary_communicator_on_not_active);
             } else if (!state.mScanning) {
                 w(TAG, "Not scanning although it is possible.");
-                text = mContext.getString(R.string.ui_main_status_headline_communicator_on_not_active);
+                summary = mContext.getString(R.string.ui_main_status_summary_communicator_on_not_active);
             } else {
-                text = mContext.getString(R.string.ui_main_status_headline_communicator_on);
+                summary = mContext.getString(R.string.ui_main_status_summary_communicator_on);
             }
         }
-        return text;
+        return new String[]{summary, info};
     }
 
-    private String buildPeerOverview(TreeMap<String, PeerSlogan> peerSloganMap, Set<Peer> peers) {
+    private String[] buildPeerOverview(TreeMap<String, PeerSlogan> peerSloganMap, Set<Peer> peers) {
+        int nearbyPeers = 0;
+        long now = System.currentTimeMillis();
+        for (Peer peer : peers) {
+            if (now - peer.mLastSeenTimestamp < 30000) {
+                nearbyPeers++;
+            }
+        }
+        boolean fetching = false;
+        for (Peer peer : peers) {
+            if (peer.mNextFetch <= now) {
+                fetching = true;
+            }
+        }
+        String summary = mContext.getResources().getQuantityString(
+                fetching
+                        ? R.plurals.ui_main_status_summary_peers_fetching
+                        : R.plurals.ui_main_status_summary_peers,
+                nearbyPeers,
+                nearbyPeers);
 
-//        int nearbyPeers = 0;
-//        long now = System.currentTimeMillis();
-//        for (Peer peer : peers) {
-//            if (now - peer.mLastSeenTimestamp < 30000) {
-//                nearbyPeers++;
-//            }
-//        }
-        return mContext.getString(R.string.ui_main_status_headline_communicator_peers)
-                .replace("##slogans##", peerSloganMap.size() + "")
-                .replace("##peers##", peers.size() + "");
-//        long timeToNextFetch = Integer.MAX_VALUE;
-//        long now = System.currentTimeMillis();
-//        for (Peer peer : peers) {
-//            timeToNextFetch = Math.min(timeToNextFetch, Math.round((peer.mNextFetch - now) / 1000));
-//        }
+        String info = peers.size() == 0
+                ? mContext.getString(R.string.ui_main_status_summary_peers_no_peers_text)
+                : null;
+
+        return new String[]{summary, info};
     }
 
     // TODO should fill list view
     private void bindExpanded(CommunicatorState state, TreeMap<String, PeerSlogan> peerSloganMap, Set<Peer> peers) {
 
-        String peersText = mContext.getString(R.string.ui_main_status_headline_communicator_on).replaceAll("##slogans##", Integer.toString(peerSloganMap.size()));
+        String peersText = mContext.getString(R.string.ui_main_status_summary_communicator_on).replaceAll("##slogans##", Integer.toString(peerSloganMap.size()));
 
         StringBuilder peerString = new StringBuilder();
         long now = System.currentTimeMillis();
@@ -129,7 +174,7 @@ public class StatusHolder extends ItemViewHolder {
                     .append(": ");
 
             int timeToNextFetch = Math.round((peer.mNextFetch - now) / 1000);
-            if (timeToNextFetch < 0) {
+            if (timeToNextFetch < 1) {
                 peerString.append("fetching");
             } else {
                 peerString.append(timeToNextFetch)
@@ -140,6 +185,6 @@ public class StatusHolder extends ItemViewHolder {
 
         peersText += "\n" + peerString;
 
-        mExplanationTextView.setText(EmojiHelper.replaceShortCode(peersText));
+        mSummaryTextView.setText(EmojiHelper.replaceShortCode(peersText));
     }
 }

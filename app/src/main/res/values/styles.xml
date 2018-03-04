@@ -9,7 +9,6 @@
     </style>
 
     <style name="Toolbar">
-
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">?attr/actionBarSize</item>
         <item name="android:background">?attr/colorPrimary</item>
@@ -25,6 +24,25 @@
         <item name="android:paddingRight">5dp</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="StatusItemSummary">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="HeadingItem">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:textSize">20sp</item>
+
+        <item name="android:background">@color/colorPrimaryDark</item>
+        <item name="android:padding">6dip</item>
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
 </resources>

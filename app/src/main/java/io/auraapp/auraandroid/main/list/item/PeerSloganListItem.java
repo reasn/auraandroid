@@ -14,7 +14,7 @@ public class PeerSloganListItem extends ListItem {
     private final Set<Peer> mPeers;
 
     public PeerSloganListItem(@NonNull Slogan slogan, @NonNull Set<Peer> peers) {
-        super(slogan.getText());
+        super("peer-slogan-" + slogan.getText());
         mSlogan = slogan;
         mPeers = peers;
     }

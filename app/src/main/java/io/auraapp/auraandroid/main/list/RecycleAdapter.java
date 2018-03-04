@@ -157,17 +157,11 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         switch (viewType) {
             case TYPE_STATUS_COLLAPSED:
-                return new StatusHolder(
-                        false,
-                        mContext,
-                        mInflater.inflate(R.layout.list_item_status_collapsed, parent, false),
-                        collapseExpandHandler);
-
             case TYPE_STATUS_EXPANDED:
                 return new StatusHolder(
-                        true,
+                        viewType != TYPE_STATUS_COLLAPSED,
                         mContext,
-                        mInflater.inflate(R.layout.list_item_status_expanded, parent, false),
+                        mInflater.inflate(R.layout.list_item_status, parent, false),
                         collapseExpandHandler);
 
             case TYPE_MY_SLOGANS_HEADING:
@@ -207,11 +201,8 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
         holder.setItem(mItems.get(position));
 
-        if (holder instanceof StatusHolder) {
-            // Do nothing, StatusHolder takes care of coloring itself
-
-        } else if ((holder instanceof MyCollapsedHolder || holder instanceof MyExpandedHolder)) {
-            if (position % 2 == 1) {
+        if ((holder instanceof MyCollapsedHolder || holder instanceof MyExpandedHolder)) {
+            if (position % 2 == 0) {
                 holder.itemView.setBackgroundColor(Color.parseColor("#ececec"));
             } else {
                 holder.itemView.setBackgroundColor(Color.parseColor("#ffffff"));

@@ -14,6 +14,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -248,6 +249,7 @@ public class MainActivity extends AppCompatActivity {
         mStatusItem.mState = mCommunicatorState;
         mStatusItem.mPeers = mPeers;
         mStatusItem.mPeerSloganMap = mPeerSloganMap;
+        mListAdapter.notifyListItemChanged(mStatusItem);
 
         mMySlogansHeadingItem.mMySlogansCount = mMySloganManager.getMySlogans().size();
         mListAdapter.notifyListItemChanged(mMySlogansHeadingItem);
@@ -312,8 +314,10 @@ public class MainActivity extends AppCompatActivity {
         mListAdapter = new RecycleAdapter(this, builtinItems, listView);
 
         listView.setAdapter(mListAdapter);
-
         listView.setLayoutManager(new LinearLayoutManager(this));
+
+        // With change animations enabled mStatusItem keeps flashing because updates come in
+        ((SimpleItemAnimator) listView.getItemAnimator()).setSupportsChangeAnimations(false);
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeCallback(
                 this,

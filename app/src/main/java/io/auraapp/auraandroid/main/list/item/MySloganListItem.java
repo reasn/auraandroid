@@ -9,7 +9,7 @@ public class MySloganListItem extends ListItem {
     private final Slogan mSlogan;
 
     public MySloganListItem(@NonNull Slogan slogan) {
-        super(slogan.getText());
+        super("my-slogan-" + slogan.getText());
         mSlogan = slogan;
     }
 

@@ -36,6 +36,5 @@ public class MySlogansHeadingHolder extends ItemViewHolder {
             mInfoTextView.setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_main_my_slogans_heading_no_slogans_text)));
             mInfoTextView.setVisibility(View.VISIBLE);
         }
-
     }
 }

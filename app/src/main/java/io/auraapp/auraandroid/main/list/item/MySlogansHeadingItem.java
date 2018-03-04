@@ -5,7 +5,7 @@ public class MySlogansHeadingItem extends ListItem {
     public int mMySlogansCount;
 
     public MySlogansHeadingItem(int mySlogansCount) {
-        super("my-slogans--heading");
+        super("my-slogans-heading");
         mMySlogansCount = mySlogansCount;
     }
 
