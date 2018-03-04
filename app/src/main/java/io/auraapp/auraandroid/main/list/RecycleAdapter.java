@@ -131,7 +131,6 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         notifyItemChanged(mItems.indexOf(item));
     }
 
-
     /**
      * Ensures that the lastFetch information is properly reflected in items
      */
