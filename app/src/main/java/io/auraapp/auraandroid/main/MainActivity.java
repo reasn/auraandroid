@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
     private CommunicatorState mCommunicatorState;
     private Set<Peer> mPeers = new HashSet<>();
     private final Handler mHandler = new Handler();
+    private boolean mDialogOpen = false;
     /**
      * slogan:PeerSlogan
      */
@@ -211,6 +212,11 @@ public class MainActivity extends AppCompatActivity {
                                                   @StringRes int cancel,
                                                   @Nullable Slogan slogan,
                                                   OnSloganEditConfirm onConfirm) {
+        if (mDialogOpen) {
+            return;
+        }
+        mDialogOpen = true;
+
         @SuppressLint("InflateParams")
         View dialogView = MainActivity.this.getLayoutInflater().inflate(R.layout.dialog_edit_slogan, null);
 
@@ -227,6 +233,7 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton(confirm, (DialogInterface $$, int $$$) -> onConfirm.onConfirm(editText.getText().toString()))
                 .setNegativeButton(cancel, (DialogInterface $$, int $$$) -> {
                 })
+                .setOnDismissListener($ -> mDialogOpen = false)
                 .create();
         if (alert.getWindow() != null) {
             alert.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
@@ -265,12 +272,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void showBrokenBtStackAlert() {
         if (!inForeground
-                || mBrokenBtStackAlertVisible
+                || mDialogOpen
                 || System.currentTimeMillis() - mBrokenBtStackLastVisibleTimestamp > BROKEN_BT_STACK_ALERT_DEBOUNCE
                 || mPrefs.getBoolean(MainActivity.PREFS_HIDE_BROKEN_BT_STACK_WARNING, false)) {
             return;
         }
-        mBrokenBtStackAlertVisible = true;
+        mDialogOpen = true;
 
         @SuppressLint("InflateParams")
         View dialogView = MainActivity.this.getLayoutInflater().inflate(R.layout.dialog_bt_stack_broken, null);
@@ -284,12 +291,10 @@ public class MainActivity extends AppCompatActivity {
                     if (checkBox.isChecked()) {
                         mPrefs.edit().putBoolean(MainActivity.PREFS_HIDE_BROKEN_BT_STACK_WARNING, true).apply();
                     }
-                    mBrokenBtStackAlertVisible = false;
-                    mBrokenBtStackLastVisibleTimestamp = System.currentTimeMillis();
                 })
                 .setOnDismissListener((DialogInterface $) -> {
-                    mBrokenBtStackAlertVisible = false;
                     mBrokenBtStackLastVisibleTimestamp = System.currentTimeMillis();
+                    mDialogOpen = false;
                 })
                 .create()
                 .show();
@@ -341,6 +346,10 @@ public class MainActivity extends AppCompatActivity {
                             break;
 
                         case SwipeCallback.ACTION_DROP:
+                            if (mDialogOpen) {
+                                break;
+                            }
+                            mDialogOpen = true;
                             new AlertDialog.Builder(MainActivity.this)
                                     .setTitle(R.string.ui_drop_dialog_title)
                                     .setIcon(R.mipmap.ic_launcher)
@@ -350,6 +359,7 @@ public class MainActivity extends AppCompatActivity {
                                     })
                                     .setNegativeButton(R.string.ui_drop_dialog_cancel, (DialogInterface $, int $$) -> {
                                     })
+                                    .setOnDismissListener($ -> mDialogOpen = false)
                                     .create()
                                     .show();
                             break;
@@ -359,6 +369,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showReplaceDialog(Slogan newSlogan) {
+        if (mDialogOpen) {
+            return;
+        }
+        mDialogOpen = true;
         @SuppressLint("InflateParams")
         View dialogView = MainActivity.this.getLayoutInflater().inflate(R.layout.dialog_replace_slogan, null);
 
@@ -389,6 +403,7 @@ public class MainActivity extends AppCompatActivity {
                 )
                 .setNegativeButton(R.string.ui_replace_dialog_cancel, (DialogInterface $$, int $$$) -> {
                 })
+                .setOnDismissListener($ -> mDialogOpen = false)
                 .create();
 
         alert.show();
