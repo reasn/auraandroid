@@ -248,6 +248,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void reflectStatus() {
         v(TAG, "Reflecting status, peers: %d, slogans: %d, state: %s", mPeers.size(), mPeerSloganMap.size(), mCommunicatorState);
+        if (mCommunicatorState == null) {
+            return;
+        }
         if (!mCommunicatorState.mHasPermission) {
             sendToPermissionMissingActivity();
             return;

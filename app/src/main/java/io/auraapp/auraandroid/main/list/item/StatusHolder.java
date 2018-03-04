@@ -1,8 +1,14 @@
 package io.auraapp.auraandroid.main.list.item;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.Set;
@@ -20,13 +26,56 @@ import static io.auraapp.auraandroid.common.FormattedLog.w;
 
 public class StatusHolder extends ItemViewHolder {
 
+    class PeerArrayAdapter extends ArrayAdapter<Peer> {
+        public PeerArrayAdapter(@NonNull Context context, int resource, @NonNull Peer[] peers) {
+            super(context, resource, peers);
+        }
+
+        @NonNull
+        @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            Peer peer = getItem(position);
+            if (peer == null) {
+                throw new RuntimeException("Peer must not be null");
+            }
+            long now = System.currentTimeMillis();
+            // Check if an existing view is being reused, otherwise inflate the view
+            if (convertView == null) {
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.status_list_item, parent, false);
+            }
+            TextView emojiTextView = convertView.findViewById(R.id.emoji);
+            TextView detailsTextView = convertView.findViewById(R.id.details);
+
+            emojiTextView.setText(
+                    CuteHasher.hash(peer.mId));
+
+            String text = "";
+
+            int timeToNextFetch = Math.round((peer.mNextFetch - now) / 1000);
+            if (timeToNextFetch < 1) {
+                text += "fetching";
+            } else {
+                text += "next sync: " + timeToNextFetch + "s";
+            }
+            text += ", retrievals: " + peer.mSuccessfulRetrievals;
+            text += ", last seen: " + Math.round((now - peer.mLastSeenTimestamp) / 1000) + "s ago";
+// TODO implemente
+            //            text += ", errors: " + peer.mErrors;
+
+            detailsTextView.setText(text);
+
+            return convertView;
+        }
+    }
+
     private static final String TAG = "aura/main/list/item/" + StatusHolder.class.getSimpleName();
     private final TextView mSummaryTextView;
     private final TextView mHeadingTextView;
     private final Context mContext;
     private final boolean mExpanded;
     private final LinearLayout mInfoWrapper;
-    private TextView mInfoTextView;
+    private final TextView mInfoTextView;
+    private final ListView mPeersListView;
 
     public StatusHolder(boolean expanded, Context context, View itemView, RecycleAdapter.CollapseExpandHandler collapseExpandHandler) {
         super(itemView);
@@ -36,6 +85,7 @@ public class StatusHolder extends ItemViewHolder {
         mInfoWrapper = itemView.findViewById(R.id.status_info_wrapper);
         mHeadingTextView = itemView.findViewById(R.id.status_heading);
         mInfoTextView = itemView.findViewById(R.id.status_info);
+        mPeersListView = itemView.findViewById(R.id.peers_list);
         itemView.setOnClickListener($ -> collapseExpandHandler.flip(getLastBoundItem()));
     }
 
@@ -50,14 +100,16 @@ public class StatusHolder extends ItemViewHolder {
         if (peerSloganMap == null || peers == null || communicatorState == null) {
             return;
         }
+        bindBasics(communicatorState, peerSloganMap, peers);
         if (mExpanded) {
-            bindExpanded(communicatorState, peerSloganMap, peers);
+            bindPeerList(communicatorState, peerSloganMap, peers);
+            mPeersListView.setVisibility(View.VISIBLE);
         } else {
-            bindCollapsed(communicatorState, peerSloganMap, peers);
+            mPeersListView.setVisibility(View.GONE);
         }
     }
 
-    private void bindCollapsed(CommunicatorState communicatorState, TreeMap<String, PeerSlogan> peerSloganMap, Set<Peer> peers) {
+    private void bindBasics(CommunicatorState communicatorState, TreeMap<String, PeerSlogan> peerSloganMap, Set<Peer> peers) {
 
         String[] communicatorResult = buildCommunicatorState(communicatorState);
         String communicatorSummary = communicatorResult[0];
@@ -144,37 +196,14 @@ public class StatusHolder extends ItemViewHolder {
         return new String[]{summary, info};
     }
 
-    // TODO should fill list view
-    private void bindExpanded(CommunicatorState state, TreeMap<String, PeerSlogan> peerSloganMap, Set<Peer> peers) {
+    private void bindPeerList(CommunicatorState state, TreeMap<String, PeerSlogan> peerSloganMap, Set<Peer> peers) {
 
-        String peersText = mContext.getString(R.string.ui_main_status_summary_communicator_on).replaceAll("##slogans##", Integer.toString(peerSloganMap.size()));
-
-        StringBuilder peerString = new StringBuilder();
-        long now = System.currentTimeMillis();
-        peerString.append("\nMe: ")
-                .append(CuteHasher.hash(state.mId + ""))
-                .append(" (")
-                .append(((int) state.mVersion))
-                .append(")\n");
-        for (Peer peer : peers) {
-            if (peerString.length() > 0) {
-                peerString.append(", ");
-            }
-            peerString.append(CuteHasher.hash(peer.mId))
-                    .append(": ");
-
-            int timeToNextFetch = Math.round((peer.mNextFetch - now) / 1000);
-            if (timeToNextFetch < 1) {
-                peerString.append("fetching");
-            } else {
-                peerString.append(timeToNextFetch)
-                        .append("s");
-
-            }
-        }
-
-        peersText += "\n" + peerString;
-
-        mSummaryTextView.setText(EmojiHelper.replaceShortCode(peersText));
+        // TODO don't recreate everything, cache? maybe not #onlyfordebugging
+        mPeersListView.setAdapter(new PeerArrayAdapter(
+                mContext,
+                android.R.layout.simple_list_item_1,
+                peers.toArray(new Peer[peers.size()])
+        ));
     }
+
 }
