@@ -177,6 +177,10 @@ class Scanner {
                 if (device.bt.service == null && !device.isDiscoveringServices) {
                     device.isDiscoveringServices = true;
                     i(TAG, "Connected to %s, discovering services", id);
+                    if (device.bt.gatt == null) {
+                        device.stats.mErrors++;
+                        device.shouldDisconnect = true;
+                    }
                     device.bt.gatt.discoverServices();
                     continue;
                 }
