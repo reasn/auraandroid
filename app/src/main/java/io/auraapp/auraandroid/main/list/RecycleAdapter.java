@@ -35,6 +35,7 @@ import io.auraapp.auraandroid.main.list.item.StatusHolder;
 import io.auraapp.auraandroid.main.list.item.StatusItem;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
+import static io.auraapp.auraandroid.common.FormattedLog.v;
 
 public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 
@@ -128,7 +129,9 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     }
 
     public void notifyListItemChanged(ListItem item) {
-        notifyItemChanged(mItems.indexOf(item));
+        int index = mItems.indexOf(item);
+        v(TAG, "notifyListItemChanged at %d, item: %s", index, item);
+        notifyItemChanged(index);
     }
 
     /**

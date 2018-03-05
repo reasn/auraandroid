@@ -227,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
 
         AlertDialog alert = new AlertDialog.Builder(MainActivity.this)
                 .setTitle(title)
-                .setIcon(R.mipmap.ic_launcher)
+                .setIcon(R.mipmap.ic_memo)
                 .setMessage(message)
                 .setView(dialogView)
                 .setPositiveButton(confirm, (DialogInterface $$, int $$$) -> onConfirm.onConfirm(editText.getText().toString()))
@@ -329,7 +329,8 @@ public class MainActivity extends AppCompatActivity {
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeCallback(
                 this,
-                mListAdapter::notifyListItemChanged,
+                // The UI updated is delayed to give the dialog time to pop up in front of the resetting item
+                () -> mHandler.postDelayed(mListAdapter::notifyDataSetChanged, 200),
                 (Slogan slogan, int action) -> {
 
                     switch (action) {
@@ -355,7 +356,7 @@ public class MainActivity extends AppCompatActivity {
                             mDialogOpen = true;
                             new AlertDialog.Builder(MainActivity.this)
                                     .setTitle(R.string.ui_drop_dialog_title)
-                                    .setIcon(R.mipmap.ic_launcher)
+                                    .setIcon(R.mipmap.ic_wastebasket)
                                     .setMessage(R.string.ui_drop_dialog_message)
                                     .setPositiveButton(R.string.ui_drop_dialog_confirm, (DialogInterface $, int $$) -> {
                                         mMySloganManager.dropSlogan(slogan);
