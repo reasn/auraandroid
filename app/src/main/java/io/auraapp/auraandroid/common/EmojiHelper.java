@@ -13,6 +13,8 @@ public class EmojiHelper {
                 .replaceAll(":sleeping_sign:", "💤")
                 .replaceAll(":broken_heart:", "💔")
                 .replaceAll(":silhouette_head:", "👤")
+                .replaceAll(":memo:", "📝")
+                .replaceAll(":wastebasket:", "🗑")
                 .replaceAll(":ghost:", "👻")
                 .replaceAll(":heavy_plus_sign:", "➕");
     }

@@ -116,17 +116,21 @@ public class MainActivity extends AppCompatActivity {
                     d(TAG, "My slogans changed");
                     mListAdapter.notifyMySlogansChanged(mMySloganManager.getMySlogans());
                     mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
+                    int text;
                     switch (event) {
                         case MySloganManager.EVENT_ADOPTED:
-                            Toast.makeText(this, R.string.ui_main_toast_adopted, Toast.LENGTH_SHORT).show();
+                            text = R.string.ui_main_toast_adopted;
                             break;
                         case MySloganManager.EVENT_REPLACED:
-                            Toast.makeText(this, R.string.ui_main_toast_replaced, Toast.LENGTH_SHORT).show();
+                            text = R.string.ui_main_toast_replaced;
                             break;
                         case MySloganManager.EVENT_DROPPED:
-                            Toast.makeText(this, R.string.ui_main_toast_dropped, Toast.LENGTH_SHORT).show();
+                            text = R.string.ui_main_toast_dropped;
                             break;
+                        default:
+                            throw new RuntimeException("Unknown slogan event " + event);
                     }
+                    Toast.makeText(this, EmojiHelper.replaceShortCode(getString(text)), Toast.LENGTH_SHORT).show();
                 }
         );
         mCommunicatorProxy = new CommunicatorProxy(
@@ -399,7 +403,7 @@ public class MainActivity extends AppCompatActivity {
 
         AlertDialog alert = new AlertDialog.Builder(MainActivity.this)
                 .setTitle(R.string.ui_replace_dialog_title)
-                .setIcon(R.mipmap.ic_launcher)
+                .setIcon(R.mipmap.ic_fire)
                 .setMessage(getString(R.string.ui_replace_dialog_message).replaceAll("##maxSlogans##", Integer.toString(MySloganManager.MAX_SLOGANS)))
                 .setView(dialogView)
                 .setPositiveButton(R.string.ui_replace_dialog_confirm,

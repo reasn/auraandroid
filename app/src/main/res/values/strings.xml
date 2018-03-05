@@ -19,9 +19,9 @@
     <string name="ui_main_add_slogan">:heavy_plus_sign: Add my own thought</string>
     <string name="ui_main_toast_slogan_already_adopted">This thought is already in your Aura</string>
     <string name="ui_main_toast_cannot_add_no_space_available">Please delete on of your :thought_balloon: before adding a new one</string>
-    <string name="ui_main_toast_adopted">Thought adopted</string>
-    <string name="ui_main_toast_replaced">Thought changed</string>
-    <string name="ui_main_toast_dropped">Thought removed</string>
+    <string name="ui_main_toast_adopted">:fire: Thought adopted</string>
+    <string name="ui_main_toast_replaced">:memo: Thought changed</string>
+    <string name="ui_main_toast_dropped">:wastebasket: Thought removed</string>
 
     <string name="ui_main_toast_refresh_no_peers">No Aura users nearby to refresh</string>
     <plurals name="ui_main_toast_refresh">
