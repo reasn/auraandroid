@@ -3,6 +3,8 @@
 
     <string name="default_slogan">:ghost: I just installed Aura. Let\'s see what to make of it. :fire:</string>
 
+    <string name="ui_main_share_text">Hey check out my app at: https://www.auraapp.io</string>
+
     <!--Toolbar-->
     <string name="ui_toolbar_enable_on">On</string>
     <string name="ui_toolbar_enable_off">Off</string>
@@ -29,34 +31,34 @@
         <item quantity="other">Refreshing %d peers</item>
     </plurals>
 
-    <string name="ui_main_status_summary_communicator_bt_restart_required">:warning: Bluetooth crashed.</string>
-    <string name="ui_main_status_info_communicator_bt_restart_required">TODO blabla</string>
+    <string name="ui_main_status_communicator_bt_restart_required_heading">Bluetooth crashed</string>
+    <string name="ui_main_status_communicator_bt_restart_required_text">TODO blabla</string>
 
-    <string name="ui_main_status_summary_communicator_bt_disabled">:warning: Bluetooth is disabled.</string>
-    <string name="ui_main_status_info_communicator_bt_disabled">TODO blabla</string>
+    <string name="ui_main_status_communicator_bt_disabled_heading">Bluetooth off</string>
+    <string name="ui_main_status_communicator_bt_disabled_text">TODO blabla</string>
 
     <string name="ui_main_status_summary_communicator_bt_turning_on">:hourglass: Bluetooth is starting.</string>
-
-    <string name="ui_main_status_summary_communicator_ble_not_supported">:dizzy_face: Device unsupported.</string>
-    <string name="ui_main_status_info_communicator_ble_not_supported">TODO blabla</string>
-
-    <string name="ui_main_status_summary_communicator_disabled">:sleeping_sign: Aura disabled.</string>
-    <string name="ui_main_status_info_communicator_disabled">TODO blabla</string>
-
-    <string name="ui_main_status_summary_communicator_advertising_not_supported">:broken_heart: You\'re invisible.</string>
-    <string name="ui_main_status_info_communicator_advertising_not_supported">TODO blabla</string>
-
     <string name="ui_main_status_summary_communicator_on_not_active">:hourglass: Aura is getting ready.</string>
-
     <string name="ui_main_status_summary_communicator_on">Aura is on.</string>
-
     <plurals name="ui_main_status_summary_peers">
-        <item quantity="zero">Nobody nearby.</item>
         <item quantity="one">One :silhouette_head: nearby.</item>
         <item quantity="other">%d :silhouette_head: nearby.</item>
     </plurals>
-    <string name="ui_main_status_summary_peers_no_peers_text">
-        TODO bla bla nobody around, download aura, restart BT
+
+    <string name="ui_main_status_communicator_ble_not_supported_heading">Device unsupported.</string>
+    <string name="ui_main_status_communicator_ble_not_supported_text">TODO blabla</string>
+
+    <string name="ui_main_status_communicator_disabled_heading">Aura off</string>
+    <string name="ui_main_status_communicator_disabled_text">TODO blabla</string>
+
+    <string name="ui_main_status_communicator_advertising_not_supported_heading">You\'re invisible.</string>
+    <string name="ui_main_status_communicator_advertising_not_supported_text">TODO blabla</string>
+
+    <string name="ui_main_status_peers_no_peers_heading">Nobody around</string>
+    <string name="ui_main_status_peers_no_peers_text">Make it more exciting - invite people!</string>
+    <string name="ui_main_status_peers_no_peers_heading_cta">Share Aura</string>
+    <string name="ui_main_status_peers_no_peers_heading_text_below_button">Not all devices support Aura.
+        \nDisabling and activating Bluetooth sometimes helps.
     </string>
 
     <plurals name="ui_main_my_slogans_heading">
@@ -94,7 +96,8 @@
 
     <!--Dialog: Add Slogan-->
     <string name="ui_dialog_add_slogan_title">Add Thought</string>
-    <string name="ui_dialog_add_slogan_text">TODO A thaought\nsdfasdlasdf  ds</string>
+    <string name="ui_dialog_add_slogan_text">Nearby Aura users can see and adopt your thoughts.\n::lollipop: Express yourself!</string>
+    <string name="ui_main_add_slogan_too_short">Nothing added - too short</string>
     <string name="ui_dialog_add_slogan_confirm">Add</string>
     <string name="ui_dialog_add_slogan_cancel">Cancel</string>
 

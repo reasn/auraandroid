@@ -194,7 +194,13 @@ public class MainActivity extends AppCompatActivity {
                 R.string.ui_dialog_add_slogan_confirm,
                 R.string.ui_dialog_add_slogan_cancel,
                 null,
-                (String sloganText) -> mMySloganManager.adopt(Slogan.create(sloganText)));
+                (String sloganText) -> {
+                    if (sloganText.length() == 0) {
+                        Toast.makeText(this, R.string.ui_main_add_slogan_too_short, Toast.LENGTH_SHORT).show();
+                    } else {
+                        mMySloganManager.adopt(Slogan.create(sloganText));
+                    }
+                });
     }
 
     private void showEditDialog(Slogan slogan) {
