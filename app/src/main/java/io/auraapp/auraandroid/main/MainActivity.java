@@ -1,14 +1,9 @@
 package io.auraapp.auraandroid.main;
 
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -18,18 +13,10 @@ import android.support.v7.widget.SimpleItemAnimator;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.text.InputFilter;
-import android.text.Spanned;
-import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -83,12 +70,12 @@ public class MainActivity extends AppCompatActivity {
     private CommunicatorState mCommunicatorState;
     private Set<Peer> mPeers = new HashSet<>();
     private final Handler mHandler = new Handler();
-    private boolean mDialogOpen = false;
     /**
      * slogan:PeerSlogan
      */
     TreeMap<String, PeerSlogan> mPeerSloganMap = new TreeMap<>();
     private MySlogansHeadingItem mMySlogansHeadingItem;
+    private DialogManager mDialogManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
         // Load preferences
         mPrefs = getSharedPreferences(MainActivity.PREFS_BUCKET, MODE_PRIVATE);
         mAuraEnabled = mPrefs.getBoolean(MainActivity.PREFS_ENABLED, true);
+        mDialogManager = new DialogManager(this);
 
         final FloatingActionButton addSloganButton = findViewById(R.id.add_slogan);
         addSloganButton.setOnClickListener(this::showAddDialog);
@@ -189,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, EmojiHelper.replaceShortCode(getString(R.string.ui_main_toast_cannot_add_no_space_available)), Toast.LENGTH_LONG).show();
             return;
         }
-        showParametrizedSloganEditDialog(R.string.ui_dialog_add_slogan_title,
+        mDialogManager.showParametrizedSloganEdit(R.string.ui_dialog_add_slogan_title,
                 R.string.ui_dialog_add_slogan_text,
                 R.string.ui_dialog_add_slogan_confirm,
                 R.string.ui_dialog_add_slogan_cancel,
@@ -204,56 +192,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showEditDialog(Slogan slogan) {
-        showParametrizedSloganEditDialog(R.string.ui_dialog_edit_slogan_title,
+        mDialogManager.showParametrizedSloganEdit(R.string.ui_dialog_edit_slogan_title,
                 R.string.ui_dialog_edit_slogan_text,
                 R.string.ui_dialog_edit_slogan_confirm,
                 R.string.ui_dialog_edit_slogan_cancel,
                 slogan,
                 (String sloganText) -> mMySloganManager.replace(slogan, Slogan.create(sloganText)));
-    }
-
-    interface OnSloganEditConfirm {
-        void onConfirm(String text);
-    }
-
-    private void showParametrizedSloganEditDialog(@StringRes int title,
-                                                  @StringRes int message,
-                                                  @StringRes int confirm,
-                                                  @StringRes int cancel,
-                                                  @Nullable Slogan slogan,
-                                                  OnSloganEditConfirm onConfirm) {
-        if (mDialogOpen) {
-            return;
-        }
-        mDialogOpen = true;
-
-        @SuppressLint("InflateParams")
-        View dialogView = MainActivity.this.getLayoutInflater().inflate(R.layout.dialog_edit_slogan, null);
-
-        EditText editText = dialogView.findViewById(R.id.dialog_edit_slogan_slogan_text);
-        if (slogan != null) {
-            editText.setText(slogan.getText());
-        }
-
-        AlertDialog alert = new AlertDialog.Builder(MainActivity.this)
-                .setTitle(title)
-                .setIcon(R.mipmap.ic_memo)
-                .setMessage(message)
-                .setView(dialogView)
-                .setPositiveButton(confirm, (DialogInterface $$, int $$$) -> onConfirm.onConfirm(editText.getText().toString()))
-                .setNegativeButton(cancel, (DialogInterface $$, int $$$) -> {
-                })
-                .setOnDismissListener($ -> mDialogOpen = false)
-                .create();
-        if (alert.getWindow() != null) {
-            alert.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-        }
-        alert.show();
-        editText.requestFocus();
-        editText.setFilters(new InputFilter[]{
-                new InputFilter.LengthFilter(160),
-                (CharSequence source, int start, int end, Spanned dest, int dstart, int dend) -> source.toString().replaceAll("\n", "")
-        });
     }
 
     private void reflectStatus() {
@@ -285,32 +229,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void showBrokenBtStackAlert() {
         if (!inForeground
-                || mDialogOpen
                 || System.currentTimeMillis() - mBrokenBtStackLastVisibleTimestamp > BROKEN_BT_STACK_ALERT_DEBOUNCE
                 || mPrefs.getBoolean(MainActivity.PREFS_HIDE_BROKEN_BT_STACK_WARNING, false)) {
             return;
         }
-        mDialogOpen = true;
-
-        @SuppressLint("InflateParams")
-        View dialogView = MainActivity.this.getLayoutInflater().inflate(R.layout.dialog_bt_stack_broken, null);
-        CheckBox checkBox = dialogView.findViewById(R.id.dont_show_again);
-        new AlertDialog.Builder(MainActivity.this)
-                .setTitle(R.string.ui_dialog_bt_broken_title)
-                .setMessage(R.string.ui_dialog_bt_broken_text)
-                .setView(dialogView)
-                .setIcon(R.mipmap.ic_launcher)
-                .setPositiveButton(R.string.ui_dialog_bt_broken_confirm, (DialogInterface $$, int $$$) -> {
-                    if (checkBox.isChecked()) {
-                        mPrefs.edit().putBoolean(MainActivity.PREFS_HIDE_BROKEN_BT_STACK_WARNING, true).apply();
-                    }
-                })
-                .setOnDismissListener((DialogInterface $) -> {
-                    mBrokenBtStackLastVisibleTimestamp = System.currentTimeMillis();
-                    mDialogOpen = false;
-                })
-                .create()
-                .show();
+        mDialogManager.showBtBroken(neverShowAgain -> {
+            if (neverShowAgain) {
+                mPrefs.edit().putBoolean(MainActivity.PREFS_HIDE_BROKEN_BT_STACK_WARNING, true).apply();
+            } else {
+                mBrokenBtStackLastVisibleTimestamp = System.currentTimeMillis();
+            }
+        });
     }
 
     private void createListView() {
@@ -351,7 +280,10 @@ public class MainActivity extends AppCompatActivity {
                             } else if (mMySloganManager.spaceAvailable()) {
                                 mMySloganManager.adopt(slogan);
                             } else {
-                                showReplaceDialog(slogan);
+                                mDialogManager.showReplace(
+                                        mMySloganManager.getMySlogans(),
+                                        sloganToReplace -> mMySloganManager.replace(sloganToReplace, slogan)
+                                );
                             }
                             break;
 
@@ -360,73 +292,13 @@ public class MainActivity extends AppCompatActivity {
                             break;
 
                         case SwipeCallback.ACTION_DROP:
-                            if (mDialogOpen) {
-                                break;
-                            }
-                            mDialogOpen = true;
-                            new AlertDialog.Builder(MainActivity.this)
-                                    .setTitle(R.string.ui_drop_dialog_title)
-                                    .setIcon(R.mipmap.ic_wastebasket)
-                                    .setMessage(R.string.ui_drop_dialog_message)
-                                    .setPositiveButton(R.string.ui_drop_dialog_confirm, (DialogInterface $, int $$) -> {
-                                        mMySloganManager.dropSlogan(slogan);
-                                    })
-                                    .setNegativeButton(R.string.ui_drop_dialog_cancel, (DialogInterface $, int $$) -> {
-                                    })
-                                    .setOnDismissListener($ -> mDialogOpen = false)
-                                    .create()
-                                    .show();
+                            mDialogManager.showDrop(slogan, mMySloganManager::dropSlogan);
                             break;
                     }
                 }));
         itemTouchHelper.attachToRecyclerView(listView);
     }
 
-    private void showReplaceDialog(Slogan newSlogan) {
-        if (mDialogOpen) {
-            return;
-        }
-        mDialogOpen = true;
-        @SuppressLint("InflateParams")
-        View dialogView = MainActivity.this.getLayoutInflater().inflate(R.layout.dialog_replace_slogan, null);
-
-        RadioGroup radioGroup = dialogView.findViewById(R.id.radio_group);
-
-        SparseArray<Slogan> map = new SparseArray<>();
-
-        for (Slogan slogan : mMySloganManager.getMySlogans()) {
-            RadioButton button = new RadioButton(this);
-            // TODO emoji support
-            String text = slogan.getText().length() < 20
-                    ? slogan.getText()
-                    : slogan.getText().substring(0, 20) + "...";
-            button.setText(text);
-            int id = View.generateViewId();
-            button.setId(id);
-            map.put(id, slogan);
-            radioGroup.addView(button);
-        }
-
-        AlertDialog alert = new AlertDialog.Builder(MainActivity.this)
-                .setTitle(R.string.ui_replace_dialog_title)
-                .setIcon(R.mipmap.ic_fire)
-                .setMessage(getString(R.string.ui_replace_dialog_message).replaceAll("##maxSlogans##", Integer.toString(MySloganManager.MAX_SLOGANS)))
-                .setView(dialogView)
-                .setPositiveButton(R.string.ui_replace_dialog_confirm,
-                        (DialogInterface $$, int $$$) -> mMySloganManager.replace(map.get(radioGroup.getCheckedRadioButtonId()), newSlogan)
-                )
-                .setNegativeButton(R.string.ui_replace_dialog_cancel, (DialogInterface $$, int $$$) -> {
-                })
-                .setOnDismissListener($ -> mDialogOpen = false)
-                .create();
-
-        alert.show();
-
-        alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-        radioGroup.setOnCheckedChangeListener(
-                (RadioGroup $, int checkedId) -> alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true)
-        );
-    }
 
     /**
      * This is called once, after onCreate

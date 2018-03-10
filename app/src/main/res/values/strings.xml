@@ -35,11 +35,11 @@
     <string name="ui_main_status_communicator_bt_restart_required_text">TODO blabla</string>
 
     <string name="ui_main_status_communicator_bt_disabled_heading">Bluetooth off</string>
-    <string name="ui_main_status_communicator_bt_disabled_text">TODO blabla</string>
+    <string name="ui_main_status_communicator_bt_disabled_text">Nobody can see your :thought_balloon:</string>
 
     <string name="ui_main_status_summary_communicator_bt_turning_on">:hourglass: Bluetooth is starting.</string>
     <string name="ui_main_status_summary_communicator_on_not_active">:hourglass: Aura is getting ready.</string>
-    <string name="ui_main_status_summary_communicator_on">Aura is on.</string>
+    <string name="ui_main_status_summary_communicator_on">Your Aura is on - people see you :sunglasses:</string>
     <plurals name="ui_main_status_summary_peers">
         <item quantity="one">One :silhouette_head: nearby.</item>
         <item quantity="other">%d :silhouette_head: nearby.</item>
@@ -48,8 +48,8 @@
     <string name="ui_main_status_communicator_ble_not_supported_heading">Device unsupported.</string>
     <string name="ui_main_status_communicator_ble_not_supported_text">TODO blabla</string>
 
-    <string name="ui_main_status_communicator_disabled_heading">Aura off</string>
-    <string name="ui_main_status_communicator_disabled_text">TODO blabla</string>
+    <string name="ui_main_status_communicator_disabled_heading">Your Aura is off</string>
+    <string name="ui_main_status_communicator_disabled_text">Nobody can see your :thought_balloon:</string>
 
     <string name="ui_main_status_communicator_advertising_not_supported_heading">You\'re invisible.</string>
     <string name="ui_main_status_communicator_advertising_not_supported_text">TODO blabla</string>
@@ -57,8 +57,8 @@
     <string name="ui_main_status_peers_no_peers_heading">Nobody around</string>
     <string name="ui_main_status_peers_no_peers_text">Make it more exciting - invite people!</string>
     <string name="ui_main_status_peers_no_peers_heading_cta">Share Aura</string>
-    <string name="ui_main_status_peers_no_peers_heading_text_below_button">Not all devices support Aura.
-        \nDisabling and activating Bluetooth sometimes helps.
+    <string name="ui_main_status_peers_no_peers_heading_text_below_button">Should be seeing someone?
+        \nTry turning Bluetooth off and on again.
     </string>
 
     <plurals name="ui_main_my_slogans_heading">
@@ -66,10 +66,12 @@
         <item quantity="one">You have :thought_balloon:</item>
         <item quantity="other">You have %d :thought_balloon:</item>
     </plurals>
-    <string name="ui_main_my_slogans_heading_no_slogans_text">TODO bla bla, \n add a slogan, big button</string>
+    <string name="ui_main_my_slogans_info_no_slogans_heading">Add a:thought_balloon:!</string>
+    <string name="ui_main_my_slogans_info_no_slogans_text">Your aura contains no :thought_ballon: to show others.</string>
+    <string name="ui_main_my_slogans_info_no_slogans_heading_cta">Add my first :thought_balloon:</string>
+
 
     <string name="ui_main_peers_heading_no_peers">Nobody Nearby</string>
-    <string name="ui_main_peers_heading_no_peers_text">TODO bla bla\nbla</string>
 
     <string name="ui_main_peers_heading_no_slogans_text">TODO bla bla\nPeer found, no slogans</string>
 
@@ -115,9 +117,9 @@
     <string name="ui_replace_dialog_cancel">Cancel</string>
 
     <!--Dialog: Drop Slogan-->
-    <string name="ui_drop_dialog_title">Delete Thought</string>
-    <string name="ui_drop_dialog_message">TODO Not longer visible to others\nbla bla \nbla blubb</string>
-    <string name="ui_drop_dialog_confirm">Delete</string>
+    <string name="ui_drop_dialog_title">Delete this :thought_balloon: ?</string>
+    <string name="ui_drop_dialog_message">This cannot be undone and it will no longer be visible to others.</string>
+    <string name="ui_drop_dialog_confirm">Delete it!</string>
     <string name="ui_drop_dialog_cancel">Cancel</string>
 
     <!--Notifications-->

@@ -1,27 +1,31 @@
 package io.auraapp.auraandroid.main.list.item;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.util.Set;
+
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Peer;
+import io.auraapp.auraandroid.main.InfoBox;
 
 public class PeersHeadingHolder extends ItemViewHolder {
 
     private final TextView mHeadingTextView;
     private final ProgressBar mProgressBar;
     private Context mContext;
-    private TextView mInfoTextView;
+    private final InfoBox mInfoBox;
 
     public PeersHeadingHolder(View itemView, Context context) {
         super(itemView);
         mContext = context;
         mHeadingTextView = itemView.findViewById(R.id.heading);
         mProgressBar = itemView.findViewById(R.id.progressBar);
-        mInfoTextView = itemView.findViewById(R.id.info);
+        mInfoBox = itemView.findViewById(R.id.info_box);
     }
 
     @Override
@@ -31,15 +35,10 @@ public class PeersHeadingHolder extends ItemViewHolder {
         }
         PeersHeadingItem castItem = ((PeersHeadingItem) item);
         String heading;
-        String info = null;
         if (castItem.mPeers.size() == 0) {
             heading = mContext.getString(R.string.ui_main_peers_heading_no_peers);
-            info = mContext.getString(R.string.ui_main_peers_heading_no_peers_text);
         } else {
             heading = mContext.getResources().getQuantityString(R.plurals.ui_main_peers_heading_slogans, castItem.mSloganCount, castItem.mSloganCount);
-            if (castItem.mSloganCount == 0) {
-                info = mContext.getString(R.string.ui_main_peers_heading_no_slogans_text);
-            }
         }
 
         long now = System.currentTimeMillis();
@@ -55,13 +54,47 @@ public class PeersHeadingHolder extends ItemViewHolder {
                         ? View.VISIBLE
                         : View.GONE
         );
-
         mHeadingTextView.setText(EmojiHelper.replaceShortCode(heading));
-        if (info != null) {
-            mInfoTextView.setText(EmojiHelper.replaceShortCode(info));
-            mInfoTextView.setVisibility(View.VISIBLE);
+
+        updateInfoBox(castItem.mPeers, castItem.mSloganCount);
+    }
+
+    private void updateInfoBox(Set<Peer> peers, int sloganCount) {
+//        int nearbyPeers = 0;
+//        long now = System.currentTimeMillis();
+//        for (Peer peer : peers) {
+//            // TODO externalize
+//            if (now - peer.mLastSeenTimestamp < 30000) {
+//                nearbyPeers++;
+//            }
+//        }
+
+        if (peers.size() == 0) {
+            mInfoBox.setEmoji(":see_no_evil:");
+            mInfoBox.setHeading(R.string.ui_main_status_peers_no_peers_heading);
+            mInfoBox.setText(R.string.ui_main_status_peers_no_peers_text);
+            mInfoBox.showButton(
+                    R.string.ui_main_status_peers_no_peers_heading_cta,
+                    R.string.ui_main_status_peers_no_peers_heading_text_below_button,
+                    $ -> {
+                        Intent sendIntent = new Intent();
+                        sendIntent.setAction(Intent.ACTION_SEND);
+                        sendIntent.putExtra(Intent.EXTRA_TEXT, mContext.getString(R.string.ui_main_share_text));
+                        sendIntent.setType("text/plain");
+                        mContext.startActivity(sendIntent);
+                    });
+            mInfoBox.setColor(R.color.infoBoxNeutral);
+            mInfoBox.setVisibility(View.VISIBLE);
+//        } else if (sloganCount == 0) {
+//            mInfoBox.setEmoji(":silhouette:");
+//            mInfoBox.setHeading(R.string.ui_main_peers_heading_no_slogans_heading);
+//            mInfoBox.setText(R.string.ui_main_peers_heading_no_slogans_text);
+//            mInfoBox.hideButton();
+//            mInfoBox.setColor(R.color.infoBoxNeutral);
+//            mInfoBox.setVisibility(View.VISIBLE);
+//            return;
         } else {
-            mInfoTextView.setVisibility(View.GONE);
+            mInfoBox.setVisibility(View.GONE);
         }
 
     }

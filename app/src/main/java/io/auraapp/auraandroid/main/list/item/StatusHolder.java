@@ -1,7 +1,6 @@
 package io.auraapp.auraandroid.main.list.item;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -100,7 +99,7 @@ public class StatusHolder extends ItemViewHolder {
         }
         bindBasics(communicatorState, peerSloganMap, peers);
         if (mExpanded) {
-            bindPeerList(communicatorState, peerSloganMap, peers);
+            bindPeerList(peers);
             mPeersListView.setVisibility(View.VISIBLE);
         } else {
             mPeersListView.setVisibility(View.GONE);
@@ -111,23 +110,16 @@ public class StatusHolder extends ItemViewHolder {
 
         String communicatorSummary = buildCommunicatorSummary(communicatorState);
 
-        String peersSummary = null;
-        if (communicatorSummary != null) {
-            // build...Summary() mutates infobox exactly if returning null
-            peersSummary = buildPeerOverview(peerSloganMap, peers);
-        }
-
-        // communicatorState is more important than peersInfo because impacting proper operation of the app
-        if (communicatorSummary == null || peersSummary == null) {
+        if (communicatorSummary == null) {
             mSummaryTextView.setVisibility(View.GONE);
+            // buildCommunicatorSummary() mutates infobox exactly if returning null
             mInfoBox.setVisibility(View.VISIBLE);
             return;
         }
 
-        mSummaryTextView.setText(EmojiHelper.replaceShortCode(communicatorSummary + " " + peersSummary));
-
-        mSummaryTextView.setVisibility(View.VISIBLE);
         mInfoBox.setVisibility(View.GONE);
+        mSummaryTextView.setVisibility(View.VISIBLE);
+        mSummaryTextView.setText(EmojiHelper.replaceShortCode(communicatorSummary));
     }
 
     @Nullable
@@ -188,37 +180,7 @@ public class StatusHolder extends ItemViewHolder {
         return mContext.getString(R.string.ui_main_status_summary_communicator_on);
     }
 
-    private String buildPeerOverview(TreeMap<String, PeerSlogan> peerSloganMap, Set<Peer> peers) {
-        int nearbyPeers = 0;
-        long now = System.currentTimeMillis();
-        for (Peer peer : peers) {
-            // TODO externalize
-            if (now - peer.mLastSeenTimestamp < 30000) {
-                nearbyPeers++;
-            }
-        }
-
-        if (peers.size() > 0) {
-            return mContext.getResources().getQuantityString(R.plurals.ui_main_status_summary_peers, nearbyPeers, nearbyPeers);
-        }
-        mInfoBox.setEmoji(":eyes:");
-        mInfoBox.setHeading(R.string.ui_main_status_peers_no_peers_heading);
-        mInfoBox.setText(R.string.ui_main_status_peers_no_peers_text);
-        mInfoBox.showButton(
-                R.string.ui_main_status_peers_no_peers_heading_cta,
-                R.string.ui_main_status_peers_no_peers_heading_text_below_button,
-                $ -> {
-                    Intent sendIntent = new Intent();
-                    sendIntent.setAction(Intent.ACTION_SEND);
-                    sendIntent.putExtra(Intent.EXTRA_TEXT, mContext.getString(R.string.ui_main_share_text));
-                    sendIntent.setType("text/plain");
-                    mContext.startActivity(sendIntent);
-                });
-        mInfoBox.setColor(R.color.infoBoxNeutral);
-        return null;
-    }
-
-    private void bindPeerList(CommunicatorState state, TreeMap<String, PeerSlogan> peerSloganMap, Set<Peer> peers) {
+    private void bindPeerList(Set<Peer> peers) {
 
         // TODO don't recreate everything, cache? maybe not #onlyfordebugging
         mPeersListView.setAdapter(new PeerArrayAdapter(

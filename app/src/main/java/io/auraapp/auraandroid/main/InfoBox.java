@@ -50,7 +50,12 @@ public class InfoBox extends LinearLayout {
         mButtonView.setText(EmojiHelper.replaceShortCode(getContext().getString(caption)));
         mButtonView.setVisibility(View.VISIBLE);
         mButtonView.setOnClickListener(onClickListener);
-        mTextBelowButtonView.setText(getContext().getString(textBelowButton));
+        if (textBelowButton > 0) {
+            mTextBelowButtonView.setText(getContext().getString(textBelowButton));
+            mTextBelowButtonView.setVisibility(View.VISIBLE);
+        } else {
+            mTextBelowButtonView.setVisibility(View.GONE);
+        }
         mTextBelowButtonView.setVisibility(View.VISIBLE);
     }
 

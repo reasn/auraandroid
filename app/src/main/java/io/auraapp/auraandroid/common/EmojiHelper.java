@@ -18,6 +18,9 @@ public class EmojiHelper {
                 .replaceAll(":broken_heart:", "💔")
                 .replaceAll(":silhouette_head:", "👤")
                 .replaceAll(":memo:", "📝")
+                .replaceAll(":sunglasses:", "😎")
+                .replaceAll(":see_no_evil:", "🙈")
+                .replaceAll(":satellite_antenna:", "📡")
                 .replaceAll(":wastebasket:", "🗑")
                 .replaceAll(":ghost:", "👻")
                 .replaceAll(":heavy_plus_sign:", "➕");
