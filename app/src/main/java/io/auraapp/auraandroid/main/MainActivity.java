@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private RecycleAdapter mListAdapter;
     private StatusItem mStatusItem;
     private PeersHeadingItem mPeersHeadingItem;
+    private SwipeRefreshLayout mSwipeRefresh;
 
     private MySloganManager mMySloganManager;
     private CommunicatorProxy mCommunicatorProxy;
@@ -153,7 +154,9 @@ public class MainActivity extends AppCompatActivity {
         mListAdapter.notifyMySlogansChanged(mMySloganManager.getMySlogans());
         mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
 
-        ((SwipeRefreshLayout) findViewById(R.id.swiperefresh)).setOnRefreshListener(this::refresh);
+        mSwipeRefresh = findViewById(R.id.swiperefresh);
+        mSwipeRefresh.setOnRefreshListener(this::refresh);
+        mSwipeRefresh.setEnabled(false);
     }
 
     /**
@@ -166,8 +169,8 @@ public class MainActivity extends AppCompatActivity {
                 ? getString(R.string.ui_main_toast_refresh_no_peers)
                 : getResources().getQuantityString(R.plurals.ui_main_toast_refresh, mPeers.size(), mPeers.size());
 
-        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
-        mHandler.postDelayed(() -> ((SwipeRefreshLayout) findViewById(R.id.swiperefresh)).setRefreshing(false), SWIPE_TO_REFRESH_DURATION);
+        Toast.makeText(this, EmojiHelper.replaceShortCode(text), Toast.LENGTH_SHORT).show();
+        mHandler.postDelayed(() -> mSwipeRefresh.setRefreshing(false), SWIPE_TO_REFRESH_DURATION);
     }
 
 
@@ -216,14 +219,17 @@ public class MainActivity extends AppCompatActivity {
 
         mMySlogansHeadingItem.mMySlogansCount = mMySloganManager.getMySlogans().size();
         mListAdapter.notifyListItemChanged(mMySlogansHeadingItem);
-
+        // TODO keep peers if aura disabled and communicator destroyed
         mPeersHeadingItem.mPeers = mPeers;
         mPeersHeadingItem.mSloganCount = mPeerSloganMap.size();
+        mPeersHeadingItem.mScanning = mCommunicatorState.mScanning;
         mListAdapter.notifyListItemChanged(mPeersHeadingItem);
 
         if (mCommunicatorState.mRecentBtTurnOnEvents >= Communicator.RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD) {
             showBrokenBtStackAlert();
         }
+
+        mSwipeRefresh.setEnabled(mCommunicatorState.mScanning);
     }
 
     private void showBrokenBtStackAlert() {

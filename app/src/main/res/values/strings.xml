@@ -27,15 +27,19 @@
 
     <string name="ui_main_toast_refresh_no_peers">No Aura users nearby to refresh</string>
     <plurals name="ui_main_toast_refresh">
-        <item quantity="one">Refreshing one peer</item>
-        <item quantity="other">Refreshing %d peers</item>
+        <item quantity="one">Refreshing nearby :thought_balloon: …</item>
+        <item quantity="other">Refreshing nearby :thought_balloon: …</item>
     </plurals>
 
-    <string name="ui_main_status_communicator_bt_restart_required_heading">Bluetooth crashed</string>
-    <string name="ui_main_status_communicator_bt_restart_required_text">TODO blabla</string>
+    <string name="ui_main_status_communicator_bt_restart_required_heading">Bluetooth Crashed</string>
+    <string name="ui_main_status_communicator_bt_restart_required_text">Error: ##error##
+        \nMany devices (including yours) have issues with Bluetooth crashing.
+    \nPlease disable Bluetooth and activate it again.
+    \nIf that doesn\'t solve the issue, try restarting your device.
+    \nThis problem is not caused by Aura. Sorry about this!</string>
 
-    <string name="ui_main_status_communicator_bt_disabled_heading">Bluetooth off</string>
-    <string name="ui_main_status_communicator_bt_disabled_text">Nobody can see your :thought_balloon:</string>
+    <string name="ui_main_status_communicator_bt_disabled_heading">Bluetooth Off</string>
+    <string name="ui_main_status_communicator_bt_disabled_text">Please enable it to turn your Aura on.</string>
 
     <string name="ui_main_status_summary_communicator_bt_turning_on">:hourglass: Bluetooth is starting.</string>
     <string name="ui_main_status_summary_communicator_on_not_active">:hourglass: Aura is getting ready.</string>
@@ -45,31 +49,32 @@
         <item quantity="other">%d :silhouette_head: nearby.</item>
     </plurals>
 
-    <string name="ui_main_status_communicator_ble_not_supported_heading">Device unsupported.</string>
+    <string name="ui_main_status_communicator_ble_not_supported_heading">Device Unsupported</string>
     <string name="ui_main_status_communicator_ble_not_supported_text">TODO blabla</string>
 
     <string name="ui_main_status_communicator_disabled_heading">Your Aura is off</string>
-    <string name="ui_main_status_communicator_disabled_text">Nobody can see your :thought_balloon:</string>
+    <string name="ui_main_status_communicator_disabled_text">You\'re invisible and receive no updates.</string>
 
     <string name="ui_main_status_communicator_advertising_not_supported_heading">You\'re invisible.</string>
     <string name="ui_main_status_communicator_advertising_not_supported_text">TODO blabla</string>
 
-    <string name="ui_main_status_peers_no_peers_heading">Nobody around</string>
+    <string name="ui_main_status_peers_no_peers_heading">Nobody Around</string>
     <string name="ui_main_status_peers_no_peers_text">Make it more exciting - invite people!</string>
     <string name="ui_main_status_peers_no_peers_heading_cta">Share Aura</string>
     <string name="ui_main_status_peers_no_peers_heading_text_below_button">Should be seeing someone?
         \nTry turning Bluetooth off and on again.
     </string>
+    <string name="ui_main_status_peers_not_scanning_heading">Your Aura is off</string>
+    <string name="ui_main_status_peers_not_scanning_text">Turn on your Aura to see the :thought_balloon: of others.</string>
 
     <plurals name="ui_main_my_slogans_heading">
         <item quantity="zero">You don't have any :thought_balloon:</item>
         <item quantity="one">You have :thought_balloon:</item>
         <item quantity="other">You have %d :thought_balloon:</item>
     </plurals>
-    <string name="ui_main_my_slogans_info_no_slogans_heading">Add a:thought_balloon:!</string>
-    <string name="ui_main_my_slogans_info_no_slogans_text">Your aura contains no :thought_ballon: to show others.</string>
+    <string name="ui_main_my_slogans_info_no_slogans_heading">Your Aura is empty</string>
+    <string name="ui_main_my_slogans_info_no_slogans_text">Your aura contains no :thought_balloon: for others to see.</string>
     <string name="ui_main_my_slogans_info_no_slogans_heading_cta">Add my first :thought_balloon:</string>
-
 
     <string name="ui_main_peers_heading_no_peers">Nobody Nearby</string>
 

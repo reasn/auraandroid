@@ -57,11 +57,10 @@ public class StatusHolder extends ItemViewHolder {
 
             String text = "";
 
-            int timeToNextFetch = Math.round((peer.mNextFetch - now) / 1000);
-            if (timeToNextFetch < 1) {
-                text += "fetching";
+            if (peer.mSynchronizing) {
+                text += "syncing";
             } else {
-                text += "next sync: " + timeToNextFetch + "s";
+                text += "up-to-date";
             }
             text += ", retrievals: " + peer.mSuccessfulRetrievals;
             text += ", last seen: " + Math.round((now - peer.mLastSeenTimestamp) / 1000) + "s ago";
@@ -112,7 +111,9 @@ public class StatusHolder extends ItemViewHolder {
         mPeersListView.setVisibility(View.VISIBLE);
         mCommunicatorStateDumpView.setVisibility(View.VISIBLE);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        mCommunicatorStateDumpView.setText(gson.toJson(castItem.mPeers).replaceAll("\"", ""));
+        String dump = "# communicator:\n" + gson.toJson(communicatorState);
+        dump += "# peers:\n" + gson.toJson(castItem.mPeers);
+        mCommunicatorStateDumpView.setText(dump.replaceAll("\"", ""));
     }
 
     private void bindBasics(CommunicatorState communicatorState) {
@@ -135,9 +136,10 @@ public class StatusHolder extends ItemViewHolder {
     private String buildCommunicatorSummary(CommunicatorState state) {
         // The order of conditions should be synchronized with that in Communicator::updateForegroundNotification
         if (state.mBluetoothRestartRequired) {
-            mInfoBox.setEmoji(":warning:");
+            mInfoBox.setEmoji(":dizzy_face:");
             mInfoBox.setHeading(R.string.ui_main_status_communicator_bt_restart_required_heading);
-            mInfoBox.setText(R.string.ui_main_status_communicator_bt_restart_required_text);
+            mInfoBox.setText(mContext.getString(R.string.ui_main_status_communicator_bt_restart_required_text)
+                    .replaceAll("##error##", state.mLastError != null ? state.mLastError : "unknown"));
             mInfoBox.hideButton();
             mInfoBox.setColor(R.color.infoBoxError);
             return null;

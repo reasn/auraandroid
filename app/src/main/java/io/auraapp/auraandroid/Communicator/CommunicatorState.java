@@ -19,6 +19,7 @@ public class CommunicatorState implements Serializable {
     public int mRecentBtTurnOnEvents = 0;
     public boolean mBtTurningOn = false;
     public boolean mBluetoothRestartRequired;
+    public String mLastError = null;
 
     @Override
     public String toString() {
@@ -35,6 +36,7 @@ public class CommunicatorState implements Serializable {
                 ", mRecentBtTurnOnEvents=" + mRecentBtTurnOnEvents +
                 ", mBtTurningOn=" + mBtTurningOn +
                 ", mBluetoothRestartRequired=" + mBluetoothRestartRequired +
+                ", mLastError='" + mLastError + '\'' +
                 '}';
     }
 
@@ -56,7 +58,8 @@ public class CommunicatorState implements Serializable {
         if (mScanning != that.mScanning) return false;
         if (mRecentBtTurnOnEvents != that.mRecentBtTurnOnEvents) return false;
         if (mBtTurningOn != that.mBtTurningOn) return false;
-        return mBluetoothRestartRequired == that.mBluetoothRestartRequired;
+        if (mBluetoothRestartRequired != that.mBluetoothRestartRequired) return false;
+        return mLastError != null ? mLastError.equals(that.mLastError) : that.mLastError == null;
     }
 
     @Override
@@ -73,6 +76,7 @@ public class CommunicatorState implements Serializable {
         result = 31 * result + mRecentBtTurnOnEvents;
         result = 31 * result + (mBtTurningOn ? 1 : 0);
         result = 31 * result + (mBluetoothRestartRequired ? 1 : 0);
+        result = 31 * result + (mLastError != null ? mLastError.hashCode() : 0);
         return result;
     }
 }

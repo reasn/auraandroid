@@ -55,10 +55,10 @@ public class PeersHeadingHolder extends ItemViewHolder {
         );
         mHeadingTextView.setText(EmojiHelper.replaceShortCode(heading));
 
-        updateInfoBox(castItem.mPeers, castItem.mSloganCount);
+        updateInfoBox(castItem.mPeers, castItem.mSloganCount, castItem.mScanning);
     }
 
-    private void updateInfoBox(Set<Peer> peers, int sloganCount) {
+    private void updateInfoBox(Set<Peer> peers, int sloganCount, boolean scanning) {
 //        int nearbyPeers = 0;
 //        long now = System.currentTimeMillis();
 //        for (Peer peer : peers) {
@@ -70,18 +70,24 @@ public class PeersHeadingHolder extends ItemViewHolder {
 
         if (peers.size() == 0) {
             mInfoBox.setEmoji(":see_no_evil:");
-            mInfoBox.setHeading(R.string.ui_main_status_peers_no_peers_heading);
-            mInfoBox.setText(R.string.ui_main_status_peers_no_peers_text);
-            mInfoBox.showButton(
-                    R.string.ui_main_status_peers_no_peers_heading_cta,
-                    R.string.ui_main_status_peers_no_peers_heading_text_below_button,
-                    $ -> {
-                        Intent sendIntent = new Intent();
-                        sendIntent.setAction(Intent.ACTION_SEND);
-                        sendIntent.putExtra(Intent.EXTRA_TEXT, mContext.getString(R.string.ui_main_share_text));
-                        sendIntent.setType("text/plain");
-                        mContext.startActivity(sendIntent);
-                    });
+            if (scanning) {
+                mInfoBox.setHeading(R.string.ui_main_status_peers_no_peers_heading);
+                mInfoBox.setText(R.string.ui_main_status_peers_no_peers_text);
+                mInfoBox.showButton(
+                        R.string.ui_main_status_peers_no_peers_heading_cta,
+                        R.string.ui_main_status_peers_no_peers_heading_text_below_button,
+                        $ -> {
+                            Intent sendIntent = new Intent();
+                            sendIntent.setAction(Intent.ACTION_SEND);
+                            sendIntent.putExtra(Intent.EXTRA_TEXT, mContext.getString(R.string.ui_main_share_text));
+                            sendIntent.setType("text/plain");
+                            mContext.startActivity(sendIntent);
+                        });
+            } else {
+                mInfoBox.setHeading(R.string.ui_main_status_peers_not_scanning_heading);
+                mInfoBox.setText(R.string.ui_main_status_peers_not_scanning_text);
+                mInfoBox.hideButton();
+            }
             mInfoBox.setColor(R.color.infoBoxNeutral);
             mInfoBox.setVisibility(View.VISIBLE);
 //        } else if (sloganCount == 0) {

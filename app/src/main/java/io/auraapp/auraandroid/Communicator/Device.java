@@ -16,7 +16,7 @@ import io.auraapp.auraandroid.common.PeerStatsSet;
 class Device {
 
     final String mId;
-    long mNextFetch = 0;
+    boolean mOutdated = true;
     long lastSeenTimestamp = 0;
     long lastConnectAttempt = 0;
 
@@ -105,7 +105,7 @@ class Device {
     public String toString() {
         return "Device{" +
                 "mId='" + mId + '\'' +
-                ", mNextFetch=" + mNextFetch +
+                ", mOutdated=" + mOutdated +
                 ", lastSeenTimestamp=" + lastSeenTimestamp +
                 ", lastConnectAttempt=" + lastConnectAttempt +
                 ", stats=" + stats +
@@ -115,9 +115,10 @@ class Device {
                 ", shouldDisconnect=" + shouldDisconnect +
                 ", connectionAttempts=" + connectionAttempts +
                 ", mFetchingAProp=" + mFetchingAProp +
-                ", mSynchronizing=" + mSynchronizing +
+                ", mAdvertisementVersion=" + mAdvertisementVersion +
                 ", mFreshMap=" + mFreshMap +
                 ", mPropertyMap=" + mPropertyMap +
+                ", mSynchronizing=" + mSynchronizing +
                 '}';
     }
 }

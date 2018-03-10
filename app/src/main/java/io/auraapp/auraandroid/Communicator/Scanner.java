@@ -46,7 +46,6 @@ class Scanner {
 
     private static final boolean HIGH_POWER = true;
     private static final long PEER_FORGET_AFTER = 1000 * 60 * 30;
-    private static final long PEER_REFRESH_AFTER = 1000 * 30;
     private static final long PEER_CONNECT_TIMEOUT = 1000 * 10;
     private static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
     private final Communicator.OnErrorCallback mOnErrorCallback;
@@ -162,7 +161,7 @@ class Scanner {
                             mPeerBroadcaster.propagatePeerList(mDeviceMap);
                         });
 
-                    } else if (device.mNextFetch < now) {
+                    } else if (device.mOutdated) {
                         d(TAG, "Connecting to gatt server, id: %s", id);
                         device.connectionAttempts++;
                         device.mSynchronizing = true;
@@ -177,7 +176,7 @@ class Scanner {
                         device.bt.gatt = device.bt.device.connectGatt(mContext, false, mGattCallback);
 
                     } else {
-                        v(TAG, "Nothing to do for disconnected device, id: %s, next fetch in %d", id, device.mNextFetch - now);
+                        v(TAG, "Nothing to do for disconnected device, id: %s", id);
                     }
                     continue;
                 }
@@ -213,8 +212,8 @@ class Scanner {
                     continue;
                 }
 
-                device.mNextFetch = now + PEER_REFRESH_AFTER;
-                i(TAG, "All props fresh, should disconnect, nextFetch: %d, props: %s, id: %s", device.mNextFetch, device.props(), id);
+                i(TAG, "All props fresh, should disconnect, props: %s, id: %s", device.props(), id);
+                device.mOutdated = false;
                 device.mSynchronizing = false;
                 device.stats.mSuccessfulRetrievals++;
                 device.shouldDisconnect = true;
@@ -298,7 +297,7 @@ class Scanner {
             @Override
             public void onScanFailed(int errorCode) {
                 w(TAG, "onScanFailed errorCode: %s", BtConst.nameScanError(errorCode));
-                mHandler.post(mOnErrorCallback::onUnrecoverableError);
+                mHandler.post(() -> mOnErrorCallback.onUnrecoverableError(BtConst.nameScanError(errorCode)));
             }
         });
         i(TAG, "started scanning");
@@ -442,7 +441,7 @@ class Scanner {
                 v(TAG, "Known device seen, id: %s", id);
                 device.lastSeenTimestamp = System.currentTimeMillis();
                 if (additionalData.isPresent() && device.mAdvertisementVersion != additionalData.getVersion()) {
-                    device.mNextFetch = System.currentTimeMillis();
+                    device.mOutdated = true;
                     device.mAdvertisementVersion = additionalData.getVersion();
                 }
                 mPeerBroadcaster.propagatePeer(device);

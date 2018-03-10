@@ -68,11 +68,10 @@ public class Communicator extends Service {
     private int mPeerSloganCount = 0;
 
     private final CommunicatorState mState = new CommunicatorState();
-    private Set<Peer> mLastKnownPeers = null;
 
     @FunctionalInterface
     interface OnErrorCallback {
-        void onUnrecoverableError();
+        void onUnrecoverableError(String errorName);
 
     }
 
@@ -109,8 +108,10 @@ public class Communicator extends Service {
                     mState.mId = id;
                     sendState();
                 },
-                () -> {
+                errorName -> {
                     mState.mBluetoothRestartRequired = true;
+                    mState.mLastError = errorName;
+                    mState.mShouldCommunicate = false;
                     updateBtState();
                     actOnState(true);
                 }
@@ -121,16 +122,14 @@ public class Communicator extends Service {
                     if (!(peers instanceof Serializable)) {
                         throw new RuntimeException("peers must be serializable");
                     }
-                    {
-                        // Update notification
-                        int peerSloganCount = 0;
-                        for (Peer peer : peers) {
-                            peerSloganCount += peer.mSlogans.size();
-                        }
-                        if (peerSloganCount != mPeerSloganCount) {
-                            mPeerSloganCount = peerSloganCount;
-                            updateForegroundNotification();
-                        }
+                    // Update notification
+                    int peerSloganCount = 0;
+                    for (Peer peer : peers) {
+                        peerSloganCount += peer.mSlogans.size();
+                    }
+                    if (peerSloganCount != mPeerSloganCount) {
+                        mPeerSloganCount = peerSloganCount;
+                        updateForegroundNotification();
                     }
 
                     sendBroadcast(IntentFactory.peerListUpdated(peers, mState));
@@ -144,8 +143,10 @@ public class Communicator extends Service {
         mScanner = new Scanner(
                 this,
                 broadcaster,
-                () -> {
+                errorName -> {
                     mState.mBluetoothRestartRequired = true;
+                    mState.mLastError = errorName;
+                    mState.mShouldCommunicate = false;
                     updateBtState();
                     actOnState(true);
                 });
@@ -346,6 +347,7 @@ public class Communicator extends Service {
             mState.mBtEnabled = false;
             // Disabling BT resets the necessity to restart BT
             mState.mBluetoothRestartRequired = false;
+            mState.mLastError = null;
             d(TAG, "Bluetooth is currently unavailable");
         }
 
@@ -387,6 +389,7 @@ public class Communicator extends Service {
                     mState.mBtTurningOn = false;
                     // Disabling BT resets the necessity to restart BT
                     mState.mBluetoothRestartRequired = false;
+                    mState.mLastError = null;
                     break;
 
                 case BluetoothAdapter.STATE_ON:
@@ -419,16 +422,8 @@ public class Communicator extends Service {
             actOnState(true);
 
         } else if (IntentFactory.INTENT_DISABLE_ACTION.equals(action)) {
-            mScanner.requestPeers((Set<Peer> peers) -> {
-                for (Peer peer : peers) {
-                    peer.mSynchronizing = false;
-                }
-                mLastKnownPeers = peers;
-                sendBroadcast(IntentFactory.peerListUpdated(peers, mState));
-                d(TAG, "Updated peers with mSynchronizing=false and sent intent with %d peers", peers.size());
-                mState.mShouldCommunicate = false;
-                actOnState(true);
-            });
+            mState.mShouldCommunicate = false;
+            actOnState(true);
 
         } else if (IntentFactory.INTENT_REQUEST_PEERS_ACTION.equals(action)) {
 
@@ -461,7 +456,6 @@ public class Communicator extends Service {
         } else {
             w(TAG, "Received unknown intent, intent: %s", intent);
         }
-        // No statements must happen outside conditional because some things (e.g. requestPeers) happen asynchronously
     }
 
     @Override

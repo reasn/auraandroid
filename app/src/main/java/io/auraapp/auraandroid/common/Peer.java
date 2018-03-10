@@ -8,7 +8,6 @@ public class Peer implements Serializable {
 
     public final String mId;
     public int mSuccessfulRetrievals = 0;
-    public long mNextFetch = 0;
     public long mLastSeenTimestamp = 0;
 
     public final Set<Slogan> mSlogans = new HashSet<>();
@@ -26,14 +25,15 @@ public class Peer implements Serializable {
 //        mNextFetch = peer.mNextFetch;
 //    }
 
+
     @Override
     public String toString() {
         return "Peer{" +
                 "mId='" + mId + '\'' +
                 ", mSuccessfulRetrievals=" + mSuccessfulRetrievals +
-                ", mNextFetch=" + mNextFetch +
                 ", mLastSeenTimestamp=" + mLastSeenTimestamp +
                 ", mSlogans=" + mSlogans +
+                ", mSynchronizing=" + mSynchronizing +
                 '}';
     }
 
@@ -45,19 +45,19 @@ public class Peer implements Serializable {
         Peer peer = (Peer) o;
 
         if (mSuccessfulRetrievals != peer.mSuccessfulRetrievals) return false;
-        if (mNextFetch != peer.mNextFetch) return false;
         if (mLastSeenTimestamp != peer.mLastSeenTimestamp) return false;
-        if (!mId.equals(peer.mId)) return false;
-        return mSlogans.equals(peer.mSlogans);
+        if (mSynchronizing != peer.mSynchronizing) return false;
+        if (mId != null ? !mId.equals(peer.mId) : peer.mId != null) return false;
+        return mSlogans != null ? mSlogans.equals(peer.mSlogans) : peer.mSlogans == null;
     }
 
     @Override
     public int hashCode() {
-        int result = mId.hashCode();
+        int result = mId != null ? mId.hashCode() : 0;
         result = 31 * result + mSuccessfulRetrievals;
-        result = 31 * result + (int) (mNextFetch ^ (mNextFetch >>> 32));
         result = 31 * result + (int) (mLastSeenTimestamp ^ (mLastSeenTimestamp >>> 32));
-        result = 31 * result + mSlogans.hashCode();
+        result = 31 * result + (mSlogans != null ? mSlogans.hashCode() : 0);
+        result = 31 * result + (mSynchronizing ? 1 : 0);
         return result;
     }
 }

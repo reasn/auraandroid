@@ -26,7 +26,7 @@
     <TextView
         android:id="@+id/communicator_state_dump"
         android:layout_width="match_parent"
-        android:layout_height="500dp"
+        android:layout_height="250dp"
         android:scrollbars="vertical"
         android:textColor="@color/black"
         android:textSize="10sp"

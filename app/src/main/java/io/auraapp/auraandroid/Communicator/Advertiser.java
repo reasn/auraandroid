@@ -67,7 +67,7 @@ class Advertiser {
         @Override
         public void onStartFailure(int errorCode) {
             e(TAG, "onStartFailure, errorCode: %s", BtConst.nameAdvertiseError(errorCode));
-            mHandler.post(() -> advertisingUnsupported(false));
+            mHandler.post(() -> advertisingUnsupported(false, BtConst.nameAdvertiseError(errorCode)));
         }
     };
 
@@ -87,13 +87,13 @@ class Advertiser {
         mHandler.post(() -> {
             BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
             if (bluetoothAdapter == null) {
-                advertisingUnsupported(true);
+                advertisingUnsupported(true, "no adapter");
                 return;
             }
             mBluetoothAdvertiser = bluetoothAdapter.getBluetoothLeAdvertiser();
 
             if (mBluetoothAdvertiser == null) {
-                advertisingUnsupported(true);
+                advertisingUnsupported(true, "no adapter");
                 return;
             }
 
@@ -161,11 +161,11 @@ class Advertiser {
         });
     }
 
-    private void advertisingUnsupported(boolean recoverable) {
+    private void advertisingUnsupported(boolean recoverable, String errorName) {
         d(TAG, "Advertising seems to be unsupported on this device");
         stop();
         if (!recoverable) {
-            mOnErrorCallback.onUnrecoverableError();
+            mOnErrorCallback.onUnrecoverableError(errorName);
         }
     }
 
@@ -201,7 +201,7 @@ class Advertiser {
         mBluetoothGattServer = mBluetoothManager.openGattServer(mContext, mGattServerCallback);
 
         if (mBluetoothGattServer == null) {
-            advertisingUnsupported(false);
+            advertisingUnsupported(false, "could not start gatt server");
 
         } else {
             mBluetoothGattServer.addService(createSloganService());
@@ -228,7 +228,7 @@ class Advertiser {
             BluetoothGattCharacteristic chara = new BluetoothGattCharacteristic(uuid, PROPERTY_READ | PROPERTY_NOTIFY, PERMISSION_READ);
             if (!service.addCharacteristic(chara)) {
                 e(TAG, "Could not add characteristic");
-                mOnErrorCallback.onUnrecoverableError();
+                mOnErrorCallback.onUnrecoverableError("Could not add characteristic");
             }
         }
         return service;
