@@ -111,7 +111,6 @@ public class Communicator extends Service {
                 errorName -> {
                     mState.mBluetoothRestartRequired = true;
                     mState.mLastError = errorName;
-                    mState.mShouldCommunicate = false;
                     updateBtState();
                     actOnState(true);
                 }
@@ -146,7 +145,6 @@ public class Communicator extends Service {
                 errorName -> {
                     mState.mBluetoothRestartRequired = true;
                     mState.mLastError = errorName;
-                    mState.mShouldCommunicate = false;
                     updateBtState();
                     actOnState(true);
                 });
@@ -272,12 +270,14 @@ public class Communicator extends Service {
             boolean stateChanged = false;
 
             boolean shouldAdvertise = mState.mBtEnabled
+                    && !mState.mBluetoothRestartRequired
                     && mState.mShouldCommunicate
                     && mState.mBleSupported
                     && mState.mAdvertisingSupported
                     && mState.mHasPermission;
 
             boolean shouldScan = mState.mBtEnabled
+                    && !mState.mBluetoothRestartRequired
                     && mState.mShouldCommunicate
                     && mState.mHasPermission;
 
