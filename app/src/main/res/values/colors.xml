@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#ffd2b8</color>
+    <color name="colorPrimary">@color/purple</color>
     <color name="colorAccent">#fff5ef</color>
     <color name="colorPrimaryDark">#303F9F</color>
 
     <color name="buttonPrimary">@color/colorPrimary</color>
     <color name="buttonSecondary">@color/colorAccent</color>
-    <color name="infoBoxWarning">#F7AA00</color>
-    <color name="infoBoxError">#ff0000</color>
-    <color name="black">#000000</color>
+    <color name="infoBoxWarning">@color/yellow</color>
+    <color name="infoBoxError">@color/red</color>
     <color name="infoBoxNeutral">@color/colorAccent</color>
+
+    <color name="black">#000000</color>
+    <color name="white">#ffffff</color>
+    <color name="purple">#49168e</color>
+    <color name="green">#2fa456</color>
+    <color name="red">#e4204e</color>
+    <color name="yellow">#eec711</color>
+    <color name="blue">#3996d1</color>
 </resources>

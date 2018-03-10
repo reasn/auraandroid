@@ -3,50 +3,56 @@
     android:id="@+id/slogan_row"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:paddingBottom="10dp">
-
-    <TextView
-        android:id="@+id/emoji"
-        android:layout_width="80sp"
-        android:layout_height="80sp"
-        android:textAlignment="center"
-        android:textSize="60sp" />
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal"
+        android:paddingBottom="10dp">
 
         <TextView
-            android:id="@+id/heading"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="30sp" />
+            android:id="@+id/emoji"
+            android:layout_width="80sp"
+            android:layout_height="80sp"
+            android:textAlignment="center"
+            android:textSize="60sp" />
 
-        <TextView
-            android:id="@+id/text"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingEnd="5dp"
-            android:textSize="16sp" />
+            android:orientation="vertical">
 
-        <Button
-            android:id="@+id/button"
-            style="@style/Widget.AppCompat.Button.Borderless.Colored"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone" />
+            <TextView
+                android:id="@+id/heading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:textSize="30sp" />
 
-        <TextView
-            android:id="@+id/text_below_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingEnd="5dp"
-            android:textSize="16sp"
-            android:visibility="gone" />
+            <TextView
+                android:id="@+id/text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingEnd="5dp"
+                android:paddingVertical="5dp"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
 
+        </LinearLayout>
     </LinearLayout>
 
+    <Button
+        android:id="@+id/button"
+        style="@style/Button"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/text_below_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:textSize="16sp"
+        android:visibility="gone" />
 
 </LinearLayout>

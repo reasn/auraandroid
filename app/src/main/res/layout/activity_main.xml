@@ -5,12 +5,42 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="bottom|end"
+    android:background="@color/yellow"
     android:orientation="vertical"
     tools:context="io.auraapp.auraandroid.main.MainActivity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
-        style="@style/Toolbar" />
+        style="@style/Toolbar"
+        app:title=" "
+        app:titleTextColor="@color/white" />
+
+    <ScrollView
+        android:id="@+id/debug_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ListView
+                android:id="@+id/debug_peers_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/debug_communicator_state_dump"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:textSize="9sp"
+                android:typeface="monospace" />
+
+        </LinearLayout>
+    </ScrollView>
 
     <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
@@ -22,7 +52,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end|bottom"
             android:layout_margin="26dp"
+            android:background="@color/blue"
             android:src="@mipmap/ic_thought_balloon"
+            app:backgroundTint="@color/blue"
             app:borderWidth="0dp"
             app:layout_anchor="@id/list_view"
             app:layout_anchorGravity="bottom|right|end" />

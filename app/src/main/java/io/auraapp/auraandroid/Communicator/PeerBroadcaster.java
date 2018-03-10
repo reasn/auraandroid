@@ -56,6 +56,7 @@ class PeerBroadcaster {
         peer.mLastSeenTimestamp = device.lastSeenTimestamp;
         peer.mSynchronizing = device.mSynchronizing;
         peer.mSuccessfulRetrievals = device.stats.mSuccessfulRetrievals;
+        peer.mErrors = device.stats.mErrors;
         for (String sloganText : device.getSlogans()) {
             peer.mSlogans.add(Slogan.create(sloganText));
         }

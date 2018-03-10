@@ -39,7 +39,6 @@ import static io.auraapp.auraandroid.common.FormattedLog.v;
 
 public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 
-
     @FunctionalInterface
     public interface CollapseExpandHandler {
         void flip(ListItem item);
@@ -47,12 +46,11 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 
     private static final String TAG = "@aura/" + RecycleAdapter.class.getSimpleName();
 
-    private static final int TYPE_STATUS_COLLAPSED = 140;
-    private static final int TYPE_STATUS_EXPANDED = 141;
+    private static final int TYPE_STATUS = 141;
     private static final int TYPE_MY_SLOGANS_HEADING = 142;
+    private final static int TYPE_MY_SLOGAN_COLLAPSED = 144;
+    private final static int TYPE_MY_SLOGAN_EXPANDED = 145;
     private static final int TYPE_PEERS_HEADING = 143;
-    private final static int TYPE_MY_COLLAPSED = 144;
-    private final static int TYPE_MY_EXPANDED = 145;
     private final static int TYPE_PEER_COLLAPSED = 146;
     private final static int TYPE_PEER_EXPANDED = 147;
 
@@ -158,23 +156,21 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     @Override
     public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         switch (viewType) {
-            case TYPE_STATUS_COLLAPSED:
-            case TYPE_STATUS_EXPANDED:
+            case TYPE_STATUS:
                 return new StatusHolder(
-                        viewType != TYPE_STATUS_COLLAPSED,
                         mContext,
-                        mInflater.inflate(R.layout.list_item_status, parent, false),
-                        collapseExpandHandler);
+                        mInflater.inflate(R.layout.list_item_status, parent, false)
+                );
 
             case TYPE_MY_SLOGANS_HEADING:
                 return new MySlogansHeadingHolder(
                         mInflater.inflate(R.layout.list_item_heading, parent, false),
                         mContext);
 
-            case TYPE_MY_COLLAPSED:
+            case TYPE_MY_SLOGAN_COLLAPSED:
                 return new MyCollapsedHolder(mInflater.inflate(R.layout.list_item_collapsed, parent, false));
 
-            case TYPE_MY_EXPANDED:
+            case TYPE_MY_SLOGAN_EXPANDED:
                 return new MyExpandedHolder(mInflater.inflate(R.layout.list_item_my_expanded, parent, false));
 
             case TYPE_PEERS_HEADING:
@@ -205,9 +201,10 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 
         if ((holder instanceof MyCollapsedHolder || holder instanceof MyExpandedHolder)) {
             if (position % 2 == 0) {
-                holder.itemView.setBackgroundColor(Color.parseColor("#ececec"));
+                holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.yellow));
+//                holder.itemView.setBackgroundColor(Color.parseColor("#ececec"));
             } else {
-                holder.itemView.setBackgroundColor(Color.parseColor("#ffffff"));
+                holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.green));
             }
 
         } else if (holder instanceof PeerCollapsedHolder || holder instanceof PeerExpandedHolder) {
@@ -225,9 +222,7 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     public int getItemViewType(int position) {
         ListItem item = mItems.get(position);
         if (item instanceof StatusItem) {
-            return item.mExpanded
-                    ? TYPE_STATUS_EXPANDED
-                    : TYPE_STATUS_COLLAPSED;
+            return TYPE_STATUS;
         }
         if (item instanceof MySlogansHeadingItem) {
             return TYPE_MY_SLOGANS_HEADING;
@@ -239,8 +234,8 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         return item instanceof MySloganListItem
                 ? (
                 item.mExpanded
-                        ? TYPE_MY_EXPANDED
-                        : TYPE_MY_COLLAPSED)
+                        ? TYPE_MY_SLOGAN_EXPANDED
+                        : TYPE_MY_SLOGAN_COLLAPSED)
                 : (
                 item.mExpanded
                         ? TYPE_PEER_EXPANDED

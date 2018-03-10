@@ -2,6 +2,7 @@ package io.auraapp.auraandroid.main;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
@@ -17,7 +18,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.ListView;
+import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -76,6 +83,9 @@ public class MainActivity extends AppCompatActivity {
     TreeMap<String, PeerSlogan> mPeerSloganMap = new TreeMap<>();
     private MySlogansHeadingItem mMySlogansHeadingItem;
     private DialogManager mDialogManager;
+    private ScrollView mDebugWrapper;
+    private TextView mDebugCommunicatorStateDumpView;
+    private ListView mDebugPeersListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,11 +106,13 @@ public class MainActivity extends AppCompatActivity {
         mDialogManager = new DialogManager(this);
 
         final FloatingActionButton addSloganButton = findViewById(R.id.add_slogan);
-        addSloganButton.setOnClickListener(this::showAddDialog);
+        addSloganButton.setOnClickListener($ -> showAddDialog());
+
+        // TODO after first start only show "nobody around" after 10s and show "loading" before
 
         mMySloganManager = new MySloganManager(
                 this,
-                (int event) -> {
+                event -> {
                     d(TAG, "My slogans changed");
                     mListAdapter.notifyMySlogansChanged(mMySloganManager.getMySlogans());
                     mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
@@ -119,17 +131,18 @@ public class MainActivity extends AppCompatActivity {
                             throw new RuntimeException("Unknown slogan event " + event);
                     }
                     Toast.makeText(this, EmojiHelper.replaceShortCode(getString(text)), Toast.LENGTH_SHORT).show();
+                    reflectStatus();
                 }
         );
         mCommunicatorProxy = new CommunicatorProxy(
                 this,
-                (Set<Peer> peers) -> {
+                peers -> {
                     mPeers = peers;
                     mPeerSloganMap = PeerMapTransformer.buildMapFromPeerList(peers);
                     mListAdapter.notifyPeerSloganListChanged(mPeerSloganMap);
                     reflectStatus();
                 },
-                (Peer peer) -> {
+                peer -> {
                     for (Peer candidate : mPeers) {
                         if (candidate.mId.equals(peer.mId)) {
                             mPeers.remove(candidate);
@@ -141,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
                     mListAdapter.notifyPeerSloganListChanged(mPeerSloganMap);
                     reflectStatus();
                 },
-                (CommunicatorState state) -> {
+                state -> {
                     mCommunicatorState = state;
                     reflectStatus();
                 });
@@ -157,6 +170,10 @@ public class MainActivity extends AppCompatActivity {
         mSwipeRefresh = findViewById(R.id.swiperefresh);
         mSwipeRefresh.setOnRefreshListener(this::refresh);
         mSwipeRefresh.setEnabled(false);
+
+        mDebugWrapper = findViewById(R.id.debug_wrapper);
+        mDebugCommunicatorStateDumpView = findViewById(R.id.debug_communicator_state_dump);
+        mDebugPeersListView = findViewById(R.id.debug_peers_list);
     }
 
     /**
@@ -174,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void showAddDialog(View $) {
+    private void showAddDialog() {
         if (!mMySloganManager.spaceAvailable()) {
             Toast.makeText(this, EmojiHelper.replaceShortCode(getString(R.string.ui_main_toast_cannot_add_no_space_available)), Toast.LENGTH_LONG).show();
             return;
@@ -184,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
                 R.string.ui_dialog_add_slogan_confirm,
                 R.string.ui_dialog_add_slogan_cancel,
                 null,
-                (String sloganText) -> {
+                sloganText -> {
                     if (sloganText.length() == 0) {
                         Toast.makeText(this, R.string.ui_main_add_slogan_too_short, Toast.LENGTH_SHORT).show();
                     } else {
@@ -199,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
                 R.string.ui_dialog_edit_slogan_confirm,
                 R.string.ui_dialog_edit_slogan_cancel,
                 slogan,
-                (String sloganText) -> mMySloganManager.replace(slogan, Slogan.create(sloganText)));
+                sloganText -> mMySloganManager.replace(slogan, Slogan.create(sloganText)));
     }
 
     private void reflectStatus() {
@@ -230,6 +247,22 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mSwipeRefresh.setEnabled(mCommunicatorState.mScanning);
+        showDebugInformation();
+    }
+
+    private void showDebugInformation() {
+        mDebugWrapper.setVisibility(View.GONE);
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String dump = "# communicator: " + gson.toJson(mCommunicatorState);
+        dump += "\n# peers: " + gson.toJson(mPeers);
+        mDebugCommunicatorStateDumpView.setText(dump.replaceAll("\"", "").replaceAll("\n +\\{", " {"));
+
+        // TODO don't recreate everything, cache? maybe not #onlyfordebugging
+        mDebugPeersListView.setAdapter(new DebugPeersListArrayAdapter(
+                this,
+                android.R.layout.simple_list_item_1,
+                mPeers.toArray(new Peer[mPeers.size()])
+        ));
     }
 
     private void showBrokenBtStackAlert() {
@@ -257,7 +290,9 @@ public class MainActivity extends AppCompatActivity {
         mStatusItem = new StatusItem(mCommunicatorState, mPeers, mPeerSloganMap);
         builtinItems.add(mStatusItem);
 
-        mMySlogansHeadingItem = new MySlogansHeadingItem(mMySloganManager.getMySlogans().size());
+        mMySlogansHeadingItem = new MySlogansHeadingItem(
+                mMySloganManager.getMySlogans().size(),
+                this::showAddDialog);
         builtinItems.add(mMySlogansHeadingItem);
 
         mPeersHeadingItem = new PeersHeadingItem(mPeers, mPeerSloganMap.size());
@@ -315,7 +350,7 @@ public class MainActivity extends AppCompatActivity {
         MenuItem item = menu.findItem(R.id.enabledSwitch);
         item.setActionView(R.layout.toolbar_switch);
 
-        SwitchCompat enabledSwitch = item.getActionView().findViewById(R.id.switchForActionBar);
+        SwitchCompat enabledSwitch = item.getActionView().findViewById(R.id.enabled_switch);
         enabledSwitch.setChecked(mAuraEnabled);
 
         // Managed programmatically because offText XML attribute has no effect for SwitchCompat in menu item
@@ -323,15 +358,45 @@ public class MainActivity extends AppCompatActivity {
                 ? R.string.ui_toolbar_enable_on
                 : R.string.ui_toolbar_enable_off));
 
+//        enabledSwitch.setTrackTintList(new ColorStateList(
+//                new int[][]{
+//                        new int[]{-android.R.attr.state_enabled},
+//                        new int[]{android.R.attr.state_checked},
+//                        new int[]{}
+//                },
+//                new int[]{
+//                        R.color.red,
+//                        R.color.yellow,
+//                        R.color.purple
+//                }
+//        ));
+//        enabledSwitch.setThumbTintList(new ColorStateList(
+//                new int[][]{
+//                        new int[]{-android.R.attr.state_enabled},
+//                        new int[]{android.R.attr.state_checked},
+//                        new int[]{}
+//                },
+//                new int[]{
+//                        R.color.purple,
+//                        R.color.yellow,
+//                        R.color.green
+//                }
+//        ));
+
         enabledSwitch.setOnCheckedChangeListener((CompoundButton $, boolean isChecked) -> {
             mAuraEnabled = isChecked;
             mPrefs.edit().putBoolean(MainActivity.PREFS_ENABLED, isChecked).apply();
             if (isChecked) {
                 mCommunicatorProxy.enable();
                 enabledSwitch.setText(getString(R.string.ui_toolbar_enable_on));
+                enabledSwitch.getThumbDrawable().setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
+                enabledSwitch.getTrackDrawable().setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
+
             } else {
                 enabledSwitch.setText(getString(R.string.ui_toolbar_enable_off));
                 mCommunicatorProxy.disable();
+                enabledSwitch.getThumbDrawable().setColorFilter(getResources().getColor(R.color.red), PorterDuff.Mode.MULTIPLY);
+                enabledSwitch.getTrackDrawable().setColorFilter(getResources().getColor(R.color.red), PorterDuff.Mode.MULTIPLY);
             }
         });
 

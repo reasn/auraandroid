@@ -137,7 +137,7 @@ class DialogManager {
             editText.setText(slogan.getText());
         }
 
-        AlertDialog alert = new AlertDialog.Builder(mContext)
+        AlertDialog alert = new AlertDialog.Builder(mContext, R.style.Dialog)
                 .setTitle(getString(title))
                 .setIcon(R.mipmap.ic_memo)
                 .setMessage(getString(message))
@@ -174,7 +174,7 @@ class DialogManager {
         LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View dialogView = inflater.inflate(R.layout.dialog_bt_stack_broken, null);
         CheckBox checkBox = dialogView.findViewById(R.id.dont_show_again);
-        new AlertDialog.Builder(mContext)
+        new AlertDialog.Builder(mContext, R.style.Dialog)
                 .setTitle(R.string.ui_dialog_bt_broken_title)
                 .setMessage(R.string.ui_dialog_bt_broken_text)
                 .setView(dialogView)

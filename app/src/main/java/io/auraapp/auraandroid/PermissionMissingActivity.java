@@ -35,8 +35,8 @@ public class PermissionMissingActivity extends AppCompatActivity {
         // Create toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle("");
-//        toolbar.setNavigationIcon(R.mipmap.ic_launcher);
+        toolbar.setTitle(" ");
+        toolbar.setNavigationIcon(R.mipmap.ic_launcher);
 
         ((TextView) findViewById(R.id.permission_explanation)).setText(EmojiHelper.replaceShortCode(getString(R.string.ui_permissionsMissing_text)));
         ((TextView) findViewById(R.id.permission_second_text)).setText(EmojiHelper.replaceShortCode(getString(R.string.ui_permissionsMissing_second_text)));

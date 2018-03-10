@@ -88,7 +88,7 @@ public class PeersHeadingHolder extends ItemViewHolder {
                 mInfoBox.setText(R.string.ui_main_status_peers_not_scanning_text);
                 mInfoBox.hideButton();
             }
-            mInfoBox.setColor(R.color.infoBoxNeutral);
+            mInfoBox.setBackgroundColor(mContext.getResources().getColor(R.color.infoBoxWarning));
             mInfoBox.setVisibility(View.VISIBLE);
 //        } else if (sloganCount == 0) {
 //            mInfoBox.setEmoji(":silhouette:");

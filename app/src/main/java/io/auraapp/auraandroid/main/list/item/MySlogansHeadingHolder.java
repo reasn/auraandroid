@@ -42,9 +42,7 @@ public class MySlogansHeadingHolder extends ItemViewHolder {
         mInfoBox.showButton(
                 R.string.ui_main_my_slogans_info_no_slogans_heading_cta,
                 0,
-                $ -> {
-                    // add slogan
-                });
+                $ -> castItem.mShowCreateSloganDialogCallback.run());
         mInfoBox.setColor(R.color.infoBoxNeutral);
         mInfoBox.setVisibility(View.VISIBLE);
     }
