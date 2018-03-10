@@ -59,8 +59,6 @@ class Scanner {
     private boolean mQueued = false;
     private boolean mInactive = false;
 
-    private Set<Peer> mLastKnownPeers;
-
     Scanner(Context context, PeerBroadcaster peerBroadcaster, Communicator.OnErrorCallback onErrorCallback) {
         mContext = context;
         mPeerBroadcaster = peerBroadcaster;
@@ -69,10 +67,9 @@ class Scanner {
 
     void start() {
         mHandler.post(() -> {
-            mLastKnownPeers = null;
-            startScanning();
             mQueued = false;
             mInactive = false;
+            startScanning();
             returnControl();
         });
     }
@@ -88,23 +85,12 @@ class Scanner {
     void stop() {
         mHandler.post(() -> {
             w(TAG, "onStop called, destroying");
-            mLastKnownPeers = mPeerBroadcaster.buildPeers(mDeviceMap);
-            for (Peer peer : mLastKnownPeers) {
-                peer.mSynchronizing = false;
-            }
             mInactive = true;
             for (Device device : mDeviceMap.values()) {
-                if (device.bt.gatt != null) {
-                    device.bt.gatt.close();
-                }
-                device.bt.gatt = null;
-                device.bt.device = null;
-                device.bt.service = null;
+                disconnectDevice(device);
             }
-            mDeviceMap.clear();
-
-            // Propagate peers after mSynchronizing has been set to false
-            mPeerBroadcaster.propagatePeerList(mLastKnownPeers);
+            // Propagate peers after all devices disconnected
+            mPeerBroadcaster.propagatePeerList(mDeviceMap);
         });
     }
 
@@ -112,13 +98,23 @@ class Scanner {
      * Avoids concurrent access to mPeers
      */
     void requestPeers(CurrentPeersCallback currentPeersCallback) {
-        mHandler.post(() -> {
-            if (mLastKnownPeers == null) {
-                currentPeersCallback.currentPeers(mPeerBroadcaster.buildPeers(mDeviceMap));
-            } else {
-                currentPeersCallback.currentPeers(mLastKnownPeers);
-            }
-        });
+        mHandler.post(() -> currentPeersCallback.currentPeers(mPeerBroadcaster.buildPeers(mDeviceMap)));
+    }
+
+    private void disconnectDevice(Device device) {
+        i(TAG, "Disconnecting device, slogans known: %d, id: %s, stats: %s", device.getSlogans().size(), device.mId, device.stats);
+        if (device.bt.gatt != null) {
+            device.bt.gatt.close();
+        }
+        device.bt.device = null;
+        device.bt.gatt = null;
+        device.bt.service = null;
+        device.connected = false;
+        device.shouldDisconnect = false;
+        device.lastConnectAttempt = 0;
+        device.isDiscoveringServices = false;
+        device.mFetchingAProp = false;
+        device.mSynchronizing = false;
     }
 
     private void actOnState() {
@@ -138,20 +134,7 @@ class Scanner {
 
             try {
                 if (device.shouldDisconnect) {
-                    i(TAG, "Disconnecting device, slogans known: %d, id: %s, stats: %s", device.getSlogans().size(), id, device.stats);
-                    if (device.bt.gatt != null) {
-                        device.bt.gatt.close();
-                    }
-                    device.bt.device = null;
-                    device.bt.gatt = null;
-                    device.bt.service = null;
-                    device.connected = false;
-                    device.shouldDisconnect = false;
-                    device.lastConnectAttempt = 0;
-                    device.isDiscoveringServices = false;
-                    device.mFetchingAProp = false;
-                    device.mSynchronizing = false;
-
+                    disconnectDevice(device);
                     // Giving the BT some air before we do the next connection attempt
                     continue;
                 }

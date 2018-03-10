@@ -41,9 +41,6 @@ class PeerBroadcaster {
     void propagatePeerList(DeviceMap deviceMap) {
         mTimer.debounce(DEBOUNCE_ID_ALL_PEERS, () -> mPeersListCallback.peersChanged(buildPeers(deviceMap)), DEBOUNCE);
     }
-    void propagatePeerList(Set<Peer> peers) {
-        mTimer.debounce(DEBOUNCE_ID_ALL_PEERS, () -> mPeersListCallback.peersChanged(peers), DEBOUNCE);
-    }
 
     Set<Peer> buildPeers(DeviceMap deviceMap) {
         Set<Peer> peers = new HashSet<>();
