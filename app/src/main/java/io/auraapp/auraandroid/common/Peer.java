@@ -12,6 +12,7 @@ public class Peer implements Serializable {
     public long mLastSeenTimestamp = 0;
 
     public final Set<Slogan> mSlogans = new HashSet<>();
+    public boolean mSynchronizing = false;
 
     public Peer(String id) {
         mId = id;

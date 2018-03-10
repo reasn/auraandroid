@@ -68,6 +68,7 @@ public class Communicator extends Service {
     private int mPeerSloganCount = 0;
 
     private final CommunicatorState mState = new CommunicatorState();
+    private Set<Peer> mLastKnownPeers = null;
 
     @FunctionalInterface
     interface OnErrorCallback {
@@ -418,8 +419,16 @@ public class Communicator extends Service {
             actOnState(true);
 
         } else if (IntentFactory.INTENT_DISABLE_ACTION.equals(action)) {
-            mState.mShouldCommunicate = false;
-            actOnState(true);
+            mScanner.requestPeers((Set<Peer> peers) -> {
+                for (Peer peer : peers) {
+                    peer.mSynchronizing = false;
+                }
+                mLastKnownPeers = peers;
+                sendBroadcast(IntentFactory.peerListUpdated(peers, mState));
+                d(TAG, "Updated peers with mSynchronizing=false and sent intent with %d peers", peers.size());
+                mState.mShouldCommunicate = false;
+                actOnState(true);
+            });
 
         } else if (IntentFactory.INTENT_REQUEST_PEERS_ACTION.equals(action)) {
 
@@ -452,6 +461,7 @@ public class Communicator extends Service {
         } else {
             w(TAG, "Received unknown intent, intent: %s", intent);
         }
+        // No statements must happen outside conditional because some things (e.g. requestPeers) happen asynchronously
     }
 
     @Override

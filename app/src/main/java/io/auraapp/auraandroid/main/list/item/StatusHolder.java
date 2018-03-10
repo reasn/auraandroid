@@ -10,6 +10,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -27,6 +30,7 @@ import static io.auraapp.auraandroid.common.FormattedLog.w;
 public class StatusHolder extends ItemViewHolder {
 
     private final InfoBox mInfoBox;
+    private final TextView mCommunicatorStateDumpView;
 
     class PeerArrayAdapter extends ArrayAdapter<Peer> {
         public PeerArrayAdapter(@NonNull Context context, int resource, @NonNull Peer[] peers) {
@@ -83,6 +87,7 @@ public class StatusHolder extends ItemViewHolder {
         mSummaryTextView = itemView.findViewById(R.id.status_summary);
         mInfoBox = itemView.findViewById(R.id.info_box);
         mPeersListView = itemView.findViewById(R.id.peers_list);
+        mCommunicatorStateDumpView = itemView.findViewById(R.id.communicator_state_dump);
         itemView.setOnClickListener($ -> collapseExpandHandler.flip(getLastBoundItem()));
     }
 
@@ -97,16 +102,20 @@ public class StatusHolder extends ItemViewHolder {
         if (peerSloganMap == null || peers == null || communicatorState == null) {
             return;
         }
-        bindBasics(communicatorState, peerSloganMap, peers);
-        if (mExpanded) {
-            bindPeerList(peers);
-            mPeersListView.setVisibility(View.VISIBLE);
-        } else {
+        bindBasics(communicatorState);
+        if (!mExpanded) {
             mPeersListView.setVisibility(View.GONE);
+            mCommunicatorStateDumpView.setVisibility(View.GONE);
+            return;
         }
+        bindPeerList(peers);
+        mPeersListView.setVisibility(View.VISIBLE);
+        mCommunicatorStateDumpView.setVisibility(View.VISIBLE);
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        mCommunicatorStateDumpView.setText(gson.toJson(castItem.mPeers).replaceAll("\"", ""));
     }
 
-    private void bindBasics(CommunicatorState communicatorState, TreeMap<String, PeerSlogan> peerSloganMap, Set<Peer> peers) {
+    private void bindBasics(CommunicatorState communicatorState) {
 
         String communicatorSummary = buildCommunicatorSummary(communicatorState);
 

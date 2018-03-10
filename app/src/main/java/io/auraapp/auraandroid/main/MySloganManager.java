@@ -38,7 +38,6 @@ class MySloganManager {
     }
 
     void init() {
-
         Set<String> defaultSlogans = new HashSet<>();
         defaultSlogans.add(EmojiHelper.replaceShortCode(mContext.getString(R.string.default_slogan)));
 

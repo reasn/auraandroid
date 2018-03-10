@@ -8,5 +8,6 @@
     <color name="buttonSecondary">@color/colorAccent</color>
     <color name="infoBoxWarning">#F7AA00</color>
     <color name="infoBoxError">#ff0000</color>
+    <color name="black">#000000</color>
     <color name="infoBoxNeutral">@color/colorAccent</color>
 </resources>

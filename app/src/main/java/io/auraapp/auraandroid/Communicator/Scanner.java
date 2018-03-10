@@ -36,6 +36,7 @@ import static io.auraapp.auraandroid.common.FormattedLog.w;
  */
 class Scanner {
 
+
     @FunctionalInterface
     interface CurrentPeersCallback {
         void currentPeers(Set<Peer> peers);
@@ -58,6 +59,8 @@ class Scanner {
     private boolean mQueued = false;
     private boolean mInactive = false;
 
+    private Set<Peer> mLastKnownPeers;
+
     Scanner(Context context, PeerBroadcaster peerBroadcaster, Communicator.OnErrorCallback onErrorCallback) {
         mContext = context;
         mPeerBroadcaster = peerBroadcaster;
@@ -66,7 +69,10 @@ class Scanner {
 
     void start() {
         mHandler.post(() -> {
+            mLastKnownPeers = null;
             startScanning();
+            mQueued = false;
+            mInactive = false;
             returnControl();
         });
     }
@@ -82,6 +88,10 @@ class Scanner {
     void stop() {
         mHandler.post(() -> {
             w(TAG, "onStop called, destroying");
+            mLastKnownPeers = mPeerBroadcaster.buildPeers(mDeviceMap);
+            for (Peer peer : mLastKnownPeers) {
+                peer.mSynchronizing = false;
+            }
             mInactive = true;
             for (Device device : mDeviceMap.values()) {
                 if (device.bt.gatt != null) {
@@ -91,7 +101,10 @@ class Scanner {
                 device.bt.device = null;
                 device.bt.service = null;
             }
-            mHandler.post(mDeviceMap::clear);
+            mDeviceMap.clear();
+
+            // Propagate peers after mSynchronizing has been set to false
+            mPeerBroadcaster.propagatePeerList(mLastKnownPeers);
         });
     }
 
@@ -99,10 +112,22 @@ class Scanner {
      * Avoids concurrent access to mPeers
      */
     void requestPeers(CurrentPeersCallback currentPeersCallback) {
-        mHandler.post(() -> currentPeersCallback.currentPeers(mPeerBroadcaster.buildPeers(mDeviceMap)));
+        mHandler.post(() -> {
+            if (mLastKnownPeers == null) {
+                currentPeersCallback.currentPeers(mPeerBroadcaster.buildPeers(mDeviceMap));
+            } else {
+                currentPeersCallback.currentPeers(mLastKnownPeers);
+            }
+        });
     }
 
     private void actOnState() {
+
+        if (mInactive) {
+            // invocation of this method is posted on mHandler and the scanner could've been stopped since
+            return;
+        }
+
         mQueued = false;
 
         long now = System.currentTimeMillis();
@@ -124,7 +149,8 @@ class Scanner {
                     device.shouldDisconnect = false;
                     device.lastConnectAttempt = 0;
                     device.isDiscoveringServices = false;
-                    device.isFetchingProp = false;
+                    device.mFetchingAProp = false;
+                    device.mSynchronizing = false;
 
                     // Giving the BT some air before we do the next connection attempt
                     continue;
@@ -156,6 +182,7 @@ class Scanner {
                     } else if (device.mNextFetch < now) {
                         d(TAG, "Connecting to gatt server, id: %s", id);
                         device.connectionAttempts++;
+                        device.mSynchronizing = true;
                         device.lastConnectAttempt = now;
                         device.setAllPropertiesOutdated();
                         if (device.bt.device == null) {
@@ -191,7 +218,7 @@ class Scanner {
 
                 // device has a service and is not discovering
 
-                if (device.isFetchingProp) {
+                if (device.mFetchingAProp) {
                     v(TAG, "Still fetching prop, id: %s", id);
                     continue;
                 }
@@ -205,6 +232,7 @@ class Scanner {
 
                 device.mNextFetch = now + PEER_REFRESH_AFTER;
                 i(TAG, "All props fresh, should disconnect, nextFetch: %d, props: %s, id: %s", device.mNextFetch, device.props(), id);
+                device.mSynchronizing = false;
                 device.stats.mSuccessfulRetrievals++;
                 device.shouldDisconnect = true;
                 mPeerBroadcaster.propagatePeer(device);
@@ -217,7 +245,7 @@ class Scanner {
     }
 
     private void requestCharacteristic(Device device, UUID uuid) {
-        device.isFetchingProp = true;
+        device.mFetchingAProp = true;
         d(TAG, "Requesting characteristic, device: %s, characteristic: %s", device.mId, uuid);
         BluetoothGattCharacteristic chara = device.bt.service.getCharacteristic(uuid);
         if (chara == null) {
@@ -398,13 +426,17 @@ class Scanner {
                 } catch (UnknownAdvertisementException e) {
                     w(TAG, "Characteristic retrieved matches no prop UUID, id: %s, uuid: %s", device.mId, uuid);
                 }
-                device.isFetchingProp = false;
+                device.mFetchingAProp = false;
                 returnControl();
             });
         }
     };
 
     private void handleResults(ScanResult[] results) {
+        if (mInactive) {
+            // invocation of this method is posted on mHandler and the scanner could've been stopped since
+            return;
+        }
         for (ScanResult result : results) {
 
             String address = result.getDevice().getAddress();

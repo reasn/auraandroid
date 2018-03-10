@@ -30,12 +30,13 @@ class Device {
     boolean shouldDisconnect = false;
     int connectionAttempts = 0;
 
-    boolean isFetchingProp = false;
+    boolean mFetchingAProp = false;
 
     byte mAdvertisementVersion = 0;
 
     private final Map<UUID, Boolean> mFreshMap;
     private final Map<UUID, String> mPropertyMap;
+    boolean mSynchronizing = false;
 
     private Device(String id) {
         mFreshMap = new HashMap<>();
@@ -113,7 +114,8 @@ class Device {
                 ", connected=" + connected +
                 ", shouldDisconnect=" + shouldDisconnect +
                 ", connectionAttempts=" + connectionAttempts +
-                ", isFetchingProp=" + isFetchingProp +
+                ", mFetchingAProp=" + mFetchingAProp +
+                ", mSynchronizing=" + mSynchronizing +
                 ", mFreshMap=" + mFreshMap +
                 ", mPropertyMap=" + mPropertyMap +
                 '}';

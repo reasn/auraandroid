@@ -66,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences mPrefs;
 
     private long mBrokenBtStackLastVisibleTimestamp;
-    private boolean mBrokenBtStackAlertVisible = false;
     private CommunicatorState mCommunicatorState;
     private Set<Peer> mPeers = new HashSet<>();
     private final Handler mHandler = new Handler();

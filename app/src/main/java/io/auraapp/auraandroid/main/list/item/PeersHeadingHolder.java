@@ -41,16 +41,15 @@ public class PeersHeadingHolder extends ItemViewHolder {
             heading = mContext.getResources().getQuantityString(R.plurals.ui_main_peers_heading_slogans, castItem.mSloganCount, castItem.mSloganCount);
         }
 
-        long now = System.currentTimeMillis();
-        boolean fetching = false;
+        boolean synchronizing = false;
         for (Peer peer : castItem.mPeers) {
-            if (peer.mNextFetch <= now) {
-                fetching = true;
+            if (peer.mSynchronizing) {
+                synchronizing = true;
                 break;
             }
         }
         mProgressBar.setVisibility(
-                fetching
+                synchronizing
                         ? View.VISIBLE
                         : View.GONE
         );
