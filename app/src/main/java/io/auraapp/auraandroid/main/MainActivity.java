@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.StringRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -116,21 +117,19 @@ public class MainActivity extends AppCompatActivity {
                     d(TAG, "My slogans changed");
                     mListAdapter.notifyMySlogansChanged(mMySloganManager.getMySlogans());
                     mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
-                    int text;
                     switch (event) {
                         case MySloganManager.EVENT_ADOPTED:
-                            text = R.string.ui_main_toast_adopted;
+                            toast(R.string.ui_main_toast_adopted);
                             break;
                         case MySloganManager.EVENT_REPLACED:
-                            text = R.string.ui_main_toast_replaced;
+                            toast(R.string.ui_main_toast_replaced);
                             break;
                         case MySloganManager.EVENT_DROPPED:
-                            text = R.string.ui_main_toast_dropped;
+                            toast(R.string.ui_main_toast_dropped);
                             break;
                         default:
                             throw new RuntimeException("Unknown slogan event " + event);
                     }
-                    Toast.makeText(this, EmojiHelper.replaceShortCode(getString(text)), Toast.LENGTH_SHORT).show();
                     reflectStatus();
                 }
         );
@@ -186,14 +185,14 @@ public class MainActivity extends AppCompatActivity {
                 ? getString(R.string.ui_main_toast_refresh_no_peers)
                 : getResources().getQuantityString(R.plurals.ui_main_toast_refresh, mPeers.size(), mPeers.size());
 
-        Toast.makeText(this, EmojiHelper.replaceShortCode(text), Toast.LENGTH_SHORT).show();
+        toast(text);
         mHandler.postDelayed(() -> mSwipeRefresh.setRefreshing(false), SWIPE_TO_REFRESH_DURATION);
     }
 
 
     private void showAddDialog() {
         if (!mMySloganManager.spaceAvailable()) {
-            Toast.makeText(this, EmojiHelper.replaceShortCode(getString(R.string.ui_main_toast_cannot_add_no_space_available)), Toast.LENGTH_LONG).show();
+            toast(R.string.ui_main_toast_cannot_add_no_space_available);
             return;
         }
         mDialogManager.showParametrizedSloganEdit(R.string.ui_dialog_add_slogan_title,
@@ -203,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
                 null,
                 sloganText -> {
                     if (sloganText.length() == 0) {
-                        Toast.makeText(this, R.string.ui_main_add_slogan_too_short, Toast.LENGTH_SHORT).show();
+                        toast(R.string.ui_main_add_slogan_too_short);
                     } else {
                         mMySloganManager.adopt(Slogan.create(sloganText));
                     }
@@ -280,6 +279,14 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void toast(@StringRes int text) {
+        Toast.makeText(this, EmojiHelper.replaceShortCode(getString(text)), Toast.LENGTH_SHORT).show();
+    }
+
+    private void toast(String text) {
+        Toast.makeText(this, EmojiHelper.replaceShortCode(text), Toast.LENGTH_SHORT).show();
+    }
+
     private void createListView() {
 
         // TODO show stats for slogans
@@ -316,7 +323,7 @@ public class MainActivity extends AppCompatActivity {
 
                         case SwipeCallback.ACTION_ADOPT:
                             if (mMySloganManager.getMySlogans().contains(slogan)) {
-                                Toast.makeText(this, R.string.ui_main_toast_slogan_already_adopted, Toast.LENGTH_LONG).show();
+                                toast(R.string.ui_main_toast_slogan_already_adopted);
                             } else if (mMySloganManager.spaceAvailable()) {
                                 mMySloganManager.adopt(slogan);
                             } else {

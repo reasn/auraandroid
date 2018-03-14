@@ -45,7 +45,7 @@ class Scanner {
     private final static String TAG = "@aura/ble/scanner";
 
     private static final boolean HIGH_POWER = true;
-    private static final long PEER_FORGET_AFTER = 1000 * 60 * 30;
+    private static final long PEER_FORGET_AFTER = 1000 * 60 * 3;
     private static final long PEER_CONNECT_TIMEOUT = 1000 * 10;
     private static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
     private final Communicator.OnErrorCallback mOnErrorCallback;

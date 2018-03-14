@@ -1,6 +1,7 @@
 package io.auraapp.auraandroid.main;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.support.annotation.ColorRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -11,6 +12,9 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.EmojiHelper;
 
@@ -20,36 +24,54 @@ public class InfoBox extends LinearLayout {
     private TextView mTextView;
     private Button mButtonView;
     private TextView mTextBelowButtonView;
+    private final List<Runnable> mAttributeSetters = new ArrayList<>();
 
     public InfoBox(Context context) {
         super(context);
-        init(null);
+        init(context, null);
     }
 
     public InfoBox(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        init(attrs);
+        init(context, attrs);
     }
 
     public InfoBox(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(attrs);
+        init(context, attrs);
     }
 
     public InfoBox(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        init(attrs);
+        init(context, attrs);
     }
 
-    private void init(@Nullable AttributeSet attrs) {
+    private void init(Context context, @Nullable AttributeSet attributeSet) {
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.view_info_box, this);
+        if (attributeSet != null) {
+            TypedArray attrs = context.obtainStyledAttributes(attributeSet, R.styleable.InfoBox);
+            mAttributeSetters.add(() -> {
+                setHeading(attrs.getString(R.styleable.InfoBox_heading));
+                setEmoji(attrs.getString(R.styleable.InfoBox_emoji));
+                setText(attrs.getString(R.styleable.InfoBox_text));
+                if (attrs.hasValue(R.styleable.InfoBox_button_caption)) {
+                    mButtonView.setText(EmojiHelper.replaceShortCode(attrs.getString(R.styleable.InfoBox_button_caption)));
+                    mButtonView.setVisibility(View.VISIBLE);
+                }
+                if (attrs.hasValue(R.styleable.InfoBox_text_below_button)) {
+                    mTextBelowButtonView.setText(EmojiHelper.replaceShortCode(attrs.getString(R.styleable.InfoBox_text_below_button)));
+                    mTextBelowButtonView.setVisibility(View.VISIBLE);
+                }
+                attrs.recycle();
+            });
+        }
     }
 
     public void showButton(@StringRes int caption, @StringRes int textBelowButton, OnClickListener onClickListener) {
         mButtonView.setText(EmojiHelper.replaceShortCode(getContext().getString(caption)));
         mButtonView.setVisibility(View.VISIBLE);
-        mButtonView.setOnClickListener(onClickListener);
+        setButtonClickListener(onClickListener);
         if (textBelowButton > 0) {
             mTextBelowButtonView.setText(getContext().getString(textBelowButton));
             mTextBelowButtonView.setVisibility(View.VISIBLE);
@@ -57,6 +79,10 @@ public class InfoBox extends LinearLayout {
             mTextBelowButtonView.setVisibility(View.GONE);
         }
         mTextBelowButtonView.setVisibility(View.VISIBLE);
+    }
+
+    public void setButtonClickListener(OnClickListener onClickListener) {
+        mButtonView.setOnClickListener(onClickListener);
     }
 
     public void hideButton() {
@@ -93,6 +119,10 @@ public class InfoBox extends LinearLayout {
         mTextView = this.findViewById(R.id.text);
         mButtonView = this.findViewById(R.id.button);
         mTextBelowButtonView = this.findViewById(R.id.text_below_button);
+        for (Runnable r : mAttributeSetters) {
+            r.run();
+        }
+        mAttributeSetters.clear();
     }
 
     public void setColor(@ColorRes int color) {

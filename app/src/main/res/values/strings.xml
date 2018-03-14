@@ -12,23 +12,22 @@
     <string name="ui_toolbar_refresh">Refresh</string>
 
     <!--Permissions Missing Activity-->
+    <string name="ui_permissionsMissing_heading">Welcome!</string>
     <string name="ui_permissionsMissing_text">Aura can only work with some basic permissions.\n\nDon\'t worry, no data will be transmitted via the internet. \nYou are safe.</string>
     <string name="ui_permissionsMissing_request">:fire: Give Aura Location Access</string>
     <string name="ui_permissionsMissing_second_text">If clicking the button above doesn\'t work, you have to manually grant Aura the necessary permissions.\nPlease click the button below, then "Permissions" and grant Aura access to your location.</string>
     <string name="ui_permissionsMissing_appSettings">:pencil: Open App Settings</string>
 
     <!--Main Activity-->
-    <string name="ui_main_add_slogan">:heavy_plus_sign: Add my own thought</string>
-
 
     <string name="ui_main_toast_debug_view_enabled">Debug view enabled</string>
     <string name="ui_main_toast_debug_view_disabled">Debug view disabled</string>
 
-    <string name="ui_main_toast_slogan_already_adopted">This thought is already in your Aura</string>
+    <string name="ui_main_toast_slogan_already_adopted">This :thought_balloon: is already in your Aura</string>
     <string name="ui_main_toast_cannot_add_no_space_available">Please delete on of your :thought_balloon: before adding a new one</string>
-    <string name="ui_main_toast_adopted">:fire: Thought adopted</string>
-    <string name="ui_main_toast_replaced">:memo: Thought changed</string>
-    <string name="ui_main_toast_dropped">:wastebasket: Thought removed</string>
+    <string name="ui_main_toast_adopted">:thought_balloon: adopted</string>
+    <string name="ui_main_toast_replaced">:thought_balloon: changed</string>
+    <string name="ui_main_toast_dropped">:thought_balloon: removed</string>
 
     <string name="ui_main_toast_refresh_no_peers">Refreshing …</string>
     <plurals name="ui_main_toast_refresh">
@@ -108,13 +107,13 @@
     <string name="ui_dialog_bt_broken_never_show_again">Don\'t show this message again</string>
 
     <!--Dialog: Add Slogan-->
-    <string name="ui_dialog_add_slogan_title">Add Thought</string>
-    <string name="ui_dialog_add_slogan_text">Nearby Aura users can see and adopt your thoughts.\n::lollipop: Express yourself!</string>
+    <string name="ui_dialog_add_slogan_title">Add :thought_balloon:</string>
+    <string name="ui_dialog_add_slogan_text">Nearby Aura users can see and adopt your :thought_balloon:.\n::lollipop: Express yourself!</string>
     <string name="ui_main_add_slogan_too_short">Nothing added - too short</string>
     <string name="ui_dialog_add_slogan_confirm">Add</string>
     <string name="ui_dialog_add_slogan_cancel">Cancel</string>
 
-    <string name="ui_dialog_edit_slogan_edit_hint">Your Thought</string>
+    <string name="ui_dialog_edit_slogan_edit_hint">Your :thought_balloon:</string>
     <!--Dialog: Edit Slogan-->
     <string name="ui_dialog_edit_slogan_title">Edit :thought_balloon:</string>
     <string name="ui_dialog_edit_slogan_text">Use emojis to express yourself :sunglasses:</string>

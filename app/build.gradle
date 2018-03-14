@@ -6,8 +6,8 @@ android {
         applicationId "io.auraapp.auraandroid"
         minSdkVersion 22
         targetSdkVersion 27
-        versionCode 11
-        versionName "1.0.0-alpha-6"
+        versionCode 12
+        versionName "1.0.0-alpha-7"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -31,10 +31,10 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:appcompat-v7:27.0.2'
+    implementation 'com.android.support:appcompat-v7:27.1.0'
     implementation 'com.android.support:design:27.1.0'
 
-    implementation 'com.android.support:recyclerview-v7:27.0.2'
+    implementation 'com.android.support:recyclerview-v7:27.1.0'
 //    compile 'com.android.support:support-emoji-bundled:27.0.2'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.google.code.gson:gson:2.8.2'

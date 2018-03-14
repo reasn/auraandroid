@@ -15,27 +15,16 @@
         style="@style/Toolbar"
         app:title=" "
         app:titleTextColor="@color/white" />
-    <!--TODO turn into infoboxes-->
-    <TextView
-        android:id="@+id/permission_explanation"
-        style="@style/ExplanationBox"
+
+    <io.auraapp.auraandroid.main.InfoBox
+        android:id="@+id/info_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="18dp"
-        android:textColor="@color/black" />
-
-    <Button
-        android:id="@+id/show_permission_dialog"
-        style="@style/Button" />
-
-    <TextView
-        android:id="@+id/permission_second_text"
-        style="@style/ExplanationBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="18dp"
-        android:paddingTop="30dp"
-        android:textColor="@color/black" />
+        app:emoji=":open_lock:"
+        app:heading="@string/ui_permissionsMissing_heading"
+        app:text="@string/ui_permissionsMissing_text"
+        app:button_caption="@string/ui_permissionsMissing_request"
+        app:text_below_button="@string/ui_permissionsMissing_second_text" />
 
     <Button
         android:id="@+id/show_app_settings"
