@@ -8,8 +8,7 @@
 
     <TextView
         android:id="@+id/status_summary"
-        style="@style/StatusItemSummary"
-        android:padding="6dip" />
+        style="@style/StatusItemSummary" />
 
     <io.auraapp.auraandroid.main.InfoBox
         android:id="@+id/info_box"

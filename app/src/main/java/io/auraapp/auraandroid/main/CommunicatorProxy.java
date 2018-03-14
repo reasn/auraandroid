@@ -49,7 +49,10 @@ class CommunicatorProxy {
         void onPeerChanged(Peer peer);
     }
 
-    CommunicatorProxy(Context context, PeerSetChangedCallback peerSetChangedCallback, PeerChangedCallback peerChangedCallback, StateUpdatedCallback stateUpdatedCallback) {
+    CommunicatorProxy(Context context,
+                      PeerSetChangedCallback peerSetChangedCallback,
+                      PeerChangedCallback peerChangedCallback,
+                      StateUpdatedCallback stateUpdatedCallback) {
         mContext = context;
 
         mReceiver = new BroadcastReceiver() {

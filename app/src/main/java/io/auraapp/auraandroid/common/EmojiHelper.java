@@ -11,7 +11,7 @@ public class EmojiHelper {
                 .replaceAll(":pencil:", "📝")
                 .replaceAll(":warning:", "⚠️")
                 .replaceAll(":eyes:", "👀")
-                .replaceAll(":open_lock:", "🔓")
+                .replaceAll(":sun_behind_small_cloud:", "🌤")
                 .replaceAll(":hourglass:", "⏳")
                 .replaceAll(":dizzy_face:", "😵")
                 .replaceAll(":sleeping_face:", "😴")

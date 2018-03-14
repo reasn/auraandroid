@@ -1,6 +1,7 @@
 package io.auraapp.auraandroid.main.list.item;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.TextView;
 
@@ -30,21 +31,34 @@ public class StatusHolder extends ItemViewHolder {
         mInfoBox = itemView.findViewById(R.id.info_box);
     }
 
+    private void showAuraOffInfoBox() {
+        mInfoBox.setEmoji(":sleeping_sign:");
+        mInfoBox.setHeading(R.string.ui_main_status_communicator_disabled_heading);
+        mInfoBox.setText(R.string.ui_main_status_communicator_disabled_text);
+        mInfoBox.hideButton();
+        mInfoBox.setColor(R.color.infoBoxWarning);
+    }
+
     public void bind(ListItem item, View itemView) {
         if (!(item instanceof StatusItem)) {
             throw new RuntimeException("Expecting " + StatusItem.class.getSimpleName());
         }
         StatusItem castItem = (StatusItem) item;
-        CommunicatorState state = castItem.mState;
+        @Nullable CommunicatorState state = castItem.mState;
         TreeMap<String, PeerSlogan> peerSloganMap = castItem.mPeerSloganMap;
         Set<Peer> peers = castItem.mPeers;
-        if (peerSloganMap == null || peers == null || state == null) {
+        if (peerSloganMap == null || peers == null) {
             return;
         }
 
-        boolean showInfoBox = false;
         // The order of conditions should be synchronized with that in Communicator::updateForegroundNotification
-        if (state.mBluetoothRestartRequired) {
+        boolean showInfoBox = false;
+        if (state == null) {
+            showAuraOffInfoBox();
+            showInfoBox = true;
+
+
+        } else if (state.mBluetoothRestartRequired) {
             mInfoBox.setEmoji(":dizzy_face:");
             mInfoBox.setHeading(R.string.ui_main_status_communicator_bt_restart_required_heading);
             mInfoBox.setText(mContext.getString(R.string.ui_main_status_communicator_bt_restart_required_text)
@@ -71,11 +85,7 @@ public class StatusHolder extends ItemViewHolder {
             mInfoBox.setColor(R.color.infoBoxError);
             showInfoBox = true;
         } else if (!state.mShouldCommunicate) {
-            mInfoBox.setEmoji(":sleeping_sign:");
-            mInfoBox.setHeading(R.string.ui_main_status_communicator_disabled_heading);
-            mInfoBox.setText(R.string.ui_main_status_communicator_disabled_text);
-            mInfoBox.hideButton();
-            mInfoBox.setColor(R.color.infoBoxWarning);
+            showAuraOffInfoBox();
             showInfoBox = true;
         } else if (!state.mAdvertisingSupported) {
             mInfoBox.setEmoji(":broken_heart:");
@@ -95,7 +105,7 @@ public class StatusHolder extends ItemViewHolder {
         } else {
             mSummaryTextView.setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_main_status_summary_communicator_on)));
             mSummaryTextView.setBackgroundColor(mContext.getResources().getColor(R.color.green));
-            mSummaryTextView.setTextColor(mContext.getResources().getColor(R.color.white));
+            mSummaryTextView.setTextColor(mContext.getResources().getColor(R.color.black));
         }
         if (showInfoBox) {
             mSummaryTextView.setVisibility(View.GONE);

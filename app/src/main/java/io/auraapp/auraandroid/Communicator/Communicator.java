@@ -434,6 +434,11 @@ public class Communicator extends Service {
 
         } else if (IntentFactory.INTENT_MY_SLOGANS_CHANGED_ACTION.equals(action)) {
 
+            if (!mState.mShouldCommunicate) {
+                w(TAG, "Received %s intent while being not supposed to communicate. Starting to communicate to fulfill intent.", action);
+                mState.mShouldCommunicate = true;
+            }
+
             Bundle extras = intent.getExtras();
 
             if (extras == null) {

@@ -104,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
         // Load preferences
         mPrefs = getSharedPreferences(MainActivity.PREFS_BUCKET, MODE_PRIVATE);
         mAuraEnabled = mPrefs.getBoolean(MainActivity.PREFS_ENABLED, true);
+
         mDialogManager = new DialogManager(this);
 
         final FloatingActionButton addSloganButton = findViewById(R.id.add_slogan);
@@ -116,7 +117,9 @@ public class MainActivity extends AppCompatActivity {
                 event -> {
                     d(TAG, "My slogans changed");
                     mListAdapter.notifyMySlogansChanged(mMySloganManager.getMySlogans());
-                    mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
+                    if (mAuraEnabled) {
+                        mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
+                    }
                     switch (event) {
                         case MySloganManager.EVENT_ADOPTED:
                             toast(R.string.ui_main_toast_adopted);
@@ -158,13 +161,19 @@ public class MainActivity extends AppCompatActivity {
                     reflectStatus();
                 });
 
+        if (mAuraEnabled) {
+            mCommunicatorProxy.enable();
+        }
+
 //        EmojiCompat.init(new BundledEmojiCompatConfig(this));
 
         createListView();
 
         mMySloganManager.init();
         mListAdapter.notifyMySlogansChanged(mMySloganManager.getMySlogans());
-        mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
+        if (mAuraEnabled) {
+            mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
+        }
 
         mSwipeRefresh = findViewById(R.id.swiperefresh);
         mSwipeRefresh.setOnRefreshListener(this::refresh);
@@ -173,6 +182,7 @@ public class MainActivity extends AppCompatActivity {
         mDebugWrapper = findViewById(R.id.debug_wrapper);
         mDebugCommunicatorStateDumpView = findViewById(R.id.debug_communicator_state_dump);
         mDebugPeersListView = findViewById(R.id.debug_peers_list);
+        reflectStatus();
     }
 
     /**
@@ -220,6 +230,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void reflectStatus() {
         v(TAG, "Reflecting status, peers: %d, slogans: %d, state: %s", mPeers.size(), mPeerSloganMap.size(), mCommunicatorState);
+
+        mMySlogansHeadingItem.mMySlogansCount = mMySloganManager.getMySlogans().size();
+        mListAdapter.notifyListItemChanged(mMySlogansHeadingItem);
+
+        mStatusItem.mState = mCommunicatorState;
+        mStatusItem.mPeers = mPeers;
+        mStatusItem.mPeerSloganMap = mPeerSloganMap;
+        mListAdapter.notifyListItemChanged(mStatusItem);
+        showDebugInformation();
+
         if (mCommunicatorState == null) {
             return;
         }
@@ -228,13 +248,8 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        mStatusItem.mState = mCommunicatorState;
-        mStatusItem.mPeers = mPeers;
-        mStatusItem.mPeerSloganMap = mPeerSloganMap;
-        mListAdapter.notifyListItemChanged(mStatusItem);
 
-        mMySlogansHeadingItem.mMySlogansCount = mMySloganManager.getMySlogans().size();
-        mListAdapter.notifyListItemChanged(mMySlogansHeadingItem);
+
         // TODO keep peers if aura disabled and communicator destroyed
         mPeersHeadingItem.mPeers = mPeers;
         mPeersHeadingItem.mSloganCount = mPeerSloganMap.size();
@@ -246,7 +261,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mSwipeRefresh.setEnabled(mCommunicatorState.mScanning);
-        showDebugInformation();
     }
 
     private void showDebugInformation() {
@@ -365,36 +379,13 @@ public class MainActivity extends AppCompatActivity {
                 ? R.string.ui_toolbar_enable_on
                 : R.string.ui_toolbar_enable_off));
 
-//        enabledSwitch.setTrackTintList(new ColorStateList(
-//                new int[][]{
-//                        new int[]{-android.R.attr.state_enabled},
-//                        new int[]{android.R.attr.state_checked},
-//                        new int[]{}
-//                },
-//                new int[]{
-//                        R.color.red,
-//                        R.color.yellow,
-//                        R.color.purple
-//                }
-//        ));
-//        enabledSwitch.setThumbTintList(new ColorStateList(
-//                new int[][]{
-//                        new int[]{-android.R.attr.state_enabled},
-//                        new int[]{android.R.attr.state_checked},
-//                        new int[]{}
-//                },
-//                new int[]{
-//                        R.color.purple,
-//                        R.color.yellow,
-//                        R.color.green
-//                }
-//        ));
-
         enabledSwitch.setOnCheckedChangeListener((CompoundButton $, boolean isChecked) -> {
             mAuraEnabled = isChecked;
             mPrefs.edit().putBoolean(MainActivity.PREFS_ENABLED, isChecked).apply();
             if (isChecked) {
                 mCommunicatorProxy.enable();
+                mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
+                mCommunicatorProxy.askForPeersUpdate();
                 enabledSwitch.setText(getString(R.string.ui_toolbar_enable_on));
                 enabledSwitch.getThumbDrawable().setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
                 enabledSwitch.getTrackDrawable().setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
@@ -425,11 +416,10 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        if (mAuraEnabled) {
-            mCommunicatorProxy.enable();
-        }
         mCommunicatorProxy.startListening();
-        mCommunicatorProxy.askForPeersUpdate();
+        if (mAuraEnabled) {
+            mCommunicatorProxy.askForPeersUpdate();
+        }
 
         inForeground = true;
 

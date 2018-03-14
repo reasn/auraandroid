@@ -30,7 +30,7 @@
         <item name="android:layout_height">?attr/actionBarSize</item>
         <item name="android:elevation">0dp</item>
 
-        <item name="android:background">@color/blue</item>
+        <item name="android:background">@color/purple</item>
         <!--<item name="android:theme">@style/ThemeOverlay.AppCompat.ActionBar</item>-->
 
     </style>
@@ -55,6 +55,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textAlignment">center</item>
         <item name="android:textSize">16sp</item>
+        <item name="android:padding">6dp</item>
     </style>
 
     <style name="HeadingItem">
