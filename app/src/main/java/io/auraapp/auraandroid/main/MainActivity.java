@@ -37,6 +37,7 @@ import io.auraapp.auraandroid.Communicator.Communicator;
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.PermissionMissingActivity;
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.PermissionHelper;
@@ -110,8 +111,6 @@ public class MainActivity extends AppCompatActivity {
         final FloatingActionButton addSloganButton = findViewById(R.id.add_slogan);
         addSloganButton.setOnClickListener($ -> showAddDialog());
 
-        // TODO after first start only show "nobody around" after 10s and show "loading" before
-
         mMySloganManager = new MySloganManager(
                 this,
                 event -> {
@@ -157,6 +156,11 @@ public class MainActivity extends AppCompatActivity {
                     reflectStatus();
                 },
                 state -> {
+                    if (mCommunicatorState == null || !mCommunicatorState.mScanning && state.mScanning) {
+                        // Scan just started, let's make sure we hide the "looking around" info if
+                        // nothing is found for some time.
+                        mHandler.postDelayed(this::reflectStatus, Config.LOOKING_AROUND_SHOW_DURATION);
+                    }
                     mCommunicatorState = state;
                     reflectStatus();
                 });
@@ -248,12 +252,11 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-
-
         // TODO keep peers if aura disabled and communicator destroyed
         mPeersHeadingItem.mPeers = mPeers;
         mPeersHeadingItem.mSloganCount = mPeerSloganMap.size();
         mPeersHeadingItem.mScanning = mCommunicatorState.mScanning;
+        mPeersHeadingItem.mScanStartTimestamp = mCommunicatorState.mScanStartTimestamp;
         mListAdapter.notifyListItemChanged(mPeersHeadingItem);
 
         if (mCommunicatorState.mRecentBtTurnOnEvents >= Communicator.RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD) {

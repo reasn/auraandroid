@@ -69,10 +69,13 @@
     <string name="ui_main_status_peers_no_peers_text">Make it more exciting - invite people!</string>
     <string name="ui_main_status_peers_no_peers_heading_cta">:fire: Invite Friends!</string>
     <string name="ui_main_status_peers_no_peers_heading_text_below_button">Should be seeing someone?
-        \nTry turning Bluetooth off and on again.
+        \nWait a moment.\n\nStill nothing? try turning Bluetooth off and on again.
     </string>
     <string name="ui_main_status_peers_not_scanning_heading">Your Aura is off</string>
     <string name="ui_main_status_peers_not_scanning_text">Turn on your Aura to see the :thought_balloon: of others.</string>
+
+    <string name="ui_main_status_peers_starting_heading">Looking around</string>
+    <string name="ui_main_status_peers_starting_text">Let\'s give it a few seconds to see if there\'s anybody around.</string>
 
     <plurals name="ui_main_my_slogans_heading">
         <item quantity="zero">You don't have any :thought_balloon:</item>

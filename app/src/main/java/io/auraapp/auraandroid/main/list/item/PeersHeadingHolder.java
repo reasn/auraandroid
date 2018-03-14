@@ -9,6 +9,7 @@ import android.widget.TextView;
 import java.util.Set;
 
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.main.InfoBox;
@@ -55,10 +56,10 @@ public class PeersHeadingHolder extends ItemViewHolder {
         );
         mHeadingTextView.setText(EmojiHelper.replaceShortCode(heading));
 
-        updateInfoBox(castItem.mPeers, castItem.mSloganCount, castItem.mScanning);
+        updateInfoBox(castItem.mPeers, castItem.mSloganCount, castItem.mScanning, castItem.mScanStartTimestamp);
     }
 
-    private void updateInfoBox(Set<Peer> peers, int sloganCount, boolean scanning) {
+    private void updateInfoBox(Set<Peer> peers, int sloganCount, boolean scanning, long scanStartTimestamp) {
 //        int nearbyPeers = 0;
 //        long now = System.currentTimeMillis();
 //        for (Peer peer : peers) {
@@ -68,21 +69,32 @@ public class PeersHeadingHolder extends ItemViewHolder {
 //            }
 //        }
 
+
         if (peers.size() == 0) {
             mInfoBox.setEmoji(":see_no_evil:");
             if (scanning) {
-                mInfoBox.setHeading(R.string.ui_main_status_peers_no_peers_heading);
-                mInfoBox.setText(R.string.ui_main_status_peers_no_peers_text);
-                mInfoBox.showButton(
-                        R.string.ui_main_status_peers_no_peers_heading_cta,
-                        R.string.ui_main_status_peers_no_peers_heading_text_below_button,
-                        $ -> {
-                            Intent sendIntent = new Intent();
-                            sendIntent.setAction(Intent.ACTION_SEND);
-                            sendIntent.putExtra(Intent.EXTRA_TEXT, mContext.getString(R.string.ui_main_share_text));
-                            sendIntent.setType("text/plain");
-                            mContext.startActivity(sendIntent);
-                        });
+
+                // TODO externalize
+                if (System.currentTimeMillis() - scanStartTimestamp < Config.LOOKING_AROUND_SHOW_DURATION) {
+                    mInfoBox.setHeading(R.string.ui_main_status_peers_starting_heading);
+                    mInfoBox.setText(R.string.ui_main_status_peers_starting_text);
+                    mInfoBox.setEmoji(":satellite_antenna:");
+                    mInfoBox.hideButton();
+
+                } else {
+                    mInfoBox.setHeading(R.string.ui_main_status_peers_no_peers_heading);
+                    mInfoBox.setText(R.string.ui_main_status_peers_no_peers_text);
+                    mInfoBox.showButton(
+                            R.string.ui_main_status_peers_no_peers_heading_cta,
+                            R.string.ui_main_status_peers_no_peers_heading_text_below_button,
+                            $ -> {
+                                Intent sendIntent = new Intent();
+                                sendIntent.setAction(Intent.ACTION_SEND);
+                                sendIntent.putExtra(Intent.EXTRA_TEXT, mContext.getString(R.string.ui_main_share_text));
+                                sendIntent.setType("text/plain");
+                                mContext.startActivity(sendIntent);
+                            });
+                }
             } else {
                 mInfoBox.setHeading(R.string.ui_main_status_peers_not_scanning_heading);
                 mInfoBox.setText(R.string.ui_main_status_peers_not_scanning_text);

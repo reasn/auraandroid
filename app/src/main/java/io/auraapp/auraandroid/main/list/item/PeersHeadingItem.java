@@ -9,6 +9,7 @@ public class PeersHeadingItem extends ListItem {
     public Set<Peer> mPeers;
     public int mSloganCount;
     public boolean mScanning;
+    public long mScanStartTimestamp;
 
     public PeersHeadingItem(Set<Peer> peers, int sloganCount) {
         super("peers-heading");

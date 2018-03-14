@@ -298,6 +298,7 @@ public class Communicator extends Service {
                 if (!mState.mScanning) {
                     mScanner.start();
                     mState.mScanning = true;
+                    mState.mScanStartTimestamp = System.currentTimeMillis();
                     stateChanged = true;
                 }
 
