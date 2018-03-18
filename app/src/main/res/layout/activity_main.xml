@@ -26,10 +26,15 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <io.auraapp.auraandroid.main.RabbitView
+                android:layout_width="match_parent"
+                android:layout_height="80dp" />
+
             <ListView
                 android:id="@+id/debug_peers_list"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                tools:ignore="NestedScrolling" />
 
             <TextView
                 android:id="@+id/debug_communicator_state_dump"
@@ -37,7 +42,8 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/black"
                 android:textSize="9sp"
-                android:typeface="monospace" />
+                android:typeface="monospace"
+                tools:ignore="SmallSp" />
 
         </LinearLayout>
     </ScrollView>

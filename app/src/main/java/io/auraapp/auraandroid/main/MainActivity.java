@@ -52,6 +52,7 @@ import io.auraapp.auraandroid.main.list.item.StatusItem;
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
+import static io.auraapp.auraandroid.common.FormattedLog.w;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -85,6 +86,9 @@ public class MainActivity extends AppCompatActivity {
     private TextView mDebugCommunicatorStateDumpView;
     private ListView mDebugPeersListView;
 
+    private List<Long> mToolbarIconClicks = new ArrayList<>();
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,10 +97,7 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        // Create toolbar
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        toolbar.setNavigationIcon(R.mipmap.ic_launcher);
+        initToolbar();
 
         // Load preferences
         mPrefs = getSharedPreferences(Prefs.PREFS_BUCKET, MODE_PRIVATE);
@@ -238,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
         mStatusItem.mPeers = mPeers;
         mStatusItem.mPeerSloganMap = mPeerSloganMap;
         mListAdapter.notifyListItemChanged(mStatusItem);
-        showDebugInformation();
+        updateDebugView();
 
         if (mCommunicatorState == null) {
             return;
@@ -262,14 +263,17 @@ public class MainActivity extends AppCompatActivity {
         mSwipeRefresh.setEnabled(mCommunicatorState.mScanning);
     }
 
-    private void showDebugInformation() {
-        mDebugWrapper.setVisibility(View.GONE);
+    private void updateDebugView() {
+        if (mDebugWrapper.getVisibility() == View.GONE) {
+            return;
+        }
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String dump = "# communicator: " + gson.toJson(mCommunicatorState);
         dump += "\n# peers: " + gson.toJson(mPeers);
         mDebugCommunicatorStateDumpView.setText(dump.replaceAll("\"", "").replaceAll("\n +\\{", " {"));
 
-        // TODO don't recreate everything, cache? maybe not #onlyfordebugging
+        // Not efficient but minimal code. That's okay because it doesn't affect performance
+        // for users
         mDebugPeersListView.setAdapter(new DebugPeersListArrayAdapter(
                 this,
                 android.R.layout.simple_list_item_1,
@@ -302,7 +306,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void createListView() {
 
-        // TODO show stats for slogans
         RecyclerView listView = findViewById(R.id.list_view);
 
         List<ListItem> builtinItems = new ArrayList<>();
@@ -432,5 +435,39 @@ public class MainActivity extends AppCompatActivity {
 
         mListAdapter.onPause();
         super.onPause();
+    }
+
+    private void initToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(R.mipmap.ic_launcher);
+        toolbar.setNavigationOnClickListener($ -> mHandler.post(() -> {
+            if (!Config.MAIN_DEBUG_VIEW_ENABLED) {
+                return;
+            }
+            long now = System.currentTimeMillis();
+            mToolbarIconClicks.add(now);
+            w(TAG, "haha %s", mToolbarIconClicks);
+            // Iterate over copy to allow modification in loop
+            int eligibleClicks = 0;
+            for (Long ts : mToolbarIconClicks.toArray(new Long[mToolbarIconClicks.size()])) {
+                if (now - ts > Config.MAIN_DEBUG_VIEW_SWITCH_INTERVAL) {
+                    mToolbarIconClicks.remove(ts);
+                } else {
+                    eligibleClicks++;
+                }
+            }
+            if (eligibleClicks >= Config.MAIN_DEBUG_VIEW_SWITCH_CLICKS) {
+                mToolbarIconClicks.clear();
+                if (mDebugWrapper.getVisibility() == View.VISIBLE) {
+                    mDebugWrapper.setVisibility(View.GONE);
+                    toast(R.string.ui_main_toast_debug_view_disabled);
+                } else {
+                    toast(R.string.ui_main_toast_debug_view_enabled);
+                    mDebugWrapper.setVisibility(View.VISIBLE);
+                    updateDebugView();
+                }
+            }
+        }));
     }
 }

@@ -63,7 +63,6 @@ public class PeersHeadingHolder extends ItemViewHolder {
 //        int nearbyPeers = 0;
 //        long now = System.currentTimeMillis();
 //        for (Peer peer : peers) {
-//            // TODO externalize
 //            if (now - peer.mLastSeenTimestamp < 30000) {
 //                nearbyPeers++;
 //            }
@@ -74,7 +73,6 @@ public class PeersHeadingHolder extends ItemViewHolder {
             mInfoBox.setEmoji(":see_no_evil:");
             if (scanning) {
 
-                // TODO externalize
                 if (System.currentTimeMillis() - scanStartTimestamp < Config.MAIN_LOOKING_AROUND_SHOW_DURATION) {
                     mInfoBox.setHeading(R.string.ui_main_status_peers_starting_heading);
                     mInfoBox.setText(R.string.ui_main_status_peers_starting_text);

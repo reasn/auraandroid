@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.Peer;
 
 import static android.bluetooth.BluetoothProfile.STATE_CONNECTED;
@@ -44,9 +45,6 @@ class Scanner {
 
     private final static String TAG = "@aura/ble/scanner";
 
-    private static final boolean HIGH_POWER = true;
-    private static final long PEER_FORGET_AFTER = 1000 * 60 * 3;
-    private static final long PEER_CONNECT_TIMEOUT = 1000 * 10;
     private static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
     private final Communicator.OnErrorCallback mOnErrorCallback;
 
@@ -142,15 +140,15 @@ class Scanner {
                     if (device.bt.device == null) {
                         v(TAG, "Waiting for next time sight, id: %s", id);
 
-                    } else if (device.lastConnectAttempt != 0 && now - device.lastConnectAttempt <= PEER_CONNECT_TIMEOUT) {
+                    } else if (device.lastConnectAttempt != 0 && now - device.lastConnectAttempt <= Config.COMMUNICATOR_PEER_CONNECT_TIMEOUT) {
                         v(TAG, "Nothing to do, connection attempt is in progress, id: %s", id);
 
-                    } else if (device.lastConnectAttempt != 0 && now - device.lastConnectAttempt > PEER_CONNECT_TIMEOUT) {
+                    } else if (device.lastConnectAttempt != 0 && now - device.lastConnectAttempt > Config.COMMUNICATOR_PEER_CONNECT_TIMEOUT) {
                         d(TAG, "Connection timeout, closing gatt, id: %s", id);
                         device.shouldDisconnect = true;
                         device.stats.mErrors++;
 
-                    } else if (now - device.lastSeenTimestamp > PEER_FORGET_AFTER) {
+                    } else if (now - device.lastSeenTimestamp > Config.COMMUNICATOR_PEER_FORGET_AFTER) {
                         // lastSeenTimestamp may be 0
                         v(TAG, "Forgetting device, id: %s", id);
                         device.bt.device = null;
@@ -262,13 +260,13 @@ class Scanner {
         }
 
         ScanSettings.Builder builder = new ScanSettings.Builder()
-                .setScanMode(HIGH_POWER
+                .setScanMode(Config.COMMUNICATOR_HIGH_POWER
                         ? ScanSettings.SCAN_MODE_LOW_LATENCY
                         : ScanSettings.SCAN_MODE_BALANCED);
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             builder.setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES);
-            builder.setMatchMode(HIGH_POWER
+            builder.setMatchMode(Config.COMMUNICATOR_HIGH_POWER
                     ? ScanSettings.MATCH_MODE_AGGRESSIVE
                     : ScanSettings.MATCH_MODE_STICKY);
         }
@@ -415,7 +413,6 @@ class Scanner {
                                 break;
                             }
                         }
-                        w(TAG, "sent peer %s vs. %s, %s", previousSlogans, newSlogans, newSlogans.size() > previousSlogans.size() || existingSloganChanged);
                         mPeerBroadcaster.propagatePeer(device, newSlogans.size() > previousSlogans.size() || existingSloganChanged);
                     }
                 } catch (UnknownAdvertisementException e) {

@@ -8,7 +8,6 @@
         android:title=""
         app:showAsAction="ifRoom" />
 
-    <!--TODO Add help-->
     <item
         android:id="@+id/action_settings"
         android:icon="@android:drawable/ic_menu_help"

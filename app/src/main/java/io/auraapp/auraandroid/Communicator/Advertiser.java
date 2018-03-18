@@ -18,6 +18,7 @@ import android.os.Handler;
 import java.util.Arrays;
 import java.util.UUID;
 
+import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.Timer;
 
 import static android.bluetooth.BluetoothGattCharacteristic.PERMISSION_READ;
@@ -35,9 +36,6 @@ import static io.auraapp.auraandroid.common.FormattedLog.w;
  * The same holds for all callbacks registered externally (in this case typically the BT stack).
  */
 class Advertiser {
-    // TODO keep stats on how often a slogan has been received (max 100)
-    // TODO keep stats on how often a slogan has been adopted (max 100)
-    // TODO do both using separate simple stats/metering module using slogan hashes, not on slogan object itself
 
     @FunctionalInterface
     interface StateChangeCallback {
@@ -45,7 +43,6 @@ class Advertiser {
     }
 
     private final static String TAG = "@aura/ble/advertiser";
-    private static final long ID_SHUFFLE_INTERVAL = 60 * 60 * 1000;
 
     private final BluetoothManager mBluetoothManager;
     private final AdvertisementSet mAdvertisementSet;
@@ -104,7 +101,7 @@ class Advertiser {
                 shuffleId();
                 mBluetoothAdvertiser.stopAdvertising(mAdvertisingCallback);
                 advertise();
-            }, ID_SHUFFLE_INTERVAL);
+            }, Config.COMMUNICATOR_MY_ID_SHUFFLE_INTERVAL);
         });
     }
 

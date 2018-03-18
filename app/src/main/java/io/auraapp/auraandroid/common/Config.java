@@ -13,7 +13,12 @@ public class Config {
     // Thanks to https://stackoverflow.com/questions/37805051/how-to-get-the-default-vibration-pattern-of-an-android-device
     public static long[] PEERS_CHANGED_NOTIFICATION_VIBRATION_PATTERN = new long[]{0, 250, 250, 250};
 
-    // BT stack broken warnings
+    // Communicator
+
+    public static final boolean COMMUNICATOR_HIGH_POWER = true;
+    public static final long COMMUNICATOR_PEER_FORGET_AFTER = 1000 * 60 * 3;
+    public static final long COMMUNICATOR_PEER_CONNECT_TIMEOUT = 1000 * 10;
+    public static final long COMMUNICATOR_MY_ID_SHUFFLE_INTERVAL = 60 * 60 * 1000;
 
     /**
      * The time to remember BT_TURNING_ON events for.
@@ -28,9 +33,14 @@ public class Config {
     public static final int COMMUNICATOR_RECENT_BT_TURNING_ON_EVENTS_RECENT_TIMEFRAME = 1000 * 60;
     public static final int COMMUNICATOR_RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD = 2;
 
+
     // Main
 
     public static int MAIN_LOOKING_AROUND_SHOW_DURATION = 10000;
+
+    public static final boolean MAIN_DEBUG_VIEW_ENABLED = true;
+    public static final int MAIN_DEBUG_VIEW_SWITCH_CLICKS = 5;
+    public static final int MAIN_DEBUG_VIEW_SWITCH_INTERVAL = 3000;
 
     // Common
 
