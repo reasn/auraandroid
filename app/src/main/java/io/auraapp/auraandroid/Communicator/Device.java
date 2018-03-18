@@ -67,7 +67,7 @@ class Device {
         }
     }
 
-    Set<String> getSlogans() {
+    Set<String> buildSlogans() {
         Set<String> slogans = new HashSet<>();
         for (UUID uuid : AdvertisementSet.ADVERTISED_SLOGAN_UUIDS) {
             String slogan = mPropertyMap.get(uuid);

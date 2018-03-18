@@ -9,6 +9,7 @@ import java.util.TreeSet;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.EmojiHelper;
+import io.auraapp.auraandroid.common.Prefs;
 import io.auraapp.auraandroid.common.Slogan;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -41,9 +42,9 @@ class MySloganManager {
         Set<String> defaultSlogans = new HashSet<>();
         defaultSlogans.add(EmojiHelper.replaceShortCode(mContext.getString(R.string.default_slogan)));
 
-        SharedPreferences prefs = mContext.getSharedPreferences(MainActivity.PREFS_BUCKET, MODE_PRIVATE);
+        SharedPreferences prefs = mContext.getSharedPreferences(Prefs.PREFS_BUCKET, MODE_PRIVATE);
         mMySlogans.clear();
-        for (String mySloganText : prefs.getStringSet(MainActivity.PREFS_SLOGANS, defaultSlogans)) {
+        for (String mySloganText : prefs.getStringSet(Prefs.PREFS_SLOGANS, defaultSlogans)) {
             mMySlogans.add(Slogan.create(mySloganText));
         }
     }
@@ -86,12 +87,12 @@ class MySloganManager {
 
     private void persistSlogans() {
 
-        SharedPreferences.Editor editor = mContext.getSharedPreferences(MainActivity.PREFS_BUCKET, MODE_PRIVATE).edit();
+        SharedPreferences.Editor editor = mContext.getSharedPreferences(Prefs.PREFS_BUCKET, MODE_PRIVATE).edit();
         Set<String> mySloganTexts = new HashSet<>();
         for (Slogan slogan : mMySlogans) {
             mySloganTexts.add(slogan.getText());
         }
-        editor.putStringSet(MainActivity.PREFS_SLOGANS, mySloganTexts);
+        editor.putStringSet(Prefs.PREFS_SLOGANS, mySloganTexts);
 
         editor.apply();
     }

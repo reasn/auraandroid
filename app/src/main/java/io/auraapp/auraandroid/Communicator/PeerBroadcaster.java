@@ -20,7 +20,7 @@ class PeerBroadcaster {
 
     @FunctionalInterface
     interface PeerChangedCallback {
-        void peerChanged(Peer peer);
+        void peerChanged(Peer peer, boolean contentAdded);
     }
 
     private static final int DEBOUNCE = 3000;
@@ -34,8 +34,15 @@ class PeerBroadcaster {
         mPeerChangedCallback = peerChangedCallback;
     }
 
-    void propagatePeer(Device device) {
-        mTimer.debounce(device.mId, () -> mPeerChangedCallback.peerChanged(buildPeer(device)), DEBOUNCE);
+    void propagatePeer(Device device, boolean contentAdded) {
+        if (contentAdded) {
+            // Not debouncing because otherwise contentAdded can get lost and no notification
+            // (e.g. vibration) is sent to the user
+            mTimer.clear(device.mId);
+            mPeerChangedCallback.peerChanged(buildPeer(device), true);
+        } else {
+            mTimer.debounce(device.mId, () -> mPeerChangedCallback.peerChanged(buildPeer(device), false), DEBOUNCE);
+        }
     }
 
     void propagatePeerList(DeviceMap deviceMap) {
@@ -57,7 +64,7 @@ class PeerBroadcaster {
         peer.mSynchronizing = device.mSynchronizing;
         peer.mSuccessfulRetrievals = device.stats.mSuccessfulRetrievals;
         peer.mErrors = device.stats.mErrors;
-        for (String sloganText : device.getSlogans()) {
+        for (String sloganText : device.buildSlogans()) {
             peer.mSlogans.add(Slogan.create(sloganText));
         }
         return peer;

@@ -25,14 +25,17 @@ import java.util.TreeSet;
 
 import io.auraapp.auraandroid.PermissionMissingActivity;
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.PermissionHelper;
 import io.auraapp.auraandroid.main.MainActivity;
 
+import static io.auraapp.auraandroid.common.Config.PEERS_CHANGED_NOTIFICATION_LIGHT_PATTERN;
 import static io.auraapp.auraandroid.common.EmojiHelper.replaceShortCode;
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
+import static io.auraapp.auraandroid.common.FormattedLog.v;
 import static io.auraapp.auraandroid.common.FormattedLog.w;
 import static java.lang.String.format;
 
@@ -44,25 +47,13 @@ public class Communicator extends Service {
 
     private final static String TAG = "@aura/ble/communicator";
 
-    private static final int FOREGROUND_NOTIFICATION_ID = 1338;
-    /**
-     * The time to remember BT_TURNING_ON events for.
-     * Assumption: If Aura is not working properly because there's a problem with the BT stack,
-     * users might repeatedly turn BT on and off. If that is the case an explanatory dialog will be shown.
-     * This number sets the interval that's being considered "recent" for the number of clicks.
-     * I.e. If set to 2 minutes, and within that timeframe the user clicks more
-     * than RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD times, an alert is shown in MainActivity
-     *
-     * @see MainActivity#showBrokenBtStackAlert
-     */
-    private static final int RECENT_BT_TURNING_ON_EVENTS_RECENT_TIMEFRAME = 1000 * 60;
-    public static final int RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD = 2;
     private Advertiser mAdvertiser;
     private Scanner mScanner;
     private boolean mRunning = false;
     private Handler mHandler;
     private final AdvertisementSet mAdvertisementSet = new AdvertisementSet();
     private boolean mIsRunningInForeground = false;
+
     private Set<Long> btTurningOnTimestamps = new TreeSet<>();
 
     private int mPeerSloganCount = 0;
@@ -71,6 +62,7 @@ public class Communicator extends Service {
 
     @FunctionalInterface
     interface OnErrorCallback {
+
         void onUnrecoverableError(String errorName);
 
     }
@@ -128,15 +120,22 @@ public class Communicator extends Service {
                     }
                     if (peerSloganCount != mPeerSloganCount) {
                         mPeerSloganCount = peerSloganCount;
-                        updateForegroundNotification();
                     }
 
+                    // TODO Don't notify removals
+                    if (peerSloganCount > 0) {
+                        showPeerNotification();
+                    }
                     sendBroadcast(IntentFactory.peerListUpdated(peers, mState));
                     d(TAG, "Sent peer list intent with %d peers", peers.size());
                 }),
-                (Peer peer) -> {
+                (Peer peer, boolean contentAdded) -> {
+
+                    if (contentAdded) {
+                        showPeerNotification();
+                    }
                     sendBroadcast(IntentFactory.peerUpdated(peer));
-                    d(TAG, "Sent peer update intent, id: %s, slogans: %d", peer.mId, peer.mSlogans.size());
+                    d(TAG, "Sent peer update intent, id: %s, slogans: %d, content added: %s", peer.mId, peer.mSlogans.size(), contentAdded);
                 });
 
         mScanner = new Scanner(
@@ -162,6 +161,16 @@ public class Communicator extends Service {
         actOnStateWhileWaitingForPermissions();
     }
 
+    private long lastNotification = 0;
+
+    private void showPeerNotification() {
+        long now = System.currentTimeMillis();
+        if (now - lastNotification > 5000) {
+            updateForegroundNotification(true);
+            lastNotification = now;
+        }
+    }
+
     private void actOnStateWhileWaitingForPermissions() {
         mState.mHasPermission = PermissionHelper.granted(this);
 
@@ -177,9 +186,9 @@ public class Communicator extends Service {
      * <p>
      * Thanks to https://gist.github.com/kristopherjohnson/6211176
      */
-    private void updateForegroundNotification() {
-
-        Class activity = mState.mHasPermission
+    private void updateForegroundNotification(boolean newPeersFound) {
+        v(TAG, "updating foreground notification, newPeersFound: %s", newPeersFound ? "yes" : "no");
+        Class targetActivity = mState.mHasPermission
                 ? MainActivity.class
                 : PermissionMissingActivity.class;
 
@@ -225,12 +234,23 @@ public class Communicator extends Service {
         PendingIntent contentIntent = PendingIntent.getActivity(
                 this,
                 0,
-                IntentFactory.showActivity(getApplicationContext(), activity),
+                IntentFactory.showActivity(getApplicationContext(), targetActivity),
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Notification.Builder builder = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-                ? new Notification.Builder(this, createNotificationChannel())
-                : new Notification.Builder(this);
+
+        Notification.Builder builder;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            builder = new Notification.Builder(Communicator.this, createNotificationChannel(newPeersFound));
+        } else {
+            builder = new Notification.Builder(Communicator.this);
+            if (newPeersFound) {
+                builder.setLights(getResources().getColor(R.color.purple), PEERS_CHANGED_NOTIFICATION_LIGHT_PATTERN[0], PEERS_CHANGED_NOTIFICATION_LIGHT_PATTERN[1]);
+                builder.setVibrate(Config.PEERS_CHANGED_NOTIFICATION_VIBRATION_PATTERN);
+                builder.setNumber(++notificationIndex);
+            }
+        }
+
         builder.setContentTitle(title)
                 .setSmallIcon(R.mipmap.ic_notification)
                 .setTicker(title)
@@ -239,18 +259,24 @@ public class Communicator extends Service {
         if (text.length() > 0) {
             builder.setContentText(text);
         }
-        startForeground(FOREGROUND_NOTIFICATION_ID, builder.build());
+        startForeground(Config.COMMUNICATOR_FOREGROUND_NOTIFICATION_ID, builder.build());
     }
 
+    private int notificationIndex = 0;
 
     /**
      * Thanks to https://stackoverflow.com/questions/47531742/startforeground-fail-after-upgrade-to-android-8-1
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private String createNotificationChannel() {
-        NotificationChannel channel = new NotificationChannel("communicator_channel", "Aura", NotificationManager.IMPORTANCE_HIGH);
-        channel.setImportance(NotificationManager.IMPORTANCE_NONE);
+    private String createNotificationChannel(boolean newPeersFound) {
+        int importance = newPeersFound
+                ? NotificationManager.IMPORTANCE_HIGH
+                : NotificationManager.IMPORTANCE_NONE;
+        NotificationChannel channel = new NotificationChannel("communicator_channel", "Aura", importance);
+        channel.setImportance(importance);
         channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+        channel.setLightColor(R.color.purple);
+        channel.setVibrationPattern(Config.PEERS_CHANGED_NOTIFICATION_VIBRATION_PATTERN);
         channel.setShowBadge(false);
         NotificationManager notificationManager = ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE));
         if (notificationManager == null) {
@@ -309,7 +335,7 @@ public class Communicator extends Service {
             }
 
             if (mState.mShouldCommunicate && !mIsRunningInForeground) {
-                updateForegroundNotification();
+                updateForegroundNotification(false);
                 mIsRunningInForeground = true;
 
             } else if (!mState.mShouldCommunicate && mIsRunningInForeground) {
@@ -322,7 +348,7 @@ public class Communicator extends Service {
             }
             if (stateChanged) {
                 if (mIsRunningInForeground) {
-                    updateForegroundNotification();
+                    updateForegroundNotification(false);
                 }
             }
             if (after != null) {
@@ -404,7 +430,7 @@ public class Communicator extends Service {
                     // urgh. mutability again. Streams only supported with API level 24+
                     Set<Long> filtered = new TreeSet<>();
                     for (Long timestamp : btTurningOnTimestamps) {
-                        if (timestamp > RECENT_BT_TURNING_ON_EVENTS_RECENT_TIMEFRAME) {
+                        if (timestamp > Config.COMMUNICATOR_RECENT_BT_TURNING_ON_EVENTS_RECENT_TIMEFRAME) {
                             filtered.add(timestamp);
                         }
                     }

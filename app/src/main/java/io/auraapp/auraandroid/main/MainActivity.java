@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
-import io.auraapp.auraandroid.Communicator.Communicator;
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.PermissionMissingActivity;
 import io.auraapp.auraandroid.R;
@@ -41,6 +40,7 @@ import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.PermissionHelper;
+import io.auraapp.auraandroid.common.Prefs;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.main.list.RecycleAdapter;
 import io.auraapp.auraandroid.main.list.SwipeCallback;
@@ -57,10 +57,6 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "@aura/main";
 
-    static final String PREFS_BUCKET = "prefs";
-    static final String PREFS_SLOGANS = "slogans";
-    private static final String PREFS_ENABLED = "enabled";
-    private static final String PREFS_HIDE_BROKEN_BT_STACK_WARNING = "hideBrokenBtStackWarning";
     private static final int BROKEN_BT_STACK_ALERT_DEBOUNCE = 1000 * 60;
     private static final long SWIPE_TO_REFRESH_DURATION = 1000 * 2;
 
@@ -103,8 +99,8 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setNavigationIcon(R.mipmap.ic_launcher);
 
         // Load preferences
-        mPrefs = getSharedPreferences(MainActivity.PREFS_BUCKET, MODE_PRIVATE);
-        mAuraEnabled = mPrefs.getBoolean(MainActivity.PREFS_ENABLED, true);
+        mPrefs = getSharedPreferences(Prefs.PREFS_BUCKET, MODE_PRIVATE);
+        mAuraEnabled = mPrefs.getBoolean(Prefs.PREFS_ENABLED, true);
 
         mDialogManager = new DialogManager(this);
 
@@ -159,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
                     if (mCommunicatorState == null || !mCommunicatorState.mScanning && state.mScanning) {
                         // Scan just started, let's make sure we hide the "looking around" info if
                         // nothing is found for some time.
-                        mHandler.postDelayed(this::reflectStatus, Config.LOOKING_AROUND_SHOW_DURATION);
+                        mHandler.postDelayed(this::reflectStatus, Config.MAIN_LOOKING_AROUND_SHOW_DURATION);
                     }
                     mCommunicatorState = state;
                     reflectStatus();
@@ -259,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
         mPeersHeadingItem.mScanStartTimestamp = mCommunicatorState.mScanStartTimestamp;
         mListAdapter.notifyListItemChanged(mPeersHeadingItem);
 
-        if (mCommunicatorState.mRecentBtTurnOnEvents >= Communicator.RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD) {
+        if (mCommunicatorState.mRecentBtTurnOnEvents >= Config.COMMUNICATOR_RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD) {
             showBrokenBtStackAlert();
         }
 
@@ -284,12 +280,12 @@ public class MainActivity extends AppCompatActivity {
     private void showBrokenBtStackAlert() {
         if (!inForeground
                 || System.currentTimeMillis() - mBrokenBtStackLastVisibleTimestamp > BROKEN_BT_STACK_ALERT_DEBOUNCE
-                || mPrefs.getBoolean(MainActivity.PREFS_HIDE_BROKEN_BT_STACK_WARNING, false)) {
+                || mPrefs.getBoolean(Prefs.PREFS_HIDE_BROKEN_BT_STACK_WARNING, false)) {
             return;
         }
         mDialogManager.showBtBroken(neverShowAgain -> {
             if (neverShowAgain) {
-                mPrefs.edit().putBoolean(MainActivity.PREFS_HIDE_BROKEN_BT_STACK_WARNING, true).apply();
+                mPrefs.edit().putBoolean(Prefs.PREFS_HIDE_BROKEN_BT_STACK_WARNING, true).apply();
             } else {
                 mBrokenBtStackLastVisibleTimestamp = System.currentTimeMillis();
             }
@@ -384,7 +380,7 @@ public class MainActivity extends AppCompatActivity {
 
         enabledSwitch.setOnCheckedChangeListener((CompoundButton $, boolean isChecked) -> {
             mAuraEnabled = isChecked;
-            mPrefs.edit().putBoolean(MainActivity.PREFS_ENABLED, isChecked).apply();
+            mPrefs.edit().putBoolean(Prefs.PREFS_ENABLED, isChecked).apply();
             if (isChecked) {
                 mCommunicatorProxy.enable();
                 mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());

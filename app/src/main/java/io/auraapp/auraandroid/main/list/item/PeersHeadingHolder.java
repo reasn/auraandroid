@@ -75,7 +75,7 @@ public class PeersHeadingHolder extends ItemViewHolder {
             if (scanning) {
 
                 // TODO externalize
-                if (System.currentTimeMillis() - scanStartTimestamp < Config.LOOKING_AROUND_SHOW_DURATION) {
+                if (System.currentTimeMillis() - scanStartTimestamp < Config.MAIN_LOOKING_AROUND_SHOW_DURATION) {
                     mInfoBox.setHeading(R.string.ui_main_status_peers_starting_heading);
                     mInfoBox.setText(R.string.ui_main_status_peers_starting_text);
                     mInfoBox.setEmoji(":satellite_antenna:");

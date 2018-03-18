@@ -101,7 +101,7 @@ class Scanner {
     }
 
     private void disconnectDevice(Device device) {
-        i(TAG, "Disconnecting device, slogans known: %d, id: %s, stats: %s", device.getSlogans().size(), device.mId, device.stats);
+        i(TAG, "Disconnecting device, slogans known: %d, id: %s, stats: %s", device.buildSlogans().size(), device.mId, device.stats);
         if (device.bt.gatt != null) {
             device.bt.gatt.close();
         }
@@ -217,7 +217,7 @@ class Scanner {
                 device.mSynchronizing = false;
                 device.stats.mSuccessfulRetrievals++;
                 device.shouldDisconnect = true;
-                mPeerBroadcaster.propagatePeer(device);
+                mPeerBroadcaster.propagatePeer(device, false);
             } catch (Exception e) {
                 e(TAG, "Unhandled exception, device: %s", device);
                 throw e;
@@ -402,8 +402,21 @@ class Scanner {
                 String propValue = new String(value, UTF8_CHARSET);
                 d(TAG, "Retrieved prop, id: %s, uuid: %s, propValue: %s", device.mId, uuid, propValue);
                 try {
+                    Set<String> previousSlogans = device.buildSlogans();
                     if (device.updateWithReceivedAttribute(uuid, propValue)) {
-                        mPeerBroadcaster.propagatePeer(device);
+
+                        // Let's find out if any existing slogan changed or a slogan was added.
+                        // If that's the case, contentAdded is true and will result in a notification
+                        Set<String> newSlogans = device.buildSlogans();
+                        boolean existingSloganChanged = false;
+                        for (String slogan : previousSlogans) {
+                            if (!newSlogans.contains(slogan)) {
+                                existingSloganChanged = true;
+                                break;
+                            }
+                        }
+                        w(TAG, "sent peer %s vs. %s, %s", previousSlogans, newSlogans, newSlogans.size() > previousSlogans.size() || existingSloganChanged);
+                        mPeerBroadcaster.propagatePeer(device, newSlogans.size() > previousSlogans.size() || existingSloganChanged);
                     }
                 } catch (UnknownAdvertisementException e) {
                     w(TAG, "Characteristic retrieved matches no prop UUID, id: %s, uuid: %s", device.mId, uuid);
@@ -444,7 +457,7 @@ class Scanner {
                     device.mOutdated = true;
                     device.mAdvertisementVersion = additionalData.getVersion();
                 }
-                mPeerBroadcaster.propagatePeer(device);
+                mPeerBroadcaster.propagatePeer(device, false);
                 return;
             }
             i(TAG, "Device yet unknown, id: %s", id);
