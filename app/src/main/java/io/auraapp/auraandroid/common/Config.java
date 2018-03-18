@@ -35,5 +35,5 @@ public class Config {
     // Common
 
     public static int COMMON_SLOGAN_MAX_LENGTH = 160;
-    public static final String COMMON_SLOGAN_BLOCKED_CHARACTERS = "\n";
+    public static final String COMMON_SLOGAN_BLOCKED_CHARACTERS = "\n\n";
 }

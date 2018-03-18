@@ -167,8 +167,10 @@ class DialogManager {
         editText.setFilters(new InputFilter[]{
                 new InputFilter.LengthFilter(Config.COMMON_SLOGAN_MAX_LENGTH),
                 (source, start, end, dest, dstart, dend) -> {
-                    if (source != null && Config.COMMON_SLOGAN_BLOCKED_CHARACTERS.contains(("" + source))) {
-                        return "";
+                    for (int i = start; i < end; i++) {
+                        if (Config.COMMON_SLOGAN_BLOCKED_CHARACTERS.contains(source.subSequence(i, 1))) {
+                            return "";
+                        }
                     }
                     return null;
                 }
