@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -200,21 +199,28 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         holder.setItem(mItems.get(position));
 
         if ((holder instanceof MyCollapsedHolder || holder instanceof MyExpandedHolder)) {
+            // Alternating colors
             if (position % 2 == 0) {
                 holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.yellow));
-//                holder.itemView.setBackgroundColor(Color.parseColor("#ececec"));
             } else {
                 holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.green));
             }
 
         } else if (holder instanceof PeerCollapsedHolder || holder instanceof PeerExpandedHolder) {
-            Random rnd = new Random();
-            int color = Color.argb(
-                    255,
-                    rnd.nextInt(100) + 156,
-                    rnd.nextInt(100) + 156,
-                    rnd.nextInt(100) + 156);
-            holder.itemView.setBackgroundColor(color);
+//            Random rnd = new Random();
+//            int color = Color.argb(
+//                    255,
+//                    rnd.nextInt(100) + 156,
+//                    rnd.nextInt(100) + 156,
+//                    rnd.nextInt(100) + 156);
+//            holder.itemView.setBackgroundColor(color);
+
+            // Alternating colors
+            if (position % 2 == 0) {
+                holder.itemView.setBackgroundColor(Color.parseColor("#ececec"));
+            } else {
+                holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.white));
+            }
         }
     }
 
