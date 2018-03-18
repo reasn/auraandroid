@@ -121,11 +121,6 @@ public class Communicator extends Service {
                     if (peerSloganCount != mPeerSloganCount) {
                         mPeerSloganCount = peerSloganCount;
                     }
-
-                    // TODO Don't notify removals
-                    if (peerSloganCount > 0) {
-                        showPeerNotification();
-                    }
                     sendBroadcast(IntentFactory.peerListUpdated(peers, mState));
                     d(TAG, "Sent peer list intent with %d peers", peers.size());
                 }),

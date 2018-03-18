@@ -14,8 +14,8 @@ class PeerBroadcaster {
     private static final String DEBOUNCE_ID_ALL_PEERS = "all-peers";
 
     @FunctionalInterface
-    interface PeersChangedCallback {
-        void peersChanged(Set<Peer> peers);
+    interface PeerListChangedCallback {
+        void peerListChanged(Set<Peer> peers);
     }
 
     @FunctionalInterface
@@ -25,12 +25,12 @@ class PeerBroadcaster {
 
     private static final int DEBOUNCE = 3000;
 
-    private final PeersChangedCallback mPeersListCallback;
+    private final PeerListChangedCallback mPeersListCallback;
     private final PeerChangedCallback mPeerChangedCallback;
     private final Timer mTimer = new Timer(new Handler());
 
-    PeerBroadcaster(PeersChangedCallback peersChangedCallback, PeerChangedCallback peerChangedCallback) {
-        mPeersListCallback = peersChangedCallback;
+    PeerBroadcaster(PeerListChangedCallback peerListChangedCallback, PeerChangedCallback peerChangedCallback) {
+        mPeersListCallback = peerListChangedCallback;
         mPeerChangedCallback = peerChangedCallback;
     }
 
@@ -46,7 +46,7 @@ class PeerBroadcaster {
     }
 
     void propagatePeerList(DeviceMap deviceMap) {
-        mTimer.debounce(DEBOUNCE_ID_ALL_PEERS, () -> mPeersListCallback.peersChanged(buildPeers(deviceMap)), DEBOUNCE);
+        mTimer.debounce(DEBOUNCE_ID_ALL_PEERS, () -> mPeersListCallback.peerListChanged(buildPeers(deviceMap)), DEBOUNCE);
     }
 
     Set<Peer> buildPeers(DeviceMap deviceMap) {
