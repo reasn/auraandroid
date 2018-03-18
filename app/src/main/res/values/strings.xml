@@ -110,18 +110,25 @@
     <string name="ui_dialog_bt_broken_never_show_again">Don\'t show this message again</string>
 
     <!--Dialog: Add Slogan-->
-    <string name="ui_dialog_add_slogan_title">Add :thought_balloon:</string>
-    <string name="ui_dialog_add_slogan_text">Nearby Aura users can see and adopt your :thought_balloon:.\n::lollipop: Express yourself!</string>
+    <string name="ui_dialog_add_slogan_title">Add a :thought_balloon:</string>
+    <string name="ui_dialog_add_slogan_text">Nearby Aura users can see and adopt your :thought_balloon:. :lollipop: Express yourself!</string>
     <string name="ui_main_add_slogan_too_short">Nothing added - too short</string>
     <string name="ui_dialog_add_slogan_confirm">Add</string>
     <string name="ui_dialog_add_slogan_cancel">Cancel</string>
 
     <string name="ui_dialog_edit_slogan_edit_hint">Your :thought_balloon:</string>
     <!--Dialog: Edit Slogan-->
-    <string name="ui_dialog_edit_slogan_title">Edit :thought_balloon:</string>
+    <string name="ui_dialog_edit_slogan_title">Edit your :thought_balloon:</string>
     <string name="ui_dialog_edit_slogan_text">Use emojis to express yourself :sunglasses:</string>
     <string name="ui_dialog_edit_slogan_confirm">Save</string>
     <string name="ui_dialog_edit_slogan_cancel">Cancel</string>
+
+
+    <plurals name="ui_dialog_edit_slogan_line_break_limit">
+        <item quantity="zero">You cannot add line breaks</item>
+        <item quantity="one">You can only add one line breaks</item>
+        <item quantity="other">You can only add %d line breaks</item>
+    </plurals>
 
     <!--Dialog: Replace Slogan-->
     <string name="ui_replace_dialog_title">Adopt :thought_balloon:</string>

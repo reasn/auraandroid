@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
         mHandler.postDelayed(() -> mSwipeRefresh.setRefreshing(false), SWIPE_TO_REFRESH_DURATION);
     }
 
-
+    // TODO peer adopts and drops slogan but stays visible here
     private void showAddDialog() {
         if (!mMySloganManager.spaceAvailable()) {
             toast(R.string.ui_main_toast_cannot_add_no_space_available);

@@ -251,6 +251,7 @@ class Scanner {
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     private void startScanning() {
 
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();

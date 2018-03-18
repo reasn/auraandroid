@@ -6,7 +6,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.text.Editable;
 import android.text.InputFilter;
+import android.text.SpannableStringBuilder;
+import android.text.TextWatcher;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,8 +18,11 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Config;
@@ -37,6 +43,8 @@ class DialogManager {
 
     private boolean mDialogOpen = false;
     private Context mContext;
+
+    private final Pattern mLinebreakPattern = Pattern.compile("\n");
 
     DialogManager(Context context) {
         mContext = context;
@@ -133,21 +141,12 @@ class DialogManager {
         View dialogView = inflater.inflate(R.layout.dialog_edit_slogan, null);
 
         EditText editText = dialogView.findViewById(R.id.dialog_edit_slogan_slogan_text);
+
+        editText.setHint(EmojiHelper.replaceShortCode(getString(R.string.ui_dialog_edit_slogan_edit_hint)));
+
         if (slogan != null) {
             editText.setText(slogan.getText());
         }
-
-        // Some phones have problems with filtering newline characters using an InputFilter.
-        // Therefore this very ugly solution that does the replacement manually.
-        // Original InputFilter:
-//                (source, start, end, dest, dstart, dend) -> source.toString().replaceAll("\n", ""),
-
-
-//        Timer timer = new Timer();
-//
-//        timer.setSerializedInterval("line-breaks", () -> {
-//            if (editText.getText().)
-//        });
 
         AlertDialog alert = new AlertDialog.Builder(mContext, R.style.Dialog)
                 .setTitle(getString(title))
@@ -164,17 +163,78 @@ class DialogManager {
         }
         alert.show();
         editText.requestFocus();
-        editText.setFilters(new InputFilter[]{
-                new InputFilter.LengthFilter(Config.COMMON_SLOGAN_MAX_LENGTH),
-                (source, start, end, dest, dstart, dend) -> {
-                    for (int i = start; i < end; i++) {
-                        if (Config.COMMON_SLOGAN_BLOCKED_CHARACTERS.contains(source.subSequence(i, 1))) {
-                            return "";
-                        }
-                    }
-                    return null;
+        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.COMMON_SLOGAN_MAX_LENGTH)});
+
+
+        // Some phones have problems with filtering newline characters using an InputFilter.
+        // Therefore this very ugly solution that does the replacement manually.
+        // First trial (didn't work) InputFilter:
+        // (source, start, end, dest, dstart, dend) -> source.toString().replaceAll("\n", ""),
+        // Second trial (didn't work) InputFilter:
+        // (source, start, end, dest, dstart, dend) -> {
+        //     for (int i = start; i < end; i++) {
+        //         if (Config.COMMON_SLOGAN_BLOCKED_CHARACTERS.contains(source.subSequence(i, 1))) {
+        //             return "";
+        //         }
+        //     }
+        //     return null;
+        // }
+        // Thanks to https://stackoverflow.com/questions/15653664/replace-character-inside-textwatcher-in-android
+
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                String string = editable.toString();
+                if (!string.contains("\n")) {
+                    return;
                 }
+                Matcher m = mLinebreakPattern.matcher(string);
+                int count = 0;
+                while (m.find()) {
+                    count += 1;
+                }
+                if (count > Config.COMMON_SLOGAN_MAX_LINE_BREAKS) {
+                    editable.replace(0, editable.length(), new SpannableStringBuilder(replaceLineBreaks(string)));
+                }
+            }
         });
+    }
+
+    /**
+     * Thanks to https://stackoverflow.com/questions/767759/occurrences-of-substring-in-a-string
+     * Thanks to https://stackoverflow.com/questions/3448330/in-matcher-replace-method-how-to-limit-replace-times
+     */
+    private String replaceLineBreaks(String content) {
+        Matcher m = mLinebreakPattern.matcher(content);
+        StringBuffer sb = new StringBuffer();
+        boolean filtered = false;
+        int index = 0;
+        while (m.find()) {
+            index++;
+            if (index > Config.COMMON_SLOGAN_MAX_LINE_BREAKS) {
+                filtered = true;
+                m.appendReplacement(sb, "");
+            }
+        }
+        // Show no toast if line breaks are disabled altogether
+        //noinspection ConstantConditions
+        if (filtered && Config.COMMON_SLOGAN_MAX_LINE_BREAKS > 0) {
+            String text = mContext.getResources().getQuantityString(
+                    R.plurals.ui_dialog_edit_slogan_line_break_limit,
+                    Config.COMMON_SLOGAN_MAX_LINE_BREAKS,
+                    Config.COMMON_SLOGAN_MAX_LINE_BREAKS);
+            Toast.makeText(mContext, EmojiHelper.replaceShortCode(text), Toast.LENGTH_SHORT).show();
+        }
+        m.appendTail(sb);
+        return sb.toString();
     }
 
     @FunctionalInterface
