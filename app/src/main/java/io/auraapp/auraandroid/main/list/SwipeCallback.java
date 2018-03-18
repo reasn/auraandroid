@@ -95,7 +95,7 @@ public class SwipeCallback extends ItemTouchHelper.SimpleCallback {
         mResetItemViewCallback.resetItemView();
     }
 
-    private void draw(Canvas canvas, Drawable icon, View itemView, boolean isLeft, int xxMargin) {
+    private void draw(Canvas canvas, Drawable icon, View itemView, boolean isLeft, int additionalXMargin) {
 
         int itemHeight = itemView.getBottom() - itemView.getTop();
 
@@ -104,7 +104,7 @@ public class SwipeCallback extends ItemTouchHelper.SimpleCallback {
 
         int top = itemView.getTop() + (itemHeight - height) / 2;
 
-        int xMargin = height / icon.getIntrinsicHeight() * xxMargin + (width > 50 ? 20 : 0);
+        int xMargin = height / icon.getIntrinsicHeight() * additionalXMargin + (width > 50 ? 20 : 50);
 
         if (isLeft) {
             icon.setBounds(xMargin, top, xMargin + width, top + height);
