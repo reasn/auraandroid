@@ -20,7 +20,7 @@ class PeerBroadcaster {
 
     @FunctionalInterface
     interface PeerChangedCallback {
-        void peerChanged(Peer peer, boolean contentAdded);
+        void peerChanged(Peer peer, boolean contentAdded, int sloganCount);
     }
 
     private static final int DEBOUNCE = 3000;
@@ -34,14 +34,14 @@ class PeerBroadcaster {
         mPeerChangedCallback = peerChangedCallback;
     }
 
-    void propagatePeer(Device device, boolean contentAdded) {
+    void propagatePeer(Device device, boolean contentAdded, int sloganCount) {
         if (contentAdded) {
             // Not debouncing because otherwise contentAdded can get lost and no notification
             // (e.g. vibration) is sent to the user
             mTimer.clear(device.mId);
-            mPeerChangedCallback.peerChanged(buildPeer(device), true);
+            mPeerChangedCallback.peerChanged(buildPeer(device), true, sloganCount);
         } else {
-            mTimer.debounce(device.mId, () -> mPeerChangedCallback.peerChanged(buildPeer(device), false), DEBOUNCE);
+            mTimer.debounce(device.mId, () -> mPeerChangedCallback.peerChanged(buildPeer(device), false, sloganCount), DEBOUNCE);
         }
     }
 

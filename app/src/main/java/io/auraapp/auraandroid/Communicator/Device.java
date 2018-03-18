@@ -78,6 +78,17 @@ class Device {
         return slogans;
     }
 
+    int countSlogans() {
+        int count = 0;
+        for (UUID uuid : AdvertisementSet.ADVERTISED_SLOGAN_UUIDS) {
+            String slogan = mPropertyMap.get(uuid);
+            if (slogan != null && !slogan.equals("")) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     boolean updateWithReceivedAttribute(UUID uuid, String value) throws UnknownAdvertisementException {
 
         if (!Arrays.asList(AdvertisementSet.ADVERTISED_UUIDS).contains(uuid)) {

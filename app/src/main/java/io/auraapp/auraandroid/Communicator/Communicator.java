@@ -109,22 +109,21 @@ public class Communicator extends Service {
         );
 
         PeerBroadcaster broadcaster = new PeerBroadcaster(
-                (Set<Peer> peers) -> mHandler.post(() -> {
+                peers -> mHandler.post(() -> {
                     if (!(peers instanceof Serializable)) {
                         throw new RuntimeException("peers must be serializable");
                     }
-                    // Update notification
                     int peerSloganCount = 0;
                     for (Peer peer : peers) {
                         peerSloganCount += peer.mSlogans.size();
                     }
-                    if (peerSloganCount != mPeerSloganCount) {
-                        mPeerSloganCount = peerSloganCount;
-                    }
+                    mPeerSloganCount = peerSloganCount;
                     sendBroadcast(IntentFactory.peerListUpdated(peers, mState));
                     d(TAG, "Sent peer list intent with %d peers", peers.size());
                 }),
-                (Peer peer, boolean contentAdded) -> {
+                (peer, contentAdded, sloganCount) -> {
+
+                    mPeerSloganCount = sloganCount;
 
                     if (contentAdded) {
                         showPeerNotification();
@@ -216,12 +215,13 @@ public class Communicator extends Service {
                 title = getString(R.string.ui_notification_on_not_active_title);
             } else {
                 title = getString(R.string.ui_notification_on_title);
+                if (mPeerSloganCount > 0) {
+                    // TODO pluralize
+                    title += format(Locale.ENGLISH, ". %d :thought_balloon:", mPeerSloganCount);
+                }
             }
         }
 
-        if (mPeerSloganCount > 0) {
-            title += format(Locale.ENGLISH, ". %d :thought_balloon:", mPeerSloganCount);
-        }
 
         title = replaceShortCode(title);
         text = replaceShortCode(text);

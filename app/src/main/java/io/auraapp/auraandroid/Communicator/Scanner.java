@@ -215,13 +215,21 @@ class Scanner {
                 device.mSynchronizing = false;
                 device.stats.mSuccessfulRetrievals++;
                 device.shouldDisconnect = true;
-                mPeerBroadcaster.propagatePeer(device, false);
+                mPeerBroadcaster.propagatePeer(device, false, countSlogans());
             } catch (Exception e) {
                 e(TAG, "Unhandled exception, device: %s", device);
                 throw e;
             }
         }
         returnControl();
+    }
+
+    private int countSlogans() {
+        int sloganCount = 0;
+        for (Device device : mDeviceMap.values()) {
+            sloganCount += device.countSlogans();
+        }
+        return sloganCount;
     }
 
     private void requestCharacteristic(Device device, UUID uuid) {
@@ -413,7 +421,9 @@ class Scanner {
                                 break;
                             }
                         }
-                        mPeerBroadcaster.propagatePeer(device, newSlogans.size() > previousSlogans.size() || existingSloganChanged);
+                        mPeerBroadcaster.propagatePeer(device,
+                                newSlogans.size() > previousSlogans.size() || existingSloganChanged,
+                                countSlogans());
                     }
                 } catch (UnknownAdvertisementException e) {
                     w(TAG, "Characteristic retrieved matches no prop UUID, id: %s, uuid: %s", device.mId, uuid);
@@ -454,7 +464,7 @@ class Scanner {
                     device.mOutdated = true;
                     device.mAdvertisementVersion = additionalData.getVersion();
                 }
-                mPeerBroadcaster.propagatePeer(device, false);
+                mPeerBroadcaster.propagatePeer(device, false, countSlogans());
                 return;
             }
             i(TAG, "Device yet unknown, id: %s", id);
