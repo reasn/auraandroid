@@ -19,6 +19,13 @@ public abstract class ItemViewHolder extends RecyclerView.ViewHolder {
         bind(mItem, mItemView);
     }
 
+    private void hide() {
+
+    }
+    private void show() {
+
+    }
+
     public ListItem getLastBoundItem() {
         return mItem;
     }

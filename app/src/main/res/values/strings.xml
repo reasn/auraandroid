@@ -47,7 +47,7 @@
 
     <string name="ui_main_status_summary_communicator_bt_turning_on">:hourglass: Bluetooth is starting.</string>
     <string name="ui_main_status_summary_communicator_on_not_active">:hourglass: Aura is getting ready.</string>
-    <string name="ui_main_status_summary_communicator_on">Your Aura is on - people see you :sunglasses:</string>
+    <!--<string name="ui_main_status_summary_communicator_on">Your Aura is on - people see you :sunglasses:</string>-->
     <plurals name="ui_main_status_summary_peers">
         <item quantity="one">One :silhouette_head: nearby.</item>
         <item quantity="other">%d :silhouette_head: nearby.</item>

@@ -3,6 +3,8 @@ package io.auraapp.auraandroid.main.list.item;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.Set;
@@ -51,12 +53,15 @@ public class StatusHolder extends ItemViewHolder {
             return;
         }
 
+        final int NONE = 0;
+        final int BOX = 1;
+        final int MESSAGE = 2;
+
         // The order of conditions should be synchronized with that in Communicator::updateForegroundNotification
-        boolean showInfoBox = false;
+        int show = MESSAGE;
         if (state == null) {
             showAuraOffInfoBox();
-            showInfoBox = true;
-
+            show = BOX;
 
         } else if (state.mBluetoothRestartRequired) {
             mInfoBox.setEmoji(":dizzy_face:");
@@ -65,7 +70,7 @@ public class StatusHolder extends ItemViewHolder {
                     .replaceAll("##error##", state.mLastError != null ? state.mLastError : "unknown"));
             mInfoBox.hideButton();
             mInfoBox.setColor(R.color.infoBoxError);
-            showInfoBox = true;
+            show = BOX;
 
         } else if (state.mBtTurningOn) {
             mSummaryTextView.setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_main_status_summary_communicator_bt_turning_on)));
@@ -76,24 +81,24 @@ public class StatusHolder extends ItemViewHolder {
             mInfoBox.setText(R.string.ui_main_status_communicator_bt_disabled_text);
             mInfoBox.hideButton();
             mInfoBox.setColor(R.color.infoBoxWarning);
-            showInfoBox = true;
+            show = BOX;
         } else if (!state.mBleSupported) {
             mInfoBox.setEmoji(":dizzy_face:");
             mInfoBox.setHeading(mContext.getString(R.string.ui_main_status_communicator_ble_not_supported_heading));
             mInfoBox.setText(R.string.ui_main_status_communicator_ble_not_supported_text);
             mInfoBox.hideButton();
             mInfoBox.setColor(R.color.infoBoxError);
-            showInfoBox = true;
+            show = BOX;
         } else if (!state.mShouldCommunicate) {
             showAuraOffInfoBox();
-            showInfoBox = true;
+            show = BOX;
         } else if (!state.mAdvertisingSupported) {
             mInfoBox.setEmoji(":broken_heart:");
             mInfoBox.setHeading(R.string.ui_main_status_communicator_advertising_not_supported_heading);
             mInfoBox.setText(R.string.ui_main_status_communicator_advertising_not_supported_text);
             mInfoBox.hideButton();
             mInfoBox.setColor(R.color.infoBoxWarning);
-            showInfoBox = true;
+            show = BOX;
         } else if (!state.mAdvertising) {
             w(TAG, "Not advertising although it is possible.");
             mSummaryTextView.setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_main_status_summary_communicator_on_not_active)));
@@ -103,16 +108,23 @@ public class StatusHolder extends ItemViewHolder {
             mSummaryTextView.setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_main_status_summary_communicator_on_not_active)));
             mSummaryTextView.setBackgroundColor(mContext.getResources().getColor(R.color.yellow));
         } else {
-            mSummaryTextView.setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_main_status_summary_communicator_on)));
-            mSummaryTextView.setBackgroundColor(mContext.getResources().getColor(R.color.green));
-            mSummaryTextView.setTextColor(mContext.getResources().getColor(R.color.black));
+            show = NONE;
         }
-        if (showInfoBox) {
+        // The following LayoutParams magic is necessary to hide the list item entirely if show == BOX
+        // because setting the item's visibility to GONE doesn't do the job.
+        // Thanks to https://stackoverflow.com/questions/41223413/how-to-hide-an-item-from-recycler-view-on-a-particular-condition
+        if (show == BOX) {
             mSummaryTextView.setVisibility(View.GONE);
             mInfoBox.setVisibility(View.VISIBLE);
-        } else {
+        } else if (show == MESSAGE) {
             mSummaryTextView.setVisibility(View.VISIBLE);
+            mSummaryTextView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             mInfoBox.setVisibility(View.GONE);
+        } else {
+            mInfoBox.setVisibility(View.GONE);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            params.height = 0;
+            mSummaryTextView.setLayoutParams(params);
         }
     }
 }
