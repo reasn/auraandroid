@@ -32,4 +32,8 @@ public class Config {
 
     public static int MAIN_LOOKING_AROUND_SHOW_DURATION = 10000;
 
+    // Common
+
+    public static int COMMON_SLOGAN_MAX_LENGTH = 160;
+    public static final String COMMON_SLOGAN_BLOCKED_CHARACTERS = "\n";
 }

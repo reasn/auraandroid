@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.text.InputFilter;
-import android.text.Spanned;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +19,7 @@ import android.widget.RadioGroup;
 import java.util.TreeSet;
 
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Slogan;
 
@@ -137,13 +137,25 @@ class DialogManager {
             editText.setText(slogan.getText());
         }
 
+        // Some phones have problems with filtering newline characters using an InputFilter.
+        // Therefore this very ugly solution that does the replacement manually.
+        // Original InputFilter:
+//                (source, start, end, dest, dstart, dend) -> source.toString().replaceAll("\n", ""),
+
+
+//        Timer timer = new Timer();
+//
+//        timer.setSerializedInterval("line-breaks", () -> {
+//            if (editText.getText().)
+//        });
+
         AlertDialog alert = new AlertDialog.Builder(mContext, R.style.Dialog)
                 .setTitle(getString(title))
                 .setIcon(R.mipmap.ic_memo)
                 .setMessage(getString(message))
                 .setView(dialogView)
-                .setPositiveButton(getString(confirm), (DialogInterface $$, int $$$) -> onConfirm.onConfirm(editText.getText().toString()))
-                .setNegativeButton(getString(cancel), (DialogInterface $$, int $$$) -> {
+                .setPositiveButton(getString(confirm), ($$, $$$) -> onConfirm.onConfirm(editText.getText().toString()))
+                .setNegativeButton(getString(cancel), ($$, $$$) -> {
                 })
                 .setOnDismissListener($ -> mDialogOpen = false)
                 .create();
@@ -153,9 +165,13 @@ class DialogManager {
         alert.show();
         editText.requestFocus();
         editText.setFilters(new InputFilter[]{
-                // TODO externalize
-                new InputFilter.LengthFilter(160),
-                (CharSequence source, int start, int end, Spanned dest, int dstart, int dend) -> source.toString().replaceAll("\n", "")
+                new InputFilter.LengthFilter(Config.COMMON_SLOGAN_MAX_LENGTH),
+                (source, start, end, dest, dstart, dend) -> {
+                    if (source != null && Config.COMMON_SLOGAN_BLOCKED_CHARACTERS.contains(("" + source))) {
+                        return "";
+                    }
+                    return null;
+                }
         });
     }
 
@@ -179,11 +195,11 @@ class DialogManager {
                 .setMessage(R.string.ui_dialog_bt_broken_text)
                 .setView(dialogView)
                 .setIcon(R.mipmap.ic_launcher)
-                .setPositiveButton(R.string.ui_dialog_bt_broken_confirm, (DialogInterface $$, int $$$) -> {
+                .setPositiveButton(R.string.ui_dialog_bt_broken_confirm, ($$, $$$) -> {
                     btBrokenDismissHandler.onDismiss(checkBox.isChecked());
                     mDialogOpen = false;
                 })
-                .setOnDismissListener((DialogInterface $) -> {
+                .setOnDismissListener($ -> {
                     btBrokenDismissHandler.onDismiss(false);
                     mDialogOpen = false;
                 })
