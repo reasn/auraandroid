@@ -12,6 +12,6 @@
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:inputType="textShortMessage|textMultiLine"
-        android:lines="4" />
+        android:lines="5" />
 
 </LinearLayout>

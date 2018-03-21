@@ -3,7 +3,7 @@
 
     <string name="default_slogan">:ghost: I just installed Aura. Let\'s see what to make of it. :fire:</string>
 
-    <string name="ui_main_share_text">Hey check out my app at: https://www.auraapp.io</string>
+    <string name="ui_main_share_text">Hey check out Aura, I promise you haven\'t seen any app like it :fire: https://www.getaura.io</string>
 
     <!--Toolbar-->
     <string name="ui_toolbar_enable_on">On\u00A0\u00A0</string>
@@ -83,8 +83,8 @@
         <item quantity="other">You have %d :thought_balloon:</item>
     </plurals>
     <string name="ui_main_my_slogans_info_no_slogans_heading">Your Aura is empty</string>
-    <string name="ui_main_my_slogans_info_no_slogans_text">Your aura contains no :thought_balloon: for others to see.</string>
-    <string name="ui_main_my_slogans_info_no_slogans_heading_cta">Add my first :thought_balloon:</string>
+    <string name="ui_main_my_slogans_info_no_slogans_text">Your Aura contains no :thought_balloon: for others to see.</string>
+    <!--<string name="ui_main_my_slogans_info_no_slogans_heading_cta">Add my first :thought_balloon:</string>-->
 
     <string name="ui_main_peers_heading_no_peers">Nobody Nearby</string>
 
@@ -126,7 +126,7 @@
 
     <plurals name="ui_dialog_edit_slogan_line_break_limit">
         <item quantity="zero">You cannot add line breaks</item>
-        <item quantity="one">You can only add one line breaks</item>
+        <item quantity="one">You can only add one line break</item>
         <item quantity="other">You can only add %d line breaks</item>
     </plurals>
 
@@ -160,5 +160,11 @@
     <string name="ui_notification_on_not_active_title">Your Aura is getting ready</string>
 
     <string name="ui_notification_on_title">Your Aura is on</string>
+
+    <string name="title_activity_tutorial_first_screen">TutorialFirstScreenActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+
+    <string name="title_activity_tutorial_second_screen">TutorialSecondScreenActivity</string>
 
 </resources>

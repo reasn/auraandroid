@@ -88,7 +88,10 @@ public class PeersHeadingHolder extends ItemViewHolder {
                             $ -> {
                                 Intent sendIntent = new Intent();
                                 sendIntent.setAction(Intent.ACTION_SEND);
-                                sendIntent.putExtra(Intent.EXTRA_TEXT, mContext.getString(R.string.ui_main_share_text));
+                                sendIntent.putExtra(
+                                        Intent.EXTRA_TEXT,
+                                        EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_main_share_text))
+                                );
                                 sendIntent.setType("text/plain");
                                 mContext.startActivity(sendIntent);
                             });

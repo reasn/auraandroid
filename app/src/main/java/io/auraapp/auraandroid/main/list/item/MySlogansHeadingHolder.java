@@ -39,10 +39,10 @@ public class MySlogansHeadingHolder extends ItemViewHolder {
         mInfoBox.setEmoji(":eyes:");
         mInfoBox.setHeading(R.string.ui_main_my_slogans_info_no_slogans_heading);
         mInfoBox.setText(R.string.ui_main_my_slogans_info_no_slogans_text);
-        mInfoBox.showButton(
-                R.string.ui_main_my_slogans_info_no_slogans_heading_cta,
-                0,
-                $ -> castItem.mShowCreateSloganDialogCallback.run());
+//        mInfoBox.showButton(
+//                R.string.ui_main_my_slogans_info_no_slogans_heading_cta,
+//                0,
+//                $ -> castItem.mShowCreateSloganDialogCallback.run());
         mInfoBox.setColor(R.color.infoBoxNeutral);
         mInfoBox.setVisibility(View.VISIBLE);
     }
