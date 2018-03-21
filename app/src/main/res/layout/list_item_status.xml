@@ -10,7 +10,7 @@
         android:id="@+id/status_summary"
         style="@style/StatusItemSummary" />
 
-    <io.auraapp.auraandroid.main.InfoBox
+    <io.auraapp.auraandroid.ui.common.InfoBox
         android:id="@+id/info_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

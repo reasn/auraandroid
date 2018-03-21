@@ -7,7 +7,7 @@
     android:layout_gravity="bottom|end"
     android:background="@color/yellow"
     android:orientation="vertical"
-    tools:context="io.auraapp.auraandroid.main.MainActivity">
+    tools:context="io.auraapp.auraandroid.ui.MainActivity">
     <!--android:id="@+id/root"-->
 
     <android.support.v7.widget.Toolbar
@@ -16,7 +16,7 @@
         app:title=" "
         app:titleTextColor="@color/white" />
 
-    <io.auraapp.auraandroid.ScreenPager
+    <io.auraapp.auraandroid.ui.ScreenPager
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/pager"
         android:background="@color/black_overlay"

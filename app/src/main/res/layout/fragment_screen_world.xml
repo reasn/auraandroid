@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <io.auraapp.auraandroid.main.RabbitView
+            <io.auraapp.auraandroid.ui.debug.RabbitView
                 android:layout_width="match_parent"
                 android:layout_height="80dp" />
 

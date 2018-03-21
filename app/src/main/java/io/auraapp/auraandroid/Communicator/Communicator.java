@@ -28,7 +28,7 @@ import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.PermissionHelper;
-import io.auraapp.auraandroid.main.MainActivity;
+import io.auraapp.auraandroid.ui.MainActivity;
 
 import static io.auraapp.auraandroid.common.Config.PEERS_CHANGED_NOTIFICATION_LIGHT_PATTERN;
 import static io.auraapp.auraandroid.common.EmojiHelper.replaceShortCode;

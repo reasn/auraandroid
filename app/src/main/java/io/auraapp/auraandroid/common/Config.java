@@ -1,6 +1,6 @@
 package io.auraapp.auraandroid.common;
 
-import io.auraapp.auraandroid.main.MainActivity;
+import io.auraapp.auraandroid.ui.MainActivity;
 
 public class Config {
 
@@ -45,6 +45,6 @@ public class Config {
 
     // Common
 
+    public static final int COMMON_SLOGAN_MAX_SLOGANS = 5;
     public static int COMMON_SLOGAN_MAX_LENGTH = 160;
-    public static final String COMMON_SLOGAN_BLOCKED_CHARACTERS = "\n\n";
 }
