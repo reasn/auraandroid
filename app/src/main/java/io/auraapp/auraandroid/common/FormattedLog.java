@@ -46,6 +46,17 @@ public class FormattedLog {
         }
     }
 
+//    private static Gson gson = null;
+
+    public static void quickDump(Object o) {
+        if (BuildConfig.DEBUG) {
+//            if (gson == null) {
+//                gson = new GsonBuilder().setPrettyPrinting().create();
+//            }
+            Log.w("quick", o.toString());
+        }
+    }
+
     private static void joinIterablesInPlace(Object[] args) {
         for (int i = 0; i < args.length; i++) {
             if (args[i] instanceof Iterable) {

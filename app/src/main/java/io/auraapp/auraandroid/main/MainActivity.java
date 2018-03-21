@@ -1,12 +1,12 @@
 package io.auraapp.auraandroid.main;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.StringRes;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,9 +15,11 @@ import android.support.v7.widget.SimpleItemAnimator;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.ScrollView;
@@ -34,8 +36,9 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
-import io.auraapp.auraandroid.PermissionMissingActivity;
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.ScreenPager;
+import io.auraapp.auraandroid.ScreenSlidePagerAdapter;
 import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Peer;
@@ -48,6 +51,9 @@ import io.auraapp.auraandroid.main.list.item.ListItem;
 import io.auraapp.auraandroid.main.list.item.MySlogansHeadingItem;
 import io.auraapp.auraandroid.main.list.item.PeersHeadingItem;
 import io.auraapp.auraandroid.main.list.item.StatusItem;
+import io.auraapp.auraandroid.tutorial.FragmentWithToolbarButtons;
+import io.auraapp.auraandroid.tutorial.PermissionMissingFragment;
+import io.auraapp.auraandroid.tutorial.WorldFragment;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
@@ -88,6 +94,10 @@ public class MainActivity extends AppCompatActivity {
 
     private List<Long> mToolbarIconClicks = new ArrayList<>();
 
+    private ScreenPager mPager;
+    private ScreenSlidePagerAdapter mPagerAdapter;
+    private RecyclerView mListView;
+    private SwitchCompat mEnabledSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,13 +109,38 @@ public class MainActivity extends AppCompatActivity {
 
         initToolbar();
 
+        mPager = findViewById(R.id.pager);
+
+        ViewGroup worldView = (ViewGroup) LayoutInflater.from(this).inflate(
+                R.layout.fragment_screen_world, findViewById(android.R.id.content), false);
+
+        WorldFragment world = WorldFragment.create(worldView);
+
+        mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(), world, mPager, this);
+        mPager.setAdapter(mPagerAdapter);
+
         // Load preferences
         mPrefs = getSharedPreferences(Prefs.PREFS_BUCKET, MODE_PRIVATE);
         mAuraEnabled = mPrefs.getBoolean(Prefs.PREFS_ENABLED, true);
 
+        if (!PermissionHelper.granted(this)) {
+            showPermissionMissingFragment();
+        } else {
+            String currentScreen = mPrefs.getString(Prefs.PREFS_CURRENT_SCREEN, ScreenSlidePagerAdapter.SCREEN_WELCOME);
+            mPager.goTo(mPagerAdapter.getClassForHandle(currentScreen));
+
+            mPager.addChangeListener(fragment -> {
+                mPrefs.edit()
+                        .putString(
+                                Prefs.PREFS_CURRENT_SCREEN,
+                                mPagerAdapter.getHandleForClass(fragment.getClass()))
+                        .apply();
+            });
+        }
+
         mDialogManager = new DialogManager(this);
 
-        final FloatingActionButton addSloganButton = findViewById(R.id.add_slogan);
+        final FloatingActionButton addSloganButton = worldView.findViewById(R.id.add_slogan);
         addSloganButton.setOnClickListener($ -> showAddDialog());
 
         mMySloganManager = new MySloganManager(
@@ -168,6 +203,7 @@ public class MainActivity extends AppCompatActivity {
 
 //        EmojiCompat.init(new BundledEmojiCompatConfig(this));
 
+        mListView = worldView.findViewById(R.id.list_view);
         createListView();
 
         mMySloganManager.init();
@@ -176,13 +212,13 @@ public class MainActivity extends AppCompatActivity {
             mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
         }
 
-        mSwipeRefresh = findViewById(R.id.swiperefresh);
+        mSwipeRefresh = worldView.findViewById(R.id.swiperefresh);
         mSwipeRefresh.setOnRefreshListener(this::refresh);
         mSwipeRefresh.setEnabled(false);
 
-        mDebugWrapper = findViewById(R.id.debug_wrapper);
-        mDebugCommunicatorStateDumpView = findViewById(R.id.debug_communicator_state_dump);
-        mDebugPeersListView = findViewById(R.id.debug_peers_list);
+        mDebugWrapper = worldView.findViewById(R.id.debug_wrapper);
+        mDebugCommunicatorStateDumpView = worldView.findViewById(R.id.debug_communicator_state_dump);
+        mDebugPeersListView = worldView.findViewById(R.id.debug_peers_list);
         reflectStatus();
     }
 
@@ -245,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         if (!mCommunicatorState.mHasPermission) {
-            sendToPermissionMissingActivity();
+            showPermissionMissingFragment();
             return;
         }
 
@@ -306,8 +342,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void createListView() {
 
-        RecyclerView listView = findViewById(R.id.list_view);
-
         List<ListItem> builtinItems = new ArrayList<>();
 
         mStatusItem = new StatusItem(mCommunicatorState, mPeers, mPeerSloganMap);
@@ -321,13 +355,13 @@ public class MainActivity extends AppCompatActivity {
         mPeersHeadingItem = new PeersHeadingItem(mPeers, mPeerSloganMap.size());
         builtinItems.add(mPeersHeadingItem);
 
-        mListAdapter = new RecycleAdapter(this, builtinItems, listView);
+        mListAdapter = new RecycleAdapter(this, builtinItems, mListView);
 
-        listView.setAdapter(mListAdapter);
-        listView.setLayoutManager(new LinearLayoutManager(this));
+        mListView.setAdapter(mListAdapter);
+        mListView.setLayoutManager(new LinearLayoutManager(this));
 
         // With change animations enabled mStatusItem keeps flashing because updates come in
-        ((SimpleItemAnimator) listView.getItemAnimator()).setSupportsChangeAnimations(false);
+        ((SimpleItemAnimator) mListView.getItemAnimator()).setSupportsChangeAnimations(false);
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeCallback(
                 this,
@@ -359,9 +393,14 @@ public class MainActivity extends AppCompatActivity {
                             break;
                     }
                 }));
-        itemTouchHelper.attachToRecyclerView(listView);
+        itemTouchHelper.attachToRecyclerView(mListView);
     }
 
+
+    @FunctionalInterface
+    interface ToolbarButtonVisibilityUpdater {
+        void update(Fragment fragment);
+    }
 
     /**
      * This is called once, after onCreate
@@ -375,6 +414,18 @@ public class MainActivity extends AppCompatActivity {
 
         SwitchCompat enabledSwitch = item.getActionView().findViewById(R.id.enabled_switch);
         enabledSwitch.setChecked(mAuraEnabled);
+
+
+        ToolbarButtonVisibilityUpdater s = fragment -> {
+            if (fragment instanceof FragmentWithToolbarButtons) {
+                enabledSwitch.setVisibility(View.VISIBLE);
+            } else {
+                enabledSwitch.setVisibility(View.INVISIBLE);
+            }
+        };
+
+        mPager.addChangeListener(s::update);
+        s.update(mPagerAdapter.getItem(mPager.getCurrentItem()));
 
         // Managed programmatically because offText XML attribute has no effect for SwitchCompat in menu item
         enabledSwitch.setText(getString(mAuraEnabled
@@ -403,10 +454,12 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private void sendToPermissionMissingActivity() {
-        Intent intent = new Intent(this, PermissionMissingActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        startActivity(intent);
+    private void showPermissionMissingFragment() {
+        mPagerAdapter.addPermissionFragments();
+        mPager.goTo(PermissionMissingFragment.class);
+//        Intent intent = new Intent(this, PermissionMissingActivity.class);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+//        startActivity(intent);
     }
 
     @Override
@@ -414,7 +467,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
         if (!PermissionHelper.granted(this)) {
-            sendToPermissionMissingActivity();
+            showPermissionMissingFragment();
             return;
         }
 
@@ -426,6 +479,14 @@ public class MainActivity extends AppCompatActivity {
         inForeground = true;
 
         mListAdapter.onResume();
+
+
+//        if (1 < 2) {
+//            Intent intent = new Intent(this, TutorialFirstScreenActivity.class);
+//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+//            startActivity(intent);
+//            return;
+//        }
     }
 
     @Override

@@ -27,10 +27,6 @@
         <service
             android:name=".Communicator.Communicator"
             android:process=":communicator" />
-
-        <activity
-            android:name=".PermissionMissingActivity"
-            android:launchMode="singleInstance" />
     </application>
 
 </manifest>

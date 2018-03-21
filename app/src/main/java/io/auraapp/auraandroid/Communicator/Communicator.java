@@ -23,7 +23,6 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 
-import io.auraapp.auraandroid.PermissionMissingActivity;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.IntentFactory;
@@ -182,9 +181,6 @@ public class Communicator extends Service {
      */
     private void updateForegroundNotification(boolean newPeersFound) {
         v(TAG, "updating foreground notification, newPeersFound: %s", newPeersFound ? "yes" : "no");
-        Class targetActivity = mState.mHasPermission
-                ? MainActivity.class
-                : PermissionMissingActivity.class;
 
         String title;
         String text = "";
@@ -229,7 +225,7 @@ public class Communicator extends Service {
         PendingIntent contentIntent = PendingIntent.getActivity(
                 this,
                 0,
-                IntentFactory.showActivity(getApplicationContext(), targetActivity),
+                IntentFactory.showActivity(getApplicationContext(), MainActivity.class),
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
 

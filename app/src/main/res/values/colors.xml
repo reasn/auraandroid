@@ -17,4 +17,6 @@
     <color name="red">#e4204e</color>
     <color name="yellow">#eec711</color>
     <color name="blue">#3996d1</color>
+
+    <color name="black_overlay">#66000000</color>
 </resources>

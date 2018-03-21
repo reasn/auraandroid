@@ -2,28 +2,20 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="bottom|end"
     android:background="@color/yellow"
-    android:orientation="vertical"
-    tools:context="io.auraapp.auraandroid.PermissionMissingActivity">
-
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        style="@style/Toolbar"
-        app:title=" "
-        app:titleTextColor="@color/white" />
+    android:orientation="vertical">
 
     <io.auraapp.auraandroid.main.InfoBox
         android:id="@+id/info_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:button_caption="@string/ui_permissionsMissing_request"
         app:emoji=":sun_behind_small_cloud:"
         app:heading="@string/ui_permissionsMissing_heading"
         app:text="@string/ui_permissionsMissing_text"
-        app:button_caption="@string/ui_permissionsMissing_request"
         app:text_below_button="@string/ui_permissionsMissing_second_text" />
 
     <Button

@@ -14,6 +14,7 @@ public class EmojiHelper {
                 .replaceAll(":sun_behind_small_cloud:", "🌤")
                 .replaceAll(":hourglass:", "⏳")
                 .replaceAll(":dizzy_face:", "😵")
+                .replaceAll(":grinning_face:", "😀")
                 .replaceAll(":sleeping_face:", "😴")
                 .replaceAll(":sleeping_sign:", "💤")
                 .replaceAll(":broken_heart:", "💔")

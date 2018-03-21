@@ -8,6 +8,7 @@
     android:background="@color/yellow"
     android:orientation="vertical"
     tools:context="io.auraapp.auraandroid.main.MainActivity">
+    <!--android:id="@+id/root"-->
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
@@ -15,70 +16,10 @@
         app:title=" "
         app:titleTextColor="@color/white" />
 
-    <ScrollView
-        android:id="@+id/debug_wrapper"
+    <io.auraapp.auraandroid.ScreenPager
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/pager"
+        android:background="@color/black_overlay"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:visibility="gone">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <io.auraapp.auraandroid.main.RabbitView
-                android:layout_width="match_parent"
-                android:layout_height="80dp" />
-
-            <ListView
-                android:id="@+id/debug_peers_list"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:ignore="NestedScrolling" />
-
-            <TextView
-                android:id="@+id/debug_communicator_state_dump"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/black"
-                android:textSize="9sp"
-                android:typeface="monospace"
-                tools:ignore="SmallSp" />
-
-        </LinearLayout>
-    </ScrollView>
-
-    <android.support.design.widget.CoordinatorLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/add_slogan"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|bottom"
-            android:layout_margin="26dp"
-            android:background="@color/blue"
-            android:src="@mipmap/ic_thought_balloon"
-            app:backgroundTint="@color/blue"
-            app:borderWidth="0dp"
-            app:layout_anchor="@id/list_view"
-            app:layout_anchorGravity="bottom|right|end" />
-
-        <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/swiperefresh"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/list_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-            </android.support.v7.widget.RecyclerView>
-
-
-        </android.support.v4.widget.SwipeRefreshLayout>
-    </android.support.design.widget.CoordinatorLayout>
-
+        android:layout_height="match_parent" />
 </LinearLayout>
