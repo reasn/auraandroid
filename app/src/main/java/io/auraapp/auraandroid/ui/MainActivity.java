@@ -13,15 +13,8 @@ import android.support.v7.widget.SimpleItemAnimator;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
-import android.widget.ScrollView;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -39,7 +32,7 @@ import io.auraapp.auraandroid.common.Prefs;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxy;
 import io.auraapp.auraandroid.ui.common.MySloganManager;
-import io.auraapp.auraandroid.ui.debug.DebugPeersListArrayAdapter;
+import io.auraapp.auraandroid.ui.debug.DebugFragment;
 import io.auraapp.auraandroid.ui.permissions.PermissionsFragment;
 import io.auraapp.auraandroid.ui.world.PeerMapTransformer;
 import io.auraapp.auraandroid.ui.world.PeerSlogan;
@@ -67,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
 
     private MySloganManager mMySloganManager;
     private CommunicatorProxy mCommunicatorProxy;
-    private boolean mAuraEnabled;
     private boolean inForeground = false;
     private SharedPreferences mPrefs;
 
@@ -81,14 +73,12 @@ public class MainActivity extends AppCompatActivity {
     TreeMap<String, PeerSlogan> mPeerSloganMap = new TreeMap<>();
     private MySlogansHeadingItem mMySlogansHeadingItem;
     private DialogManager mDialogManager;
-    private ScrollView mDebugWrapper;
-    private TextView mDebugCommunicatorStateDumpView;
-    private ListView mDebugPeersListView;
 
     private ScreenPager mPager;
     private ScreenPagerAdapter mPagerAdapter;
     private RecyclerView mListView;
     private ToolbarAspect mToolbarAspect;
+    private DebugFragment mDebugFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Load preferences
         mPrefs = getSharedPreferences(Prefs.PREFS_BUCKET, MODE_PRIVATE);
-        mAuraEnabled = mPrefs.getBoolean(Prefs.PREFS_ENABLED, true);
 
         if (!PermissionHelper.granted(this)) {
             showPermissionMissingFragment();
@@ -138,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
                 event -> {
                     d(TAG, "My slogans changed");
                     mListAdapter.notifyMySlogansChanged(mMySloganManager.getMySlogans());
-                    if (mAuraEnabled) {
+                    if (mToolbarAspect.isAuraEnabled()) {
                         mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
                     }
                     switch (event) {
@@ -188,23 +177,16 @@ public class MainActivity extends AppCompatActivity {
                     reflectStatus();
                 });
 
-        if (mAuraEnabled) {
-            mCommunicatorProxy.enable();
-        }
+        mDebugFragment = DebugFragment.create(this);
 
-//        EmojiCompat.init(new BundledEmojiCompatConfig(this));
+        mSwipeRefresh = worldView.findViewById(R.id.swiperefresh);
+        mSwipeRefresh.setEnabled(false);
 
         mListView = worldView.findViewById(R.id.list_view);
         createListView();
 
         mMySloganManager.init();
         mListAdapter.notifyMySlogansChanged(mMySloganManager.getMySlogans());
-        if (mAuraEnabled) {
-            mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
-        }
-
-        mSwipeRefresh = worldView.findViewById(R.id.swiperefresh);
-        mSwipeRefresh.setEnabled(false);
 
         mToolbarAspect = new ToolbarAspect(
                 this,
@@ -212,13 +194,20 @@ public class MainActivity extends AppCompatActivity {
                 mPrefs,
                 mCommunicatorProxy,
                 mMySloganManager,
-                mHandler
-        );
+                mHandler,
+                mDebugFragment);
         mToolbarAspect.initToolbar();
 
-        mDebugWrapper = worldView.findViewById(R.id.debug_wrapper);
-        mDebugCommunicatorStateDumpView = worldView.findViewById(R.id.debug_communicator_state_dump);
-        mDebugPeersListView = worldView.findViewById(R.id.debug_peers_list);
+        if (mToolbarAspect.isAuraEnabled()) {
+            mCommunicatorProxy.enable();
+        }
+
+//        EmojiCompat.init(new BundledEmojiCompatConfig(this));
+
+        if (mToolbarAspect.isAuraEnabled()) {
+            mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
+        }
+
         reflectStatus();
     }
 
@@ -261,7 +250,9 @@ public class MainActivity extends AppCompatActivity {
         mStatusItem.mPeers = mPeers;
         mStatusItem.mPeerSloganMap = mPeerSloganMap;
         mListAdapter.notifyListItemChanged(mStatusItem);
-        updateDebugView();
+        if (mToolbarAspect.isDebugFragmentEnabled()) {
+            mDebugFragment.update(mCommunicatorState, mPeers);
+        }
 
         if (mCommunicatorState == null) {
             return;
@@ -283,24 +274,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mSwipeRefresh.setEnabled(mCommunicatorState.mScanning);
-    }
-
-    private void updateDebugView() {
-        if (mDebugWrapper.getVisibility() == View.GONE) {
-            return;
-        }
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        String dump = "# communicator: " + gson.toJson(mCommunicatorState);
-        dump += "\n# peers: " + gson.toJson(mPeers);
-        mDebugCommunicatorStateDumpView.setText(dump.replaceAll("\"", "").replaceAll("\n +\\{", " {"));
-
-        // Not efficient but minimal code. That's okay because it doesn't affect performance
-        // for users
-        mDebugPeersListView.setAdapter(new DebugPeersListArrayAdapter(
-                this,
-                android.R.layout.simple_list_item_1,
-                mPeers.toArray(new Peer[mPeers.size()])
-        ));
     }
 
     private void showBrokenBtStackAlert() {
@@ -413,7 +386,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mCommunicatorProxy.startListening();
-        if (mAuraEnabled) {
+        if (mToolbarAspect.isAuraEnabled()) {
             mCommunicatorProxy.askForPeersUpdate();
         }
 

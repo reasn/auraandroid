@@ -10,6 +10,7 @@ import android.support.v4.view.PagerAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.auraapp.auraandroid.ui.debug.DebugFragment;
 import io.auraapp.auraandroid.ui.permissions.PermissionsFragment;
 import io.auraapp.auraandroid.ui.welcome.PrivacyFragment;
 import io.auraapp.auraandroid.ui.welcome.WelcomeFragment;
@@ -49,10 +50,10 @@ public class ScreenPagerAdapter extends FragmentStatePagerAdapter {
 //        if (handle.equals(SCREEN_PROFILE)) {
 //            return ProfileFragment.class;
 //        }
-        if (mFragments.equals(SCREEN_WORLD)) {
+        if (handle.equals(SCREEN_WORLD)) {
             return WorldFragment.class;
         }
-        if (mFragments.equals(SCREEN_WELCOME)) {
+        if (handle.equals(SCREEN_WELCOME)) {
             return WelcomeFragment.class;
         }
         return PrivacyFragment.class;
@@ -75,6 +76,13 @@ public class ScreenPagerAdapter extends FragmentStatePagerAdapter {
 
         if (!has(PermissionsFragment.class)) {
             mFragments.add(0, PermissionsFragment.create(mContext, mPager));
+            notifyDataSetChanged();
+        }
+    }
+
+    public void addDebugFragment(DebugFragment fragment) {
+        if (!has(DebugFragment.class)) {
+            mFragments.add(fragment);
             notifyDataSetChanged();
         }
     }
