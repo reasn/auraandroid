@@ -37,7 +37,7 @@ public class PermissionsFragment extends Fragment {
     private Context mContext;
     private ScreenPager mPager;
     private ViewGroup mView;
-    private boolean redirected = false;
+    private boolean mRedirected = false;
 
     public static PermissionsFragment create(Context context, ScreenPager pager) {
         PermissionsFragment fragment = new PermissionsFragment();
@@ -73,6 +73,17 @@ public class PermissionsFragment extends Fragment {
                 throw new RuntimeException("Attempted to show permission dialog for Android < M");
             }
         });
+
+        ((TextView) mView.findViewById(R.id.granted_emoji)).setText(EmojiHelper.replaceShortCode(":grinning_face:"));
+        ((TextView) mView.findViewById(R.id.granted_text)).setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_permissionsMissing_granted_text)));
+
+
+        if (mRedirected) {
+            mView.findViewById(R.id.not_granted).setVisibility(View.GONE);
+        } else {
+            mView.findViewById(R.id.not_granted).setVisibility(View.VISIBLE);
+        }
+
         return mView;
     }
 
@@ -87,7 +98,7 @@ public class PermissionsFragment extends Fragment {
     public void onResume() {
         v(TAG, "onResume");
         super.onResume();
-        if (!redirected) {
+        if (!mRedirected) {
             mPager.setLocked(true);
 
             if (mHandler == null) {
@@ -102,20 +113,16 @@ public class PermissionsFragment extends Fragment {
             mHandler.postDelayed(this::continuouslyCheckForPermissions, 500);
             return;
         }
-
-        redirected = true;
+        mRedirected = true;
         // Give dialog time to hide, leads to glitches otherwise
         mHandler.postDelayed(() -> {
             i(TAG, "Permissions granted");
-
-            ((TextView) mView.findViewById(R.id.granted_emoji)).setText(EmojiHelper.replaceShortCode(":grinning_face:"));
-            ((TextView) mView.findViewById(R.id.granted_text)).setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_permissionsMissing_granted_text)));
 
             Animation hide = AnimationUtils.loadAnimation(mContext, R.anim.screen_permissions_hide);
             mView.findViewById(R.id.not_granted).startAnimation(hide);
 
             mHandler.postDelayed(() -> {
-                mView.findViewById(R.id.not_granted).setVisibility(View.INVISIBLE);
+                mView.findViewById(R.id.not_granted).setVisibility(View.GONE);
                 mPager.setLocked(false);
             }, hide.getDuration());
         }, 500);
