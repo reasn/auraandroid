@@ -1,7 +1,6 @@
 package io.auraapp.auraandroid.ui.world.list;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -203,7 +202,7 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
             if (position % 2 == 0) {
                 holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.yellow));
             } else {
-                holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.green));
+                holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.dark_yellow));
             }
 
         } else if (holder instanceof PeerCollapsedHolder || holder instanceof PeerExpandedHolder) {
@@ -217,7 +216,7 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 
             // Alternating colors
             if (position % 2 == 0) {
-                holder.itemView.setBackgroundColor(Color.parseColor("#ececec"));
+                holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.gray));
             } else {
                 holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.white));
             }

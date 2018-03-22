@@ -102,20 +102,18 @@ public class PermissionsFragment extends Fragment {
             redirected = true;
             mHandler.post(() -> {
                 i(TAG, "Permissions granted");
-                mPager.setLocked(false);
 
                 ((TextView) mView.findViewById(R.id.granted_emoji)).setText(EmojiHelper.replaceShortCode(":grinning_face:"));
                 ((TextView) mView.findViewById(R.id.granted_text)).setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_permissionsMissing_granted_text)));
-
-                Animation hide = AnimationUtils.loadAnimation(mContext, R.anim.screen_permissions_hide);
-                mView.findViewById(R.id.not_granted).startAnimation(hide);
-
-                mHandler.postDelayed(() -> mView.findViewById(R.id.not_granted).setVisibility(View.GONE), hide.getDuration());
 
                 Animation show = AnimationUtils.loadAnimation(mContext, R.anim.screen_permissions_show);
                 mView.findViewById(R.id.granted).startAnimation(show);
                 mView.findViewById(R.id.granted).setVisibility(View.VISIBLE);
 
+                mHandler.postDelayed(() -> {
+                    mView.findViewById(R.id.not_granted).setVisibility(View.GONE);
+                    mPager.setLocked(false);
+                }, show.getDuration());
             });
             return;
         }

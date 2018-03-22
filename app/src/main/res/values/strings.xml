@@ -14,11 +14,11 @@
     <!--Permissions Missing fragment-->
     <string name="ui_permissionsMissing_heading">Welcome!</string>
     <string name="ui_permissionsMissing_text">Aura can only work with some basic permissions.\n\nDon\'t worry, no data will be transmitted via the internet. \nYou are safe.</string>
-    <string name="ui_permissionsMissing_request">:fire: Give Aura Location Access</string>
+    <string name="ui_permissionsMissing_request">Allow my Aura</string>
     <string name="ui_permissionsMissing_second_text">If clicking the button above doesn\'t work, you have to manually grant Aura the necessary permissions.\nPlease click the button below, then "Permissions" and grant Aura access to your location.</string>
-    <string name="ui_permissionsMissing_appSettings">:pencil: Open App Settings</string>
+    <string name="ui_permissionsMissing_appSettings">Open App Settings</string>
 
-    <string name="ui_permissionsMissing_granted_text">Swipe to continue</string>
+    <string name="ui_permissionsMissing_granted_text">Great, you\'re all set!\nSwipe to start.</string>
 
     <!--Main Activity-->
 

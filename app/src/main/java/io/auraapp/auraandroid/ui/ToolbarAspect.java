@@ -106,7 +106,9 @@ public class ToolbarAspect {
         MainActivity.ToolbarButtonVisibilityUpdater visibilityUpdater = fragment -> {
             // TODO animate / make smoother, first trial didn't work, null pointers and animation wasn't visible
 
-            mPager.setLocked(fragment instanceof WorldFragment);
+            if (fragment instanceof WorldFragment) {
+                mPager.setLocked(true);
+            }
             if (fragment instanceof FragmentWithToolbarButtons) {
                 helpItem.setVisible(true);
                 enabledItem.setVisible(true);
