@@ -10,13 +10,13 @@ import android.support.v4.view.PagerAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.auraapp.auraandroid.ui.permissions.PermissionGrantedFragment;
-import io.auraapp.auraandroid.ui.permissions.PermissionMissingFragment;
-import io.auraapp.auraandroid.ui.profile.ProfileFragment;
+import io.auraapp.auraandroid.ui.permissions.PermissionsFragment;
+import io.auraapp.auraandroid.ui.welcome.PrivacyFragment;
 import io.auraapp.auraandroid.ui.welcome.WelcomeFragment;
 import io.auraapp.auraandroid.ui.world.WorldFragment;
 
-public class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
+public class ScreenPagerAdapter extends FragmentStatePagerAdapter {
+    public static final String SCREEN_PRIVACY = "privacy";
     public static final String SCREEN_WELCOME = "welcome";
     private static final String SCREEN_WORLD = "world";
     private static final String SCREEN_PROFILE = "profile";
@@ -24,14 +24,15 @@ public class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
     private final Context mContext;
     private final List<Fragment> mFragments;
 
-    public ScreenSlidePagerAdapter(FragmentManager fm, WorldFragment worldFragment, ScreenPager pager, Context context) {
+    public ScreenPagerAdapter(FragmentManager fm, WorldFragment worldFragment, ScreenPager pager, Context context) {
         super(fm);
         this.mPager = pager;
         mContext = context;
 
         mFragments = new ArrayList<>();
+        mFragments.add(PrivacyFragment.create(context, pager));
         mFragments.add(WelcomeFragment.create(context, pager));
-        mFragments.add(new ProfileFragment());
+//        mFragments.add(new ProfileFragment());
         mFragments.add(worldFragment);
     }
 
@@ -45,50 +46,36 @@ public class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
     }
 
     public Class getClassForHandle(String handle) {
-        if (handle.equals(SCREEN_PROFILE)) {
-            return ProfileFragment.class;
-        }
+//        if (handle.equals(SCREEN_PROFILE)) {
+//            return ProfileFragment.class;
+//        }
         if (mFragments.equals(SCREEN_WORLD)) {
             return WorldFragment.class;
         }
-        return WelcomeFragment.class;
+        if (mFragments.equals(SCREEN_WELCOME)) {
+            return WelcomeFragment.class;
+        }
+        return PrivacyFragment.class;
     }
 
     public String getHandleForClass(Class fragment) {
-        if (fragment.equals(ProfileFragment.class)) {
-            return SCREEN_PROFILE;
-        }
+//        if (fragment.equals(ProfileFragment.class)) {
+//            return SCREEN_PROFILE;
+//        }
         if (fragment.equals(WorldFragment.class)) {
             return SCREEN_WORLD;
         }
-        return SCREEN_WELCOME;
+        if (fragment.equals(PrivacyFragment.class)) {
+            return SCREEN_WELCOME;
+        }
+        return SCREEN_PRIVACY;
     }
 
-    public void addPermissionFragments() {
+    public void addPermissionsFragment() {
 
-        if (!has(PermissionGrantedFragment.class)) {
-            mFragments.add(0, PermissionGrantedFragment.create(mContext, mPager));
+        if (!has(PermissionsFragment.class)) {
+            mFragments.add(0, PermissionsFragment.create(mContext, mPager));
             notifyDataSetChanged();
-        }
-        if (!has(PermissionMissingFragment.class)) {
-            mFragments.add(0, PermissionMissingFragment.create(mContext, mPager));
-            notifyDataSetChanged();
-        }
-    }
-
-    public void removePermissionMissingFragment() {
-        if (mFragments.get(0) instanceof PermissionMissingFragment) {
-            mFragments.remove(0);
-            notifyDataSetChanged();
-            mPager.goTo(PermissionGrantedFragment.class, false);
-        }
-    }
-
-    public void removePermissionGrantedFragment() {
-        if (mFragments.get(0) instanceof PermissionGrantedFragment) {
-            mFragments.remove(0);
-            notifyDataSetChanged();
-            mPager.goTo(WelcomeFragment.class, false);
         }
     }
 
@@ -97,12 +84,12 @@ public class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
         if (!(object instanceof Fragment)) {
             throw new RuntimeException("Tried to getItemPosition of non-Fragment");
         }
-        return PagerAdapter.POSITION_NONE;
+//        return PagerAdapter.POSITION_NONE;
         // Didn't work:
-        //        int index = mFragments.indexOf(object);
-        //        return index >= 0
-        //                ? index
-        //                : PagerAdapter.POSITION_NONE;
+        int index = mFragments.indexOf(object);
+        return index >= 0
+                ? index
+                : PagerAdapter.POSITION_NONE;
         // The current solution might have performance implications but none were observed.
         // Would affect swipes only anyway and all screens' views are inflated continuously anyway
         // Thanks https://stackoverflow.com/questions/10849552/update-viewpager-dynamically

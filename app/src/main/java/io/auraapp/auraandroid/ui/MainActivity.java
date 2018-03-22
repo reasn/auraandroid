@@ -1,26 +1,20 @@
 package io.auraapp.auraandroid.ui;
 
 import android.content.SharedPreferences;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.StringRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
-import android.support.v7.widget.SwitchCompat;
-import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -46,7 +40,7 @@ import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxy;
 import io.auraapp.auraandroid.ui.common.MySloganManager;
 import io.auraapp.auraandroid.ui.debug.DebugPeersListArrayAdapter;
-import io.auraapp.auraandroid.ui.permissions.PermissionMissingFragment;
+import io.auraapp.auraandroid.ui.permissions.PermissionsFragment;
 import io.auraapp.auraandroid.ui.world.PeerMapTransformer;
 import io.auraapp.auraandroid.ui.world.PeerSlogan;
 import io.auraapp.auraandroid.ui.world.WorldFragment;
@@ -58,21 +52,18 @@ import io.auraapp.auraandroid.ui.world.list.item.PeersHeadingItem;
 import io.auraapp.auraandroid.ui.world.list.item.StatusItem;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
-import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
-import static io.auraapp.auraandroid.common.FormattedLog.w;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "@aura/main";
 
     private static final int BROKEN_BT_STACK_ALERT_DEBOUNCE = 1000 * 60;
-    private static final long SWIPE_TO_REFRESH_DURATION = 1000 * 2;
 
     private RecycleAdapter mListAdapter;
     private StatusItem mStatusItem;
     private PeersHeadingItem mPeersHeadingItem;
-    private SwipeRefreshLayout mSwipeRefresh;
+    private FakeSwipeRefreshLayout mSwipeRefresh;
 
     private MySloganManager mMySloganManager;
     private CommunicatorProxy mCommunicatorProxy;
@@ -94,12 +85,10 @@ public class MainActivity extends AppCompatActivity {
     private TextView mDebugCommunicatorStateDumpView;
     private ListView mDebugPeersListView;
 
-    private List<Long> mToolbarIconClicks = new ArrayList<>();
-
     private ScreenPager mPager;
-    private ScreenSlidePagerAdapter mPagerAdapter;
+    private ScreenPagerAdapter mPagerAdapter;
     private RecyclerView mListView;
-    private SwitchCompat mEnabledSwitch;
+    private ToolbarAspect mToolbarAspect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,7 +98,6 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        initToolbar();
 
         mPager = findViewById(R.id.pager);
 
@@ -118,28 +106,27 @@ public class MainActivity extends AppCompatActivity {
 
         WorldFragment world = WorldFragment.create(worldView);
 
-        mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(), world, mPager, this);
+        mPagerAdapter = new ScreenPagerAdapter(getSupportFragmentManager(), world, mPager, this);
         mPager.setAdapter(mPagerAdapter);
 
         // Load preferences
         mPrefs = getSharedPreferences(Prefs.PREFS_BUCKET, MODE_PRIVATE);
         mAuraEnabled = mPrefs.getBoolean(Prefs.PREFS_ENABLED, true);
 
-        showPermissionMissingFragment();
-//        if (!PermissionHelper.granted(this)) {
-//            showPermissionMissingFragment();
-//        } else {
-//            String currentScreen = mPrefs.getString(Prefs.PREFS_CURRENT_SCREEN, ScreenSlidePagerAdapter.SCREEN_WELCOME);
-//            mPager.goTo(mPagerAdapter.getClassForHandle(currentScreen));
-//
-//            mPager.addChangeListener(fragment -> {
-//                mPrefs.edit()
-//                        .putString(
-//                                Prefs.PREFS_CURRENT_SCREEN,
-//                                mPagerAdapter.getHandleForClass(fragment.getClass()))
-//                        .apply();
-//            });
-//        }
+        if (!PermissionHelper.granted(this)) {
+            showPermissionMissingFragment();
+        } else {
+            String currentScreen = mPrefs.getString(Prefs.PREFS_CURRENT_SCREEN, ScreenPagerAdapter.SCREEN_WELCOME);
+            mPager.goTo(mPagerAdapter.getClassForHandle(currentScreen), false);
+
+            mPager.addChangeListener(fragment -> {
+                mPrefs.edit()
+                        .putString(
+                                Prefs.PREFS_CURRENT_SCREEN,
+                                mPagerAdapter.getHandleForClass(fragment.getClass()))
+                        .apply();
+            });
+        }
 
         mDialogManager = new DialogManager(this);
 
@@ -174,6 +161,7 @@ public class MainActivity extends AppCompatActivity {
                 this,
                 peers -> {
                     mPeers = peers;
+                    mSwipeRefresh.setPeerCount(mPeers.size());
                     mPeerSloganMap = PeerMapTransformer.buildMapFromPeerList(peers);
                     mListAdapter.notifyPeerSloganListChanged(mPeerSloganMap);
                     reflectStatus();
@@ -216,27 +204,22 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mSwipeRefresh = worldView.findViewById(R.id.swiperefresh);
-        mSwipeRefresh.setOnRefreshListener(this::refresh);
         mSwipeRefresh.setEnabled(false);
+
+        mToolbarAspect = new ToolbarAspect(
+                this,
+                mPager,
+                mPrefs,
+                mCommunicatorProxy,
+                mMySloganManager,
+                mHandler
+        );
+        mToolbarAspect.initToolbar();
 
         mDebugWrapper = worldView.findViewById(R.id.debug_wrapper);
         mDebugCommunicatorStateDumpView = worldView.findViewById(R.id.debug_communicator_state_dump);
         mDebugPeersListView = worldView.findViewById(R.id.debug_peers_list);
         reflectStatus();
-    }
-
-    /**
-     * As the advertisement of peers are continuously monitored, triggering a refresh has zero impact.
-     * As the user indicated a wish for an update, we briefly toast the current status.
-     */
-    void refresh() {
-        i(TAG, "Showing swipe to refresh indicator to transport sense of immediacy");
-        String text = mPeers.size() == 0
-                ? getString(R.string.ui_main_toast_refresh_no_peers)
-                : getResources().getQuantityString(R.plurals.ui_main_toast_refresh, mPeers.size(), mPeers.size());
-
-        toast(text);
-        mHandler.postDelayed(() -> mSwipeRefresh.setRefreshing(false), SWIPE_TO_REFRESH_DURATION);
     }
 
     // TODO peer adopts and drops slogan but stays visible here
@@ -411,55 +394,13 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.toolbar_menu, menu);
-        MenuItem item = menu.findItem(R.id.enabledSwitch);
-        item.setActionView(R.layout.toolbar_switch);
-
-        SwitchCompat enabledSwitch = item.getActionView().findViewById(R.id.enabled_switch);
-        enabledSwitch.setChecked(mAuraEnabled);
-
-
-        ToolbarButtonVisibilityUpdater s = fragment -> {
-            if (fragment instanceof FragmentWithToolbarButtons) {
-                enabledSwitch.setVisibility(View.VISIBLE);
-            } else {
-                enabledSwitch.setVisibility(View.INVISIBLE);
-            }
-        };
-
-        mPager.addChangeListener(s::update);
-        s.update(mPagerAdapter.getItem(mPager.getCurrentItem()));
-
-        // Managed programmatically because offText XML attribute has no effect for SwitchCompat in menu item
-        enabledSwitch.setText(getString(mAuraEnabled
-                ? R.string.ui_toolbar_enable_on
-                : R.string.ui_toolbar_enable_off));
-
-        enabledSwitch.setOnCheckedChangeListener((CompoundButton $, boolean isChecked) -> {
-            mAuraEnabled = isChecked;
-            mPrefs.edit().putBoolean(Prefs.PREFS_ENABLED, isChecked).apply();
-            if (isChecked) {
-                mCommunicatorProxy.enable();
-                mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
-                mCommunicatorProxy.askForPeersUpdate();
-                enabledSwitch.setText(getString(R.string.ui_toolbar_enable_on));
-                enabledSwitch.getThumbDrawable().setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
-                enabledSwitch.getTrackDrawable().setColorFilter(getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
-
-            } else {
-                enabledSwitch.setText(getString(R.string.ui_toolbar_enable_off));
-                mCommunicatorProxy.disable();
-                enabledSwitch.getThumbDrawable().setColorFilter(getResources().getColor(R.color.red), PorterDuff.Mode.MULTIPLY);
-                enabledSwitch.getTrackDrawable().setColorFilter(getResources().getColor(R.color.red), PorterDuff.Mode.MULTIPLY);
-            }
-        });
-
+        mHandler.post(() -> mToolbarAspect.createOptionsMenu(menu));
         return true;
     }
 
     private void showPermissionMissingFragment() {
-        mPagerAdapter.addPermissionFragments();
-        mPager.goTo(PermissionMissingFragment.class, false);
+        mPagerAdapter.addPermissionsFragment();
+        mPager.goTo(PermissionsFragment.class, false);
     }
 
     @Override
@@ -488,39 +429,5 @@ public class MainActivity extends AppCompatActivity {
 
         mListAdapter.onPause();
         super.onPause();
-    }
-
-    private void initToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        toolbar.setNavigationIcon(R.mipmap.ic_launcher);
-        toolbar.setNavigationOnClickListener($ -> mHandler.post(() -> {
-            if (!Config.MAIN_DEBUG_VIEW_ENABLED) {
-                return;
-            }
-            long now = System.currentTimeMillis();
-            mToolbarIconClicks.add(now);
-            w(TAG, "haha %s", mToolbarIconClicks);
-            // Iterate over copy to allow modification in loop
-            int eligibleClicks = 0;
-            for (Long ts : mToolbarIconClicks.toArray(new Long[mToolbarIconClicks.size()])) {
-                if (now - ts > Config.MAIN_DEBUG_VIEW_SWITCH_INTERVAL) {
-                    mToolbarIconClicks.remove(ts);
-                } else {
-                    eligibleClicks++;
-                }
-            }
-            if (eligibleClicks >= Config.MAIN_DEBUG_VIEW_SWITCH_CLICKS) {
-                mToolbarIconClicks.clear();
-                if (mDebugWrapper.getVisibility() == View.VISIBLE) {
-                    mDebugWrapper.setVisibility(View.GONE);
-                    toast(R.string.ui_main_toast_debug_view_disabled);
-                } else {
-                    toast(R.string.ui_main_toast_debug_view_enabled);
-                    mDebugWrapper.setVisibility(View.VISIBLE);
-                    updateDebugView();
-                }
-            }
-        }));
     }
 }

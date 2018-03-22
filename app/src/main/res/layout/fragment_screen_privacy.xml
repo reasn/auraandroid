@@ -11,6 +11,6 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:padding="16dp"
-        android:text="Welcome!"
+        android:text="Privacy!"
         android:textSize="60sp" />
 </LinearLayout>

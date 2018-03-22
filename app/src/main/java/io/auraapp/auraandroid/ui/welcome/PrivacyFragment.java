@@ -12,14 +12,14 @@ import io.auraapp.auraandroid.ui.ScreenPager;
 
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
-public class WelcomeFragment extends Fragment {
+public class PrivacyFragment extends Fragment {
 
-    private static final String TAG = "@aura/ui/permissions/" + WelcomeFragment.class.getSimpleName();
+    private static final String TAG = "@aura/ui/permissions/" + PrivacyFragment.class.getSimpleName();
     private Context mContext;
     private ScreenPager mPager;
 
-    public static WelcomeFragment create(Context context, ScreenPager pager) {
-        WelcomeFragment fragment = new WelcomeFragment();
+    public static PrivacyFragment create(Context context, ScreenPager pager) {
+        PrivacyFragment fragment = new PrivacyFragment();
         fragment.mContext = context;
         fragment.mPager = pager;
         return fragment;
@@ -30,7 +30,7 @@ public class WelcomeFragment extends Fragment {
         v(TAG, "onCreateView");
 
         ViewGroup rootView = (ViewGroup) inflater.inflate(
-                R.layout.fragment_screen_welcome, container, false);
+                R.layout.fragment_screen_privacy, container, false);
 
         return rootView;
     }

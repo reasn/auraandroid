@@ -12,7 +12,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.EmojiHelper;
@@ -24,9 +27,9 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
-public class PermissionMissingFragment extends Fragment {
+public class PermissionsFragment extends Fragment {
 
-    private static final String TAG = "@aura/ui/permissions/" + PermissionMissingFragment.class.getSimpleName();
+    private static final String TAG = "@aura/ui/permissions/" + PermissionsFragment.class.getSimpleName();
 
     private final static int REQUEST_CODE_LOCATION_REQUEST = 149;
     private static final int REQUEST_CODE_APP_SETTINGS = 144;
@@ -36,8 +39,8 @@ public class PermissionMissingFragment extends Fragment {
     private ViewGroup mView;
     private boolean redirected = false;
 
-    public static PermissionMissingFragment create(Context context, ScreenPager pager) {
-        PermissionMissingFragment fragment = new PermissionMissingFragment();
+    public static PermissionsFragment create(Context context, ScreenPager pager) {
+        PermissionsFragment fragment = new PermissionsFragment();
         fragment.mContext = context;
         fragment.mPager = pager;
         return fragment;
@@ -47,7 +50,7 @@ public class PermissionMissingFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         v(TAG, "onCreateView");
 
-        mView = (ViewGroup) inflater.inflate(R.layout.fragment_screen_permission_missing, container, false);
+        mView = (ViewGroup) inflater.inflate(R.layout.fragment_screen_permissions, container, false);
 
         InfoBox infoBox = mView.findViewById(R.id.info_box);
         infoBox.setButtonClickListener((View $) -> {
@@ -98,10 +101,21 @@ public class PermissionMissingFragment extends Fragment {
         if (PermissionHelper.granted(mContext)) {
             redirected = true;
             mHandler.post(() -> {
-                i(TAG, "Permission granted, removing fragment");
+                i(TAG, "Permissions granted");
                 mPager.setLocked(false);
-                mPager.goTo(PermissionGrantedFragment.class, true);
-//                mPager.getScreenAdapter().removePermissionMissingFragment();
+
+                ((TextView) mView.findViewById(R.id.granted_emoji)).setText(EmojiHelper.replaceShortCode(":grinning_face:"));
+                ((TextView) mView.findViewById(R.id.granted_text)).setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_permissionsMissing_granted_text)));
+
+                Animation hide = AnimationUtils.loadAnimation(mContext, R.anim.screen_permissions_hide);
+                mView.findViewById(R.id.not_granted).startAnimation(hide);
+
+                mHandler.postDelayed(() -> mView.findViewById(R.id.not_granted).setVisibility(View.GONE), hide.getDuration());
+
+                Animation show = AnimationUtils.loadAnimation(mContext, R.anim.screen_permissions_show);
+                mView.findViewById(R.id.granted).startAnimation(show);
+                mView.findViewById(R.id.granted).setVisibility(View.VISIBLE);
+
             });
             return;
         }
