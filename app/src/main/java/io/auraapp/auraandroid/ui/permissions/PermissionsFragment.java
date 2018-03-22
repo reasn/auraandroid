@@ -98,25 +98,26 @@ public class PermissionsFragment extends Fragment {
     }
 
     private void continuouslyCheckForPermissions() {
-        if (PermissionHelper.granted(mContext)) {
-            redirected = true;
-            mHandler.post(() -> {
-                i(TAG, "Permissions granted");
-
-                ((TextView) mView.findViewById(R.id.granted_emoji)).setText(EmojiHelper.replaceShortCode(":grinning_face:"));
-                ((TextView) mView.findViewById(R.id.granted_text)).setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_permissionsMissing_granted_text)));
-
-                Animation show = AnimationUtils.loadAnimation(mContext, R.anim.screen_permissions_show);
-                mView.findViewById(R.id.granted).startAnimation(show);
-                mView.findViewById(R.id.granted).setVisibility(View.VISIBLE);
-
-                mHandler.postDelayed(() -> {
-                    mView.findViewById(R.id.not_granted).setVisibility(View.GONE);
-                    mPager.setLocked(false);
-                }, show.getDuration());
-            });
+        if (!PermissionHelper.granted(mContext)) {
+            mHandler.postDelayed(this::continuouslyCheckForPermissions, 500);
             return;
         }
-        mHandler.postDelayed(this::continuouslyCheckForPermissions, 500);
+
+        redirected = true;
+        // Give dialog time to hide, leads to glitches otherwise
+        mHandler.postDelayed(() -> {
+            i(TAG, "Permissions granted");
+
+            ((TextView) mView.findViewById(R.id.granted_emoji)).setText(EmojiHelper.replaceShortCode(":grinning_face:"));
+            ((TextView) mView.findViewById(R.id.granted_text)).setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_permissionsMissing_granted_text)));
+
+            Animation hide = AnimationUtils.loadAnimation(mContext, R.anim.screen_permissions_hide);
+            mView.findViewById(R.id.not_granted).startAnimation(hide);
+
+            mHandler.postDelayed(() -> {
+                mView.findViewById(R.id.not_granted).setVisibility(View.INVISIBLE);
+                mPager.setLocked(false);
+            }, hide.getDuration());
+        }, 500);
     }
 }

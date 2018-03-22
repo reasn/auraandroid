@@ -6,6 +6,31 @@
     android:layout_height="fill_parent">
 
     <LinearLayout
+        android:id="@+id/granted"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@color/green"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/granted_emoji"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:paddingBottom="20dp"
+            android:textSize="120dp" />
+
+        <TextView
+            android:id="@+id/granted_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:paddingBottom="40dp"
+            android:textSize="30dp" />
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/not_granted"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
@@ -26,32 +51,6 @@
         <Button
             android:id="@+id/show_app_settings"
             style="@style/Button" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/granted"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:background="@color/green"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <TextView
-            android:id="@+id/granted_emoji"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:paddingBottom="20dp"
-            android:textSize="120dp" />
-
-        <TextView
-            android:id="@+id/granted_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:paddingBottom="40dp"
-            android:textSize="30dp" />
     </LinearLayout>
 
 </FrameLayout>
