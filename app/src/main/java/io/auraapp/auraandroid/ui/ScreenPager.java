@@ -90,7 +90,7 @@ public class ScreenPager extends ViewPager {
     }
 
     private void keepWatching() {
-        quickDump("...");
+        quickDump("..." + mWatchRuns);
         int newCurrentItem = getCurrentItem();
         if (mCurrentItem != newCurrentItem) {
             mCurrentItem = newCurrentItem;
@@ -113,9 +113,14 @@ public class ScreenPager extends ViewPager {
 
     @Override
     public void setCurrentItem(int position) {
+        setCurrentItem(position, true);
+    }
+
+    @Override
+    public void setCurrentItem(int position, boolean smoothScroll) {
         v(TAG, "setCurrentItem %d", position);
         startWatching();
-        super.setCurrentItem(position, true);
+        super.setCurrentItem(position, smoothScroll);
     }
 
     public void setLocked(boolean locked) {

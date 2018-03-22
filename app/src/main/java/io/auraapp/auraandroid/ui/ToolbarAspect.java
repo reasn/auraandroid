@@ -9,7 +9,6 @@ import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.CompoundButton;
 
 import java.util.ArrayList;
@@ -20,6 +19,8 @@ import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.Prefs;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxy;
 import io.auraapp.auraandroid.ui.common.MySloganManager;
+import io.auraapp.auraandroid.ui.welcome.WelcomeFragment;
+import io.auraapp.auraandroid.ui.world.WorldFragment;
 
 import static io.auraapp.auraandroid.common.FormattedLog.w;
 
@@ -88,22 +89,36 @@ public class ToolbarAspect {
 
     public void createOptionsMenu(Menu menu) {
         mActivity.getMenuInflater().inflate(R.menu.toolbar_menu, menu);
-        MenuItem item = menu.findItem(R.id.enabledSwitch);
-        item.setActionView(R.layout.toolbar_switch);
 
-        SwitchCompat enabledSwitch = item.getActionView().findViewById(R.id.enabled_switch);
+        MenuItem enabledItem = menu.findItem(R.id.menu_item_enabled);
+        enabledItem.setActionView(R.layout.toolbar_switch);
+
+        SwitchCompat enabledSwitch = enabledItem.getActionView().findViewById(R.id.enabled_switch);
         enabledSwitch.setChecked(mAuraEnabled);
 
-        MainActivity.ToolbarButtonVisibilityUpdater s = fragment -> {
+        MenuItem helpItem = menu.findItem(R.id.menu_item_help);
+        helpItem.setOnMenuItemClickListener($ -> {
+            mPager.setLocked(false);
+            mPager.goTo(WelcomeFragment.class, true);
+            return true;
+        });
+
+        MainActivity.ToolbarButtonVisibilityUpdater visibilityUpdater = fragment -> {
+            // TODO animate / make smoother, first trial didn't work, null pointers and animation wasn't visible
+
+            mPager.setLocked(fragment instanceof WorldFragment);
             if (fragment instanceof FragmentWithToolbarButtons) {
-                enabledSwitch.setVisibility(View.VISIBLE);
+                helpItem.setVisible(true);
+                enabledItem.setVisible(true);
+
             } else {
-                enabledSwitch.setVisibility(View.INVISIBLE);
+                enabledItem.setVisible(false);
+                helpItem.setVisible(false);
             }
         };
 
-        mPager.addChangeListener(s::update);
-        s.update(mPager.getScreenAdapter().getItem(mPager.getCurrentItem()));
+        mPager.addChangeListener(visibilityUpdater::update);
+        visibilityUpdater.update(mPager.getScreenAdapter().getItem(mPager.getCurrentItem()));
 
         // Managed programmatically because offText XML attribute has no effect for SwitchCompat in menu item
         enabledSwitch.setText(mActivity.getString(mAuraEnabled
