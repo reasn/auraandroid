@@ -5,6 +5,6 @@
         <attr name="emoji" format="string" />
         <attr name="text" format="string" />
         <attr name="button_caption" format="string" />
-        <attr name="text_below_button" format="string" />
+        <attr name="second_text" format="string" />
     </declare-styleable>
 </resources>

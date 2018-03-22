@@ -80,11 +80,11 @@ public class PeersHeadingHolder extends ItemViewHolder {
                     mInfoBox.hideButton();
 
                 } else {
-                    mInfoBox.setHeading(R.string.ui_main_status_peers_no_peers_heading);
-                    mInfoBox.setText(R.string.ui_main_status_peers_no_peers_text);
+                    mInfoBox.setHeading(R.string.ui_main_status_peers_no_peers_info_heading);
+                    mInfoBox.setText(R.string.ui_main_status_peers_no_peers_info_text);
                     mInfoBox.showButton(
-                            R.string.ui_main_status_peers_no_peers_heading_cta,
-                            R.string.ui_main_status_peers_no_peers_heading_text_below_button,
+                            R.string.ui_main_status_peers_no_peers_info_heading_cta,
+                            R.string.ui_main_status_peers_no_peers_info_second_text,
                             $ -> {
                                 Intent sendIntent = new Intent();
                                 sendIntent.setAction(Intent.ACTION_SEND);

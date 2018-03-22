@@ -20,6 +20,7 @@ public class EmojiHelper {
                 .replaceAll(":broken_heart:", "💔")
                 .replaceAll(":silhouette_head:", "👤")
                 .replaceAll(":memo:", "📝")
+                .replaceAll(":scroll:", "📜")
                 .replaceAll(":sunglasses:", "😎")
                 .replaceAll(":see_no_evil:", "🙈")
                 .replaceAll(":satellite_antenna:", "📡")

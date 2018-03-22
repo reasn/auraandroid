@@ -23,7 +23,7 @@ public class InfoBox extends LinearLayout {
     private TextView mHeadingView;
     private TextView mTextView;
     private Button mButtonView;
-    private TextView mTextBelowButtonView;
+    private TextView mSecondTextView;
     private final List<Runnable> mAttributeSetters = new ArrayList<>();
 
     public InfoBox(Context context) {
@@ -59,9 +59,9 @@ public class InfoBox extends LinearLayout {
                     mButtonView.setText(EmojiHelper.replaceShortCode(attrs.getString(R.styleable.InfoBox_button_caption)));
                     mButtonView.setVisibility(View.VISIBLE);
                 }
-                if (attrs.hasValue(R.styleable.InfoBox_text_below_button)) {
-                    mTextBelowButtonView.setText(EmojiHelper.replaceShortCode(attrs.getString(R.styleable.InfoBox_text_below_button)));
-                    mTextBelowButtonView.setVisibility(View.VISIBLE);
+                if (attrs.hasValue(R.styleable.InfoBox_second_text)) {
+                    mSecondTextView.setText(EmojiHelper.replaceShortCode(attrs.getString(R.styleable.InfoBox_second_text)));
+                    mSecondTextView.setVisibility(View.VISIBLE);
                 }
                 attrs.recycle();
             });
@@ -73,12 +73,12 @@ public class InfoBox extends LinearLayout {
         mButtonView.setVisibility(View.VISIBLE);
         setButtonClickListener(onClickListener);
         if (textBelowButton > 0) {
-            mTextBelowButtonView.setText(getContext().getString(textBelowButton));
-            mTextBelowButtonView.setVisibility(View.VISIBLE);
+            mSecondTextView.setText(getContext().getString(textBelowButton));
+            mSecondTextView.setVisibility(View.VISIBLE);
         } else {
-            mTextBelowButtonView.setVisibility(View.GONE);
+            mSecondTextView.setVisibility(View.GONE);
         }
-        mTextBelowButtonView.setVisibility(View.VISIBLE);
+        mSecondTextView.setVisibility(View.VISIBLE);
     }
 
     public void setButtonClickListener(OnClickListener onClickListener) {
@@ -87,7 +87,7 @@ public class InfoBox extends LinearLayout {
 
     public void hideButton() {
         mButtonView.setVisibility(View.GONE);
-        mTextBelowButtonView.setVisibility(View.GONE);
+        mSecondTextView.setVisibility(View.GONE);
     }
 
     public void setHeading(String heading) {
@@ -118,7 +118,7 @@ public class InfoBox extends LinearLayout {
         mHeadingView = this.findViewById(R.id.heading);
         mTextView = this.findViewById(R.id.text);
         mButtonView = this.findViewById(R.id.button);
-        mTextBelowButtonView = this.findViewById(R.id.text_below_button);
+        mSecondTextView = this.findViewById(R.id.second_text);
         for (Runnable r : mAttributeSetters) {
             r.run();
         }

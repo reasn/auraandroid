@@ -20,6 +20,16 @@
 
     <string name="ui_permissionsMissing_granted_text">Great, you\'re all set!\nSwipe to start.</string>
 
+    <!--Permissions Missing fragment-->
+    <string name="ui_screen_privacy_heading">Aura Agreement</string>
+    <string name="ui_screen_privacy_first_text">Worth reading and only 5 points after all. :sunglasses:</string>
+    <string name="ui_screen_privacy_second_text">1. The data you enter is visible to Aura users around you.
+        \n\n2. No data is sent over the internet.
+        \n\n3. We don\t collect any data.
+        \n\n4. Aura is and will remain free
+        \n\n5. Aura believes in humanism, freedom of speech, respect and equality of all people. If you don\'t, please uninstall it and read a wide variety of books.
+        \n\n\nIf you agree, swipe to continue :lollipop:</string>
+
     <!--Main Activity-->
 
     <string name="ui_main_toast_debug_view_enabled">Debug view enabled</string>
@@ -67,10 +77,10 @@
     <string name="ui_main_status_communicator_advertising_not_supported_text">Your device supports seeing others but not showing your Aura.
         \nThis is a hardware issue and won\'t change in the future.</string>
 
-    <string name="ui_main_status_peers_no_peers_heading">Nobody Around</string>
-    <string name="ui_main_status_peers_no_peers_text">Make it more exciting - invite people!</string>
-    <string name="ui_main_status_peers_no_peers_heading_cta">:fire: Invite Friends!</string>
-    <string name="ui_main_status_peers_no_peers_heading_text_below_button">Should be seeing someone?
+    <string name="ui_main_status_peers_no_peers_info_heading">Nobody Around</string>
+    <string name="ui_main_status_peers_no_peers_info_text">Make it more exciting - invite people!</string>
+    <string name="ui_main_status_peers_no_peers_info_heading_cta">:fire: Invite Friends!</string>
+    <string name="ui_main_status_peers_no_peers_info_second_text">Should be seeing someone?
         \nWait a moment.\n\nStill nothing? try turning Bluetooth off and on again.
     </string>
     <string name="ui_main_status_peers_not_scanning_heading">Your Aura is off</string>

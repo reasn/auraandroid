@@ -46,7 +46,7 @@
             app:emoji=":sun_behind_small_cloud:"
             app:heading="@string/ui_permissionsMissing_heading"
             app:text="@string/ui_permissionsMissing_text"
-            app:text_below_button="@string/ui_permissionsMissing_second_text" />
+            app:second_text="@string/ui_permissionsMissing_second_text" />
 
         <Button
             android:id="@+id/show_app_settings"
