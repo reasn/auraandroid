@@ -22,8 +22,6 @@ import io.auraapp.auraandroid.common.Prefs;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxy;
 import io.auraapp.auraandroid.ui.common.MySloganManager;
 import io.auraapp.auraandroid.ui.debug.DebugFragment;
-import io.auraapp.auraandroid.ui.welcome.WelcomeFragment;
-import io.auraapp.auraandroid.ui.world.WorldFragment;
 
 public class ToolbarAspect {
 
@@ -89,7 +87,6 @@ public class ToolbarAspect {
                 ).show();
                 mPager.getScreenAdapter().addDebugFragment(mDebugFragment);
                 mDebugFragment.update(null, null);
-                mDebugMenuItem.setVisible(true);
             }
         }));
     }
@@ -102,8 +99,6 @@ public class ToolbarAspect {
         return mDebugFragmentEnabled;
     }
 
-    private MenuItem mDebugMenuItem;
-
     public void createOptionsMenu(Menu menu) {
         mActivity.getMenuInflater().inflate(R.menu.toolbar_menu, menu);
 
@@ -113,35 +108,13 @@ public class ToolbarAspect {
         SwitchCompat enabledSwitch = enabledItem.getActionView().findViewById(R.id.enabled_switch);
         enabledSwitch.setChecked(mAuraEnabled);
 
-        MenuItem helpItem = menu.findItem(R.id.menu_item_help);
-        helpItem.setOnMenuItemClickListener($ -> {
-            mPager.setLocked(false);
-            mPager.goTo(WelcomeFragment.class, true);
-            return true;
-        });
-        mDebugMenuItem = menu.findItem(R.id.menu_item_debug);
-        mDebugMenuItem.setVisible(true);
-        mDebugMenuItem.setOnMenuItemClickListener($ -> {
-            mPager.setLocked(false);
-            mPager.goTo(DebugFragment.class, true);
-            return true;
-        });
-
         MainActivity.ToolbarButtonVisibilityUpdater visibilityUpdater = fragment -> {
             // TODO animate / make smoother, first trial didn't work, null pointers and animation wasn't visible
 
-            if (fragment instanceof WorldFragment) {
-                mPager.setLocked(true);
-            }
             if (fragment instanceof FragmentWithToolbarButtons) {
-                helpItem.setVisible(true);
                 enabledItem.setVisible(true);
-                mDebugMenuItem.setVisible(mDebugFragmentEnabled);
-
             } else {
                 enabledItem.setVisible(false);
-                helpItem.setVisible(false);
-                mDebugMenuItem.setVisible(false);
             }
         };
 

@@ -46,6 +46,6 @@ public class Config {
 
     // Common
 
-    public static final int COMMON_SLOGAN_MAX_SLOGANS = 5;
+    public static final int COMMON_SLOGAN_MAX_SLOGANS = 3;
     public static int COMMON_SLOGAN_MAX_LENGTH = 160;
 }

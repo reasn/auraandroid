@@ -19,6 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:paddingBottom="20dp"
+            android:textColor="@color/black"
             android:textSize="120dp" />
 
         <TextView
@@ -27,6 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:paddingBottom="40dp"
+            android:textColor="@color/black"
             android:textSize="30dp" />
     </LinearLayout>
 
@@ -45,8 +47,8 @@
             app:button_caption="@string/ui_permissionsMissing_request"
             app:emoji=":sun_behind_small_cloud:"
             app:heading="@string/ui_permissionsMissing_heading"
-            app:text="@string/ui_permissionsMissing_text"
-            app:second_text="@string/ui_permissionsMissing_second_text" />
+            app:second_text="@string/ui_permissionsMissing_second_text"
+            app:text="@string/ui_permissionsMissing_text" />
 
         <Button
             android:id="@+id/show_app_settings"
