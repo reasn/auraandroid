@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         mPager = findViewById(R.id.pager);
 
         ViewGroup worldView = (ViewGroup) LayoutInflater.from(this).inflate(
-                R.layout.fragment_screen_world, findViewById(android.R.id.content), false);
+                R.layout.world_fragment, findViewById(android.R.id.content), false);
 
         WorldFragment world = WorldFragment.create(worldView);
 

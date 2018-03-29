@@ -15,7 +15,6 @@ import java.util.List;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
 import io.auraapp.auraandroid.ui.common.MySloganManager;
-import io.auraapp.auraandroid.ui.world.list.MySlogansRecycleAdapter;
 import io.auraapp.auraandroid.ui.world.list.item.ListItem;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
@@ -39,7 +38,7 @@ public class ProfileFragment extends Fragment implements FragmentWithToolbarButt
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mRootView = (ViewGroup) inflater.inflate(
-                R.layout.fragment_screen_profile, container, false);
+                R.layout.profile_fragment, container, false);
 
         createListView();
 

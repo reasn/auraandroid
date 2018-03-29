@@ -28,7 +28,7 @@ public class DebugPeersListArrayAdapter extends ArrayAdapter<Peer> {
         long now = System.currentTimeMillis();
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.debug_peers_list_item, parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.debug_list_item_peer, parent, false);
         }
         TextView emojiTextView = convertView.findViewById(R.id.emoji);
         TextView detailsTextView = convertView.findViewById(R.id.details);

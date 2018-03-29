@@ -50,7 +50,7 @@ public class PermissionsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         v(TAG, "onCreateView");
 
-        mView = (ViewGroup) inflater.inflate(R.layout.fragment_screen_permissions, container, false);
+        mView = (ViewGroup) inflater.inflate(R.layout.permissions_fragment, container, false);
 
         InfoBox infoBox = mView.findViewById(R.id.info_box);
         infoBox.setButtonClickListener((View $) -> {

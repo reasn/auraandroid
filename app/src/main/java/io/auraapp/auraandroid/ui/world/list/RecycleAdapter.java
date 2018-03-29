@@ -158,42 +158,44 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
             case TYPE_STATUS:
                 return new StatusHolder(
                         mContext,
-                        mInflater.inflate(R.layout.list_item_status, parent, false)
+                        mInflater.inflate(R.layout.world_list_item_status, parent, false)
                 );
 
             case TYPE_MY_SLOGANS_HEADING:
                 return new MySlogansHeadingHolder(
-                        mInflater.inflate(R.layout.list_item_heading, parent, false),
+                        mInflater.inflate(R.layout.world_list_item_heading, parent, false),
                         mContext);
 
             case TYPE_MY_SLOGAN_COLLAPSED:
                 return new MySloganHolder(
-                        mInflater.inflate(R.layout.list_item_my_slogan, parent, false),
-                        false
+                        mInflater.inflate(R.layout.profile_list_item_slogan, parent, false),
+                        false,
+                        this.collapseExpandHandler
                 );
 
             case TYPE_MY_SLOGAN_EXPANDED:
                 return new MySloganHolder(
-                        mInflater.inflate(R.layout.list_item_my_slogan, parent, false),
-                        true
+                        mInflater.inflate(R.layout.profile_list_item_slogan, parent, false),
+                        true,
+                        this.collapseExpandHandler
                 );
 
             case TYPE_PEERS_HEADING:
                 return new PeersHeadingHolder(
-                        mInflater.inflate(R.layout.list_item_heading, parent, false),
+                        mInflater.inflate(R.layout.world_list_item_heading, parent, false),
                         mContext
                 );
 
             case TYPE_PEER_COLLAPSED:
                 return new PeerItemHolder(
-                        mInflater.inflate(R.layout.list_item_peer, parent, false),
+                        mInflater.inflate(R.layout.world_list_item_peer_slogan, parent, false),
                         mContext,
                         false,
                         collapseExpandHandler);
 
             case TYPE_PEER_EXPANDED:
                 return new PeerItemHolder(
-                        mInflater.inflate(R.layout.list_item_peer, parent, false),
+                        mInflater.inflate(R.layout.world_list_item_peer_slogan, parent, false),
                         mContext,
                         true,
                         collapseExpandHandler);

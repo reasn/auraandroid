@@ -30,7 +30,7 @@ public class WelcomeFragment extends Fragment {
         v(TAG, "onCreateView");
 
         ViewGroup rootView = (ViewGroup) inflater.inflate(
-                R.layout.fragment_screen_welcome, container, false);
+                R.layout.welcome_fragment, container, false);
 
         return rootView;
     }

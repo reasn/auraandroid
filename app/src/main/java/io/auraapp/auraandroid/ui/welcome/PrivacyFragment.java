@@ -30,7 +30,7 @@ public class PrivacyFragment extends Fragment {
         v(TAG, "onCreateView");
 
         ViewGroup rootView = (ViewGroup) inflater.inflate(
-                R.layout.fragment_screen_privacy, container, false);
+                R.layout.privacy_fragment, container, false);
 
         return rootView;
     }

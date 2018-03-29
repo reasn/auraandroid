@@ -5,6 +5,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.ui.world.list.RecycleAdapter;
 
 public class MySloganHolder extends ItemViewHolder {
 
@@ -12,11 +13,12 @@ public class MySloganHolder extends ItemViewHolder {
     private final boolean mExpanded;
     private final LinearLayout mExpandedWrapper;
 
-    public MySloganHolder(View itemView, boolean expanded) {
+    public MySloganHolder(View itemView, boolean expanded, RecycleAdapter.CollapseExpandHandler collapseExpandHandler) {
         super(itemView);
         mExpanded = expanded;
         mSloganTextView = itemView.findViewById(R.id.slogan_text);
         mExpandedWrapper = itemView.findViewById(R.id.expanded_wrapper);
+        itemView.setOnClickListener($ -> collapseExpandHandler.flip(getLastBoundItem()));
     }
 
     @Override

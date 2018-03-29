@@ -40,7 +40,7 @@ public class DebugFragment extends Fragment implements FragmentWithToolbarButton
         v(TAG, "onCreateView");
 
         ViewGroup rootView = (ViewGroup) inflater.inflate(
-                R.layout.fragment_screen_debug, container, false);
+                R.layout.debug_fragment, container, false);
 
 
         mDebugCommunicatorStateDumpView = rootView.findViewById(R.id.debug_communicator_state_dump);

@@ -11,26 +11,26 @@ import io.auraapp.auraandroid.ui.world.list.item.ListItem;
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
-class ListSynchronizer<T extends ListItem> {
+public class ListSynchronizer<T extends ListItem> {
 
     private static final String TAG = "aura/list/listSynchronizer";
 
     @FunctionalInterface
-    interface ApplicabilityCallback {
-        boolean isApplicable(ListItem item);
+    public interface ApplicabilityCallback {
+        public boolean isApplicable(ListItem item);
     }
 
     @FunctionalInterface
-    interface NewItemCanBeInsertedBeforeCallback {
-        boolean canBeInsertedBefore(ListItem item);
+    public interface NewItemCanBeInsertedBeforeCallback {
+        public boolean canBeInsertedBefore(ListItem item);
     }
 
     @FunctionalInterface
-    interface CompareCallback {
-        boolean isGreaterThan(ListItem item, ListItem newItem);
+    public interface CompareCallback {
+        public boolean isGreaterThan(ListItem item, ListItem newItem);
     }
 
-    static void syncLists(List<ListItem> items,
+    public static void syncLists(List<ListItem> items,
                           List<ListItem> newItems,
                           RecyclerView.Adapter<?> notificationReceiver,
                           ApplicabilityCallback applicabilityCallback,

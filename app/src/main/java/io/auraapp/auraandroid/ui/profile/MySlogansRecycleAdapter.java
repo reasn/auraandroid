@@ -1,4 +1,4 @@
-package io.auraapp.auraandroid.ui.world.list;
+package io.auraapp.auraandroid.ui.profile;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -12,6 +12,8 @@ import java.util.TreeSet;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Slogan;
+import io.auraapp.auraandroid.ui.world.list.ListSynchronizer;
+import io.auraapp.auraandroid.ui.world.list.RecycleAdapter;
 import io.auraapp.auraandroid.ui.world.list.item.ItemViewHolder;
 import io.auraapp.auraandroid.ui.world.list.item.ListItem;
 import io.auraapp.auraandroid.ui.world.list.item.MySloganHolder;
@@ -22,11 +24,6 @@ import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
 public class MySlogansRecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
-
-    @FunctionalInterface
-    public interface CollapseExpandHandler {
-        void flip(ListItem item);
-    }
 
     private static final String TAG = "@aura/" + MySlogansRecycleAdapter.class.getSimpleName();
 
@@ -39,7 +36,7 @@ public class MySlogansRecycleAdapter extends RecyclerView.Adapter<ItemViewHolder
     private final List<ListItem> mItems;
     private final RecyclerView mListView;
 
-    private final CollapseExpandHandler collapseExpandHandler = new CollapseExpandHandler() {
+    private final RecycleAdapter.CollapseExpandHandler collapseExpandHandler = new RecycleAdapter.CollapseExpandHandler() {
         @Override
         public void flip(ListItem item) {
             if (item == null) {
@@ -96,8 +93,9 @@ public class MySlogansRecycleAdapter extends RecyclerView.Adapter<ItemViewHolder
     @Override
     public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new MySloganHolder(
-                mInflater.inflate(R.layout.list_item_my_slogan, parent, false),
-                viewType == TYPE_MY_SLOGAN_EXPANDED
+                mInflater.inflate(R.layout.profile_list_item_slogan, parent, false),
+                viewType == TYPE_MY_SLOGAN_EXPANDED,
+                this.collapseExpandHandler
         );
     }
 

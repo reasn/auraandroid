@@ -103,7 +103,7 @@ public class ToolbarAspect {
         mActivity.getMenuInflater().inflate(R.menu.toolbar_menu, menu);
 
         MenuItem enabledItem = menu.findItem(R.id.menu_item_enabled);
-        enabledItem.setActionView(R.layout.toolbar_switch);
+        enabledItem.setActionView(R.layout.common_toolbar_switch);
 
         SwitchCompat enabledSwitch = enabledItem.getActionView().findViewById(R.id.enabled_switch);
         enabledSwitch.setChecked(mAuraEnabled);

@@ -80,7 +80,7 @@ class DialogManager {
         mDialogOpen = true;
         @SuppressLint("InflateParams")
         LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View dialogView = inflater.inflate(R.layout.dialog_replace_slogan, null);
+        View dialogView = inflater.inflate(R.layout.profile_dialog_replace_slogan, null);
 
         RadioGroup radioGroup = dialogView.findViewById(R.id.radio_group);
 
@@ -138,7 +138,7 @@ class DialogManager {
 
         @SuppressLint("InflateParams")
         LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View dialogView = inflater.inflate(R.layout.dialog_edit_slogan, null);
+        View dialogView = inflater.inflate(R.layout.profile_dialog_edit_slogan, null);
 
         EditText editText = dialogView.findViewById(R.id.dialog_edit_slogan_slogan_text);
 
@@ -250,7 +250,7 @@ class DialogManager {
 
         @SuppressLint("InflateParams")
         LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View dialogView = inflater.inflate(R.layout.dialog_bt_stack_broken, null);
+        View dialogView = inflater.inflate(R.layout.common_dialog_bt_stack_broken, null);
         CheckBox checkBox = dialogView.findViewById(R.id.dont_show_again);
         new AlertDialog.Builder(mContext, R.style.Dialog)
                 .setTitle(R.string.ui_dialog_bt_broken_title)

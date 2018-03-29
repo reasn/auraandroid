@@ -48,7 +48,7 @@ public class InfoBox extends LinearLayout {
 
     private void init(Context context, @Nullable AttributeSet attributeSet) {
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.view_info_box, this);
+        inflater.inflate(R.layout.common_view_info_box, this);
         if (attributeSet != null) {
             TypedArray attrs = context.obtainStyledAttributes(attributeSet, R.styleable.InfoBox);
             mAttributeSetters.add(() -> {
