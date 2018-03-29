@@ -1,4 +1,4 @@
-package io.auraapp.auraandroid.ui.world.list.item;
+package io.auraapp.auraandroid.ui.profile;
 
 import android.content.Context;
 import android.view.View;
@@ -10,6 +10,8 @@ import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.ui.world.list.RecycleAdapter;
 import io.auraapp.auraandroid.ui.world.list.SwipeCallback;
+import io.auraapp.auraandroid.ui.world.list.item.ItemViewHolder;
+import io.auraapp.auraandroid.ui.world.list.item.ListItem;
 
 public class MySloganHolder extends ItemViewHolder {
 

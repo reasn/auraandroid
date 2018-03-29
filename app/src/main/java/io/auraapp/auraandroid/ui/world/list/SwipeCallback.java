@@ -12,10 +12,10 @@ import android.view.View;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Slogan;
+import io.auraapp.auraandroid.ui.profile.MySloganHolder;
+import io.auraapp.auraandroid.ui.profile.MySloganListItem;
 import io.auraapp.auraandroid.ui.world.list.item.ItemViewHolder;
 import io.auraapp.auraandroid.ui.world.list.item.ListItem;
-import io.auraapp.auraandroid.ui.world.list.item.MySloganHolder;
-import io.auraapp.auraandroid.ui.world.list.item.MySloganListItem;
 import io.auraapp.auraandroid.ui.world.list.item.PeerItemHolder;
 import io.auraapp.auraandroid.ui.world.list.item.PeerSloganListItem;
 

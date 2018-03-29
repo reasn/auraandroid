@@ -7,7 +7,7 @@ public abstract class ItemViewHolder extends RecyclerView.ViewHolder {
     private final View mItemView;
     private ListItem mItem;
 
-    ItemViewHolder(View itemView) {
+    public ItemViewHolder(View itemView) {
         super(itemView);
         mItemView = itemView;
     }

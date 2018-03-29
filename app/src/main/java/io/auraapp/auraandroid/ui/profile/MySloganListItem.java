@@ -1,8 +1,9 @@
-package io.auraapp.auraandroid.ui.world.list.item;
+package io.auraapp.auraandroid.ui.profile;
 
 import android.support.annotation.NonNull;
 
 import io.auraapp.auraandroid.common.Slogan;
+import io.auraapp.auraandroid.ui.world.list.item.ListItem;
 
 public class MySloganListItem extends ListItem {
 

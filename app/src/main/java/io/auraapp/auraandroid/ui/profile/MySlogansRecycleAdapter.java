@@ -17,8 +17,6 @@ import io.auraapp.auraandroid.ui.world.list.RecycleAdapter;
 import io.auraapp.auraandroid.ui.world.list.SwipeCallback;
 import io.auraapp.auraandroid.ui.world.list.item.ItemViewHolder;
 import io.auraapp.auraandroid.ui.world.list.item.ListItem;
-import io.auraapp.auraandroid.ui.world.list.item.MySloganHolder;
-import io.auraapp.auraandroid.ui.world.list.item.MySloganListItem;
 import io.auraapp.auraandroid.ui.world.list.item.PeersHeadingItem;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;

@@ -17,8 +17,6 @@ import io.auraapp.auraandroid.ui.SloganComparator;
 import io.auraapp.auraandroid.ui.world.PeerSlogan;
 import io.auraapp.auraandroid.ui.world.list.item.ItemViewHolder;
 import io.auraapp.auraandroid.ui.world.list.item.ListItem;
-import io.auraapp.auraandroid.ui.world.list.item.MySlogansHeadingHolder;
-import io.auraapp.auraandroid.ui.world.list.item.MySlogansHeadingItem;
 import io.auraapp.auraandroid.ui.world.list.item.PeerItemHolder;
 import io.auraapp.auraandroid.ui.world.list.item.PeerSloganListItem;
 import io.auraapp.auraandroid.ui.world.list.item.PeersHeadingHolder;
@@ -137,11 +135,6 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
                         mInflater.inflate(R.layout.world_list_item_status, parent, false)
                 );
 
-            case TYPE_MY_SLOGANS_HEADING:
-                return new MySlogansHeadingHolder(
-                        mInflater.inflate(R.layout.world_list_item_heading, parent, false),
-                        mContext);
-
             case TYPE_PEERS_HEADING:
                 return new PeersHeadingHolder(
                         mInflater.inflate(R.layout.world_list_item_heading, parent, false),
@@ -186,9 +179,6 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         ListItem item = mItems.get(position);
         if (item instanceof StatusItem) {
             return TYPE_STATUS;
-        }
-        if (item instanceof MySlogansHeadingItem) {
-            return TYPE_MY_SLOGANS_HEADING;
         }
         if (item instanceof PeersHeadingItem) {
             return TYPE_PEERS_HEADING;

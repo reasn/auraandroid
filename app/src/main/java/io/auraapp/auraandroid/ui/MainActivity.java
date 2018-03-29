@@ -4,7 +4,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.StringRes;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -41,7 +40,6 @@ import io.auraapp.auraandroid.ui.world.WorldFragment;
 import io.auraapp.auraandroid.ui.world.list.RecycleAdapter;
 import io.auraapp.auraandroid.ui.world.list.SwipeCallback;
 import io.auraapp.auraandroid.ui.world.list.item.ListItem;
-import io.auraapp.auraandroid.ui.world.list.item.MySlogansHeadingItem;
 import io.auraapp.auraandroid.ui.world.list.item.PeersHeadingItem;
 import io.auraapp.auraandroid.ui.world.list.item.StatusItem;
 
@@ -73,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
      * slogan:PeerSlogan
      */
     TreeMap<String, PeerSlogan> mPeerSloganMap = new TreeMap<>();
-    private MySlogansHeadingItem mMySlogansHeadingItem;
     private DialogManager mDialogManager;
 
     private ScreenPager mPager;
@@ -100,11 +97,14 @@ public class MainActivity extends AppCompatActivity {
 
         mMySloganManager = new MySloganManager(this);
 
+        mDialogManager = new DialogManager(this);
+
         mPagerAdapter = new ScreenPagerAdapter(
                 getSupportFragmentManager(),
                 ProfileFragment.create(
                         this,
                         mMySloganManager,
+                        mDialogManager,
                         mOnSwipedCallback
                 ),
                 world,
@@ -130,12 +130,6 @@ public class MainActivity extends AppCompatActivity {
                         .apply();
             });
         }
-
-        mDialogManager = new DialogManager(this);
-
-        final FloatingActionButton addSloganButton = worldView.findViewById(R.id.add_slogan);
-        addSloganButton.setOnClickListener($ -> showAddDialog());
-
 
         mMySloganManager.addChangedCallback(event -> {
             d(TAG, "My slogans changed");
@@ -222,24 +216,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // TODO peer adopts and drops slogan but stays visible here
-    private void showAddDialog() {
-        if (!mMySloganManager.spaceAvailable()) {
-            toast(R.string.ui_main_toast_cannot_add_no_space_available);
-            return;
-        }
-        mDialogManager.showParametrizedSloganEdit(R.string.ui_dialog_add_slogan_title,
-                R.string.ui_dialog_add_slogan_text,
-                R.string.ui_dialog_add_slogan_confirm,
-                R.string.ui_dialog_add_slogan_cancel,
-                null,
-                sloganText -> {
-                    if (sloganText.length() == 0) {
-                        toast(R.string.ui_main_add_slogan_too_short);
-                    } else {
-                        mMySloganManager.adopt(Slogan.create(sloganText));
-                    }
-                });
-    }
 
     private void showEditDialog(Slogan slogan) {
         mDialogManager.showParametrizedSloganEdit(R.string.ui_dialog_edit_slogan_title,
@@ -252,9 +228,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void reflectStatus() {
         v(TAG, "Reflecting status, peers: %d, slogans: %d, state: %s", mPeers.size(), mPeerSloganMap.size(), mCommunicatorState);
-
-        mMySlogansHeadingItem.mMySlogansCount = mMySloganManager.getMySlogans().size();
-        mPeerListAdapter.notifyListItemChanged(mMySlogansHeadingItem);
 
         mStatusItem.mState = mCommunicatorState;
         mStatusItem.mPeers = mPeers;
@@ -315,11 +288,6 @@ public class MainActivity extends AppCompatActivity {
 
         mStatusItem = new StatusItem(mCommunicatorState, mPeers, mPeerSloganMap);
         builtinItems.add(mStatusItem);
-
-        mMySlogansHeadingItem = new MySlogansHeadingItem(
-                mMySloganManager.getMySlogans().size(),
-                this::showAddDialog);
-        builtinItems.add(mMySlogansHeadingItem);
 
         mPeersHeadingItem = new PeersHeadingItem(mPeers, mPeerSloganMap.size());
         builtinItems.add(mPeersHeadingItem);

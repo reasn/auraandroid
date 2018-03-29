@@ -29,7 +29,7 @@ import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Slogan;
 
-class DialogManager {
+public class DialogManager {
 
     @FunctionalInterface
     interface AdoptCallback {
@@ -46,7 +46,7 @@ class DialogManager {
 
     private final Pattern mLinebreakPattern = Pattern.compile("\n");
 
-    DialogManager(Context context) {
+    public DialogManager(Context context) {
         mContext = context;
     }
 
@@ -54,7 +54,7 @@ class DialogManager {
         return EmojiHelper.replaceShortCode(mContext.getString(resource));
     }
 
-    void showDrop(Slogan slogan, DropCallback dropCallback) {
+    public void showDrop(Slogan slogan, DropCallback dropCallback) {
         if (mDialogOpen) {
             return;
         }
@@ -121,11 +121,11 @@ class DialogManager {
         );
     }
 
-    interface OnSloganEditConfirm {
-        void onConfirm(String text);
+    public interface OnSloganEditConfirm {
+        public void onConfirm(String text);
     }
 
-    void showParametrizedSloganEdit(@StringRes int title,
+    public void showParametrizedSloganEdit(@StringRes int title,
                                     @StringRes int message,
                                     @StringRes int confirm,
                                     @StringRes int cancel,
