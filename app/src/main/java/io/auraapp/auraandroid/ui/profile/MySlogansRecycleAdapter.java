@@ -14,6 +14,7 @@ import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.world.list.ListSynchronizer;
 import io.auraapp.auraandroid.ui.world.list.RecycleAdapter;
+import io.auraapp.auraandroid.ui.world.list.SwipeCallback;
 import io.auraapp.auraandroid.ui.world.list.item.ItemViewHolder;
 import io.auraapp.auraandroid.ui.world.list.item.ListItem;
 import io.auraapp.auraandroid.ui.world.list.item.MySloganHolder;
@@ -27,8 +28,7 @@ public class MySlogansRecycleAdapter extends RecyclerView.Adapter<ItemViewHolder
 
     private static final String TAG = "@aura/" + MySlogansRecycleAdapter.class.getSimpleName();
 
-    private final static int TYPE_MY_SLOGAN_COLLAPSED = 144;
-    private final static int TYPE_MY_SLOGAN_EXPANDED = 145;
+    private final static int SINGLE_TYPE = 198;
 
     private final LayoutInflater mInflater;
     private final Context mContext;
@@ -57,13 +57,18 @@ public class MySlogansRecycleAdapter extends RecyclerView.Adapter<ItemViewHolder
 
         }
     };
+    private final SwipeCallback.OnSwipedCallback mOnSwipedCallback;
 
-    public MySlogansRecycleAdapter(@NonNull Context context, List<ListItem> items, RecyclerView listView) {
+    public MySlogansRecycleAdapter(@NonNull Context context,
+                                   List<ListItem> items,
+                                   RecyclerView listView,
+                                   SwipeCallback.OnSwipedCallback onSwipedCallback) {
         super();
         mContext = context;
         mItems = items;
         mListView = listView;
         mInflater = LayoutInflater.from(context);
+        mOnSwipedCallback = onSwipedCallback;
     }
 
     public void notifyMySlogansChanged(TreeSet<Slogan> mySlogans) {
@@ -83,18 +88,13 @@ public class MySlogansRecycleAdapter extends RecyclerView.Adapter<ItemViewHolder
         );
     }
 
-    public void notifyListItemChanged(ListItem item) {
-        int index = mItems.indexOf(item);
-        v(TAG, "notifyListItemChanged at %d, item: %s", index, item);
-        notifyItemChanged(index);
-    }
-
     @NonNull
     @Override
     public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new MySloganHolder(
                 mInflater.inflate(R.layout.profile_list_item_slogan, parent, false),
-                viewType == TYPE_MY_SLOGAN_EXPANDED,
+                mContext,
+                mOnSwipedCallback,
                 this.collapseExpandHandler
         );
     }
@@ -115,12 +115,7 @@ public class MySlogansRecycleAdapter extends RecyclerView.Adapter<ItemViewHolder
 
     @Override
     public int getItemViewType(int position) {
-        ListItem item = mItems.get(position);
-
-
-        return item.mExpanded
-                ? TYPE_MY_SLOGAN_EXPANDED
-                : TYPE_MY_SLOGAN_COLLAPSED;
+        return SINGLE_TYPE;
     }
 
     @Override

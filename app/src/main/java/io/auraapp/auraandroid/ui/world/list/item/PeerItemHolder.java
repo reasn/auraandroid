@@ -16,17 +16,14 @@ public class PeerItemHolder extends ItemViewHolder {
     private final TextView mSloganTextView;
     private final TextView mLastSeenTextView;
     private final Context mContext;
-    private final boolean mExpanded;
     private final LinearLayout mExpandedWrapper;
 
     public PeerItemHolder(View itemView,
                           Context context,
-                          boolean expanded,
                           RecycleAdapter.CollapseExpandHandler collapseExpandHandler) {
         super(itemView);
 
         mContext = context;
-        mExpanded = expanded;
         mSloganTextView = itemView.findViewById(R.id.slogan_text);
         mLastSeenTextView = itemView.findViewById(R.id.lastSeen);
         mExpandedWrapper = itemView.findViewById(R.id.expanded_wrapper);
@@ -50,7 +47,7 @@ public class PeerItemHolder extends ItemViewHolder {
 
         mSloganTextView.setText(castItem.getSlogan().getText());
 
-        if (!mExpanded) {
+        if (!castItem.mExpanded) {
             mExpandedWrapper.setVisibility(View.GONE);
             return;
         }

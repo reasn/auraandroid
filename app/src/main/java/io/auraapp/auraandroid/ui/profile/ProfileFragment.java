@@ -15,6 +15,7 @@ import java.util.List;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
 import io.auraapp.auraandroid.ui.common.MySloganManager;
+import io.auraapp.auraandroid.ui.world.list.SwipeCallback;
 import io.auraapp.auraandroid.ui.world.list.item.ListItem;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
@@ -27,11 +28,15 @@ public class ProfileFragment extends Fragment implements FragmentWithToolbarButt
     private Context mContext;
     private ViewGroup mRootView;
     private MySloganManager mMySloganManager;
+    private SwipeCallback.OnSwipedCallback mOnSwipedCallback;
 
-    public static ProfileFragment create(Context context, MySloganManager mySloganManager) {
+    public static ProfileFragment create(Context context,
+                                         MySloganManager mySloganManager,
+                                         SwipeCallback.OnSwipedCallback onSwipedCallback) {
         ProfileFragment fragment = new ProfileFragment();
         fragment.mContext = context;
         fragment.mMySloganManager = mySloganManager;
+        fragment.mOnSwipedCallback = onSwipedCallback;
         return fragment;
     }
 
@@ -53,7 +58,7 @@ public class ProfileFragment extends Fragment implements FragmentWithToolbarButt
 
         List<ListItem> builtinItems = new ArrayList<>();
 
-        mRecyclerAdapter = new MySlogansRecycleAdapter(mContext, builtinItems, mRecyclerView);
+        mRecyclerAdapter = new MySlogansRecycleAdapter(mContext, builtinItems, mRecyclerView, mOnSwipedCallback);
 
         mRecyclerView.setAdapter(mRecyclerAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));

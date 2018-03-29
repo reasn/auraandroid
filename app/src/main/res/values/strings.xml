@@ -21,7 +21,7 @@
 
     <string name="ui_permissionsMissing_granted_text">Great, you\'re all set!\nSwipe to start.</string>
 
-    <!--Permissions Missing fragment-->
+    <!--Privacy fragment-->
     <string name="ui_screen_privacy_heading">Aura Agreement</string>
     <string name="ui_screen_privacy_first_text">Five points worth reading. :sunglasses:</string>
     <string name="ui_screen_privacy_second_text">1. The data you enter is visible to Aura users around you.
@@ -30,6 +30,10 @@
         \n\n4. Aura is and will remain free
         \n\n5. Aura believes in humanism, freedom of speech, respect and equality of all people. If you don\'t, please uninstall it and read a wide variety of books.
         \n\n\nIf you agree, swipe to continue :lollipop:</string>
+
+    <!--Profile fragment-->
+    <string name="ui_profile_list_item_edit">:memo:</string>
+    <string name="ui_profile_list_item_drop">:wastebasket:</string>
 
     <!--Main Activity-->
 

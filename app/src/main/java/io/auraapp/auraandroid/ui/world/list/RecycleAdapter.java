@@ -10,17 +10,13 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import io.auraapp.auraandroid.R;
-import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.common.Timer;
 import io.auraapp.auraandroid.ui.SloganComparator;
 import io.auraapp.auraandroid.ui.world.PeerSlogan;
 import io.auraapp.auraandroid.ui.world.list.item.ItemViewHolder;
 import io.auraapp.auraandroid.ui.world.list.item.ListItem;
-import io.auraapp.auraandroid.ui.world.list.item.MySloganHolder;
-import io.auraapp.auraandroid.ui.world.list.item.MySloganListItem;
 import io.auraapp.auraandroid.ui.world.list.item.MySlogansHeadingHolder;
 import io.auraapp.auraandroid.ui.world.list.item.MySlogansHeadingItem;
 import io.auraapp.auraandroid.ui.world.list.item.PeerItemHolder;
@@ -44,11 +40,8 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 
     private static final int TYPE_STATUS = 141;
     private static final int TYPE_MY_SLOGANS_HEADING = 142;
-    private final static int TYPE_MY_SLOGAN_COLLAPSED = 144;
-    private final static int TYPE_MY_SLOGAN_EXPANDED = 145;
     private static final int TYPE_PEERS_HEADING = 143;
-    private final static int TYPE_PEER_COLLAPSED = 146;
-    private final static int TYPE_PEER_EXPANDED = 147;
+    private final static int TYPE_PEER_SLOGAN = 146;
 
     private final LayoutInflater mInflater;
     private final Timer timer = new Timer(new Handler());
@@ -85,23 +78,6 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         mItems = items;
         mListView = listView;
         mInflater = LayoutInflater.from(context);
-    }
-
-    public void notifyMySlogansChanged(TreeSet<Slogan> mySlogans) {
-        d(TAG, "Updating list, mySlogans: %d", mySlogans.size());
-
-        final List<ListItem> newItems = new ArrayList<>();
-        for (Slogan mySlogan : mySlogans) {
-            newItems.add(new MySloganListItem(mySlogan));
-        }
-        ListSynchronizer.syncLists(
-                mItems,
-                newItems,
-                this,
-                existingItem -> existingItem instanceof MySloganListItem,
-                existingItem -> existingItem instanceof PeersHeadingItem,
-                (item, newItem) -> item instanceof PeersHeadingItem || item instanceof MySloganListItem || item.compareIndex(newItem) > 0
-        );
     }
 
     public void notifyPeerSloganListChanged(TreeMap<String, PeerSlogan> peerSloganMap) {
@@ -166,38 +142,16 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
                         mInflater.inflate(R.layout.world_list_item_heading, parent, false),
                         mContext);
 
-            case TYPE_MY_SLOGAN_COLLAPSED:
-                return new MySloganHolder(
-                        mInflater.inflate(R.layout.profile_list_item_slogan, parent, false),
-                        false,
-                        this.collapseExpandHandler
-                );
-
-            case TYPE_MY_SLOGAN_EXPANDED:
-                return new MySloganHolder(
-                        mInflater.inflate(R.layout.profile_list_item_slogan, parent, false),
-                        true,
-                        this.collapseExpandHandler
-                );
-
             case TYPE_PEERS_HEADING:
                 return new PeersHeadingHolder(
                         mInflater.inflate(R.layout.world_list_item_heading, parent, false),
                         mContext
                 );
 
-            case TYPE_PEER_COLLAPSED:
+            case TYPE_PEER_SLOGAN:
                 return new PeerItemHolder(
                         mInflater.inflate(R.layout.world_list_item_peer_slogan, parent, false),
                         mContext,
-                        false,
-                        collapseExpandHandler);
-
-            case TYPE_PEER_EXPANDED:
-                return new PeerItemHolder(
-                        mInflater.inflate(R.layout.world_list_item_peer_slogan, parent, false),
-                        mContext,
-                        true,
                         collapseExpandHandler);
 
             default:
@@ -209,15 +163,7 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
         holder.setItem(mItems.get(position));
 
-        if (holder instanceof MySloganHolder) {
-            // Alternating colors
-            if (position % 2 == 0) {
-                holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.yellow));
-            } else {
-                holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.dark_yellow));
-            }
-
-        } else if (holder instanceof PeerItemHolder) {
+        if (holder instanceof PeerItemHolder) {
 //            Random rnd = new Random();
 //            int color = Color.argb(
 //                    255,
@@ -248,15 +194,7 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
             return TYPE_PEERS_HEADING;
         }
 
-        return item instanceof MySloganListItem
-                ? (
-                item.mExpanded
-                        ? TYPE_MY_SLOGAN_EXPANDED
-                        : TYPE_MY_SLOGAN_COLLAPSED)
-                : (
-                item.mExpanded
-                        ? TYPE_PEER_EXPANDED
-                        : TYPE_PEER_COLLAPSED);
+        return TYPE_PEER_SLOGAN;
     }
 
     @Override

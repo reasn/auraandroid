@@ -102,7 +102,11 @@ public class MainActivity extends AppCompatActivity {
 
         mPagerAdapter = new ScreenPagerAdapter(
                 getSupportFragmentManager(),
-                ProfileFragment.create(this, mMySloganManager),
+                ProfileFragment.create(
+                        this,
+                        mMySloganManager,
+                        mOnSwipedCallback
+                ),
                 world,
                 mPager,
                 this);
@@ -135,7 +139,6 @@ public class MainActivity extends AppCompatActivity {
 
         mMySloganManager.addChangedCallback(event -> {
             d(TAG, "My slogans changed");
-            mPeerListAdapter.notifyMySlogansChanged(mMySloganManager.getMySlogans());
             if (mToolbarAspect.isAuraEnabled()) {
                 mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
             }
@@ -194,7 +197,6 @@ public class MainActivity extends AppCompatActivity {
         createListView();
 
         mMySloganManager.init();
-        mPeerListAdapter.notifyMySlogansChanged(mMySloganManager.getMySlogans());
 
         mToolbarAspect = new ToolbarAspect(
                 this,
@@ -334,35 +336,36 @@ public class MainActivity extends AppCompatActivity {
                 this,
                 // The UI updated is delayed to give the dialog time to pop up in front of the resetting item
                 () -> mHandler.postDelayed(mPeerListAdapter::notifyDataSetChanged, 200),
-                (Slogan slogan, int action) -> {
-
-                    switch (action) {
-
-                        case SwipeCallback.ACTION_ADOPT:
-                            if (mMySloganManager.getMySlogans().contains(slogan)) {
-                                toast(R.string.ui_main_toast_slogan_already_adopted);
-                            } else if (mMySloganManager.spaceAvailable()) {
-                                mMySloganManager.adopt(slogan);
-                            } else {
-                                mDialogManager.showReplace(
-                                        mMySloganManager.getMySlogans(),
-                                        sloganToReplace -> mMySloganManager.replace(sloganToReplace, slogan)
-                                );
-                            }
-                            break;
-
-                        case SwipeCallback.ACTION_EDIT:
-                            showEditDialog(slogan);
-                            break;
-
-                        case SwipeCallback.ACTION_DROP:
-                            mDialogManager.showDrop(slogan, mMySloganManager::dropSlogan);
-                            break;
-                    }
-                }));
+                mOnSwipedCallback));
         itemTouchHelper.attachToRecyclerView(mPeerListView);
     }
 
+    private SwipeCallback.OnSwipedCallback mOnSwipedCallback = (Slogan slogan, int action) -> {
+
+        switch (action) {
+
+            case SwipeCallback.ACTION_ADOPT:
+                if (mMySloganManager.getMySlogans().contains(slogan)) {
+                    toast(R.string.ui_main_toast_slogan_already_adopted);
+                } else if (mMySloganManager.spaceAvailable()) {
+                    mMySloganManager.adopt(slogan);
+                } else {
+                    mDialogManager.showReplace(
+                            mMySloganManager.getMySlogans(),
+                            sloganToReplace -> mMySloganManager.replace(sloganToReplace, slogan)
+                    );
+                }
+                break;
+
+            case SwipeCallback.ACTION_EDIT:
+                showEditDialog(slogan);
+                break;
+
+            case SwipeCallback.ACTION_DROP:
+                mDialogManager.showDrop(slogan, mMySloganManager::dropSlogan);
+                break;
+        }
+    };
 
     @FunctionalInterface
     interface ToolbarButtonVisibilityUpdater {
