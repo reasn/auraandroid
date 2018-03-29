@@ -26,7 +26,11 @@ public class ScreenPagerAdapter extends FragmentStatePagerAdapter {
     private final Context mContext;
     private final List<Fragment> mFragments;
 
-    public ScreenPagerAdapter(FragmentManager fm, WorldFragment worldFragment, ScreenPager pager, Context context) {
+    public ScreenPagerAdapter(FragmentManager fm,
+                              ProfileFragment profileFragment,
+                              WorldFragment worldFragment,
+                              ScreenPager pager,
+                              Context context) {
         super(fm);
         this.mPager = pager;
         mContext = context;
@@ -34,7 +38,7 @@ public class ScreenPagerAdapter extends FragmentStatePagerAdapter {
         mFragments = new ArrayList<>();
         mFragments.add(PrivacyFragment.create(context, pager));
         mFragments.add(WelcomeFragment.create(context, pager));
-        mFragments.add(new ProfileFragment());
+        mFragments.add(profileFragment);
         mFragments.add(worldFragment);
     }
 

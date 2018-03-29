@@ -19,8 +19,7 @@ import io.auraapp.auraandroid.ui.SloganComparator;
 import io.auraapp.auraandroid.ui.world.PeerSlogan;
 import io.auraapp.auraandroid.ui.world.list.item.ItemViewHolder;
 import io.auraapp.auraandroid.ui.world.list.item.ListItem;
-import io.auraapp.auraandroid.ui.world.list.item.MyCollapsedHolder;
-import io.auraapp.auraandroid.ui.world.list.item.MyExpandedHolder;
+import io.auraapp.auraandroid.ui.world.list.item.MySloganHolder;
 import io.auraapp.auraandroid.ui.world.list.item.MySloganListItem;
 import io.auraapp.auraandroid.ui.world.list.item.MySlogansHeadingHolder;
 import io.auraapp.auraandroid.ui.world.list.item.MySlogansHeadingItem;
@@ -168,10 +167,16 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
                         mContext);
 
             case TYPE_MY_SLOGAN_COLLAPSED:
-                return new MyCollapsedHolder(mInflater.inflate(R.layout.list_item_collapsed, parent, false));
+                return new MySloganHolder(
+                        mInflater.inflate(R.layout.list_item_my_slogan, parent, false),
+                        false
+                );
 
             case TYPE_MY_SLOGAN_EXPANDED:
-                return new MyExpandedHolder(mInflater.inflate(R.layout.list_item_my_expanded, parent, false));
+                return new MySloganHolder(
+                        mInflater.inflate(R.layout.list_item_my_slogan, parent, false),
+                        true
+                );
 
             case TYPE_PEERS_HEADING:
                 return new PeersHeadingHolder(
@@ -202,7 +207,7 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
         holder.setItem(mItems.get(position));
 
-        if ((holder instanceof MyCollapsedHolder || holder instanceof MyExpandedHolder)) {
+        if (holder instanceof MySloganHolder) {
             // Alternating colors
             if (position % 2 == 0) {
                 holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.yellow));

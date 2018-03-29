@@ -34,6 +34,7 @@ import io.auraapp.auraandroid.ui.common.CommunicatorProxy;
 import io.auraapp.auraandroid.ui.common.MySloganManager;
 import io.auraapp.auraandroid.ui.debug.DebugFragment;
 import io.auraapp.auraandroid.ui.permissions.PermissionsFragment;
+import io.auraapp.auraandroid.ui.profile.ProfileFragment;
 import io.auraapp.auraandroid.ui.world.PeerMapTransformer;
 import io.auraapp.auraandroid.ui.world.PeerSlogan;
 import io.auraapp.auraandroid.ui.world.WorldFragment;
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int BROKEN_BT_STACK_ALERT_DEBOUNCE = 1000 * 60;
 
-    private RecycleAdapter mListAdapter;
+    private RecycleAdapter mPeerListAdapter;
     private StatusItem mStatusItem;
     private PeersHeadingItem mPeersHeadingItem;
     private FakeSwipeRefreshLayout mSwipeRefresh;
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ScreenPager mPager;
     private ScreenPagerAdapter mPagerAdapter;
-    private RecyclerView mListView;
+    private RecyclerView mPeerListView;
     private ToolbarAspect mToolbarAspect;
     private DebugFragment mDebugFragment;
 
@@ -97,7 +98,14 @@ public class MainActivity extends AppCompatActivity {
 
         WorldFragment world = WorldFragment.create(worldView);
 
-        mPagerAdapter = new ScreenPagerAdapter(getSupportFragmentManager(), world, mPager, this);
+        mMySloganManager = new MySloganManager(this);
+
+        mPagerAdapter = new ScreenPagerAdapter(
+                getSupportFragmentManager(),
+                ProfileFragment.create(this, mMySloganManager),
+                world,
+                mPager,
+                this);
         mPager.setAdapter(mPagerAdapter);
 
         // Load preferences
@@ -124,37 +132,35 @@ public class MainActivity extends AppCompatActivity {
         final FloatingActionButton addSloganButton = worldView.findViewById(R.id.add_slogan);
         addSloganButton.setOnClickListener($ -> showAddDialog());
 
-        mMySloganManager = new MySloganManager(
-                this,
-                event -> {
-                    d(TAG, "My slogans changed");
-                    mListAdapter.notifyMySlogansChanged(mMySloganManager.getMySlogans());
-                    if (mToolbarAspect.isAuraEnabled()) {
-                        mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
-                    }
-                    switch (event) {
-                        case MySloganManager.EVENT_ADOPTED:
-                            toast(R.string.ui_main_toast_adopted);
-                            break;
-                        case MySloganManager.EVENT_REPLACED:
-                            toast(R.string.ui_main_toast_replaced);
-                            break;
-                        case MySloganManager.EVENT_DROPPED:
-                            toast(R.string.ui_main_toast_dropped);
-                            break;
-                        default:
-                            throw new RuntimeException("Unknown slogan event " + event);
-                    }
-                    reflectStatus();
-                }
-        );
+
+        mMySloganManager.addChangedCallback(event -> {
+            d(TAG, "My slogans changed");
+            mPeerListAdapter.notifyMySlogansChanged(mMySloganManager.getMySlogans());
+            if (mToolbarAspect.isAuraEnabled()) {
+                mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
+            }
+            switch (event) {
+                case MySloganManager.EVENT_ADOPTED:
+                    toast(R.string.ui_main_toast_adopted);
+                    break;
+                case MySloganManager.EVENT_REPLACED:
+                    toast(R.string.ui_main_toast_replaced);
+                    break;
+                case MySloganManager.EVENT_DROPPED:
+                    toast(R.string.ui_main_toast_dropped);
+                    break;
+                default:
+                    throw new RuntimeException("Unknown slogan event " + event);
+            }
+            reflectStatus();
+        });
         mCommunicatorProxy = new CommunicatorProxy(
                 this,
                 peers -> {
                     mPeers = peers;
                     mSwipeRefresh.setPeerCount(mPeers.size());
                     mPeerSloganMap = PeerMapTransformer.buildMapFromPeerList(peers);
-                    mListAdapter.notifyPeerSloganListChanged(mPeerSloganMap);
+                    mPeerListAdapter.notifyPeerSloganListChanged(mPeerSloganMap);
                     reflectStatus();
                 },
                 peer -> {
@@ -166,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     mPeers.add(peer);
                     mPeerSloganMap = PeerMapTransformer.buildMapFromPeerAndPreviousMap(peer, mPeerSloganMap);
-                    mListAdapter.notifyPeerSloganListChanged(mPeerSloganMap);
+                    mPeerListAdapter.notifyPeerSloganListChanged(mPeerSloganMap);
                     reflectStatus();
                 },
                 state -> {
@@ -184,11 +190,11 @@ public class MainActivity extends AppCompatActivity {
         mSwipeRefresh = worldView.findViewById(R.id.swiperefresh);
         mSwipeRefresh.setEnabled(false);
 
-        mListView = worldView.findViewById(R.id.list_view);
+        mPeerListView = worldView.findViewById(R.id.list_view);
         createListView();
 
         mMySloganManager.init();
-        mListAdapter.notifyMySlogansChanged(mMySloganManager.getMySlogans());
+        mPeerListAdapter.notifyMySlogansChanged(mMySloganManager.getMySlogans());
 
         mToolbarAspect = new ToolbarAspect(
                 this,
@@ -246,12 +252,12 @@ public class MainActivity extends AppCompatActivity {
         v(TAG, "Reflecting status, peers: %d, slogans: %d, state: %s", mPeers.size(), mPeerSloganMap.size(), mCommunicatorState);
 
         mMySlogansHeadingItem.mMySlogansCount = mMySloganManager.getMySlogans().size();
-        mListAdapter.notifyListItemChanged(mMySlogansHeadingItem);
+        mPeerListAdapter.notifyListItemChanged(mMySlogansHeadingItem);
 
         mStatusItem.mState = mCommunicatorState;
         mStatusItem.mPeers = mPeers;
         mStatusItem.mPeerSloganMap = mPeerSloganMap;
-        mListAdapter.notifyListItemChanged(mStatusItem);
+        mPeerListAdapter.notifyListItemChanged(mStatusItem);
         if (mToolbarAspect.isDebugFragmentEnabled()) {
             mDebugFragment.update(mCommunicatorState, mPeers);
         }
@@ -269,7 +275,7 @@ public class MainActivity extends AppCompatActivity {
         mPeersHeadingItem.mSloganCount = mPeerSloganMap.size();
         mPeersHeadingItem.mScanning = mCommunicatorState.mScanning;
         mPeersHeadingItem.mScanStartTimestamp = mCommunicatorState.mScanStartTimestamp;
-        mListAdapter.notifyListItemChanged(mPeersHeadingItem);
+        mPeerListAdapter.notifyListItemChanged(mPeersHeadingItem);
 
         if (mCommunicatorState.mRecentBtTurnOnEvents >= Config.COMMUNICATOR_RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD) {
             showBrokenBtStackAlert();
@@ -316,18 +322,18 @@ public class MainActivity extends AppCompatActivity {
         mPeersHeadingItem = new PeersHeadingItem(mPeers, mPeerSloganMap.size());
         builtinItems.add(mPeersHeadingItem);
 
-        mListAdapter = new RecycleAdapter(this, builtinItems, mListView);
+        mPeerListAdapter = new RecycleAdapter(this, builtinItems, mPeerListView);
 
-        mListView.setAdapter(mListAdapter);
-        mListView.setLayoutManager(new LinearLayoutManager(this));
+        mPeerListView.setAdapter(mPeerListAdapter);
+        mPeerListView.setLayoutManager(new LinearLayoutManager(this));
 
         // With change animations enabled mStatusItem keeps flashing because updates come in
-        ((SimpleItemAnimator) mListView.getItemAnimator()).setSupportsChangeAnimations(false);
+        ((SimpleItemAnimator) mPeerListView.getItemAnimator()).setSupportsChangeAnimations(false);
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeCallback(
                 this,
                 // The UI updated is delayed to give the dialog time to pop up in front of the resetting item
-                () -> mHandler.postDelayed(mListAdapter::notifyDataSetChanged, 200),
+                () -> mHandler.postDelayed(mPeerListAdapter::notifyDataSetChanged, 200),
                 (Slogan slogan, int action) -> {
 
                     switch (action) {
@@ -354,7 +360,7 @@ public class MainActivity extends AppCompatActivity {
                             break;
                     }
                 }));
-        itemTouchHelper.attachToRecyclerView(mListView);
+        itemTouchHelper.attachToRecyclerView(mPeerListView);
     }
 
 
@@ -394,7 +400,7 @@ public class MainActivity extends AppCompatActivity {
 
         inForeground = true;
 
-        mListAdapter.onResume();
+        mPeerListAdapter.onResume();
     }
 
     @Override
@@ -402,7 +408,7 @@ public class MainActivity extends AppCompatActivity {
         mCommunicatorProxy.stopListening();
         inForeground = false;
 
-        mListAdapter.onPause();
+        mPeerListAdapter.onPause();
         super.onPause();
     }
 }

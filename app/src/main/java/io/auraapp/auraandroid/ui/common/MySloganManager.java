@@ -23,7 +23,7 @@ public class MySloganManager {
         public void onMySlogansChanged(int event);
     }
 
-    private final MySlogansChangedCallback mNotifyChangeCallback;
+    private final Set<MySlogansChangedCallback> mNotifyChangeCallbacks = new HashSet<>();
 
     private final TreeSet<Slogan> mMySlogans = new TreeSet<>(new SloganComparator());
 
@@ -33,9 +33,12 @@ public class MySloganManager {
     public final static int EVENT_ADOPTED = 2;
     public final static int EVENT_REPLACED = 3;
 
-    public MySloganManager(Context context, MySlogansChangedCallback notifyChangeCallback) {
+    public MySloganManager(Context context) {
         mContext = context;
-        mNotifyChangeCallback = notifyChangeCallback;
+    }
+
+    public void addChangedCallback(MySlogansChangedCallback callback) {
+        mNotifyChangeCallbacks.add(callback);
     }
 
     public void init() {
@@ -66,7 +69,9 @@ public class MySloganManager {
         }
         mMySlogans.add(slogan);
         persistSlogans();
-        mNotifyChangeCallback.onMySlogansChanged(EVENT_ADOPTED);
+        for (MySlogansChangedCallback callback : mNotifyChangeCallbacks) {
+            callback.onMySlogansChanged(EVENT_ADOPTED);
+        }
     }
 
     public void replace(Slogan oldSlogan, Slogan newSlogan) {
@@ -75,14 +80,18 @@ public class MySloganManager {
         }
         mMySlogans.add(newSlogan);
         persistSlogans();
-        mNotifyChangeCallback.onMySlogansChanged(EVENT_REPLACED);
+        for (MySlogansChangedCallback callback : mNotifyChangeCallbacks) {
+            callback.onMySlogansChanged(EVENT_REPLACED);
+        }
     }
 
     public void dropSlogan(Slogan slogan) {
         mMySlogans.remove(slogan);
 
         persistSlogans();
-        mNotifyChangeCallback.onMySlogansChanged(EVENT_DROPPED);
+        for (MySlogansChangedCallback callback : mNotifyChangeCallbacks) {
+            callback.onMySlogansChanged(EVENT_DROPPED);
+        }
     }
 
     private void persistSlogans() {

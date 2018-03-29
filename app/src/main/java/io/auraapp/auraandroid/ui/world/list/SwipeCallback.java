@@ -14,8 +14,7 @@ import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.world.list.item.ItemViewHolder;
 import io.auraapp.auraandroid.ui.world.list.item.ListItem;
-import io.auraapp.auraandroid.ui.world.list.item.MyCollapsedHolder;
-import io.auraapp.auraandroid.ui.world.list.item.MyExpandedHolder;
+import io.auraapp.auraandroid.ui.world.list.item.MySloganHolder;
 import io.auraapp.auraandroid.ui.world.list.item.MySloganListItem;
 import io.auraapp.auraandroid.ui.world.list.item.PeerItemHolder;
 import io.auraapp.auraandroid.ui.world.list.item.PeerSloganListItem;
@@ -64,7 +63,7 @@ public class SwipeCallback extends ItemTouchHelper.SimpleCallback {
         if (viewHolder instanceof PeerItemHolder) {
             return ItemTouchHelper.LEFT;
         }
-        if (viewHolder instanceof MyExpandedHolder || viewHolder instanceof MyCollapsedHolder) {
+        if (viewHolder instanceof MySloganHolder) {
             return ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
         }
         return 0;
@@ -121,7 +120,7 @@ public class SwipeCallback extends ItemTouchHelper.SimpleCallback {
         mBackground.setBounds(itemView.getLeft(), itemView.getTop(), itemView.getRight(), itemView.getBottom());
         mBackground.draw(canvas);
 
-        if (viewHolder instanceof MyCollapsedHolder || viewHolder instanceof MyExpandedHolder) {
+        if (viewHolder instanceof MySloganHolder) {
             draw(canvas, mDropIcon, itemView, true, -20);
             draw(canvas, mEditIcon, itemView, false, 0);
         } else {
