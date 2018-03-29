@@ -19,7 +19,6 @@ import io.auraapp.auraandroid.ui.world.list.item.ItemViewHolder;
 import io.auraapp.auraandroid.ui.world.list.item.ListItem;
 import io.auraapp.auraandroid.ui.world.list.item.PeerItemHolder;
 import io.auraapp.auraandroid.ui.world.list.item.PeerSloganListItem;
-import io.auraapp.auraandroid.ui.world.list.item.PeersHeadingHolder;
 import io.auraapp.auraandroid.ui.world.list.item.PeersHeadingItem;
 import io.auraapp.auraandroid.ui.world.list.item.StatusHolder;
 import io.auraapp.auraandroid.ui.world.list.item.StatusItem;
@@ -133,12 +132,6 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
                 return new StatusHolder(
                         mContext,
                         mInflater.inflate(R.layout.world_list_item_status, parent, false)
-                );
-
-            case TYPE_PEERS_HEADING:
-                return new PeersHeadingHolder(
-                        mInflater.inflate(R.layout.world_list_item_heading, parent, false),
-                        mContext
                 );
 
             case TYPE_PEER_SLOGAN:

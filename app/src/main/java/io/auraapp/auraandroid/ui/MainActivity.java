@@ -40,7 +40,6 @@ import io.auraapp.auraandroid.ui.world.WorldFragment;
 import io.auraapp.auraandroid.ui.world.list.RecycleAdapter;
 import io.auraapp.auraandroid.ui.world.list.SwipeCallback;
 import io.auraapp.auraandroid.ui.world.list.item.ListItem;
-import io.auraapp.auraandroid.ui.world.list.item.PeersHeadingItem;
 import io.auraapp.auraandroid.ui.world.list.item.StatusItem;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
@@ -55,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
 
     private RecycleAdapter mPeerListAdapter;
     private StatusItem mStatusItem;
-    private PeersHeadingItem mPeersHeadingItem;
     private FakeSwipeRefreshLayout mSwipeRefresh;
 
     private MySloganManager mMySloganManager;
@@ -78,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mPeerListView;
     private ToolbarAspect mToolbarAspect;
     private DebugFragment mDebugFragment;
+    private WorldFragment mWorldFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
         ViewGroup worldView = (ViewGroup) LayoutInflater.from(this).inflate(
                 R.layout.world_fragment, findViewById(android.R.id.content), false);
 
-        WorldFragment world = WorldFragment.create(worldView);
+        mWorldFragment = WorldFragment.create(this, worldView);
 
         mMySloganManager = new MySloganManager(this);
 
@@ -107,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
                         mDialogManager,
                         mOnSwipedCallback
                 ),
-                world,
+                mWorldFragment,
                 mPager,
                 this);
         mPager.setAdapter(mPagerAdapter);
@@ -246,11 +245,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // TODO keep peers if aura disabled and communicator destroyed
-        mPeersHeadingItem.mPeers = mPeers;
-        mPeersHeadingItem.mSloganCount = mPeerSloganMap.size();
-        mPeersHeadingItem.mScanning = mCommunicatorState.mScanning;
-        mPeersHeadingItem.mScanStartTimestamp = mCommunicatorState.mScanStartTimestamp;
-        mPeerListAdapter.notifyListItemChanged(mPeersHeadingItem);
+
+        mWorldFragment.update(
+                mPeers,
+                mPeerSloganMap.size(),
+                mCommunicatorState.mScanning,
+                mCommunicatorState.mScanStartTimestamp
+        );
 
         if (mCommunicatorState.mRecentBtTurnOnEvents >= Config.COMMUNICATOR_RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD) {
             showBrokenBtStackAlert();
@@ -284,13 +285,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void createListView() {
 
+        mPeerListView.setNestedScrollingEnabled(false);
+
         List<ListItem> builtinItems = new ArrayList<>();
 
         mStatusItem = new StatusItem(mCommunicatorState, mPeers, mPeerSloganMap);
         builtinItems.add(mStatusItem);
-
-        mPeersHeadingItem = new PeersHeadingItem(mPeers, mPeerSloganMap.size());
-        builtinItems.add(mPeersHeadingItem);
 
         mPeerListAdapter = new RecycleAdapter(this, builtinItems, mPeerListView);
 

@@ -1,43 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<io.auraapp.auraandroid.ui.FakeSwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/swiperefresh"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/yellow"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <android.support.design.widget.CoordinatorLayout
+    <ScrollView
+        android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/add_slogan"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|bottom"
-            android:layout_margin="26dp"
-            android:background="@color/blue"
-            android:src="@mipmap/ic_thought_balloon"
-            app:backgroundTint="@color/blue"
-            app:borderWidth="0dp"
-            app:layout_anchor="@id/list_view"
-            app:layout_anchorGravity="bottom|right|end" />
-
-        <io.auraapp.auraandroid.ui.FakeSwipeRefreshLayout
-            android:id="@+id/swiperefresh"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <LinearLayout
+                style="@style/HeadingItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <ProgressBar
+                        android:id="@+id/peer_slogans_heading_progress_bar"
+                        style="?android:attr/progressBarStyleSmall"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginEnd="4dp"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/peer_slogans_heading_text"
+                        style="@style/HeadingItemText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <io.auraapp.auraandroid.ui.common.InfoBox
+                android:id="@+id/peer_slogans_info_box"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/list_view"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent" />
 
-            </android.support.v7.widget.RecyclerView>
-
-
-        </io.auraapp.auraandroid.ui.FakeSwipeRefreshLayout>
-    </android.support.design.widget.CoordinatorLayout>
-
-
-</LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</io.auraapp.auraandroid.ui.FakeSwipeRefreshLayout>
