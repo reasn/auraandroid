@@ -77,7 +77,6 @@ public class PermissionsFragment extends Fragment {
         ((TextView) mView.findViewById(R.id.granted_emoji)).setText(EmojiHelper.replaceShortCode(":grinning_face:"));
         ((TextView) mView.findViewById(R.id.granted_text)).setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_permissionsMissing_granted_text)));
 
-
         if (mRedirected) {
             mView.findViewById(R.id.not_granted).setVisibility(View.GONE);
         } else {

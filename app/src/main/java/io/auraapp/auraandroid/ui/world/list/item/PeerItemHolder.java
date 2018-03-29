@@ -2,6 +2,7 @@ package io.auraapp.auraandroid.ui.world.list.item;
 
 import android.content.Context;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
@@ -9,20 +10,26 @@ import io.auraapp.auraandroid.ui.world.list.RecycleAdapter;
 
 import static io.auraapp.auraandroid.common.FormattedLog.e;
 
-public class PeerExpandedHolder extends ItemViewHolder {
+public class PeerItemHolder extends ItemViewHolder {
 
-    private static final String TAG = "aura/list/" + PeerExpandedHolder.class.getSimpleName();
+    private static final String TAG = "aura/list/" + PeerItemHolder.class.getSimpleName();
     private final TextView mSloganTextView;
     private final TextView mLastSeenTextView;
     private final Context mContext;
+    private final boolean mExpanded;
+    private final LinearLayout mExpandedWrapper;
 
-    public PeerExpandedHolder(View itemView, Context context, RecycleAdapter.CollapseExpandHandler collapseExpandHandler) {
+    public PeerItemHolder(View itemView,
+                          Context context,
+                          boolean expanded,
+                          RecycleAdapter.CollapseExpandHandler collapseExpandHandler) {
         super(itemView);
 
         mContext = context;
-
+        mExpanded = expanded;
         mSloganTextView = itemView.findViewById(R.id.slogan_text);
         mLastSeenTextView = itemView.findViewById(R.id.lastSeen);
+        mExpandedWrapper = itemView.findViewById(R.id.expanded_wrapper);
 
         itemView.setOnClickListener($ -> collapseExpandHandler.flip(getLastBoundItem()));
     }
@@ -31,14 +38,25 @@ public class PeerExpandedHolder extends ItemViewHolder {
     public void bind(ListItem item, View itemView) {
 
         if (item == null) {
-            e(TAG, "Trying to bind %s to null ListItem", PeerExpandedHolder.class.getSimpleName());
+            e(TAG, "Trying to bind %s to null ListItem", PeerItemHolder.class.getSimpleName());
             return;
         }
         if (!(item instanceof PeerSloganListItem)) {
-            e(TAG, "Trying to bind %s with %s", PeerExpandedHolder.class.getSimpleName(), item.getClass().getSimpleName());
+            e(TAG, "Trying to bind %s with %s", PeerItemHolder.class.getSimpleName(), item.getClass().getSimpleName());
             return;
         }
+
         PeerSloganListItem castItem = (PeerSloganListItem) item;
+
+        mSloganTextView.setText(castItem.getSlogan().getText());
+
+        if (!mExpanded) {
+            mExpandedWrapper.setVisibility(View.GONE);
+            return;
+        }
+        // TODO animate
+
+        mExpandedWrapper.setVisibility(View.VISIBLE);
 
         long lastSeen = castItem.getLastSeen();
         long elapsedSeconds = Math.round((System.currentTimeMillis() - lastSeen) / 1000);
@@ -63,6 +81,5 @@ public class PeerExpandedHolder extends ItemViewHolder {
 
         mLastSeenTextView.setText(text);
 
-        mSloganTextView.setText(castItem.getSlogan().getText());
     }
 }

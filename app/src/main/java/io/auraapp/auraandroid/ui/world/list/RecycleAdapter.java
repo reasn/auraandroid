@@ -24,8 +24,7 @@ import io.auraapp.auraandroid.ui.world.list.item.MyExpandedHolder;
 import io.auraapp.auraandroid.ui.world.list.item.MySloganListItem;
 import io.auraapp.auraandroid.ui.world.list.item.MySlogansHeadingHolder;
 import io.auraapp.auraandroid.ui.world.list.item.MySlogansHeadingItem;
-import io.auraapp.auraandroid.ui.world.list.item.PeerCollapsedHolder;
-import io.auraapp.auraandroid.ui.world.list.item.PeerExpandedHolder;
+import io.auraapp.auraandroid.ui.world.list.item.PeerItemHolder;
 import io.auraapp.auraandroid.ui.world.list.item.PeerSloganListItem;
 import io.auraapp.auraandroid.ui.world.list.item.PeersHeadingHolder;
 import io.auraapp.auraandroid.ui.world.list.item.PeersHeadingItem;
@@ -65,9 +64,11 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
             if (item == null) {
                 return;
             }
+
             for (int i = 0; i < mItems.size(); i++) {
                 ListItem candidate = mItems.get(i);
                 if (candidate.mExpanded && !candidate.equals(item)) {
+                    v(TAG, "Collapsing other item at index %d", i);
                     candidate.mExpanded = false;
                     notifyItemChanged(i);
                 }
@@ -75,6 +76,7 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
             item.mExpanded = !item.mExpanded;
             notifyItemChanged(mItems.indexOf(item));
             mListView.smoothScrollToPosition(mItems.indexOf(item));
+
         }
     };
 
@@ -178,14 +180,17 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
                 );
 
             case TYPE_PEER_COLLAPSED:
-                return new PeerCollapsedHolder(
-                        mInflater.inflate(R.layout.list_item_collapsed, parent, false),
+                return new PeerItemHolder(
+                        mInflater.inflate(R.layout.list_item_peer, parent, false),
+                        mContext,
+                        false,
                         collapseExpandHandler);
 
             case TYPE_PEER_EXPANDED:
-                return new PeerExpandedHolder(
-                        mInflater.inflate(R.layout.list_item_peer_expanded, parent, false),
+                return new PeerItemHolder(
+                        mInflater.inflate(R.layout.list_item_peer, parent, false),
                         mContext,
+                        true,
                         collapseExpandHandler);
 
             default:
@@ -205,7 +210,7 @@ public class RecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
                 holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.dark_yellow));
             }
 
-        } else if (holder instanceof PeerCollapsedHolder || holder instanceof PeerExpandedHolder) {
+        } else if (holder instanceof PeerItemHolder) {
 //            Random rnd = new Random();
 //            int color = Color.argb(
 //                    255,

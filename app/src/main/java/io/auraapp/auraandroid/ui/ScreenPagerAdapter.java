@@ -12,6 +12,7 @@ import java.util.List;
 
 import io.auraapp.auraandroid.ui.debug.DebugFragment;
 import io.auraapp.auraandroid.ui.permissions.PermissionsFragment;
+import io.auraapp.auraandroid.ui.profile.ProfileFragment;
 import io.auraapp.auraandroid.ui.welcome.PrivacyFragment;
 import io.auraapp.auraandroid.ui.welcome.WelcomeFragment;
 import io.auraapp.auraandroid.ui.world.WorldFragment;
@@ -33,7 +34,7 @@ public class ScreenPagerAdapter extends FragmentStatePagerAdapter {
         mFragments = new ArrayList<>();
         mFragments.add(PrivacyFragment.create(context, pager));
         mFragments.add(WelcomeFragment.create(context, pager));
-//        mFragments.add(new ProfileFragment());
+        mFragments.add(new ProfileFragment());
         mFragments.add(worldFragment);
     }
 
@@ -47,9 +48,9 @@ public class ScreenPagerAdapter extends FragmentStatePagerAdapter {
     }
 
     public Class getClassForHandle(String handle) {
-//        if (handle.equals(SCREEN_PROFILE)) {
-//            return ProfileFragment.class;
-//        }
+        if (handle.equals(SCREEN_PROFILE)) {
+            return ProfileFragment.class;
+        }
         if (handle.equals(SCREEN_WORLD)) {
             return WorldFragment.class;
         }
@@ -60,9 +61,9 @@ public class ScreenPagerAdapter extends FragmentStatePagerAdapter {
     }
 
     public String getHandleForClass(Class fragment) {
-//        if (fragment.equals(ProfileFragment.class)) {
-//            return SCREEN_PROFILE;
-//        }
+        if (fragment.equals(ProfileFragment.class)) {
+            return SCREEN_PROFILE;
+        }
         if (fragment.equals(WorldFragment.class)) {
             return SCREEN_WORLD;
         }

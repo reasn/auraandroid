@@ -17,8 +17,7 @@ import io.auraapp.auraandroid.ui.world.list.item.ListItem;
 import io.auraapp.auraandroid.ui.world.list.item.MyCollapsedHolder;
 import io.auraapp.auraandroid.ui.world.list.item.MyExpandedHolder;
 import io.auraapp.auraandroid.ui.world.list.item.MySloganListItem;
-import io.auraapp.auraandroid.ui.world.list.item.PeerCollapsedHolder;
-import io.auraapp.auraandroid.ui.world.list.item.PeerExpandedHolder;
+import io.auraapp.auraandroid.ui.world.list.item.PeerItemHolder;
 import io.auraapp.auraandroid.ui.world.list.item.PeerSloganListItem;
 
 public class SwipeCallback extends ItemTouchHelper.SimpleCallback {
@@ -62,7 +61,7 @@ public class SwipeCallback extends ItemTouchHelper.SimpleCallback {
 
     @Override
     public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-        if (viewHolder instanceof PeerCollapsedHolder || viewHolder instanceof PeerExpandedHolder) {
+        if (viewHolder instanceof PeerItemHolder) {
             return ItemTouchHelper.LEFT;
         }
         if (viewHolder instanceof MyExpandedHolder || viewHolder instanceof MyCollapsedHolder) {

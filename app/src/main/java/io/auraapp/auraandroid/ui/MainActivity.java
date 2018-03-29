@@ -45,6 +45,7 @@ import io.auraapp.auraandroid.ui.world.list.item.PeersHeadingItem;
 import io.auraapp.auraandroid.ui.world.list.item.StatusItem;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
+import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
 public class MainActivity extends AppCompatActivity {
@@ -106,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
             showPermissionMissingFragment();
         } else {
             String currentScreen = mPrefs.getString(Prefs.PREFS_CURRENT_SCREEN, ScreenPagerAdapter.SCREEN_WELCOME);
+            i(TAG, "Current screen is set to %s", currentScreen);
             mPager.goTo(mPagerAdapter.getClassForHandle(currentScreen), false);
 
             mPager.addChangeListener(fragment -> {
