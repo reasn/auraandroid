@@ -3,7 +3,6 @@ package io.auraapp.auraandroid.ui.profile;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
@@ -12,61 +11,35 @@ import java.util.TreeSet;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Slogan;
-import io.auraapp.auraandroid.ui.world.list.ListSynchronizer;
-import io.auraapp.auraandroid.ui.world.list.RecycleAdapter;
-import io.auraapp.auraandroid.ui.world.list.SwipeCallback;
-import io.auraapp.auraandroid.ui.world.list.item.ItemViewHolder;
-import io.auraapp.auraandroid.ui.world.list.item.ListItem;
-import io.auraapp.auraandroid.ui.world.list.item.PeersHeadingItem;
+import io.auraapp.auraandroid.ui.common.lists.ItemViewHolder;
+import io.auraapp.auraandroid.ui.common.lists.ListItem;
+import io.auraapp.auraandroid.ui.common.lists.ListSynchronizer;
+import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapterWithSpacer;
+import io.auraapp.auraandroid.ui.common.lists.SpacerItem;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
-import static io.auraapp.auraandroid.common.FormattedLog.v;
 
-public class MySlogansRecycleAdapter extends RecyclerView.Adapter<ItemViewHolder> {
+public class MySlogansRecycleAdapter extends RecyclerAdapterWithSpacer {
+
+    @FunctionalInterface
+    public static interface OnMySloganActionCallback {
+        int ACTION_EDIT = 2;
+        int ACTION_DROP = 3;
+
+        void onActionTaken(Slogan slogan, int action);
+    }
 
     private static final String TAG = "@aura/" + MySlogansRecycleAdapter.class.getSimpleName();
 
-    private final static int SINGLE_TYPE = 198;
-
-    private final LayoutInflater mInflater;
-    private final Context mContext;
-
-    private final List<ListItem> mItems;
-    private final RecyclerView mListView;
-
-    private final RecycleAdapter.CollapseExpandHandler collapseExpandHandler = new RecycleAdapter.CollapseExpandHandler() {
-        @Override
-        public void flip(ListItem item) {
-            if (item == null) {
-                return;
-            }
-
-            for (int i = 0; i < mItems.size(); i++) {
-                ListItem candidate = mItems.get(i);
-                if (candidate.mExpanded && !candidate.equals(item)) {
-                    v(TAG, "Collapsing other item at index %d", i);
-                    candidate.mExpanded = false;
-                    notifyItemChanged(i);
-                }
-            }
-            item.mExpanded = !item.mExpanded;
-            notifyItemChanged(mItems.indexOf(item));
-            mListView.smoothScrollToPosition(mItems.indexOf(item));
-
-        }
-    };
-    private final SwipeCallback.OnSwipedCallback mOnSwipedCallback;
+    private final static int TYPE_MY_SLOGAN = 198;
+    private final OnMySloganActionCallback mOnMySloganActionCallback;
 
     public MySlogansRecycleAdapter(@NonNull Context context,
-                                   List<ListItem> items,
                                    RecyclerView listView,
-                                   SwipeCallback.OnSwipedCallback onSwipedCallback) {
-        super();
-        mContext = context;
-        mItems = items;
-        mListView = listView;
-        mInflater = LayoutInflater.from(context);
-        mOnSwipedCallback = onSwipedCallback;
+                                   OnMySloganActionCallback onMySloganActionCallback) {
+        super(context, listView);
+        mOnMySloganActionCallback = onMySloganActionCallback;
+        mItems.add(new SpacerItem());
     }
 
     public void notifyMySlogansChanged(TreeSet<Slogan> mySlogans) {
@@ -81,25 +54,28 @@ public class MySlogansRecycleAdapter extends RecyclerView.Adapter<ItemViewHolder
                 newItems,
                 this,
                 existingItem -> existingItem instanceof MySloganListItem,
-                existingItem -> existingItem instanceof PeersHeadingItem,
-                (item, newItem) -> item instanceof PeersHeadingItem || item instanceof MySloganListItem || item.compareIndex(newItem) > 0
+                existingItem -> existingItem instanceof SpacerItem,
+                (item, newItem) -> item instanceof SpacerItem || item instanceof MySloganListItem || item.compareIndex(newItem) > 0
         );
     }
 
     @NonNull
     @Override
     public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new MySloganHolder(
-                mInflater.inflate(R.layout.profile_list_item_slogan, parent, false),
-                mContext,
-                mOnSwipedCallback,
-                this.collapseExpandHandler
-        );
+        if (viewType == TYPE_MY_SLOGAN) {
+            return new MySloganHolder(
+                    mInflater.inflate(R.layout.profile_list_item_slogan, parent, false),
+                    mContext,
+                    mOnMySloganActionCallback,
+                    this.collapseExpandHandler
+            );
+        }
+        return super.onCreateViewHolder(parent, viewType);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
-        holder.setItem(mItems.get(position));
+        super.onBindViewHolder(holder, position);
 
         if (holder instanceof MySloganHolder) {
             // Alternating colors
@@ -113,12 +89,10 @@ public class MySlogansRecycleAdapter extends RecyclerView.Adapter<ItemViewHolder
 
     @Override
     public int getItemViewType(int position) {
-        return SINGLE_TYPE;
-    }
-
-    @Override
-    public int getItemCount() {
-        return mItems.size();
+        if (mItems.get(position) instanceof MySloganListItem) {
+            return TYPE_MY_SLOGAN;
+        }
+        return super.getItemViewType(position);
     }
 }
 

@@ -17,6 +17,7 @@ import java.util.Set;
 
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.ExternalInvocation;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
 
@@ -36,12 +37,12 @@ public class DebugFragment extends Fragment implements FragmentWithToolbarButton
     }
 
     @Override
+    @ExternalInvocation
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         v(TAG, "onCreateView");
 
         ViewGroup rootView = (ViewGroup) inflater.inflate(
                 R.layout.debug_fragment, container, false);
-
 
         mDebugCommunicatorStateDumpView = rootView.findViewById(R.id.debug_communicator_state_dump);
         mDebugPeersListView = rootView.findViewById(R.id.debug_peers_list);

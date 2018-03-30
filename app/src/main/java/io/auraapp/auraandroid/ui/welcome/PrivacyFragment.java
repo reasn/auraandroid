@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.ExternalInvocation;
 import io.auraapp.auraandroid.ui.ScreenPager;
 
 import static io.auraapp.auraandroid.common.FormattedLog.v;
@@ -26,6 +27,7 @@ public class PrivacyFragment extends Fragment {
     }
 
     @Override
+    @ExternalInvocation
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         v(TAG, "onCreateView");
 

@@ -37,8 +37,8 @@ public class DialogManager {
     }
 
     @FunctionalInterface
-    interface DropCallback {
-        void onDropSlogan(Slogan slogan);
+    public interface DropCallback {
+        public void onDropSlogan(Slogan slogan);
     }
 
     private boolean mDialogOpen = false;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<io.auraapp.auraandroid.ui.FakeSwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/swiperefresh"
+<io.auraapp.auraandroid.ui.world.FakeSwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fake_swipe_to_refresh"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -14,6 +14,16 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <TextView
+                android:id="@+id/status_summary"
+                style="@style/StatusItemSummary"
+                android:visibility="gone" />
+
+            <io.auraapp.auraandroid.ui.common.InfoBox
+                android:id="@+id/status_info_box"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
 
             <LinearLayout
                 style="@style/HeadingItem"
@@ -58,4 +68,4 @@
 
         </LinearLayout>
     </ScrollView>
-</io.auraapp.auraandroid.ui.FakeSwipeRefreshLayout>
+</io.auraapp.auraandroid.ui.world.FakeSwipeRefreshLayout>

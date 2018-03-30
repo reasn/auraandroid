@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.EmojiHelper;
+import io.auraapp.auraandroid.common.ExternalInvocation;
 import io.auraapp.auraandroid.common.PermissionHelper;
 import io.auraapp.auraandroid.ui.ScreenPager;
 import io.auraapp.auraandroid.ui.common.InfoBox;
@@ -47,13 +48,13 @@ public class PermissionsFragment extends Fragment {
     }
 
     @Override
+    @ExternalInvocation
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         v(TAG, "onCreateView");
 
         mView = (ViewGroup) inflater.inflate(R.layout.permissions_fragment, container, false);
-
         InfoBox infoBox = mView.findViewById(R.id.info_box);
-        infoBox.setButtonClickListener((View $) -> {
+        infoBox.setButtonClickListener($ -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION}, REQUEST_CODE_LOCATION_REQUEST);
             } else {
@@ -62,9 +63,8 @@ public class PermissionsFragment extends Fragment {
         });
         Button showAppSettingsButton = mView.findViewById(R.id.show_app_settings);
         showAppSettingsButton.setText(EmojiHelper.replaceShortCode(getString(R.string.ui_permissionsMissing_appSettings)));
-        showAppSettingsButton.setOnClickListener((View $) -> {
+        showAppSettingsButton.setOnClickListener($ -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
                 Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + mContext.getPackageName()));
                 intent.addCategory(Intent.CATEGORY_DEFAULT);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -82,7 +82,6 @@ public class PermissionsFragment extends Fragment {
         } else {
             mView.findViewById(R.id.not_granted).setVisibility(View.VISIBLE);
         }
-
         return mView;
     }
 
@@ -94,6 +93,7 @@ public class PermissionsFragment extends Fragment {
     }
 
     @Override
+    @ExternalInvocation
     public void onResume() {
         v(TAG, "onResume");
         super.onResume();

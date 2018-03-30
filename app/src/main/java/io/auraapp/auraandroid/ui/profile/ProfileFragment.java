@@ -10,9 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Slogan;
@@ -21,8 +18,6 @@ import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
 import io.auraapp.auraandroid.ui.common.InfoBox;
 import io.auraapp.auraandroid.ui.common.MySloganManager;
 import io.auraapp.auraandroid.ui.common.ScreenFragment;
-import io.auraapp.auraandroid.ui.world.list.SwipeCallback;
-import io.auraapp.auraandroid.ui.world.list.item.ListItem;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 
@@ -34,20 +29,17 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     private Context mContext;
     private ViewGroup mRootView;
     private MySloganManager mMySloganManager;
-    private SwipeCallback.OnSwipedCallback mOnSwipedCallback;
     private TextView mHeadingTextView;
     private InfoBox mMySlogansInfoBox;
     private DialogManager mDialogManager;
 
     public static ProfileFragment create(Context context,
                                          MySloganManager mySloganManager,
-                                         DialogManager dialogManager,
-                                         SwipeCallback.OnSwipedCallback onSwipedCallback) {
+                                         DialogManager dialogManager) {
         ProfileFragment fragment = new ProfileFragment();
         fragment.mContext = context;
         fragment.mMySloganManager = mySloganManager;
         fragment.mDialogManager = dialogManager;
-        fragment.mOnSwipedCallback = onSwipedCallback;
         return fragment;
     }
 
@@ -75,9 +67,17 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
 
         mRecyclerView.setNestedScrollingEnabled(false);
 
-        List<ListItem> builtinItems = new ArrayList<>();
-
-        mRecyclerAdapter = new MySlogansRecycleAdapter(mContext, builtinItems, mRecyclerView, mOnSwipedCallback);
+        mRecyclerAdapter = new MySlogansRecycleAdapter(mContext, mRecyclerView, (Slogan slogan, int action) -> {
+            if (action == MySlogansRecycleAdapter.OnMySloganActionCallback.ACTION_EDIT) {
+                mDialogManager.showParametrizedSloganEdit(R.string.ui_dialog_edit_slogan_title,
+                        R.string.ui_dialog_edit_slogan_text,
+                        R.string.ui_dialog_edit_slogan_confirm,
+                        R.string.ui_dialog_edit_slogan_cancel,
+                        slogan,
+                        sloganText -> mMySloganManager.replace(slogan, Slogan.create(sloganText)));
+            }
+            mDialogManager.showDrop(slogan, mMySloganManager::dropSlogan);
+        });
 
         mRecyclerView.setAdapter(mRecyclerAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));

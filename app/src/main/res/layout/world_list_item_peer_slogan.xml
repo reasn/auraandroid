@@ -20,7 +20,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/lastSeen"
+            android:id="@+id/last_seen"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="start"
@@ -32,16 +32,16 @@
             android:orientation="horizontal">
 
             <Button
+                android:id="@+id/peer_info_button"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="5 People" />
+                android:layout_weight="1"/>
 
             <Button
+                android:id="@+id/adopt_button"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="Fire" />
+                android:layout_weight="1" />
 
         </LinearLayout>
     </LinearLayout>

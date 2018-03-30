@@ -8,10 +8,9 @@ import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.EmojiHelper;
-import io.auraapp.auraandroid.ui.world.list.RecycleAdapter;
-import io.auraapp.auraandroid.ui.world.list.SwipeCallback;
-import io.auraapp.auraandroid.ui.world.list.item.ItemViewHolder;
-import io.auraapp.auraandroid.ui.world.list.item.ListItem;
+import io.auraapp.auraandroid.ui.common.lists.ItemViewHolder;
+import io.auraapp.auraandroid.ui.common.lists.ListItem;
+import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapterWithSpacer;
 
 public class MySloganHolder extends ItemViewHolder {
 
@@ -19,16 +18,16 @@ public class MySloganHolder extends ItemViewHolder {
     private final LinearLayout mExpandedWrapper;
     private final Button mEditButtonView;
     private final Button mDropButtonView;
-    private final SwipeCallback.OnSwipedCallback mOnSwipedCallback;
+    private final MySlogansRecycleAdapter.OnMySloganActionCallback mOnMySloganActionCallback;
     private Context mContext;
 
     public MySloganHolder(View itemView,
                           Context context,
-                          SwipeCallback.OnSwipedCallback onSwipedCallback,
-                          RecycleAdapter.CollapseExpandHandler collapseExpandHandler) {
+                          MySlogansRecycleAdapter.OnMySloganActionCallback onMySloganActionCallback,
+                          RecyclerAdapterWithSpacer.CollapseExpandHandler collapseExpandHandler) {
         super(itemView);
         mContext = context;
-        mOnSwipedCallback = onSwipedCallback;
+        mOnMySloganActionCallback = onMySloganActionCallback;
         mSloganTextView = itemView.findViewById(R.id.slogan_text);
         mExpandedWrapper = itemView.findViewById(R.id.expanded_wrapper);
         mEditButtonView = itemView.findViewById(R.id.edit_button);
@@ -47,15 +46,18 @@ public class MySloganHolder extends ItemViewHolder {
         MySloganListItem castItem = (MySloganListItem) item;
         mSloganTextView.setText(castItem.getSlogan().getText());
         if (!castItem.mExpanded) {
-            mExpandedWrapper.setVisibility(View.GONE);
+            if (mExpandedWrapper.getVisibility() == View.VISIBLE) {
+                mExpandedWrapper.setVisibility(View.GONE);
+            }
             return;
         }
         mExpandedWrapper.setVisibility(View.VISIBLE);
+
         mEditButtonView.setOnClickListener(
-                $ -> mOnSwipedCallback.onSwiped(castItem.getSlogan(), SwipeCallback.ACTION_EDIT)
+                $ -> mOnMySloganActionCallback.onActionTaken(castItem.getSlogan(), MySlogansRecycleAdapter.OnMySloganActionCallback.ACTION_EDIT)
         );
         mDropButtonView.setOnClickListener(
-                $ -> mOnSwipedCallback.onSwiped(castItem.getSlogan(), SwipeCallback.ACTION_DROP)
+                $ -> mOnMySloganActionCallback.onActionTaken(castItem.getSlogan(), MySlogansRecycleAdapter.OnMySloganActionCallback.ACTION_DROP)
         );
     }
 }
