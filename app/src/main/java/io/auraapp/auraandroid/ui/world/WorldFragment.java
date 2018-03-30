@@ -47,7 +47,7 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
     private Handler mHandler = new Handler();
     private OnAdoptCallback mOnAdoptCallback;
     private RecyclerView mPeerListView;
-    public PeerSlogansRecycleAdapter mPeerListAdapter;
+    private PeerSlogansRecycleAdapter mPeerListAdapter;
     private FakeSwipeRefreshLayout mSwipeRefresh;
 
     public static WorldFragment create(Context context, OnAdoptCallback onAdoptCallback) {
@@ -311,6 +311,12 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             params.height = 0;
             mStatusSummary.setLayoutParams(params);
+        }
+    }
+
+    public void notifyPeerSlogansChanged(TreeMap<String, PeerSlogan> mPeerSloganMap) {
+        if (mPeerListAdapter != null) {
+            mPeerListAdapter.notifyPeerSloganListChanged(mPeerSloganMap);
         }
     }
 }

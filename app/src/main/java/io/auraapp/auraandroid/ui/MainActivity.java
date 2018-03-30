@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
                     peers -> {
                         mPeers = peers;
                         mPeerSloganMap = PeerMapTransformer.buildMapFromPeerList(peers);
-                        mWorldFragment.mPeerListAdapter.notifyPeerSloganListChanged(mPeerSloganMap);
+                        mWorldFragment.notifyPeerSlogansChanged(mPeerSloganMap);
                         reflectStatus();
                     },
                     peer -> {
@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         mPeers.add(peer);
                         mPeerSloganMap = PeerMapTransformer.buildMapFromPeerAndPreviousMap(peer, mPeerSloganMap);
-                        mWorldFragment.mPeerListAdapter.notifyPeerSloganListChanged(mPeerSloganMap);
+                        mWorldFragment.notifyPeerSlogansChanged(mPeerSloganMap);
                         reflectStatus();
                     },
                     state -> {

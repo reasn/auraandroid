@@ -14,13 +14,12 @@ import io.auraapp.auraandroid.ui.SloganComparator;
 import io.auraapp.auraandroid.ui.common.lists.ItemViewHolder;
 import io.auraapp.auraandroid.ui.common.lists.ListItem;
 import io.auraapp.auraandroid.ui.common.lists.ListSynchronizer;
-import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapterWithSpacer;
-import io.auraapp.auraandroid.ui.common.lists.SpacerItem;
+import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapter;
 import io.auraapp.auraandroid.ui.world.PeerSlogan;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 
-public class PeerSlogansRecycleAdapter extends RecyclerAdapterWithSpacer {
+public class PeerSlogansRecycleAdapter extends RecyclerAdapter {
 
     private static final String TAG = "@aura/" + PeerSlogansRecycleAdapter.class.getSimpleName();
 
@@ -40,13 +39,12 @@ public class PeerSlogansRecycleAdapter extends RecyclerAdapterWithSpacer {
             newItems.add(new PeerSloganListItem(peerSlogan.mSlogan, peerSlogan.mPeers));
         }
         SloganComparator c = new SloganComparator();
+        // TODO compare by frequency and recency
         ListSynchronizer.syncLists(
                 mItems,
                 newItems,
                 this,
-                existingItem -> existingItem instanceof PeerSloganListItem,
-                existingItem -> existingItem instanceof SpacerItem,
-                (item, newItem) -> item instanceof SpacerItem || item instanceof PeerSloganListItem || item.compareIndex(newItem) > 0
+                (item, newItem) -> item.compareIndex(newItem) > 0
         );
     }
 
@@ -57,7 +55,7 @@ public class PeerSlogansRecycleAdapter extends RecyclerAdapterWithSpacer {
         timer.setSerializedInterval("redraw", () -> {
             long now = System.currentTimeMillis();
             for (ListItem item : mItems) {
-                if (item instanceof PeerSloganListItem && now - ((PeerSloganListItem) item).getLastSeen() > 10000) {
+                if (now - ((PeerSloganListItem) item).getLastSeen() > 10000) {
                     notifyItemChanged(mItems.indexOf(item));
                 }
             }
@@ -71,44 +69,27 @@ public class PeerSlogansRecycleAdapter extends RecyclerAdapterWithSpacer {
     @NonNull
     @Override
     public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (viewType == TYPE_PEER_SLOGAN) {
-            return new PeerSloganItemHolder(
-                    mInflater.inflate(R.layout.world_list_item_peer_slogan, parent, false),
-                    mContext,
-                    collapseExpandHandler,
-                    mOnAdoptCallback);
-        }
-        return super.onCreateViewHolder(parent, viewType);
+        return new PeerSloganItemHolder(
+                mInflater.inflate(R.layout.world_list_item_peer_slogan, parent, false),
+                mContext,
+                collapseExpandHandler,
+                mOnAdoptCallback);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
-        if (holder instanceof PeerSloganItemHolder) {
-
-//            Random rnd = new Random();
-//            int color = Color.argb(
-//                    255,
-//                    rnd.nextInt(100) + 156,
-//                    rnd.nextInt(100) + 156,
-//                    rnd.nextInt(100) + 156);
-//            holder.itemView.setBackgroundColor(color);
-
-            // Alternating colors
-            if (position % 2 == 0) {
-                holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.gray));
-            } else {
-                holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.white));
-            }
+        // Alternating colors
+        if (position % 2 == 0) {
+            holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.gray));
+        } else {
+            holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.white));
         }
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (mItems.get(position) instanceof PeerSloganListItem) {
-            return TYPE_PEER_SLOGAN;
-        }
-        return super.getItemViewType(position);
+        return TYPE_PEER_SLOGAN;
     }
 }
 

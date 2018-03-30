@@ -14,12 +14,11 @@ import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.common.lists.ItemViewHolder;
 import io.auraapp.auraandroid.ui.common.lists.ListItem;
 import io.auraapp.auraandroid.ui.common.lists.ListSynchronizer;
-import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapterWithSpacer;
-import io.auraapp.auraandroid.ui.common.lists.SpacerItem;
+import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapter;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 
-public class MySlogansRecycleAdapter extends RecyclerAdapterWithSpacer {
+public class MySlogansRecycleAdapter extends RecyclerAdapter {
 
     @FunctionalInterface
     public static interface OnMySloganActionCallback {
@@ -39,7 +38,6 @@ public class MySlogansRecycleAdapter extends RecyclerAdapterWithSpacer {
                                    OnMySloganActionCallback onMySloganActionCallback) {
         super(context, listView);
         mOnMySloganActionCallback = onMySloganActionCallback;
-        mItems.add(new SpacerItem());
     }
 
     public void notifyMySlogansChanged(TreeSet<Slogan> mySlogans) {
@@ -53,24 +51,19 @@ public class MySlogansRecycleAdapter extends RecyclerAdapterWithSpacer {
                 mItems,
                 newItems,
                 this,
-                existingItem -> existingItem instanceof MySloganListItem,
-                existingItem -> existingItem instanceof SpacerItem,
-                (item, newItem) -> item instanceof SpacerItem || item instanceof MySloganListItem || item.compareIndex(newItem) > 0
+                (item, newItem) -> item.compareIndex(newItem) > 0
         );
     }
 
     @NonNull
     @Override
     public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (viewType == TYPE_MY_SLOGAN) {
-            return new MySloganHolder(
-                    mInflater.inflate(R.layout.profile_list_item_slogan, parent, false),
-                    mContext,
-                    mOnMySloganActionCallback,
-                    this.collapseExpandHandler
-            );
-        }
-        return super.onCreateViewHolder(parent, viewType);
+        return new MySloganHolder(
+                mInflater.inflate(R.layout.profile_list_item_slogan, parent, false),
+                mContext,
+                mOnMySloganActionCallback,
+                this.collapseExpandHandler
+        );
     }
 
     @Override
@@ -89,10 +82,7 @@ public class MySlogansRecycleAdapter extends RecyclerAdapterWithSpacer {
 
     @Override
     public int getItemViewType(int position) {
-        if (mItems.get(position) instanceof MySloganListItem) {
-            return TYPE_MY_SLOGAN;
-        }
-        return super.getItemViewType(position);
+        return TYPE_MY_SLOGAN;
     }
 }
 

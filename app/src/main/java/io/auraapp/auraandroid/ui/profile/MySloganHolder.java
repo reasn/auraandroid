@@ -10,7 +10,7 @@ import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.ui.common.lists.ItemViewHolder;
 import io.auraapp.auraandroid.ui.common.lists.ListItem;
-import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapterWithSpacer;
+import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapter;
 
 public class MySloganHolder extends ItemViewHolder {
 
@@ -24,7 +24,7 @@ public class MySloganHolder extends ItemViewHolder {
     public MySloganHolder(View itemView,
                           Context context,
                           MySlogansRecycleAdapter.OnMySloganActionCallback onMySloganActionCallback,
-                          RecyclerAdapterWithSpacer.CollapseExpandHandler collapseExpandHandler) {
+                          RecyclerAdapter.CollapseExpandHandler collapseExpandHandler) {
         super(itemView);
         mContext = context;
         mOnMySloganActionCallback = onMySloganActionCallback;

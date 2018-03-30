@@ -9,19 +9,10 @@ import java.util.Set;
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
-public class ListSynchronizer<T extends ListItem> {
+public class ListSynchronizer {
 
     private static final String TAG = "aura/list/listSynchronizer";
 
-    @FunctionalInterface
-    public interface ApplicabilityCallback {
-        public boolean isApplicable(ListItem item);
-    }
-
-    @FunctionalInterface
-    public interface NewItemCanBeInsertedBeforeCallback {
-        public boolean canBeInsertedBefore(ListItem item);
-    }
 
     @FunctionalInterface
     public interface CompareCallback {
@@ -31,8 +22,6 @@ public class ListSynchronizer<T extends ListItem> {
     public static void syncLists(List<ListItem> items,
                           List<ListItem> newItems,
                           RecyclerView.Adapter<?> notificationReceiver,
-                          ApplicabilityCallback applicabilityCallback,
-                          NewItemCanBeInsertedBeforeCallback newItemCanBeInsertedBeforeCallback,
                           CompareCallback compareCallback) {
         d(TAG, "Updating list, mySlogans: %d", newItems.size());
 
@@ -41,9 +30,6 @@ public class ListSynchronizer<T extends ListItem> {
         // Update changed and remove absent items
         for (ListItem item : items) {
 
-            if (!applicabilityCallback.isApplicable(item)) {
-                continue;
-            }
             boolean found = false;
             for (ListItem newItem : newItems) {
                 if (item.compareIndex(newItem) == 0) {
@@ -89,9 +75,6 @@ public class ListSynchronizer<T extends ListItem> {
                     // Determine the index of the first item that's supposed to be after newItem
                     for (index = 0; index < items.size(); index++) {
                         ListItem item = items.get(index);
-                        if (!newItemCanBeInsertedBeforeCallback.canBeInsertedBefore(item)) {
-                            continue;
-                        }
                         if (compareCallback.isGreaterThan(item, newItem)) {
                             break;
                         }
