@@ -7,6 +7,7 @@
 
     <ScrollView
         android:id="@+id/scroll_view"
+        android:scrollbars="none"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -14,6 +15,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
+            <Button
+                android:id="@+id/color_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Color" />
 
             <TextView
                 android:layout_width="match_parent"

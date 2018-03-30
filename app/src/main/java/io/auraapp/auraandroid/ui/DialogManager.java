@@ -20,6 +20,8 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.skydoves.colorpickerpreference.ColorPickerView;
+
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,6 +32,44 @@ import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Slogan;
 
 public class DialogManager {
+
+    private final String COLOR_PICKER_INTERNAL_PREF_NAME = "auraColor";
+
+    @FunctionalInterface
+    public interface ColorPickedCallback {
+        public void onColorPicked(String color);
+    }
+
+    public void showColorPickerDialog(ColorPickedCallback colorPickedCallback) {
+
+        if (mDialogOpen) {
+            return;
+        }
+        mDialogOpen = true;
+
+        @SuppressLint("InflateParams")
+        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View dialogView = inflater.inflate(R.layout.profile_dialog_pick_color, null);
+
+        ColorPickerView colorPickerView = dialogView.findViewById(R.id.color_picker);
+        colorPickerView.setPreferenceName(COLOR_PICKER_INTERNAL_PREF_NAME);
+        colorPickerView.setColorListener(colorEnvelope -> {
+            colorPickerView.saveData();
+            colorPickedCallback.onColorPicked("#" + colorEnvelope.getColorHtml().toLowerCase());
+        });
+
+        AlertDialog alert = new AlertDialog.Builder(mContext, R.style.Dialog)
+//                .setTitle(getString())
+                .setIcon(R.mipmap.ic_memo)
+//                .setMessage(getString(message))
+                .setView(dialogView)
+//                .setPositiveButton(getString(confirm), ($$, $$$) -> onConfirm.onConfirm(editText.getText().toString()))
+//                .setNegativeButton(getString(cancel), ($$, $$$) -> {
+//                })
+                .setOnDismissListener($ -> mDialogOpen = false)
+                .create();
+        alert.show();
+    }
 
     @FunctionalInterface
     interface AdoptCallback {
@@ -126,11 +166,11 @@ public class DialogManager {
     }
 
     public void showParametrizedSloganEdit(@StringRes int title,
-                                    @StringRes int message,
-                                    @StringRes int confirm,
-                                    @StringRes int cancel,
-                                    @Nullable Slogan slogan,
-                                    OnSloganEditConfirm onConfirm) {
+                                           @StringRes int message,
+                                           @StringRes int confirm,
+                                           @StringRes int cancel,
+                                           @Nullable Slogan slogan,
+                                           OnSloganEditConfirm onConfirm) {
         if (mDialogOpen) {
             return;
         }

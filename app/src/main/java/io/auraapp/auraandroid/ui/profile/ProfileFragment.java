@@ -1,7 +1,9 @@
 package io.auraapp.auraandroid.ui.profile;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +14,8 @@ import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.EmojiHelper;
+import io.auraapp.auraandroid.common.ExternalInvocation;
+import io.auraapp.auraandroid.common.Prefs;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.DialogManager;
 import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
@@ -19,11 +23,14 @@ import io.auraapp.auraandroid.ui.common.InfoBox;
 import io.auraapp.auraandroid.ui.common.MySloganManager;
 import io.auraapp.auraandroid.ui.common.ScreenFragment;
 
+import static android.content.Context.MODE_PRIVATE;
 import static io.auraapp.auraandroid.common.FormattedLog.d;
+import static io.auraapp.auraandroid.common.FormattedLog.i;
 
 public class ProfileFragment extends ScreenFragment implements FragmentWithToolbarButtons {
 
     private static final String TAG = "@aura/ui/profile/fragment";
+    private SharedPreferences mPrefs;
     private MySlogansRecycleAdapter mRecyclerAdapter;
     private RecyclerView mRecyclerView;
     private Context mContext;
@@ -32,6 +39,7 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     private TextView mHeadingTextView;
     private InfoBox mMySlogansInfoBox;
     private DialogManager mDialogManager;
+    private final Handler mHandler = new Handler();
 
     public static ProfileFragment create(Context context,
                                          MySloganManager mySloganManager,
@@ -40,10 +48,12 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
         fragment.mContext = context;
         fragment.mMySloganManager = mySloganManager;
         fragment.mDialogManager = dialogManager;
+        fragment.mPrefs = context.getSharedPreferences(Prefs.PREFS_BUCKET, MODE_PRIVATE);
         return fragment;
     }
 
     @Override
+    @ExternalInvocation
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mRootView = (ViewGroup) inflater.inflate(
                 R.layout.profile_fragment, container, false);
@@ -57,6 +67,13 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
 
         final FloatingActionButton addSloganButton = mRootView.findViewById(R.id.add_slogan);
         addSloganButton.setOnClickListener($ -> showAddDialog());
+
+        mRootView.findViewById(R.id.color_button).setOnClickListener($ ->
+                mDialogManager.showColorPickerDialog(color -> {
+                    i(TAG, "Changing my color to %s", color);
+                    mPrefs.edit().putString(Prefs.PREFS_COLOR, color).apply();
+                })
+        );
 
         return mRootView;
     }

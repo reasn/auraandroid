@@ -7,4 +7,5 @@ public class Prefs {
     public static final String PREFS_HIDE_BROKEN_BT_STACK_WARNING = "hideBrokenBtStackWarning";
     public static final String PREFS_NOTIFICATIONS_ENABLED = "notificationsEnabled";
     public static final String PREFS_CURRENT_SCREEN = "current_screen";
+    public static final String PREFS_COLOR = "color";
 }

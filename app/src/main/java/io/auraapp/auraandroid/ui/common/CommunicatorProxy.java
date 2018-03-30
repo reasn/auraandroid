@@ -159,6 +159,7 @@ public class CommunicatorProxy {
         mContext.startService(intent);
     }
 
+    // TODO proxy should subscribe to pref changes for slogans, color and profile mCommunicatorProxy.setColor(color);
     public void updateMySlogans(Set<Slogan> slogans) {
         v(TAG, "Sending %d slogans to communicator", slogans.size());
 

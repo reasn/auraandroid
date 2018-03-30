@@ -83,7 +83,6 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
             // With change animations enabled mStatusItem keeps flashing because updates come in
             ((SimpleItemAnimator) mPeerListView.getItemAnimator()).setSupportsChangeAnimations(false);
 
-
             mSwipeRefresh = mRootView.findViewById(R.id.fake_swipe_to_refresh);
             mSwipeRefresh.setEnabled(false);
 
