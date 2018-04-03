@@ -22,10 +22,10 @@ import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.PermissionHelper;
 import io.auraapp.auraandroid.common.Prefs;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxy;
-import io.auraapp.auraandroid.ui.common.MySloganManager;
 import io.auraapp.auraandroid.ui.debug.DebugFragment;
 import io.auraapp.auraandroid.ui.permissions.PermissionsFragment;
 import io.auraapp.auraandroid.ui.profile.ProfileFragment;
+import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 import io.auraapp.auraandroid.ui.world.PeerMapTransformer;
 import io.auraapp.auraandroid.ui.world.PeerSlogan;
 import io.auraapp.auraandroid.ui.world.WorldFragment;
@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int BROKEN_BT_STACK_ALERT_DEBOUNCE = 1000 * 60;
 
-    private MySloganManager mMySloganManager;
+    private MyProfileManager mMyProfileManager;
     private CommunicatorProxy mCommunicatorProxy;
     private boolean inForeground = false;
     private SharedPreferences mPrefs;
@@ -73,31 +73,31 @@ public class MainActivity extends AppCompatActivity {
         mHandler.post(() -> {
             v(TAG, "onCreate, intent: %s", getIntent().getAction());
 
-            setContentView(R.layout.activity_main);
+            setContentView(R.layout.activity);
 
             mPager = findViewById(R.id.pager);
 
             mWorldFragment = WorldFragment.create(
                     this,
                     slogan -> {
-                        if (mMySloganManager.getMySlogans().contains(slogan)) {
+                        if (mMyProfileManager.getProfile().getSlogans().contains(slogan)) {
                             toast(R.string.ui_main_toast_slogan_already_adopted);
-                        } else if (mMySloganManager.spaceAvailable()) {
-                            mMySloganManager.adopt(slogan);
+                        } else if (mMyProfileManager.spaceAvailable()) {
+                            mMyProfileManager.adopt(slogan);
                         } else {
                             mDialogManager.showReplace(
-                                    mMySloganManager.getMySlogans(),
-                                    sloganToReplace -> mMySloganManager.replace(sloganToReplace, slogan)
+                                    mMyProfileManager.getProfile().getSlogans(),
+                                    sloganToReplace -> mMyProfileManager.replace(sloganToReplace, slogan)
                             );
                         }
                     });
 
-            mMySloganManager = new MySloganManager(this);
+            mMyProfileManager = new MyProfileManager(this);
             mDialogManager = new DialogManager(this);
 
             mPagerAdapter = new ScreenPagerAdapter(
                     getSupportFragmentManager(),
-                    ProfileFragment.create(this, mMySloganManager, mDialogManager),
+                    ProfileFragment.create(this, mMyProfileManager, mDialogManager),
                     mWorldFragment,
                     mPager,
                     this);
@@ -122,24 +122,9 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
 
-            mMySloganManager.addChangedCallback(event -> {
-                d(TAG, "My slogans changed");
-                if (mToolbarAspect.isAuraEnabled()) {
-                    mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
-                }
-                switch (event) {
-                    case MySloganManager.EVENT_ADOPTED:
-                        toast(R.string.ui_main_toast_adopted);
-                        break;
-                    case MySloganManager.EVENT_REPLACED:
-                        toast(R.string.ui_main_toast_replaced);
-                        break;
-                    case MySloganManager.EVENT_DROPPED:
-                        toast(R.string.ui_main_toast_dropped);
-                        break;
-                    default:
-                        throw new RuntimeException("Unknown slogan event " + event);
-                }
+            mMyProfileManager.addChangedCallback(event -> {
+                d(TAG, "My profile changed");
+                mCommunicatorProxy.updateMyProfile(mMyProfileManager.getProfile());
                 reflectStatus();
             });
             mCommunicatorProxy = new CommunicatorProxy(
@@ -174,14 +159,12 @@ public class MainActivity extends AppCompatActivity {
 
             mDebugFragment = DebugFragment.create(this);
 
-            mMySloganManager.init();
-
             mToolbarAspect = new ToolbarAspect(
                     this,
                     mPager,
                     mPrefs,
                     mCommunicatorProxy,
-                    mMySloganManager,
+                    mMyProfileManager,
                     mHandler,
                     mDebugFragment);
             mToolbarAspect.initToolbar();
@@ -192,9 +175,7 @@ public class MainActivity extends AppCompatActivity {
 
 //        EmojiCompat.init(new BundledEmojiCompatConfig(this));
 
-            if (mToolbarAspect.isAuraEnabled()) {
-                mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
-            }
+            mCommunicatorProxy.updateMyProfile(mMyProfileManager.getProfile());
 
             reflectStatus();
         });
@@ -205,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
     private void reflectStatus() {
         v(TAG, "Reflecting status, peers: %d, slogans: %d, state: %s", mPeers.size(), mPeerSloganMap.size(), mCommunicatorState);
 
-        if (mToolbarAspect.isDebugFragmentEnabled()) {
+        if (mToolbarAspect != null && mToolbarAspect.isDebugFragmentEnabled()) {
             mDebugFragment.update(mCommunicatorState, mPeers);
         }
 

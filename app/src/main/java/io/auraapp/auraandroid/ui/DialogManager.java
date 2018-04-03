@@ -16,11 +16,10 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
-
-import com.skydoves.colorpickerpreference.ColorPickerView;
 
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -30,10 +29,90 @@ import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Slogan;
+import io.auraapp.auraandroid.vendor.colorpicker.ColorPickerView;
 
 public class DialogManager {
 
-    private final String COLOR_PICKER_INTERNAL_PREF_NAME = "auraColor";
+    @FunctionalInterface
+    public interface MyNameEditedCallback {
+        public void onNameEdited(String name);
+    }
+
+    public void showEditMyNameDialog(@Nullable String name, MyNameEditedCallback callback) {
+        if (mDialogOpen) {
+            return;
+        }
+        mDialogOpen = true;
+
+        @SuppressLint("InflateParams")
+        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View dialogView = inflater.inflate(R.layout.profile_dialog_edit_name, null);
+
+        EditText editText = dialogView.findViewById(R.id.dialog_edit_name_input);
+
+        editText.setHint(EmojiHelper.replaceShortCode(getString(R.string.ui_profile_dialog_edit_name_hint)));
+
+        if (name != null) {
+            editText.setText(name);
+        }
+
+        AlertDialog alert = new AlertDialog.Builder(mContext, R.style.Dialog)
+                .setTitle(getString(R.string.ui_profile_dialog_edit_name_title))
+                .setIcon(R.mipmap.ic_memo)
+                .setMessage(getString(R.string.ui_profile_dialog_edit_name_description))
+                .setView(dialogView)
+                .setPositiveButton(getString(R.string.ui_profile_dialog_edit_name_confirm), ($$, $$$) -> callback.onNameEdited(editText.getText().toString()))
+                .setNegativeButton(getString(R.string.ui_profile_dialog_edit_name_cancel), ($$, $$$) -> {
+                })
+                .setOnDismissListener($ -> mDialogOpen = false)
+                .create();
+        if (alert.getWindow() != null) {
+            alert.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        }
+        alert.show();
+        editText.requestFocus();
+        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.COMMON_SLOGAN_MAX_LENGTH)});
+    }
+    @FunctionalInterface
+    public interface MyTextEditedCallback {
+        public void onTextEdited(String name);
+    }
+
+    public void showEditMyTextDialog(@Nullable String text, MyTextEditedCallback callback) {
+        if (mDialogOpen) {
+            return;
+        }
+        mDialogOpen = true;
+
+        @SuppressLint("InflateParams")
+        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View dialogView = inflater.inflate(R.layout.profile_dialog_edit_text, null);
+
+        EditText editText = dialogView.findViewById(R.id.dialog_edit_text_input);
+
+        editText.setHint(EmojiHelper.replaceShortCode(getString(R.string.ui_profile_dialog_edit_text_hint)));
+
+        if (text != null) {
+            editText.setText(text);
+        }
+
+        AlertDialog alert = new AlertDialog.Builder(mContext, R.style.Dialog)
+                .setTitle(getString(R.string.ui_profile_dialog_edit_text_title))
+                .setIcon(R.mipmap.ic_memo)
+                .setMessage(getString(R.string.ui_profile_dialog_edit_text_description))
+                .setView(dialogView)
+                .setPositiveButton(getString(R.string.ui_profile_dialog_edit_text_confirm), ($$, $$$) -> callback.onTextEdited(editText.getText().toString()))
+                .setNegativeButton(getString(R.string.ui_profile_dialog_edit_text_cancel), ($$, $$$) -> {
+                })
+                .setOnDismissListener($ -> mDialogOpen = false)
+                .create();
+        if (alert.getWindow() != null) {
+            alert.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        }
+        alert.show();
+        editText.requestFocus();
+        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.COMMON_SLOGAN_MAX_LENGTH)});
+    }
 
     @FunctionalInterface
     public interface ColorPickedCallback {
@@ -52,22 +131,27 @@ public class DialogManager {
         View dialogView = inflater.inflate(R.layout.profile_dialog_pick_color, null);
 
         ColorPickerView colorPickerView = dialogView.findViewById(R.id.color_picker);
-        colorPickerView.setPreferenceName(COLOR_PICKER_INTERNAL_PREF_NAME);
+        colorPickerView.getPaletteView().setScaleType(ImageView.ScaleType.MATRIX);
+        colorPickerView.getPaletteView().setAdjustViewBounds(true);
+        colorPickerView.setPreferenceName("auraColor");
         colorPickerView.setColorListener(colorEnvelope -> {
             colorPickerView.saveData();
             colorPickedCallback.onColorPicked("#" + colorEnvelope.getColorHtml().toLowerCase());
         });
 
-        AlertDialog alert = new AlertDialog.Builder(mContext, R.style.Dialog)
-//                .setTitle(getString())
-                .setIcon(R.mipmap.ic_memo)
+        AlertDialog alert = new AlertDialog.Builder(mContext, R.style.ColorPickerDialog)
+//                .setTitle(getString(R.string.ui_profile_dialog_pick_color_title))
+//                .setIcon(R.mipmap.ic_memo)
 //                .setMessage(getString(message))
                 .setView(dialogView)
-//                .setPositiveButton(getString(confirm), ($$, $$$) -> onConfirm.onConfirm(editText.getText().toString()))
-//                .setNegativeButton(getString(cancel), ($$, $$$) -> {
-//                })
+//                .setPositiveButton(
+//                        getString(R.string.ui_profile_dialog_pick_color_close),
+//                        (instance, $$$) -> instance.dismiss())
                 .setOnDismissListener($ -> mDialogOpen = false)
                 .create();
+        alert.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+//        alert.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
         alert.show();
     }
 

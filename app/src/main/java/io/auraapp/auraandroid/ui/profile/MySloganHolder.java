@@ -43,7 +43,11 @@ public class MySloganHolder extends ItemViewHolder {
         if (!(item instanceof MySloganListItem)) {
             throw new RuntimeException("Expecting " + MySloganListItem.class.getSimpleName());
         }
+
+        mItemView.setBackgroundColor(mBackgroundColor);
+
         MySloganListItem castItem = (MySloganListItem) item;
+        mSloganTextView.setTextColor(mTextColor);
         mSloganTextView.setText(castItem.getSlogan().getText());
         if (!castItem.mExpanded) {
             if (mExpandedWrapper.getVisibility() == View.VISIBLE) {

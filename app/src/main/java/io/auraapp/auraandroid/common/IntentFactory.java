@@ -18,6 +18,7 @@ public class IntentFactory {
     public static final String INTENT_REQUEST_PEERS_ACTION = prefix + "requestPeers";
     public static final String INTENT_MY_SLOGANS_CHANGED_ACTION = prefix + "mySlogansChanged";
     public static final String INTENT_MY_SLOGANS_CHANGED_EXTRA_SLOGANS = prefix + "mySlogansExtra";
+    public static final String INTENT_MY_SLOGANS_CHANGED_EXTRA_PROFILE = prefix + "myProfileExtra";
 
     // from Communicator
     public static final String INTENT_COMMUNICATOR_EXTRA_STATE = prefix + "extraState";

@@ -20,6 +20,7 @@
     <color name="dark_yellow">#eec711</color>
     <color name="blue">#46b7ff</color>
     <color name="dark_blue">#3996d1</color>
+    <color name="transparent">#00000000</color>
 
     <color name="black_overlay">#66000000</color>
 </resources>

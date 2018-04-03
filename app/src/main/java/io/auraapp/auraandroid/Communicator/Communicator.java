@@ -19,6 +19,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
@@ -28,7 +29,9 @@ import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.PermissionHelper;
+import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.MainActivity;
+import io.auraapp.auraandroid.ui.profile.profileModel.MyProfile;
 
 import static io.auraapp.auraandroid.common.Config.PEERS_CHANGED_NOTIFICATION_LIGHT_PATTERN;
 import static io.auraapp.auraandroid.common.EmojiHelper.replaceShortCode;
@@ -465,14 +468,24 @@ public class Communicator extends Service {
             }
 
             @SuppressWarnings("unchecked")
-            String[] mySlogans = extras.getStringArray(IntentFactory.INTENT_MY_SLOGANS_CHANGED_EXTRA_SLOGANS);
-            if (mySlogans == null) {
-                w(TAG, "No slogans retrieved from intent");
+            MyProfile myProfile = (MyProfile) extras.getSerializable(IntentFactory.INTENT_MY_SLOGANS_CHANGED_EXTRA_PROFILE);
+//            String[] mySlogans = extras.getStringArray(IntentFactory.INTENT_MY_SLOGANS_CHANGED_EXTRA_SLOGANS);
+            if (myProfile == null) {
+                w(TAG, "No profile found in intent");
                 return;
             }
-            boolean currentlyAdvertisingOnDifferentSlogans = mAdvertisementSet.mSlogansSet;
-            mAdvertisementSet.setSlogans(mySlogans);
-            if (currentlyAdvertisingOnDifferentSlogans && mState.mAdvertising) {
+
+            String[] mySloganStrings = new String[myProfile.getSlogans().size()];
+            int index = 0;
+            for (Slogan slogan : myProfile.getSlogans()) {
+                mySloganStrings[index++] = slogan.getText();
+            }
+
+            String[] prepared = AdvertisementSet.prepareSlogans(mySloganStrings);
+            boolean slogansChanged = Arrays.equals(mAdvertisementSet.mSlogans, prepared);
+            mAdvertisementSet.mSlogans = prepared;
+
+            if (slogansChanged && mState.mAdvertising) {
                 mAdvertiser.increaseVersion();
             }
             sendState();

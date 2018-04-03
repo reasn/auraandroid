@@ -42,9 +42,11 @@
 
     <string name="ui_main_toast_slogan_already_adopted">This :thought_balloon: is already in your Aura</string>
     <string name="ui_main_toast_cannot_add_no_space_available">Please delete on of your :thought_balloon: before adding a new one</string>
-    <string name="ui_main_toast_adopted">:thought_balloon: adopted</string>
-    <string name="ui_main_toast_replaced">:thought_balloon: changed</string>
-    <string name="ui_main_toast_dropped">:thought_balloon: removed</string>
+    <string name="ui_profile_toast_slogan_adopted">:thought_balloon: adopted</string>
+    <string name="ui_profile_toast_slogan_replaced">:thought_balloon: changed</string>
+    <string name="ui_profile_toast_slogan_dropped">:thought_balloon: removed</string>
+    <string name="ui_profile_toast_name_changed">Name changed</string>
+    <string name="ui_profile_toast_text_changed">Bio changed</string>
 
     <string name="ui_main_toast_refresh_no_peers">Refreshing …</string>
     <plurals name="ui_main_toast_refresh">
@@ -133,6 +135,20 @@
     <string name="ui_dialog_bt_broken_confirm">Okay</string>
     <string name="ui_dialog_bt_broken_never_show_again">Don\'t show this message again</string>
 
+    <!--Dialog: Edit Name -->
+    <string name="ui_profile_dialog_edit_name_hint">Your Name</string>
+    <string name="ui_profile_dialog_edit_name_title">Change my Name</string>
+    <string name="ui_profile_dialog_edit_name_description">It\'s visible next to your :thought_balloon:. Choose anything you like</string>
+    <string name="ui_profile_dialog_edit_name_confirm">Save</string>
+    <string name="ui_profile_dialog_edit_name_cancel">Cancel</string>
+
+    <!--Dialog: Edit Name -->
+    <string name="ui_profile_dialog_edit_text_hint">Your text</string>
+    <string name="ui_profile_dialog_edit_text_title">Change my Bio</string>
+    <string name="ui_profile_dialog_edit_text_description">Others can click your name to see this text. Share what and how much you like or invent things!</string>
+    <string name="ui_profile_dialog_edit_text_confirm">Save</string>
+    <string name="ui_profile_dialog_edit_text_cancel">Cancel</string>
+
     <!--Dialog: Add Slogan-->
     <string name="ui_dialog_add_slogan_title">Add a :thought_balloon:</string>
     <string name="ui_dialog_add_slogan_text">Nearby Aura users can see and adopt your :thought_balloon:. :lollipop: Express yourself!</string>
@@ -140,8 +156,8 @@
     <string name="ui_dialog_add_slogan_confirm">Add</string>
     <string name="ui_dialog_add_slogan_cancel">Cancel</string>
 
-    <string name="ui_dialog_edit_slogan_edit_hint">Your :thought_balloon:</string>
     <!--Dialog: Edit Slogan-->
+    <string name="ui_dialog_edit_slogan_edit_hint">Your :thought_balloon:</string>
     <string name="ui_dialog_edit_slogan_title">Edit your :thought_balloon:</string>
     <string name="ui_dialog_edit_slogan_text">Use emojis to express yourself :sunglasses:</string>
     <string name="ui_dialog_edit_slogan_confirm">Save</string>
@@ -190,5 +206,7 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
 
     <string name="title_activity_tutorial_second_screen">TutorialSecondScreenActivity</string>
+    <string name="ui_profile_dialog_pick_color_title">Your Aura\'s Color</string>
+    <string name="ui_profile_dialog_pick_color_close">Close</string>
 
 </resources>

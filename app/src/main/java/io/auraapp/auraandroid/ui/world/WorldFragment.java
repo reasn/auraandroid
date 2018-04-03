@@ -101,7 +101,11 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
     public void onPause() {
         super.onPause();
         mHandler.post(() -> {
-            mPeerListAdapter.onPause();
+            if (mHasView) {
+                // Checking for mHasView because quick pausing of activity can invoke this
+                // Before fragment exists
+                mPeerListAdapter.onPause();
+            }
         });
     }
 

@@ -1,6 +1,7 @@
 package io.auraapp.auraandroid.ui.profile;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
@@ -11,14 +12,19 @@ import java.util.TreeSet;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Slogan;
+import io.auraapp.auraandroid.ui.common.ColorHelper;
 import io.auraapp.auraandroid.ui.common.lists.ItemViewHolder;
 import io.auraapp.auraandroid.ui.common.lists.ListItem;
 import io.auraapp.auraandroid.ui.common.lists.ListSynchronizer;
 import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapter;
+import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
+import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_COLOR_CHANGED;
 
 public class MySlogansRecycleAdapter extends RecyclerAdapter {
+
+    private final MyProfileManager mMyProfileManager;
 
     @FunctionalInterface
     public static interface OnMySloganActionCallback {
@@ -35,9 +41,16 @@ public class MySlogansRecycleAdapter extends RecyclerAdapter {
 
     public MySlogansRecycleAdapter(@NonNull Context context,
                                    RecyclerView listView,
-                                   OnMySloganActionCallback onMySloganActionCallback) {
+                                   OnMySloganActionCallback onMySloganActionCallback,
+                                   MyProfileManager myProfileManager) {
         super(context, listView);
         mOnMySloganActionCallback = onMySloganActionCallback;
+        mMyProfileManager = myProfileManager;
+        mMyProfileManager.addChangedCallback(event -> {
+            if (event == EVENT_COLOR_CHANGED) {
+                notifyDataSetChanged();
+            }
+        });
     }
 
     public void notifyMySlogansChanged(TreeSet<Slogan> mySlogans) {
@@ -70,14 +83,13 @@ public class MySlogansRecycleAdapter extends RecyclerAdapter {
     public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
 
-        if (holder instanceof MySloganHolder) {
-            // Alternating colors
-            if (position % 2 == 0) {
-                holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.yellow));
-            } else {
-                holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.dark_yellow));
-            }
-        }
+        // Alternating colors
+        int color = Color.parseColor(mMyProfileManager.getColor());
+        ((MySloganHolder) holder).colorize(
+                position % 2 == 0 ? color : ColorHelper.getAccent(color),
+                ColorHelper.getTextColor(color)
+        );
+
     }
 
     @Override

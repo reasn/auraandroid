@@ -12,7 +12,7 @@ import io.auraapp.auraandroid.Communicator.Communicator;
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Peer;
-import io.auraapp.auraandroid.common.Slogan;
+import io.auraapp.auraandroid.ui.profile.profileModel.MyProfile;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
@@ -159,19 +159,23 @@ public class CommunicatorProxy {
         mContext.startService(intent);
     }
 
-    // TODO proxy should subscribe to pref changes for slogans, color and profile mCommunicatorProxy.setColor(color);
-    public void updateMySlogans(Set<Slogan> slogans) {
-        v(TAG, "Sending %d slogans to communicator", slogans.size());
+    public void updateMyProfile(MyProfile myProfile) {
+        if (mState == null || !mState.mShouldCommunicate) {
+            return;
+        }
+
+        v(TAG, "Sending profile to communicator, color: %s, slogans: %d", myProfile.getColor(), myProfile.getSlogans().size());
 
         Intent intent = new Intent(mContext, Communicator.class);
         intent.setAction(IntentFactory.INTENT_MY_SLOGANS_CHANGED_ACTION);
-
-        String[] mySloganStrings = new String[slogans.size()];
-        int index = 0;
-        for (Slogan slogan : slogans) {
-            mySloganStrings[index++] = slogan.getText();
-        }
-        intent.putExtra(IntentFactory.INTENT_MY_SLOGANS_CHANGED_EXTRA_SLOGANS, mySloganStrings);
+//
+//        String[] mySloganStrings = new String[myProfile.mSlogans.size()];
+//        int index = 0;
+//        for (Slogan slogan : myProfile.mSlogans) {
+//            mySloganStrings[index++] = slogan.getText();
+//        }
+//        intent.putExtra(IntentFactory.INTENT_MY_SLOGANS_CHANGED_EXTRA_SLOGANS, mySloganStrings);
+        intent.putExtra(IntentFactory.INTENT_MY_SLOGANS_CHANGED_EXTRA_PROFILE, myProfile);
 
         mContext.startService(intent);
     }

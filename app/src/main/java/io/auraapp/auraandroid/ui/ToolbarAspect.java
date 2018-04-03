@@ -22,10 +22,11 @@ import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Prefs;
 import io.auraapp.auraandroid.ui.common.ColorHelper;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxy;
-import io.auraapp.auraandroid.ui.common.MySloganManager;
 import io.auraapp.auraandroid.ui.debug.DebugFragment;
+import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 
 import static io.auraapp.auraandroid.common.FormattedLog.i;
+import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_COLOR_CHANGED;
 
 public class ToolbarAspect {
 
@@ -34,7 +35,7 @@ public class ToolbarAspect {
     private final ScreenPager mPager;
     private final SharedPreferences mPrefs;
     private final CommunicatorProxy mCommunicatorProxy;
-    private final MySloganManager mMySloganManager;
+    private final MyProfileManager mMyProfileManager;
     private final Handler mHandler;
 
     private final List<Long> mToolbarIconClicks = new ArrayList<>();
@@ -43,25 +44,21 @@ public class ToolbarAspect {
     private DebugFragment mDebugFragment;
     private boolean mDebugFragmentEnabled = false;
 
-    /**
-     * This is a member variable to keep it from being garbage collected.
-     * Thanks https://stackoverflow.com/questions/2542938/sharedpreferences-onsharedpreferencechangelistener-not-being-called-consistently
-     */
-    private SharedPreferences.OnSharedPreferenceChangeListener mPrefsListener;
     private SwitchCompat mEnabledSwitch;
+    private Toolbar mToolbar;
 
     public ToolbarAspect(AppCompatActivity activity,
                          ScreenPager pager,
                          SharedPreferences prefs,
                          CommunicatorProxy communicatorProxy,
-                         MySloganManager mySloganManager,
+                         MyProfileManager myProfileManager,
                          Handler handler,
                          DebugFragment debugFragment) {
         this.mActivity = activity;
         this.mPager = pager;
         this.mPrefs = prefs;
         this.mCommunicatorProxy = communicatorProxy;
-        this.mMySloganManager = mySloganManager;
+        this.mMyProfileManager = myProfileManager;
         this.mHandler = handler;
         this.mDebugFragment = debugFragment;
     }
@@ -70,10 +67,10 @@ public class ToolbarAspect {
 
         mAuraEnabled = mPrefs.getBoolean(Prefs.PREFS_ENABLED, true);
 
-        Toolbar toolbar = mActivity.findViewById(R.id.toolbar);
-        mActivity.setSupportActionBar(toolbar);
-        toolbar.setNavigationIcon(R.mipmap.ic_launcher);
-        toolbar.setNavigationOnClickListener($ -> mHandler.post(() -> {
+        mToolbar = mActivity.findViewById(R.id.toolbar);
+        mActivity.setSupportActionBar(mToolbar);
+        mToolbar.setNavigationIcon(R.mipmap.ic_launcher);
+        mToolbar.setNavigationOnClickListener($ -> mHandler.post(() -> {
             if (!Config.MAIN_DEBUG_VIEW_ENABLED || mDebugFragmentEnabled) {
                 return;
             }
@@ -100,22 +97,6 @@ public class ToolbarAspect {
                 mDebugFragment.update(null, null);
             }
         }));
-        mPrefsListener = ($, key) -> {
-            if (Prefs.PREFS_COLOR.equals(key)) {
-                String color = mPrefs.getString(key, Config.COMMON_DEFAULT_COLOR);
-                i(TAG, "Color set to %s", color);
-                toolbar.setBackgroundColor(Color.parseColor(color));
-                if (mEnabledSwitch != null) {
-                    mEnabledSwitch.setTextColor(this.mActivity.getResources().getColor(
-                            ColorHelper.getBrightness(Color.parseColor(color)) > 128
-                                    ? R.color.black
-                                    : R.color.white
-                    ));
-                }
-            }
-        };
-
-        mPrefs.registerOnSharedPreferenceChangeListener(mPrefsListener);
     }
 
     public boolean isAuraEnabled() {
@@ -136,7 +117,14 @@ public class ToolbarAspect {
         mEnabledSwitch.setChecked(mAuraEnabled);
 
         // Now that mEnabledSwitch is set we can start coloring toolbar and switch text
-        mPrefsListener.onSharedPreferenceChanged(null, Prefs.PREFS_COLOR);
+        mMyProfileManager.addAndTriggerChangedCallback(new int[]{EVENT_COLOR_CHANGED}, event -> {
+            if (event == EVENT_COLOR_CHANGED) {
+                String color = mMyProfileManager.getColor();
+                i(TAG, "Color set to %s", color);
+                mToolbar.setBackgroundColor(Color.parseColor(color));
+                mEnabledSwitch.setTextColor(ColorHelper.getTextColor(Color.parseColor(color)));
+            }
+        });
 
         MainActivity.ToolbarButtonVisibilityUpdater visibilityUpdater = fragment -> {
             // TODO animate / make smoother, first trial didn't work, null pointers and animation wasn't visible
@@ -161,7 +149,7 @@ public class ToolbarAspect {
             mPrefs.edit().putBoolean(Prefs.PREFS_ENABLED, isChecked).apply();
             if (isChecked) {
                 mCommunicatorProxy.enable();
-                mCommunicatorProxy.updateMySlogans(mMySloganManager.getMySlogans());
+                mCommunicatorProxy.updateMyProfile(mMyProfileManager.getProfile());
                 mCommunicatorProxy.askForPeersUpdate();
                 mEnabledSwitch.setText(mActivity.getString(R.string.ui_toolbar_enable_on));
                 mEnabledSwitch.getThumbDrawable().setColorFilter(mActivity.getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);

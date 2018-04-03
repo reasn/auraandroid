@@ -22,17 +22,18 @@ class AdvertisementSet {
 
     int mId = 0;
     byte mVersion = 0;
-    private String[] mSlogans = new String[3];
-    boolean mSlogansSet = false;
+    String[] mSlogans = new String[3];
     private String mUser;
 
-    void setSlogans(String[] slogans) {
-        mSlogansSet = true;
+
+    static String[] prepareSlogans(String[] slogans) {
+        String[] result = new String[3];
         for (int i = 0; i < 3; i++) {
-            mSlogans[i] = slogans.length <= i || slogans[i] == null
+            result[i] = slogans.length <= i || slogans[i] == null
                     ? null
                     : slogans[i];
         }
+        return result;
     }
 
     void setUser(String user) {

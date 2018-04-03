@@ -7,4 +7,9 @@
         <attr name="button_caption" format="string" />
         <attr name="second_text" format="string" />
     </declare-styleable>
+
+    <declare-styleable name="ColorPickerView">
+        <attr name="palette" format="reference" />
+        <attr name="selector" format="reference" />
+    </declare-styleable>
 </resources>
