@@ -145,7 +145,7 @@
     <!--Dialog: Edit Name -->
     <string name="ui_profile_dialog_edit_text_hint">Your text</string>
     <string name="ui_profile_dialog_edit_text_title">Change my Bio</string>
-    <string name="ui_profile_dialog_edit_text_description">Others can click your name to see this text. Share what and how much you like or invent things!</string>
+    <string name="ui_profile_dialog_edit_text_description">Share something special, thoughtworthy or funny.</string>
     <string name="ui_profile_dialog_edit_text_confirm">Save</string>
     <string name="ui_profile_dialog_edit_text_cancel">Cancel</string>
 

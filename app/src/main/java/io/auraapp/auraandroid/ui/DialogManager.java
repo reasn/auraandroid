@@ -2,6 +2,7 @@ package io.auraapp.auraandroid.ui;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.annotation.Nullable;
@@ -13,6 +14,7 @@ import android.text.TextWatcher;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -95,21 +97,27 @@ public class DialogManager {
         if (text != null) {
             editText.setText(text);
         }
+        Dialog dialog = new Dialog(mContext, R.style.FullWidthDialog);
+        dialog.setContentView(dialogView);
+        dialog.setOnDismissListener($ -> mDialogOpen = false);
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.show();
 
-        AlertDialog alert = new AlertDialog.Builder(mContext, R.style.Dialog)
-                .setTitle(getString(R.string.ui_profile_dialog_edit_text_title))
-                .setIcon(R.mipmap.ic_memo)
-                .setMessage(getString(R.string.ui_profile_dialog_edit_text_description))
-                .setView(dialogView)
-                .setPositiveButton(getString(R.string.ui_profile_dialog_edit_text_confirm), ($$, $$$) -> callback.onTextEdited(editText.getText().toString()))
-                .setNegativeButton(getString(R.string.ui_profile_dialog_edit_text_cancel), ($$, $$$) -> {
-                })
-                .setOnDismissListener($ -> mDialogOpen = false)
-                .create();
-        if (alert.getWindow() != null) {
-            alert.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+//        AlertDialog alert = new AlertDialog.Builder(mContext, R.style.FullWidthDialog)
+//                .setTitle(getString(R.string.ui_profile_dialog_edit_text_title))
+//                .setIcon(R.mipmap.ic_memo)
+//                .setMessage(getString(R.string.ui_profile_dialog_edit_text_description))
+//                .setView(dialogView)
+//                .setPositiveButton(getString(R.string.ui_profile_dialog_edit_text_confirm), ($$, $$$) -> callback.onTextEdited(editText.getText().toString()))
+//                .setNegativeButton(getString(R.string.ui_profile_dialog_edit_text_cancel), ($$, $$$) -> {
+//                })
+//                .setOnDismissListener($ -> mDialogOpen = false)
+//                .create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         }
-        alert.show();
+        dialog.show();
         editText.requestFocus();
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.COMMON_SLOGAN_MAX_LENGTH)});
     }

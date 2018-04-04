@@ -7,6 +7,7 @@
     <EditText
         android:id="@+id/dialog_edit_slogan_slogan_text"
         android:layout_width="match_parent"
+        android:typeface="monospace"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:focusable="true"

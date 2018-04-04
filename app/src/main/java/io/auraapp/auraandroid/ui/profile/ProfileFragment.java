@@ -118,9 +118,9 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
                             break;
 
                         case EVENT_TEXT_CHANGED:
-                            mTextView.setText(EmojiHelper.replaceShortCode("Hallo gafdsafsd sf dsfds" +
-                                    ":thought_balloon::fire::thought_balloon::heart:"));
-//                            mTextView.setText(mMyProfileManager.getProfile().getText());
+//                            mTextView.setText(EmojiHelper.replaceShortCode("Hallo gafdsafsd sf dsfds" +
+//                                    ":thought_balloon::fire::thought_balloon::heart:"));
+                            mTextView.setText(mMyProfileManager.getProfile().getText());
                             break;
 
                         case EVENT_DROPPED:
