@@ -8,4 +8,6 @@ public class Prefs {
     public static final String PREFS_HIDE_BROKEN_BT_STACK_WARNING = "hide_broken_bt_stack_warning";
     public static final String PREFS_CURRENT_SCREEN = "current_screen";
     public static final String PREFS_COLOR = "color";
+    public static final String PREFS_COLOR_PICKER_X = "color_picker_x";
+    public static final String PREFS_COLOR_PICKER_Y = "color_picker_y";
 }

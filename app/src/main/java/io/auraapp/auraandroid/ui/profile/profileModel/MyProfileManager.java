@@ -14,6 +14,7 @@ import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Prefs;
 import io.auraapp.auraandroid.common.Slogan;
+import io.auraapp.auraandroid.ui.common.ColorPicker;
 
 import static android.content.Context.MODE_PRIVATE;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
@@ -83,6 +84,8 @@ public class MyProfileManager {
     private MyProfile createDefaultProfile() {
         MyProfile profile = new MyProfile();
         profile.mColor = Config.COMMON_DEFAULT_COLOR;
+        profile.mColorPickerPointX = Config.COMMON_DEFAULT_COLOR_X;
+        profile.mColorPickerPointY = Config.COMMON_DEFAULT_COLOR_Y;
         profile.mName = "TODO make configurable";
         profile.mText = "TODO make configurable";
         profile.mSlogans.add(Slogan.create(EmojiHelper.replaceShortCode(mContext.getString(R.string.default_slogan))));
@@ -103,9 +106,11 @@ public class MyProfileManager {
         }
     }
 
-    public void setColor(String color) {
-        if (!mMyProfile.mColor.equals(color)) {
-            mMyProfile.mColor = color;
+    public void setColor(ColorPicker.SelectedColor envelope) {
+        if (!mMyProfile.mColor.equals(envelope.getColor())) {
+            mMyProfile.mColor = envelope.getColor();
+            mMyProfile.mColorPickerPointX = envelope.getPointX();
+            mMyProfile.mColorPickerPointY = envelope.getPointY();
             persistProfile(EVENT_COLOR_CHANGED);
         }
     }
@@ -140,6 +145,7 @@ public class MyProfileManager {
     }
 
     private void persistProfile(int event) {
+        i(TAG, "Persisting my profile after " + nameEvent(event));
         mContext.getSharedPreferences(Prefs.PREFS_BUCKET, MODE_PRIVATE)
                 .edit()
                 .putString(Prefs.PREFS_MY_PROFILE, new GsonBuilder().create().toJson(mMyProfile))
@@ -149,6 +155,27 @@ public class MyProfileManager {
             for (MyProfileChangedCallback callback : mChangedCallbacks) {
                 callback.myProfileChanged(event);
             }
+        }
+    }
+
+    private static String nameEvent(int event) {
+        switch (event) {
+            case EVENT_NONE:
+                return "EVENT_NONE";
+            case EVENT_COLOR_CHANGED:
+                return "EVENT_COLOR_CHANGE";
+            case EVENT_NAME_CHANGED:
+                return "        EVENT_NAME_CHANGE";
+            case EVENT_TEXT_CHANGED:
+                return "EVENT_TEXT_CHANGE";
+            case EVENT_DROPPED:
+                return "        EVENT_DROPPED";
+            case EVENT_ADOPTED:
+                return "EVENT_ADOPTED";
+            case EVENT_REPLACED:
+                return "EVENT_REPLACED";
+            default:
+                throw new RuntimeException("Unknown event " + event);
         }
     }
 }

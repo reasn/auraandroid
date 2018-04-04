@@ -9,7 +9,10 @@ public class Config {
     public static final int COMMUNICATOR_FOREGROUND_NOTIFICATION_ID = 1338;
     public static final int COMMON_SLOGAN_MAX_LINE_BREAKS = 1;
     public static final long SWIPE_TO_REFRESH_DURATION = 1000 * 2;
-    public static final String COMMON_DEFAULT_COLOR = "#49168e";
+    public static final String COMMON_DEFAULT_COLOR = "#5f5f5f";
+    // X and Y can be determined using logcat and moving around the color selector palette
+    public static final float COMMON_DEFAULT_COLOR_X = 0.515278f;
+    public static final float COMMON_DEFAULT_COLOR_Y = 0.998737f;
 
     public static int[] PEERS_CHANGED_NOTIFICATION_LIGHT_PATTERN = new int[]{3000, 3000};
     // Assuming that this is the default pattern

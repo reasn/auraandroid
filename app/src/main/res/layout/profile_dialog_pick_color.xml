@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <io.auraapp.auraandroid.vendor.colorpicker.ColorPickerView
+    <io.auraapp.auraandroid.ui.common.ColorPicker
         android:id="@+id/color_picker"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

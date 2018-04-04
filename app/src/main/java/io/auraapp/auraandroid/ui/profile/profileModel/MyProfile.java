@@ -9,6 +9,8 @@ import io.auraapp.auraandroid.ui.SloganComparator;
 public class MyProfile implements Serializable {
 
     String mColor = null;
+    float mColorPickerPointX;
+    float mColorPickerPointY;
     String mName = null;
     String mText = null;
     final TreeSet<Slogan> mSlogans = new TreeSet<>(new SloganComparator());
@@ -27,5 +29,13 @@ public class MyProfile implements Serializable {
 
     public String getName() {
         return mName;
+    }
+
+    public float getColorPickerPointX() {
+        return mColorPickerPointX;
+    }
+
+    public float getColorPickerPointY() {
+        return mColorPickerPointY;
     }
 }

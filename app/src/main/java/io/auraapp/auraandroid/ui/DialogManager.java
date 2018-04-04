@@ -18,7 +18,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -31,9 +30,13 @@ import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Slogan;
-import io.auraapp.auraandroid.vendor.colorpicker.ColorPickerView;
+import io.auraapp.auraandroid.ui.common.ColorPicker;
+
+import static io.auraapp.auraandroid.common.FormattedLog.v;
 
 public class DialogManager {
+
+    private static final String TAG = "@aura/ui/" + DialogManager.class.getSimpleName();
 
     @FunctionalInterface
     public interface MyNameEditedCallback {
@@ -75,6 +78,7 @@ public class DialogManager {
         editText.requestFocus();
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.COMMON_SLOGAN_MAX_LENGTH)});
     }
+
     @FunctionalInterface
     public interface MyTextEditedCallback {
         public void onTextEdited(String name);
@@ -122,45 +126,49 @@ public class DialogManager {
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.COMMON_SLOGAN_MAX_LENGTH)});
     }
 
-    @FunctionalInterface
-    public interface ColorPickedCallback {
-        public void onColorPicked(String color);
-    }
-
-    public void showColorPickerDialog(ColorPickedCallback colorPickedCallback) {
+    public void showColorPickerDialog(float selectedPointX, float selectedPointY, ColorPicker.ColorListener colorListener) {
 
         if (mDialogOpen) {
             return;
         }
         mDialogOpen = true;
 
+        v(TAG, "Showing color picker dialog, x: %f, y: %f", selectedPointX, selectedPointY);
+
         @SuppressLint("InflateParams")
         LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View dialogView = inflater.inflate(R.layout.profile_dialog_pick_color, null);
 
-        ColorPickerView colorPickerView = dialogView.findViewById(R.id.color_picker);
-        colorPickerView.getPaletteView().setScaleType(ImageView.ScaleType.MATRIX);
-        colorPickerView.getPaletteView().setAdjustViewBounds(true);
-        colorPickerView.setPreferenceName("auraColor");
-        colorPickerView.setColorListener(colorEnvelope -> {
-            colorPickerView.saveData();
-            colorPickedCallback.onColorPicked("#" + colorEnvelope.getColorHtml().toLowerCase());
-        });
+        ColorPicker colorPicker = dialogView.findViewById(R.id.color_picker);
+        colorPicker.init(selectedPointX, selectedPointY);
+        colorPicker.setColorListener(colorListener);
 
-        AlertDialog alert = new AlertDialog.Builder(mContext, R.style.ColorPickerDialog)
+        Dialog dialog = new Dialog(mContext, R.style.FullWidthDialog);
+        dialog.setContentView(dialogView);
+        dialog.setOnDismissListener($ -> mDialogOpen = false);
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.show();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+//        AlertDialog alert = new AlertDialog.Builder(mContext, R.style.ColorPickerDialog)
 //                .setTitle(getString(R.string.ui_profile_dialog_pick_color_title))
 //                .setIcon(R.mipmap.ic_memo)
 //                .setMessage(getString(message))
-                .setView(dialogView)
+//                .setView(dialogView)
 //                .setPositiveButton(
 //                        getString(R.string.ui_profile_dialog_pick_color_close),
 //                        (instance, $$$) -> instance.dismiss())
-                .setOnDismissListener($ -> mDialogOpen = false)
-                .create();
-        alert.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+//                .setOnDismissListener($ -> mDialogOpen = false)
+//                .create();
+//        alert.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
 //        alert.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
-        alert.show();
+//        alert.show();
     }
 
     @FunctionalInterface

@@ -77,10 +77,13 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
         mTextView = mRootView.findViewById(R.id.my_text);
 
         mColorButtonView.setOnClickListener($ ->
-                mDialogManager.showColorPickerDialog(color -> {
-                    i(TAG, "Changing my color to %s", color);
-                    mMyProfileManager.setColor(color);
-                })
+                mDialogManager.showColorPickerDialog(
+                        mMyProfileManager.getProfile().getColorPickerPointX(),
+                        mMyProfileManager.getProfile().getColorPickerPointY(),
+                        envelope -> {
+                            i(TAG, "Changing my color to %s, x: %f, y: %f", envelope.getColor(), envelope.getPointX(), envelope.getPointY());
+                            mMyProfileManager.setColor(envelope);
+                        })
         );
         mNameView.setOnClickListener($ ->
                 mDialogManager.showEditMyNameDialog(

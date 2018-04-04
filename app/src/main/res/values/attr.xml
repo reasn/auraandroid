@@ -8,7 +8,7 @@
         <attr name="second_text" format="string" />
     </declare-styleable>
 
-    <declare-styleable name="ColorPickerView">
+    <declare-styleable name="ColorPicker">
         <attr name="palette" format="reference" />
         <attr name="selector" format="reference" />
     </declare-styleable>
