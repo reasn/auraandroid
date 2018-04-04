@@ -76,7 +76,7 @@ public class DialogManager {
         }
         alert.show();
         editText.requestFocus();
-        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.PROFILE_SLOGANS_MAX_LENGTH)});
+        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.PROFILE_NAME_MAX_LENGTH)});
     }
 
     @FunctionalInterface
@@ -95,35 +95,32 @@ public class DialogManager {
         View dialogView = inflater.inflate(R.layout.profile_dialog_edit_text, null);
 
         EditText editText = dialogView.findViewById(R.id.dialog_edit_text_input);
-
         editText.setHint(EmojiHelper.replaceShortCode(getString(R.string.ui_profile_dialog_edit_text_hint)));
-
         if (text != null) {
             editText.setText(text);
         }
+
+
         Dialog dialog = new Dialog(mContext, R.style.FullWidthDialog);
         dialog.setContentView(dialogView);
         dialog.setOnDismissListener($ -> mDialogOpen = false);
         dialog.setCanceledOnTouchOutside(true);
-        dialog.show();
-
-//        AlertDialog alert = new AlertDialog.Builder(mContext, R.style.FullWidthDialog)
-//                .setTitle(getString(R.string.ui_profile_dialog_edit_text_title))
-//                .setIcon(R.mipmap.ic_memo)
-//                .setMessage(getString(R.string.ui_profile_dialog_edit_text_description))
-//                .setView(dialogView)
-//                .setPositiveButton(getString(R.string.ui_profile_dialog_edit_text_confirm), ($$, $$$) -> callback.onTextEdited(editText.getText().toString()))
-//                .setNegativeButton(getString(R.string.ui_profile_dialog_edit_text_cancel), ($$, $$$) -> {
-//                })
-//                .setOnDismissListener($ -> mDialogOpen = false)
-//                .create();
         if (dialog.getWindow() != null) {
-            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
             dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         }
         dialog.show();
         editText.requestFocus();
-        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.PROFILE_SLOGANS_MAX_LENGTH)});
+        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.PROFILE_TEXT_MAX_LENGTH)});
+        editText.setSelection(0);
+
+        dialogView.findViewById(R.id.dialog_edit_text_cancel).setOnClickListener(
+                $ -> dialog.dismiss()
+        );
+        dialogView.findViewById(R.id.dialog_edit_text_confirm).setOnClickListener($ -> {
+            dialog.dismiss();
+            callback.onTextEdited(editText.getText().toString());
+        });
     }
 
     public void showColorPickerDialog(float selectedPointX, float selectedPointY, ColorPicker.ColorListener colorListener) {

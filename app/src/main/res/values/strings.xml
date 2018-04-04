@@ -144,10 +144,8 @@
     <string name="ui_profile_dialog_edit_name_confirm">Save</string>
     <string name="ui_profile_dialog_edit_name_cancel">Cancel</string>
 
-    <!--Dialog: Edit Name -->
+    <!--Dialog: Edit Text -->
     <string name="ui_profile_dialog_edit_text_hint">Your text</string>
-    <string name="ui_profile_dialog_edit_text_title">Change my Bio</string>
-    <string name="ui_profile_dialog_edit_text_description">Share something special, thoughtworthy or funny.</string>
     <string name="ui_profile_dialog_edit_text_confirm">Save</string>
     <string name="ui_profile_dialog_edit_text_cancel">Cancel</string>
 

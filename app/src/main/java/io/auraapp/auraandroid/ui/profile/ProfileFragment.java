@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
@@ -48,7 +49,7 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     private DialogManager mDialogManager;
     private final Handler mHandler = new Handler();
     private TextView mNameView;
-    private TextView mTextView;
+    private EditText mTextView;
     private Button mColorButtonView;
 //    private TextView mColorHeading;
 //    private TextView mNameHeading;

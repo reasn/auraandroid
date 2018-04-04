@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
@@ -30,27 +31,36 @@
                     android:id="@+id/color_button"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:layout_margin="14dp"
                     android:layout_gravity="center"
+                    android:layout_margin="14dp"
                     android:elevation="0dp"
                     android:shadowRadius="0" />
 
-<!--TODO add overflow ... if too long-->
+                <!--TODO add overflow ... if too long-->
                 <TextView
                     android:id="@+id/my_name"
                     style="@style/ProfileProperty"
-                    android:textSize="24sp"
-                    android:maxLines="1"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textSize="24sp" />
             </LinearLayout>
 
-            <TextView
+            <!-- This is not a TextView to make sure width and breaks are
+                 consistent with the corresponding edit dialog -->
+            <EditText
                 android:id="@+id/my_text"
                 style="@style/ProfileText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="true"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:inputType="textMultiLine"
+                android:longClickable="false"
+                tools:ignore="LabelFor" />
 
             <!--<LinearLayout-->
             <!--style="@style/HeadingItem"-->
