@@ -10,7 +10,10 @@
         android:id="@+id/toolbar"
         style="@style/Toolbar"
         app:title=" "
-        app:titleTextColor="@color/white" />
+        app:titleTextColor="@color/white">
+
+
+    </android.support.v7.widget.Toolbar>
 
     <io.auraapp.auraandroid.ui.ScreenPager xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/pager"

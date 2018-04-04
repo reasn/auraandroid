@@ -8,7 +8,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,26 +22,26 @@ import io.auraapp.auraandroid.common.ExternalInvocation;
 import io.auraapp.auraandroid.common.PermissionHelper;
 import io.auraapp.auraandroid.ui.ScreenPager;
 import io.auraapp.auraandroid.ui.common.InfoBox;
+import io.auraapp.auraandroid.ui.common.ScreenFragment;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
-public class PermissionsFragment extends Fragment {
+public class PermissionsFragment extends ScreenFragment {
 
     private static final String TAG = "@aura/ui/permissions/" + PermissionsFragment.class.getSimpleName();
 
     private final static int REQUEST_CODE_LOCATION_REQUEST = 149;
     private static final int REQUEST_CODE_APP_SETTINGS = 144;
     private Handler mHandler;
-    private Context mContext;
     private ScreenPager mPager;
     private ViewGroup mView;
     private boolean mRedirected = false;
 
     public static PermissionsFragment create(Context context, ScreenPager pager) {
         PermissionsFragment fragment = new PermissionsFragment();
-        fragment.mContext = context;
+        fragment.setContext(context);
         fragment.mPager = pager;
         return fragment;
     }
@@ -65,7 +64,7 @@ public class PermissionsFragment extends Fragment {
         showAppSettingsButton.setText(EmojiHelper.replaceShortCode(getString(R.string.ui_permissionsMissing_appSettings)));
         showAppSettingsButton.setOnClickListener($ -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + mContext.getPackageName()));
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getContext().getPackageName()));
                 intent.addCategory(Intent.CATEGORY_DEFAULT);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivityForResult(intent, REQUEST_CODE_APP_SETTINGS);
@@ -75,7 +74,7 @@ public class PermissionsFragment extends Fragment {
         });
 
         ((TextView) mView.findViewById(R.id.granted_emoji)).setText(EmojiHelper.replaceShortCode(":grinning_face:"));
-        ((TextView) mView.findViewById(R.id.granted_text)).setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_permissionsMissing_granted_text)));
+        ((TextView) mView.findViewById(R.id.granted_text)).setText(EmojiHelper.replaceShortCode(getContext().getString(R.string.ui_permissionsMissing_granted_text)));
 
         if (mRedirected) {
             mView.findViewById(R.id.not_granted).setVisibility(View.GONE);
@@ -108,7 +107,7 @@ public class PermissionsFragment extends Fragment {
     }
 
     private void continuouslyCheckForPermissions() {
-        if (!PermissionHelper.granted(mContext)) {
+        if (!PermissionHelper.granted(getContext())) {
             mHandler.postDelayed(this::continuouslyCheckForPermissions, 500);
             return;
         }
@@ -117,7 +116,7 @@ public class PermissionsFragment extends Fragment {
         mHandler.postDelayed(() -> {
             i(TAG, "Permissions granted");
 
-            Animation hide = AnimationUtils.loadAnimation(mContext, R.anim.screen_permissions_hide);
+            Animation hide = AnimationUtils.loadAnimation(getContext(), R.anim.screen_permissions_hide);
             mView.findViewById(R.id.not_granted).startAnimation(hide);
 
             mHandler.postDelayed(() -> {

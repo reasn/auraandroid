@@ -15,6 +15,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
             android:orientation="vertical">
 
 
@@ -47,8 +48,7 @@
 
             <TextView
                 android:id="@+id/my_text"
-                style="@style/ProfileProperty"
-                android:typeface="monospace"
+                style="@style/ProfileText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 

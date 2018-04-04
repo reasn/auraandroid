@@ -41,7 +41,6 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     private SharedPreferences mPrefs;
     private MySlogansRecycleAdapter mRecyclerAdapter;
     private RecyclerView mSlogansRecyclerView;
-    private Context mContext;
     private ViewGroup mRootView;
     private MyProfileManager mMyProfileManager;
     private TextView mSlogansHeadingTextView;
@@ -59,7 +58,7 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
                                          MyProfileManager myProfileManager,
                                          DialogManager dialogManager) {
         ProfileFragment fragment = new ProfileFragment();
-        fragment.mContext = context;
+        fragment.setContext(context);
         fragment.mMyProfileManager = myProfileManager;
         fragment.mDialogManager = dialogManager;
         fragment.mPrefs = context.getSharedPreferences(Prefs.PREFS_BUCKET, MODE_PRIVATE);
@@ -80,9 +79,9 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
                 mDialogManager.showColorPickerDialog(
                         mMyProfileManager.getProfile().getColorPickerPointX(),
                         mMyProfileManager.getProfile().getColorPickerPointY(),
-                        envelope -> {
-                            i(TAG, "Changing my color to %s, x: %f, y: %f", envelope.getColor(), envelope.getPointX(), envelope.getPointY());
-                            mMyProfileManager.setColor(envelope);
+                        selected -> {
+                            i(TAG, "Changing my color to %s, x: %f, y: %f", selected.getColor(), selected.getPointX(), selected.getPointY());
+                            mMyProfileManager.setColor(selected);
                         })
         );
         mNameView.setOnClickListener($ ->
@@ -178,7 +177,8 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
 
         mSlogansRecyclerView.setBackgroundColor(ColorHelper.getAccent(Color.parseColor(mMyProfileManager.getColor())));
 
-        mRecyclerAdapter = new MySlogansRecycleAdapter(mContext,
+        mRecyclerAdapter = new MySlogansRecycleAdapter(
+                getContext(),
                 mSlogansRecyclerView,
                 (Slogan slogan, int action) -> {
                     if (action == MySlogansRecycleAdapter.OnMySloganActionCallback.ACTION_EDIT) {
@@ -194,7 +194,7 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
                 mMyProfileManager);
 
         mSlogansRecyclerView.setAdapter(mRecyclerAdapter);
-        mSlogansRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+        mSlogansRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         mRecyclerAdapter.notifyMySlogansChanged(mMyProfileManager.getProfile().getSlogans());
     }
@@ -204,7 +204,7 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
         if (2 > 1) {
             return;
         }
-        mSlogansHeadingTextView.setText(EmojiHelper.replaceShortCode(mContext.getResources().getQuantityString(
+        mSlogansHeadingTextView.setText(EmojiHelper.replaceShortCode(getContext().getResources().getQuantityString(
                 R.plurals.ui_main_my_slogans_heading,
                 mMyProfileManager.getProfile().getSlogans().size(),
                 mMyProfileManager.getProfile().getSlogans().size()

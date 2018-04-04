@@ -7,17 +7,32 @@ public class Config {
     // Notifications
 
     public static final int COMMUNICATOR_FOREGROUND_NOTIFICATION_ID = 1338;
-    public static final int COMMON_SLOGAN_MAX_LINE_BREAKS = 1;
-    public static final long SWIPE_TO_REFRESH_DURATION = 1000 * 2;
-    public static final String COMMON_DEFAULT_COLOR = "#5f5f5f";
-    // X and Y can be determined using logcat and moving around the color selector palette
-    public static final float COMMON_DEFAULT_COLOR_X = 0.515278f;
-    public static final float COMMON_DEFAULT_COLOR_Y = 0.998737f;
 
-    public static int[] PEERS_CHANGED_NOTIFICATION_LIGHT_PATTERN = new int[]{3000, 3000};
+
+    public static final long SWIPE_TO_REFRESH_DURATION = 1000 * 2;
+
+    // Profile
+
+    public static final String PROFILE_DEFAULT_COLOR = "#5f5f5f";
+
+    // X and Y can be determined using logcat and moving around the color selector palette
+    public static final float PROFILE_DEFAULT_COLOR_X = 0.515278f;
+    public static final float PROFILE_DEFAULT_COLOR_Y = 0.998737f;
+
+    public static final int PROFILE_NAME_MAX_LENGTH = 40;
+
+    public static final int PROFILE_TEXT_MAX_LENGTH = 400;
+    public static final int PROFILE_TEXT_MAX_LINE_BREAKS = 5;
+
+    public static final int PROFILE_SLOGANS_MAX_LINE_BREAKS = 1;
+    public static final int PROFILE_SLOGANS_MAX_SLOGANS = 3;
+    public static final int PROFILE_SLOGANS_MAX_LENGTH = 160;
+
+
+    public static final int[] PEERS_CHANGED_NOTIFICATION_LIGHT_PATTERN = new int[]{3000, 3000};
     // Assuming that this is the default pattern
     // Thanks to https://stackoverflow.com/questions/37805051/how-to-get-the-default-vibration-pattern-of-an-android-device
-    public static long[] PEERS_CHANGED_NOTIFICATION_VIBRATION_PATTERN = new long[]{0, 250, 250, 250};
+    public static final long[] PEERS_CHANGED_NOTIFICATION_VIBRATION_PATTERN = new long[]{0, 250, 250, 250};
 
     // Communicator
 
@@ -42,14 +57,10 @@ public class Config {
 
     // Main
 
-    public static int MAIN_LOOKING_AROUND_SHOW_DURATION = 10000;
+    public static final int MAIN_LOOKING_AROUND_SHOW_DURATION = 10000;
 
     public static final boolean MAIN_DEBUG_VIEW_ENABLED = true;
     public static final int MAIN_DEBUG_VIEW_SWITCH_CLICKS = 5;
     public static final int MAIN_DEBUG_VIEW_SWITCH_INTERVAL = 3000;
 
-    // Common
-
-    public static final int COMMON_SLOGAN_MAX_SLOGANS = 3;
-    public static int COMMON_SLOGAN_MAX_LENGTH = 160;
 }

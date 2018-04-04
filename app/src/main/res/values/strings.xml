@@ -1,7 +1,9 @@
 <resources>
     <string name="app_name">Aura</string>
 
-    <string name="default_slogan">:ghost: I just installed Aura. Let\'s see what to make of it. :fire:</string>
+    <string name="profile_default_slogan">:ghost: I just installed Aura. Let\'s see what to make of it. :fire:</string>
+    <string name="profile_default_name">:ghost: Anonymous</string>
+    <string name="profile_default_text">I am an Aura user</string>
 
     <string name="ui_main_share_text">Hey check out Aura, I promise you haven\'t seen any app like it :fire: https://www.getaura.io</string>
 

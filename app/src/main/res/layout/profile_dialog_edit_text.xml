@@ -4,24 +4,19 @@
     android:layout_height="wrap_content"
     android:gravity="center"
     android:orientation="vertical">
+
     <TextView
         android:layout_width="match_parent"
-        android:text="Edit my Text"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="Edit my Text" />
 
     <EditText
-        android:background="@color/blue"
         android:id="@+id/dialog_edit_text_input"
-        android:gravity="top"
+        style="@style/ProfileText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:inputType="textMultiLine"
-        android:maxLines="50"
-        android:minEms="12"
-        android:maxEms="12"
-        android:minLines="10"
-        android:typeface="monospace" />
+        android:inputType="textMultiLine" />
 
 </LinearLayout>

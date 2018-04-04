@@ -76,7 +76,7 @@ public class DialogManager {
         }
         alert.show();
         editText.requestFocus();
-        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.COMMON_SLOGAN_MAX_LENGTH)});
+        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.PROFILE_SLOGANS_MAX_LENGTH)});
     }
 
     @FunctionalInterface
@@ -123,7 +123,7 @@ public class DialogManager {
         }
         dialog.show();
         editText.requestFocus();
-        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.COMMON_SLOGAN_MAX_LENGTH)});
+        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.PROFILE_SLOGANS_MAX_LENGTH)});
     }
 
     public void showColorPickerDialog(float selectedPointX, float selectedPointY, ColorPicker.ColorListener colorListener) {
@@ -243,7 +243,7 @@ public class DialogManager {
                 .setTitle(getString(R.string.ui_replace_dialog_title))
                 .setIcon(R.mipmap.ic_fire)
                 // TODO getPluralizedString
-                .setMessage(getString(R.string.ui_replace_dialog_message).replaceAll("##maxSlogans##", Integer.toString(Config.COMMON_SLOGAN_MAX_SLOGANS)))
+                .setMessage(getString(R.string.ui_replace_dialog_message).replaceAll("##maxSlogans##", Integer.toString(Config.PROFILE_SLOGANS_MAX_SLOGANS)))
                 .setView(dialogView)
                 .setPositiveButton(getString(R.string.ui_replace_dialog_confirm),
                         (DialogInterface $$, int $$$) -> adoptCallback.onAdoptSlogan(map.get(radioGroup.getCheckedRadioButtonId()))
@@ -303,7 +303,7 @@ public class DialogManager {
         }
         alert.show();
         editText.requestFocus();
-        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.COMMON_SLOGAN_MAX_LENGTH)});
+        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.PROFILE_SLOGANS_MAX_LENGTH)});
 
 
         // Some phones have problems with filtering newline characters using an InputFilter.
@@ -341,7 +341,7 @@ public class DialogManager {
                 while (m.find()) {
                     count += 1;
                 }
-                if (count > Config.COMMON_SLOGAN_MAX_LINE_BREAKS) {
+                if (count > Config.PROFILE_SLOGANS_MAX_LINE_BREAKS) {
                     editable.replace(0, editable.length(), new SpannableStringBuilder(replaceLineBreaks(string)));
                 }
             }
@@ -359,18 +359,18 @@ public class DialogManager {
         int index = 0;
         while (m.find()) {
             index++;
-            if (index > Config.COMMON_SLOGAN_MAX_LINE_BREAKS) {
+            if (index > Config.PROFILE_SLOGANS_MAX_LINE_BREAKS) {
                 filtered = true;
                 m.appendReplacement(sb, "");
             }
         }
         // Show no toast if line breaks are disabled altogether
         //noinspection ConstantConditions
-        if (filtered && Config.COMMON_SLOGAN_MAX_LINE_BREAKS > 0) {
+        if (filtered && Config.PROFILE_SLOGANS_MAX_LINE_BREAKS > 0) {
             String text = mContext.getResources().getQuantityString(
                     R.plurals.ui_dialog_edit_slogan_line_break_limit,
-                    Config.COMMON_SLOGAN_MAX_LINE_BREAKS,
-                    Config.COMMON_SLOGAN_MAX_LINE_BREAKS);
+                    Config.PROFILE_SLOGANS_MAX_LINE_BREAKS,
+                    Config.PROFILE_SLOGANS_MAX_LINE_BREAKS);
             Toast.makeText(mContext, EmojiHelper.replaceShortCode(text), Toast.LENGTH_SHORT).show();
         }
         m.appendTail(sb);

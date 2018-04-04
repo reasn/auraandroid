@@ -1,6 +1,7 @@
 package io.auraapp.auraandroid.ui.profile.profileModel;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -21,27 +22,12 @@ import static io.auraapp.auraandroid.common.FormattedLog.i;
 
 public class MyProfileManager {
 
-    private static final String TAG = "@aura/ui/common/" + MyProfileManager.class.getSimpleName();
-    private final MyProfile mMyProfile;
-
-    public String getColor() {
-        return mMyProfile.mColor;
-    }
-
-    public MyProfile getProfile() {
-        return mMyProfile;
-    }
-
-
     @FunctionalInterface
     public interface MyProfileChangedCallback {
         public void myProfileChanged(int event);
     }
 
-    private final Set<MyProfileChangedCallback> mChangedCallbacks = new HashSet<>();
-
-    private final Context mContext;
-
+    private static final String TAG = "@aura/ui/common/" + MyProfileManager.class.getSimpleName();
     private static final int EVENT_NONE = 10;
     public final static int EVENT_COLOR_CHANGED = 11;
     public final static int EVENT_NAME_CHANGED = 12;
@@ -50,20 +36,33 @@ public class MyProfileManager {
     public final static int EVENT_ADOPTED = 15;
     public final static int EVENT_REPLACED = 16;
 
+    private final Context mContext;
+    private final MyProfile mMyProfile;
+    private final Set<MyProfileChangedCallback> mChangedCallbacks = new HashSet<>();
+
     public MyProfileManager(Context context) {
         mContext = context;
 
         // Without a persisted value, serialization fails and the default profile is persisted.
-        String serializedProfile = mContext
+        @Nullable String serializedProfile = mContext
                 .getSharedPreferences(Prefs.PREFS_BUCKET, MODE_PRIVATE)
-                .getString(Prefs.PREFS_MY_PROFILE, "}{");
+                .getString(Prefs.PREFS_MY_PROFILE, "{invalidJson}");
+
 
         MyProfile profile;
         try {
-            i(TAG, "Profile loaded");
+            i(TAG, "Deserializing profile %s", serializedProfile);
             profile = new Gson().fromJson(serializedProfile, MyProfile.class);
+
+            i(TAG, "Profile loaded");
         } catch (JsonSyntaxException e) {
             i(TAG, "No valid profile persisted, creating default");
+            profile = createDefaultProfile();
+            persistProfile(EVENT_NONE);
+        }
+
+        if (!(profile instanceof MyProfile)) {
+            // In case rubbish has been persisted, observed e.g. "null"
             profile = createDefaultProfile();
             persistProfile(EVENT_NONE);
         }
@@ -82,14 +81,23 @@ public class MyProfileManager {
     }
 
     private MyProfile createDefaultProfile() {
+        i(TAG, "Creating default profile");
         MyProfile profile = new MyProfile();
-        profile.mColor = Config.COMMON_DEFAULT_COLOR;
-        profile.mColorPickerPointX = Config.COMMON_DEFAULT_COLOR_X;
-        profile.mColorPickerPointY = Config.COMMON_DEFAULT_COLOR_Y;
-        profile.mName = "TODO make configurable";
-        profile.mText = "TODO make configurable";
-        profile.mSlogans.add(Slogan.create(EmojiHelper.replaceShortCode(mContext.getString(R.string.default_slogan))));
+        profile.mColor = Config.PROFILE_DEFAULT_COLOR;
+        profile.mColorPickerPointX = Config.PROFILE_DEFAULT_COLOR_X;
+        profile.mColorPickerPointY = Config.PROFILE_DEFAULT_COLOR_Y;
+        profile.mName = EmojiHelper.replaceShortCode(mContext.getString(R.string.profile_default_name));
+        profile.mText = EmojiHelper.replaceShortCode(mContext.getString(R.string.profile_default_text));
+        profile.mSlogans.add(Slogan.create(EmojiHelper.replaceShortCode(mContext.getString(R.string.profile_default_slogan))));
         return profile;
+    }
+
+    public String getColor() {
+        return mMyProfile.mColor;
+    }
+
+    public MyProfile getProfile() {
+        return mMyProfile;
     }
 
     public void setName(String name) {
@@ -106,17 +114,17 @@ public class MyProfileManager {
         }
     }
 
-    public void setColor(ColorPicker.SelectedColor envelope) {
-        if (!mMyProfile.mColor.equals(envelope.getColor())) {
-            mMyProfile.mColor = envelope.getColor();
-            mMyProfile.mColorPickerPointX = envelope.getPointX();
-            mMyProfile.mColorPickerPointY = envelope.getPointY();
+    public void setColor(ColorPicker.SelectedColor selectedColor) {
+        if (!mMyProfile.mColor.equals(selectedColor.getColor())) {
+            mMyProfile.mColor = selectedColor.getColor();
+            mMyProfile.mColorPickerPointX = selectedColor.getPointX();
+            mMyProfile.mColorPickerPointY = selectedColor.getPointY();
             persistProfile(EVENT_COLOR_CHANGED);
         }
     }
 
     public boolean spaceAvailable() {
-        return mMyProfile.mSlogans.size() < Config.COMMON_SLOGAN_MAX_SLOGANS;
+        return mMyProfile.mSlogans.size() < Config.PROFILE_SLOGANS_MAX_SLOGANS;
     }
 
     public void adopt(Slogan slogan) {

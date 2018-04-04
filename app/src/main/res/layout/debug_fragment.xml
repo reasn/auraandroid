@@ -35,6 +35,33 @@
                 android:typeface="monospace"
                 tools:ignore="SmallSp" />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/demo_0"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Edge"
+                    tools:ignore="HardcodedText" />
+
+                <Button
+                    android:id="@+id/demo_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Anon"
+                    tools:ignore="HardcodedText" />
+
+                <Button
+                    android:id="@+id/demo_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Clara"
+                    tools:ignore="HardcodedText" />
+            </LinearLayout>
+
         </LinearLayout>
     </ScrollView>
 

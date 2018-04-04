@@ -2,7 +2,6 @@ package io.auraapp.auraandroid.ui.welcome;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,18 +9,18 @@ import android.view.ViewGroup;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.ExternalInvocation;
 import io.auraapp.auraandroid.ui.ScreenPager;
+import io.auraapp.auraandroid.ui.common.ScreenFragment;
 
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
-public class PrivacyFragment extends Fragment {
+public class PrivacyFragment extends ScreenFragment {
 
     private static final String TAG = "@aura/ui/permissions/" + PrivacyFragment.class.getSimpleName();
-    private Context mContext;
     private ScreenPager mPager;
 
     public static PrivacyFragment create(Context context, ScreenPager pager) {
         PrivacyFragment fragment = new PrivacyFragment();
-        fragment.mContext = context;
+        fragment.setContext(context);
         fragment.mPager = pager;
         return fragment;
     }

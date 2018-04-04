@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
                         reflectStatus();
                     });
 
-            mDebugFragment = DebugFragment.create(this);
+            mDebugFragment = DebugFragment.create(this, mMyProfileManager);
 
             mToolbarAspect = new ToolbarAspect(
                     this,
