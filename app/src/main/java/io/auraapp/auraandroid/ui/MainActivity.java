@@ -113,19 +113,39 @@ public class MainActivity extends AppCompatActivity {
                 i(TAG, "Current screen is set to %s", currentScreen);
                 mPager.goTo(mPagerAdapter.getClassForHandle(currentScreen), false);
 
-                mPager.addChangeListener(fragment -> {
-                    mPrefs.edit()
-                            .putString(
-                                    Prefs.PREFS_CURRENT_SCREEN,
-                                    mPagerAdapter.getHandleForClass(fragment.getClass()))
-                            .apply();
-                });
+                mPager.addChangeListener(fragment -> mPrefs.edit()
+                        .putString(
+                                Prefs.PREFS_CURRENT_SCREEN,
+                                mPagerAdapter.getHandleForClass(fragment.getClass()))
+                        .apply());
             }
 
             mMyProfileManager.addChangedCallback(event -> {
                 d(TAG, "My profile changed");
                 mCommunicatorProxy.updateMyProfile(mMyProfileManager.getProfile());
                 reflectStatus();
+
+                switch (event) {
+                    case MyProfileManager.EVENT_ADOPTED:
+                        toast(R.string.ui_profile_toast_slogan_adopted);
+                        break;
+                    case MyProfileManager.EVENT_REPLACED:
+                        toast(R.string.ui_profile_toast_slogan_replaced);
+                        break;
+                    case MyProfileManager.EVENT_DROPPED:
+                        toast(R.string.ui_profile_toast_slogan_dropped);
+                        break;
+                    case MyProfileManager.EVENT_COLOR_CHANGED:
+                        break;
+                    case MyProfileManager.EVENT_NAME_CHANGED:
+                        toast(R.string.ui_profile_toast_name_changed);
+                        break;
+                    case MyProfileManager.EVENT_TEXT_CHANGED:
+                        toast(R.string.ui_profile_toast_text_changed);
+                        break;
+                    default:
+                        throw new RuntimeException("Unknown slogan event " + event);
+                }
             });
             mCommunicatorProxy = new CommunicatorProxy(
                     this,

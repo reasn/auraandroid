@@ -5,11 +5,9 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <!-- This is not a TextView to make sure width and breaks are
-         consistent with the corresponding edit dialog -->
-    <EditText
+    <TextView
         android:id="@+id/slogan_text"
-        style="@style/MonoSpaceView"
+        style="@style/SloganView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@color/transparent"

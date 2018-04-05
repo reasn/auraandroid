@@ -34,8 +34,8 @@
         \n\n\nIf you agree, swipe to continue :lollipop:</string>
 
     <!--Profile fragment-->
-    <string name="ui_profile_list_item_edit">:memo:</string>
-    <string name="ui_profile_list_item_drop">:wastebasket:</string>
+    <string name="ui_profile_list_item_edit">Edit</string>
+    <string name="ui_profile_list_item_drop">Delete</string>
 
     <!--Main Activity-->
 

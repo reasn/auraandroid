@@ -102,7 +102,7 @@ public class DialogManager {
 
     public void showEditMyTextDialog(@Nullable String text, MyTextEditedCallback callback) {
 
-        LinearLayout view = (LinearLayout) View.inflate(mContext, R.layout.profile_dialog_monospace_text, null);
+        LinearLayout view = (LinearLayout) View.inflate(mContext, R.layout.profile_dialog_edit_text, null);
         EditText editText = (EditText) view.getChildAt(0);
         editText.setText(text != null ? text : "");
         editText.requestFocus();
@@ -208,7 +208,7 @@ public class DialogManager {
                                            @Nullable Slogan slogan,
                                            OnSloganEditConfirm onConfirm) {
 
-        LinearLayout view = (LinearLayout) View.inflate(mContext, R.layout.profile_dialog_monospace_text, null);
+        LinearLayout view = (LinearLayout) View.inflate(mContext, R.layout.profile_dialog_edit_slogan, null);
         EditText editText = (EditText) view.getChildAt(0);
         editText.setHint(EmojiHelper.replaceShortCode(getString(R.string.ui_profile_dialog_edit_slogan_hint)));
         editText.setText(slogan != null ? slogan.getText() : "");
@@ -216,6 +216,8 @@ public class DialogManager {
         new DialogBuilder(mContext, mDialogState)
                 .setTitle(title)
                 .setView(view)
+                .setCancelText(R.string.ui_profile_dialog_edit_cancel)
+                .setConfirmText(R.string.ui_profile_dialog_edit_confirm)
                 .enableKeyboard()
                 .setOnConfirm(() -> onConfirm.onConfirm(editText.getText().toString()))
                 .build()

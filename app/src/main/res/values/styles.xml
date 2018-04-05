@@ -62,14 +62,34 @@
         <item name="android:background">@color/white</item>
         <item name="android:textColor">@color/black</item>
         <item name="android:minLines">5</item>
+
+        <item name="android:focusable">true</item>
+        <item name="android:focusableInTouchMode">true</item>
+        <item name="android:inputType">textMultiLine</item>
+        <item name="android:scrollbars">vertical</item>
     </style>
 
     <style name="MonoSpaceView" parent="MonoSpaceEdit">
-        <item name="android:enabled">true</item>
         <item name="android:focusable">false</item>
         <item name="android:focusableInTouchMode">false</item>
-        <item name="android:inputType">textMultiLine</item>
         <item name="android:longClickable">false</item>
+    </style>
+
+    <style name="SloganView" parent="MonoSpaceView">
+        <item name="android:gravity">center</item>
+        <item name="android:textAppearance">?android:textAppearanceLarge</item>
+        <item name="android:typeface">normal</item>
+        <item name="android:padding">6dp</item>
+        <item name="android:layout_marginTop">20dp</item>
+        <item name="android:layout_marginBottom">20dp</item>
+        <item name="android:minLines">1</item>
+    </style>
+    <style name="SloganEdit" parent="MonoSpaceEdit">
+        <!--From SloganView-->
+        <item name="android:gravity">center</item>
+        <item name="android:textAppearance">?android:textAppearanceLarge</item>
+        <item name="android:typeface">normal</item>
+        <item name="android:minLines">1</item>
     </style>
 
     <style name="DialogFlatElement">

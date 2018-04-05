@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,12 +29,7 @@ import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 
 import static android.content.Context.MODE_PRIVATE;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
-import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_ADOPTED;
-import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_COLOR_CHANGED;
-import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_DROPPED;
-import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_NAME_CHANGED;
-import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_REPLACED;
-import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_TEXT_CHANGED;
+import static io.auraapp.auraandroid.common.FormattedLog.v;
 
 public class ProfileFragment extends ScreenFragment implements FragmentWithToolbarButtons {
 
@@ -63,14 +59,27 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
 
     @Override
     @ExternalInvocation
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mRootView = (ViewGroup) inflater.inflate(
-                R.layout.profile_fragment, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        v(TAG, "onCreateView");
+        mRootView = (ViewGroup) inflater.inflate(R.layout.profile_fragment, container, false);
 
         mColorWrapper = mRootView.findViewById(R.id.color_button_wrapper);
         mNameView = mRootView.findViewById(R.id.my_name);
         mTextView = mRootView.findViewById(R.id.my_text);
 
+        mSlogansInfoBox = mRootView.findViewById(R.id.my_slogans_info_box);
+        mSlogansRecyclerView = mRootView.findViewById(R.id.list_view);
+
+        mTextView.invalidate();
+
+        return mRootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        mColorWrapper.getChildAt(0).setBackgroundColor(Color.parseColor(mMyProfileManager.getColor()));
         mColorWrapper.setOnClickListener($ ->
                 mDialogManager.showColorPickerDialog(
                         mMyProfileManager.getProfile().getColor(),
@@ -81,12 +90,16 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
                             mMyProfileManager.setColor(selected);
                         })
         );
+
+        mNameView.setText(mMyProfileManager.getProfile().getName());
         mNameView.setOnClickListener($ ->
                 mDialogManager.showEditMyNameDialog(
                         mMyProfileManager.getProfile().getName(),
                         name -> mMyProfileManager.setName(name)
                 )
         );
+
+        mTextView.setText(mMyProfileManager.getProfile().getText());
         mTextView.setOnClickListener($ ->
                 mDialogManager.showEditMyTextDialog(
                         mMyProfileManager.getProfile().getText(),
@@ -95,65 +108,11 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
         );
 
         bindSlogansViews();
-
-        mMyProfileManager.addAndTriggerChangedCallback(
-                new int[]{EVENT_COLOR_CHANGED, EVENT_NAME_CHANGED, EVENT_TEXT_CHANGED, EVENT_DROPPED},
-                event -> {
-                    switch (event) {
-                        case EVENT_COLOR_CHANGED:
-                            mColorWrapper.getChildAt(0).setBackgroundColor(Color.parseColor(mMyProfileManager.getColor()));
-                            break;
-
-                        case EVENT_NAME_CHANGED:
-                            mNameView.setText(mMyProfileManager.getProfile().getName());
-                            break;
-
-                        case EVENT_TEXT_CHANGED:
-//                            mTextView.setText(EmojiHelper.replaceShortCode("Hallo gafdsafsd sf dsfds" +
-//                                    ":thought_balloon::fire::thought_balloon::heart:"));
-                            mTextView.setText(mMyProfileManager.getProfile().getText());
-                            break;
-
-                        case EVENT_DROPPED:
-                        case EVENT_ADOPTED:
-                        case EVENT_REPLACED:
-                            // Attention: First argument to addAndTriggerChangedCallback relies on joint handling
-                            // of aforementioned events.
-                            mRecyclerAdapter.notifyMySlogansChanged(mMyProfileManager.getProfile().getSlogans());
-                    }
-                });
-
-        mMyProfileManager.addChangedCallback(event -> {
-            switch (event) {
-                case MyProfileManager.EVENT_ADOPTED:
-                    toast(R.string.ui_profile_toast_slogan_adopted);
-                    break;
-                case MyProfileManager.EVENT_REPLACED:
-                    toast(R.string.ui_profile_toast_slogan_replaced);
-                    break;
-                case MyProfileManager.EVENT_DROPPED:
-                    toast(R.string.ui_profile_toast_slogan_dropped);
-                    break;
-                case MyProfileManager.EVENT_COLOR_CHANGED:
-                    break;
-                case MyProfileManager.EVENT_NAME_CHANGED:
-                    toast(R.string.ui_profile_toast_name_changed);
-                    break;
-                case MyProfileManager.EVENT_TEXT_CHANGED:
-                    toast(R.string.ui_profile_toast_text_changed);
-                    break;
-                default:
-                    throw new RuntimeException("Unknown slogan event " + event);
-            }
-        });
-
-        return mRootView;
     }
 
     private void bindSlogansViews() {
 
-        mSlogansInfoBox = mRootView.findViewById(R.id.my_slogans_info_box);
-        mSlogansRecyclerView = mRootView.findViewById(R.id.list_view);
+        // TODO add spacer at end to keep recycler from overlapping last item during collapse animation of arbitrary item
 
         mSlogansRecyclerView.setNestedScrollingEnabled(false);
 

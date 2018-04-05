@@ -38,4 +38,16 @@ public class MyProfile implements Serializable {
     public float getColorPickerPointY() {
         return mColorPickerPointY;
     }
+
+    @Override
+    public String toString() {
+        return "MyProfile{" +
+                "mColor='" + mColor + '\'' +
+                ", mColorPickerPointX=" + mColorPickerPointX +
+                ", mColorPickerPointY=" + mColorPickerPointY +
+                ", mName='" + mName + '\'' +
+                ", mText='" + mText + '\'' +
+                ", mSlogans=" + mSlogans +
+                '}';
+    }
 }

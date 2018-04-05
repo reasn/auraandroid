@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<EditText xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/dialog_edit_slogan_slogan_text"
-    android:layout_width="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginTop="4dp"
-    android:focusable="true"
-    android:focusableInTouchMode="true"
-    android:inputType="textShortMessage|textMultiLine"
-    android:lines="4"
-    android:typeface="monospace" />
-
+    android:gravity="center">
+    <!-- The EditText is wrapped in a LinearLayout to not be affected by resizing the dialog to full width -->
+    <EditText
+        style="@style/SloganEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="@string/ui_profile_dialog_edit_text_hint"
+        android:maxLines="8" />
+</LinearLayout>

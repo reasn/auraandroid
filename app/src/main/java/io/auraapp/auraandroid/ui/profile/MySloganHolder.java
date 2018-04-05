@@ -7,6 +7,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.ui.common.lists.ItemViewHolder;
 import io.auraapp.auraandroid.ui.common.lists.ListItem;
 import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapter;
@@ -35,10 +36,8 @@ public class MySloganHolder extends ItemViewHolder {
         itemView.setOnClickListener($ -> collapseExpandHandler.flip(getLastBoundItem()));
         mSloganTextView.setOnClickListener($ -> collapseExpandHandler.flip(getLastBoundItem()));
 
-        mEditButtonView.setText("Edit");
-        mDropButtonView.setText("Delete");
-//        mEditButtonView.setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_profile_list_item_edit)));
-//        mDropButtonView.setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_profile_list_item_drop)));
+        mEditButtonView.setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_profile_list_item_edit)));
+        mDropButtonView.setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_profile_list_item_drop)));
     }
 
     @Override

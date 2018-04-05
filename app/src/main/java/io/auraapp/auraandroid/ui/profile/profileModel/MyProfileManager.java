@@ -158,7 +158,7 @@ public class MyProfileManager {
     }
 
     private void persistProfile(int event) {
-        i(TAG, "Persisting my profile after " + nameEvent(event));
+        i(TAG, "Persisting my profile, event: %s, profile: %s,", nameEvent(event), mMyProfile.toString());
         mContext.getSharedPreferences(Prefs.PREFS_BUCKET, MODE_PRIVATE)
                 .edit()
                 .putString(Prefs.PREFS_MY_PROFILE, new GsonBuilder().create().toJson(mMyProfile))
@@ -171,7 +171,7 @@ public class MyProfileManager {
         }
     }
 
-    private static String nameEvent(int event) {
+    public static String nameEvent(int event) {
         switch (event) {
             case EVENT_NONE:
                 return "EVENT_NONE";

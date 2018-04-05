@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
@@ -26,19 +28,19 @@ import io.auraapp.auraandroid.common.ExternalInvocation;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
 import io.auraapp.auraandroid.ui.common.InfoBox;
-import io.auraapp.auraandroid.ui.common.ScreenFragment;
 import io.auraapp.auraandroid.ui.world.list.OnAdoptCallback;
 import io.auraapp.auraandroid.ui.world.list.PeerSlogansRecycleAdapter;
 
 import static io.auraapp.auraandroid.common.FormattedLog.w;
 
-public class WorldFragment extends ScreenFragment implements FragmentWithToolbarButtons {
+public class WorldFragment extends Fragment implements FragmentWithToolbarButtons {
 
     private static final String TAG = "@aura/ui/world/fragment";
     private ViewGroup mRootView;
     private TextView mPeerSlogansHeadingText;
     private ProgressBar mPeerSlogansHeadingProgressBar;
     private InfoBox mPeerSlogansHeadingInfoBox;
+    private Context mContext;
     private InfoBox mStatusInfoBox;
     private TextView mStatusSummary;
     private boolean mHasView = false;
@@ -51,14 +53,14 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
 
     public static WorldFragment create(Context context, OnAdoptCallback onAdoptCallback) {
         WorldFragment fragment = new WorldFragment();
-        fragment.setContext(context);
+        fragment.mContext = context;
         fragment.mOnAdoptCallback = onAdoptCallback;
         return fragment;
     }
 
     @Override
     @ExternalInvocation
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         mRootView = (ViewGroup) inflater.inflate(R.layout.world_fragment, container, false);
 
@@ -74,10 +76,10 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
             mPeerListView = mRootView.findViewById(R.id.list_view);
             mPeerListView.setNestedScrollingEnabled(false);
 
-            mPeerListAdapter = new PeerSlogansRecycleAdapter(getContext(), mPeerListView, mOnAdoptCallback);
+            mPeerListAdapter = new PeerSlogansRecycleAdapter(mContext, mPeerListView, mOnAdoptCallback);
 
             mPeerListView.setAdapter(mPeerListAdapter);
-            mPeerListView.setLayoutManager(new LinearLayoutManager(getContext()));
+            mPeerListView.setLayoutManager(new LinearLayoutManager(mContext));
 
             // With change animations enabled mStatusItem keeps flashing because updates come in
             ((SimpleItemAnimator) mPeerListView.getItemAnimator()).setSupportsChangeAnimations(false);
@@ -147,9 +149,9 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
     private void bindPeerSlogansHeading(Set<Peer> peers, int peerSloganCount) {
         String heading;
         if (peers.size() == 0) {
-            heading = getContext().getString(R.string.ui_main_peers_heading_no_peers);
+            heading = mContext.getString(R.string.ui_main_peers_heading_no_peers);
         } else {
-            heading = getContext().getResources().getQuantityString(R.plurals.ui_main_peers_heading_slogans, peerSloganCount, peerSloganCount);
+            heading = mContext.getResources().getQuantityString(R.plurals.ui_main_peers_heading_slogans, peerSloganCount, peerSloganCount);
         }
 
         boolean synchronizing = false;
@@ -199,10 +201,10 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
                                 sendIntent.setAction(Intent.ACTION_SEND);
                                 sendIntent.putExtra(
                                         Intent.EXTRA_TEXT,
-                                        EmojiHelper.replaceShortCode(getContext().getString(R.string.ui_main_share_text))
+                                        EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_main_share_text))
                                 );
                                 sendIntent.setType("text/plain");
-                                getContext().startActivity(sendIntent);
+                                mContext.startActivity(sendIntent);
                             });
                 }
             } else {
@@ -210,7 +212,7 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
                 mPeerSlogansHeadingInfoBox.setText(R.string.ui_main_status_peers_not_scanning_text);
                 mPeerSlogansHeadingInfoBox.hideButton();
             }
-            mPeerSlogansHeadingInfoBox.setBackgroundColor(getContext().getResources().getColor(R.color.infoBoxWarning));
+            mPeerSlogansHeadingInfoBox.setBackgroundColor(mContext.getResources().getColor(R.color.infoBoxWarning));
             mPeerSlogansHeadingInfoBox.setVisibility(View.VISIBLE);
 //        } else if (sloganCount == 0) {
 //            mPeerSlogansHeadingInfoBox.setEmoji(":silhouette:");
@@ -254,15 +256,15 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
         } else if (state.mBluetoothRestartRequired) {
             mStatusInfoBox.setEmoji(":dizzy_face:");
             mStatusInfoBox.setHeading(R.string.ui_main_status_communicator_bt_restart_required_heading);
-            mStatusInfoBox.setText(getContext().getString(R.string.ui_main_status_communicator_bt_restart_required_text)
+            mStatusInfoBox.setText(mContext.getString(R.string.ui_main_status_communicator_bt_restart_required_text)
                     .replaceAll("##error##", state.mLastError != null ? state.mLastError : "unknown"));
             mStatusInfoBox.hideButton();
             mStatusInfoBox.setColor(R.color.infoBoxError);
             show = BOX;
 
         } else if (state.mBtTurningOn) {
-            mStatusSummary.setText(EmojiHelper.replaceShortCode(getContext().getString(R.string.ui_main_status_summary_communicator_bt_turning_on)));
-            mStatusSummary.setBackgroundColor(getContext().getResources().getColor(R.color.yellow));
+            mStatusSummary.setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_main_status_summary_communicator_bt_turning_on)));
+            mStatusSummary.setBackgroundColor(mContext.getResources().getColor(R.color.yellow));
         } else if (!state.mBtEnabled) {
             mStatusInfoBox.setEmoji(":broken_heart:");
             mStatusInfoBox.setHeading(R.string.ui_main_status_communicator_bt_disabled_heading);
@@ -272,7 +274,7 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
             show = BOX;
         } else if (!state.mBleSupported) {
             mStatusInfoBox.setEmoji(":dizzy_face:");
-            mStatusInfoBox.setHeading(getContext().getString(R.string.ui_main_status_communicator_ble_not_supported_heading));
+            mStatusInfoBox.setHeading(mContext.getString(R.string.ui_main_status_communicator_ble_not_supported_heading));
             mStatusInfoBox.setText(R.string.ui_main_status_communicator_ble_not_supported_text);
             mStatusInfoBox.hideButton();
             mStatusInfoBox.setColor(R.color.infoBoxError);
@@ -289,12 +291,12 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
             show = BOX;
         } else if (!state.mAdvertising) {
             w(TAG, "Not advertising although it is possible.");
-            mStatusSummary.setText(EmojiHelper.replaceShortCode(getContext().getString(R.string.ui_main_status_summary_communicator_on_not_active)));
-            mStatusSummary.setBackgroundColor(getContext().getResources().getColor(R.color.yellow));
+            mStatusSummary.setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_main_status_summary_communicator_on_not_active)));
+            mStatusSummary.setBackgroundColor(mContext.getResources().getColor(R.color.yellow));
         } else if (!state.mScanning) {
             w(TAG, "Not scanning although it is possible.");
-            mStatusSummary.setText(EmojiHelper.replaceShortCode(getContext().getString(R.string.ui_main_status_summary_communicator_on_not_active)));
-            mStatusSummary.setBackgroundColor(getContext().getResources().getColor(R.color.yellow));
+            mStatusSummary.setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_main_status_summary_communicator_on_not_active)));
+            mStatusSummary.setBackgroundColor(mContext.getResources().getColor(R.color.yellow));
         } else {
             show = NONE;
         }
