@@ -131,41 +131,40 @@
     <string name="ui_main_peer_slogan_last_seen_lte_1h">Less than an hour ago</string>
     <string name="ui_main_peer_slogan_last_seen_gt_1h">More than an hour ago</string>
 
+    <!--Dialog: Common-->
+    <string name="ui_common_dialog_confirm">Okay</string>
+    <string name="ui_common_dialog_cancel">Cancel</string>
+
     <!--Dialog: BT Stack broken -->
     <string name="ui_dialog_bt_broken_title">Problem with Bluetooth</string>
     <string name="ui_dialog_bt_broken_text">It looks like your Bluetooth has been disabled and enabled multiple times\nOnly recently have phone manufacturers started to put high quality Bluetooth chips into their phones.\nIf you experience problems with Bluetooth, restarting your phone might help.</string>
     <string name="ui_dialog_bt_broken_confirm">Okay</string>
     <string name="ui_dialog_bt_broken_never_show_again">Don\'t show this message again</string>
 
+    <!--Dialog: Edit Profile Property-->
+    <string name="ui_profile_dialog_edit_confirm">Save</string>
+    <string name="ui_profile_dialog_edit_cancel">Cancel</string>
+
     <!--Dialog: Edit Color -->
-    <string name="ui_profile_dialog_edit_color_heading">Change my Color</string>
-    <string name="ui_profile_dialog_edit_color_confirm">Close</string>
+    <string name="ui_profile_dialog_edit_color_title">Change my Color</string>
 
     <!--Dialog: Edit Name -->
-    <string name="ui_profile_dialog_edit_name_heading">Change my Name</string>
+    <string name="ui_profile_dialog_edit_name_title">Change my Name</string>
     <string name="ui_profile_dialog_edit_name_hint">Your Name</string>
-    <string name="ui_profile_dialog_edit_name_confirm">Save</string>
-    <string name="ui_profile_dialog_edit_name_cancel">Cancel</string>
 
     <!--Dialog: Edit Text -->
-    <string name="ui_profile_dialog_edit_text_heading">Change my Bio</string>
-    <string name="ui_profile_dialog_edit_text_hint">Your text</string>
-    <string name="ui_profile_dialog_edit_text_confirm">Save</string>
-    <string name="ui_profile_dialog_edit_text_cancel">Cancel</string>
+    <string name="ui_profile_dialog_edit_text_title">Change my Bio</string>
+    <string name="ui_profile_dialog_edit_text_hint">My text</string>
+
+    <!--Dialog: Add/Edit Slogan-->
+    <string name="ui_profile_dialog_edit_slogan_hint">Your :thought_balloon:</string>
 
     <!--Dialog: Add Slogan-->
-    <string name="ui_dialog_add_slogan_title">Add a :thought_balloon:</string>
-    <string name="ui_dialog_add_slogan_text">Nearby Aura users can see and adopt your :thought_balloon:. :lollipop: Express yourself!</string>
+    <string name="ui_profile_dialog_add_slogan_title">Add a :thought_balloon:</string>
     <string name="ui_main_add_slogan_too_short">Nothing added - too short</string>
-    <string name="ui_dialog_add_slogan_confirm">Add</string>
-    <string name="ui_dialog_add_slogan_cancel">Cancel</string>
 
     <!--Dialog: Edit Slogan-->
-    <string name="ui_dialog_edit_slogan_edit_hint">Your :thought_balloon:</string>
-    <string name="ui_dialog_edit_slogan_title">Edit your :thought_balloon:</string>
-    <string name="ui_dialog_edit_slogan_text">Use emojis to express yourself :sunglasses:</string>
-    <string name="ui_dialog_edit_slogan_confirm">Save</string>
-    <string name="ui_dialog_edit_slogan_cancel">Cancel</string>
+    <string name="ui_profile_dialog_edit_slogan_title">Change my :thought_balloon:</string>
 
 
     <plurals name="ui_dialog_edit_slogan_line_break_limit">

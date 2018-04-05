@@ -1,15 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+<RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
-
-    <RadioGroup
-        android:id="@+id/radio_group"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="18dp"
-        android:orientation="vertical">
-    </RadioGroup>
-
-</LinearLayout>
+    android:layout_marginStart="18dp"
+    android:orientation="vertical" />

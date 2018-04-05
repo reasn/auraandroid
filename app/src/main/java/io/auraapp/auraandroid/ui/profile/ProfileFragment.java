@@ -167,10 +167,7 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
                 mSlogansRecyclerView,
                 (Slogan slogan, int action) -> {
                     if (action == MySlogansRecycleAdapter.OnMySloganActionCallback.ACTION_EDIT) {
-                        mDialogManager.showParametrizedSloganEdit(R.string.ui_dialog_edit_slogan_title,
-                                R.string.ui_dialog_edit_slogan_text,
-                                R.string.ui_dialog_edit_slogan_confirm,
-                                R.string.ui_dialog_edit_slogan_cancel,
+                        mDialogManager.showParametrizedSloganEdit(R.string.ui_profile_dialog_edit_slogan_title,
                                 slogan,
                                 sloganText -> mMyProfileManager.replace(slogan, Slogan.create(sloganText)));
                     }
@@ -189,10 +186,7 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
             toast(R.string.ui_main_toast_cannot_add_no_space_available);
             return;
         }
-        mDialogManager.showParametrizedSloganEdit(R.string.ui_dialog_add_slogan_title,
-                R.string.ui_dialog_add_slogan_text,
-                R.string.ui_dialog_add_slogan_confirm,
-                R.string.ui_dialog_add_slogan_cancel,
+        mDialogManager.showParametrizedSloganEdit(R.string.ui_profile_dialog_add_slogan_title,
                 null,
                 sloganText -> {
                     if (sloganText.length() == 0) {

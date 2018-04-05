@@ -1,22 +1,16 @@
 package io.auraapp.auraandroid.ui;
 
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.SparseArray;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RadioButton;
@@ -59,15 +53,27 @@ public class DialogManager {
         public void onDropSlogan(Slogan slogan);
     }
 
+    @FunctionalInterface
+    interface BtBrokenDismissHandler {
+        void onDismiss(boolean neverShowAgain);
+    }
+
+    public interface OnSloganEditConfirm {
+        public void onConfirm(String text);
+    }
+
+    class DialogState {
+        boolean open = false;
+    }
+
     private static final String TAG = "@aura/ui/" + DialogManager.class.getSimpleName();
     private final static Pattern mLinebreakPattern = Pattern.compile("\n");
+    private final DialogState mDialogState = new DialogState();
     private Context mContext;
-    private LayoutInflater mInflater;
-    private boolean mDialogOpen = false;
+    private ColorPicker.SelectedColor mPickedColor = null;
 
     public DialogManager(Context context) {
         mContext = context;
-        mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     private String getString(@StringRes int resource) {
@@ -75,239 +81,143 @@ public class DialogManager {
     }
 
     public void showEditMyNameDialog(@Nullable String name, MyNameEditedCallback callback) {
-        if (mDialogOpen) {
-            return;
-        }
-        mDialogOpen = true;
 
-        View dialogView = mInflater.inflate(R.layout.profile_dialog_edit_name, null);
-
-        EditText editText = dialogView.findViewById(R.id.dialog_edit_name_input);
-        editText.setHint(EmojiHelper.replaceShortCode(getString(R.string.ui_profile_dialog_edit_name_hint)));
-
-        if (name != null) {
-            editText.setText(name);
-        }
-
-        Dialog dialog = new Dialog(mContext, R.style.FullWidthDialog);
-        dialog.setContentView(dialogView);
-        dialog.setOnDismissListener($ -> mDialogOpen = false);
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-        }
-        dialog.show();
-
-        dialog.show();
+        EditText editText = (EditText) View.inflate(mContext, R.layout.profile_dialog_edit_name, null);
+        editText.setText(name != null ? name : "");
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.PROFILE_NAME_MAX_LENGTH)});
         editText.requestFocus();
         editText.selectAll();
 
-        dialogView.findViewById(R.id.dialog_edit_name_cancel).setOnClickListener(
-                $ -> dialog.dismiss()
-        );
-        dialogView.findViewById(R.id.dialog_edit_name_confirm).setOnClickListener($ -> {
-            dialog.dismiss();
-            callback.onNameEdited(editText.getText().toString());
-        });
+        new DialogBuilder(mContext, mDialogState)
+                .setTitle(R.string.ui_profile_dialog_edit_name_title)
+                .setView(editText)
+                .enableKeyboard()
+                .setOnConfirm(() -> callback.onNameEdited(editText.getText().toString()))
+                .setCancelText(R.string.ui_profile_dialog_edit_cancel)
+                .setConfirmText(R.string.ui_profile_dialog_edit_confirm)
+                .build()
+                .show();
     }
 
     public void showEditMyTextDialog(@Nullable String text, MyTextEditedCallback callback) {
-        if (mDialogOpen) {
-            return;
-        }
-        mDialogOpen = true;
 
-        @SuppressLint("InflateParams")
-        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View dialogView = inflater.inflate(R.layout.profile_dialog_edit_text, null);
-
-        EditText editText = dialogView.findViewById(R.id.dialog_edit_text_input);
-        editText.setHint(EmojiHelper.replaceShortCode(getString(R.string.ui_profile_dialog_edit_text_hint)));
-        if (text != null) {
-            editText.setText(text);
-        }
-
-        Dialog dialog = new Dialog(mContext, R.style.FullWidthDialog);
-        dialog.setContentView(dialogView);
-        dialog.setOnDismissListener($ -> mDialogOpen = false);
-        // Accidentally cancelling can turn out frustrating, let's disable it
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.setCancelable(false);
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-        }
-        dialog.show();
+        EditText editText = (EditText) View.inflate(mContext, R.layout.profile_dialog_edit_text, null);
+        editText.setText(text != null ? text : "");
         editText.requestFocus();
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.PROFILE_TEXT_MAX_LENGTH)});
         editText.setSelection(0);
 
-        dialogView.findViewById(R.id.dialog_edit_text_cancel).setOnClickListener(
-                $ -> dialog.dismiss()
-        );
-        dialogView.findViewById(R.id.dialog_edit_text_confirm).setOnClickListener($ -> {
-            dialog.dismiss();
-            callback.onTextEdited(editText.getText().toString());
-        });
+        AuraDialog dialog = new DialogBuilder(mContext, mDialogState)
+                .setTitle(R.string.ui_profile_dialog_edit_text_title)
+                .setView(editText)
+                .enableKeyboard()
+                .setOnConfirm(() -> callback.onTextEdited(editText.getText().toString()))
+                .setCancelText(R.string.ui_profile_dialog_edit_cancel)
+                .setConfirmText(R.string.ui_profile_dialog_edit_confirm)
+                .build();
+
+        // Accidentally cancelling can turn out frustrating, let's disable it
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setCancelable(false);
+        dialog.show();
     }
 
     public void showColorPickerDialog(String color,
                                       float selectedPointX,
                                       float selectedPointY,
                                       ColorPicker.ColorListener colorListener) {
-
-        if (mDialogOpen) {
-            return;
-        }
-        mDialogOpen = true;
-
         v(TAG, "Showing color picker dialog, x: %f, y: %f", selectedPointX, selectedPointY);
 
-        @SuppressLint("InflateParams")
-        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View dialogView = inflater.inflate(R.layout.profile_dialog_edit_color, null);
+        ColorPicker colorPicker = (ColorPicker) View.inflate(mContext, R.layout.profile_dialog_edit_color, null);
 
-        TextView heading = dialogView.findViewById(R.id.dialog_edit_color_heading);
-        ColorPicker colorPicker = dialogView.findViewById(R.id.dialog_edit_color_picker);
-        colorPicker.init(selectedPointX, selectedPointY);
-        colorPicker.setColorListener(selectedColor -> {
+        AuraDialog dialog = new DialogBuilder(mContext, mDialogState)
+                .setTitle(R.string.ui_profile_dialog_edit_color_title)
+                .setView(colorPicker)
+                .setCancelText(R.string.ui_profile_dialog_edit_cancel)
+                .setConfirmText(R.string.ui_profile_dialog_edit_confirm)
+                .setOnConfirm(() -> {
+                    if (mPickedColor != null && !mPickedColor.getColor().equals(color)) {
+                        colorListener.onColorSelected(mPickedColor);
+                    }
+                })
+                .build();
+
+        TextView titleView = dialog.getTitleView();
+
+        ColorPicker.ColorListener onChange = selectedColor -> {
+            mPickedColor = selectedColor;
             int parsed = Color.parseColor(selectedColor.getColor());
-            heading.setBackgroundColor(parsed);
-            heading.setTextColor(ColorHelper.getTextColor(parsed));
-            colorListener.onColorSelected(selectedColor);
-        });
-        int parsed = Color.parseColor(color);
-        heading.setBackgroundColor(parsed);
-        heading.setTextColor(ColorHelper.getTextColor(parsed));
+            titleView.setBackgroundColor(parsed);
+            titleView.setTextColor(ColorHelper.getTextColor(parsed));
+        };
 
-        Dialog dialog = new Dialog(mContext, R.style.FullWidthDialog);
-        dialog.setContentView(dialogView);
-        dialog.setOnDismissListener($ -> mDialogOpen = false);
-        dialog.setCanceledOnTouchOutside(true);
+        colorPicker.init(selectedPointX, selectedPointY);
+        colorPicker.setColorListener(onChange);
+        onChange.onColorSelected(new ColorPicker.SelectedColor(color, 0, 0));
+
         dialog.show();
-
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-//            dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-//            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        }
-        dialogView.findViewById(R.id.dialog_edit_color_confirm).setOnClickListener($ -> {
-            dialog.dismiss();
-        });
     }
 
     public void showDrop(Slogan slogan, DropCallback dropCallback) {
-        if (mDialogOpen) {
-            return;
-        }
-        mDialogOpen = true;
-        new AlertDialog.Builder(mContext)
+        new DialogBuilder(mContext, mDialogState)
                 .setTitle(EmojiHelper.replaceShortCode(getString(R.string.ui_drop_dialog_title)))
-                .setIcon(R.mipmap.ic_wastebasket)
                 .setMessage(getString(R.string.ui_drop_dialog_message))
-                .setPositiveButton(getString(R.string.ui_drop_dialog_confirm), (DialogInterface $, int $$) -> {
-                    dropCallback.onDropSlogan(slogan);
-                })
-                .setNegativeButton(getString(R.string.ui_drop_dialog_cancel), (DialogInterface $, int $$) -> {
-                })
-                .setOnDismissListener($ -> mDialogOpen = false)
-                .create()
+                .setOnConfirm(() -> dropCallback.onDropSlogan(slogan))
+                .setConfirmText(R.string.ui_drop_dialog_confirm)
+                .setCancelText(R.string.ui_drop_dialog_cancel)
+                .build()
                 .show();
     }
 
     void showReplace(TreeSet<Slogan> mySlogans, AdoptCallback adoptCallback) {
-        if (mDialogOpen) {
-            return;
-        }
-        mDialogOpen = true;
-        @SuppressLint("InflateParams")
-        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View dialogView = inflater.inflate(R.layout.profile_dialog_replace_slogan, null);
 
-        RadioGroup radioGroup = dialogView.findViewById(R.id.radio_group);
-
+        RadioGroup radioGroup = (RadioGroup) View.inflate(mContext, R.layout.profile_dialog_replace_slogan, null);
         SparseArray<Slogan> map = new SparseArray<>();
 
         for (Slogan slogan : mySlogans) {
             RadioButton button = new RadioButton(mContext);
-            // TODO emoji support
-            String text = slogan.getText().length() < 20
-                    ? slogan.getText()
-                    : slogan.getText().substring(0, 20) + "...";
-            button.setText(text);
-            int id = View.generateViewId();
-            button.setId(id);
-            map.put(id, slogan);
+            button.setEllipsize(TextUtils.TruncateAt.END);
+            button.setText(slogan.getText());
+            button.setId(View.generateViewId());
+            map.put(button.getId(), slogan);
             radioGroup.addView(button);
         }
 
-        AlertDialog alert = new AlertDialog.Builder(mContext)
-                .setTitle(getString(R.string.ui_replace_dialog_title))
-                .setIcon(R.mipmap.ic_fire)
-                // TODO getPluralizedString
-                .setMessage(getString(R.string.ui_replace_dialog_message).replaceAll("##maxSlogans##", Integer.toString(Config.PROFILE_SLOGANS_MAX_SLOGANS)))
-                .setView(dialogView)
-                .setPositiveButton(getString(R.string.ui_replace_dialog_confirm),
-                        (DialogInterface $$, int $$$) -> adoptCallback.onAdoptSlogan(map.get(radioGroup.getCheckedRadioButtonId()))
+        AuraDialog dialog = new DialogBuilder(mContext, mDialogState)
+                .setTitle(R.string.ui_replace_dialog_title)
+                // TODO pluralize
+                .setMessage(getString(R.string.ui_replace_dialog_message)
+                        .replaceAll("##maxSlogans##", Integer.toString(Config.PROFILE_SLOGANS_MAX_SLOGANS))
                 )
-                .setNegativeButton(getString(R.string.ui_replace_dialog_cancel), (DialogInterface $$, int $$$) -> {
-                })
-                .setOnDismissListener($ -> mDialogOpen = false)
-                .create();
+                .setView(radioGroup)
+                .setOnConfirm(() -> adoptCallback.onAdoptSlogan(map.get(radioGroup.getCheckedRadioButtonId())))
+                .build();
 
-        alert.show();
+        radioGroup.setOnCheckedChangeListener(($, $$) -> dialog.getConfirmButton().setEnabled(true));
 
-        alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-        radioGroup.setOnCheckedChangeListener(
-                (RadioGroup $, int checkedId) -> alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true)
-        );
+        dialog.getConfirmButton().setEnabled(false);
+        dialog.show();
     }
 
-    public interface OnSloganEditConfirm {
-        public void onConfirm(String text);
-    }
 
     public void showParametrizedSloganEdit(@StringRes int title,
-                                           @StringRes int message,
-                                           @StringRes int confirm,
-                                           @StringRes int cancel,
                                            @Nullable Slogan slogan,
                                            OnSloganEditConfirm onConfirm) {
-        if (mDialogOpen) {
-            return;
-        }
-        mDialogOpen = true;
 
-        @SuppressLint("InflateParams")
-        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View dialogView = inflater.inflate(R.layout.profile_dialog_edit_slogan, null);
+        EditText editText = (EditText) View.inflate(mContext, R.layout.profile_dialog_edit_slogan, null);
+        editText.setHint(EmojiHelper.replaceShortCode(getString(R.string.ui_profile_dialog_edit_slogan_hint)));
+        editText.setText(slogan != null ? slogan.getText() : "");
 
-        EditText editText = dialogView.findViewById(R.id.dialog_edit_slogan_slogan_text);
+        new DialogBuilder(mContext, mDialogState)
+                .setTitle(title)
+                .setView(editText)
+                .enableKeyboard()
+                .setOnConfirm(() -> onConfirm.onConfirm(editText.getText().toString()))
+                .build()
+                .show();
 
-        editText.setHint(EmojiHelper.replaceShortCode(getString(R.string.ui_dialog_edit_slogan_edit_hint)));
-
-        if (slogan != null) {
-            editText.setText(slogan.getText());
-        }
-
-        AlertDialog alert = new AlertDialog.Builder(mContext, R.style.Dialog)
-                .setTitle(getString(title))
-                .setIcon(R.mipmap.ic_memo)
-                .setMessage(getString(message))
-                .setView(dialogView)
-                .setPositiveButton(getString(confirm), ($$, $$$) -> onConfirm.onConfirm(editText.getText().toString()))
-                .setNegativeButton(getString(cancel), ($$, $$$) -> {
-                })
-                .setOnDismissListener($ -> mDialogOpen = false)
-                .create();
-        if (alert.getWindow() != null) {
-            alert.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-        }
-        alert.show();
+        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.PROFILE_NAME_MAX_LENGTH)});
         editText.requestFocus();
-        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.PROFILE_SLOGANS_MAX_LENGTH)});
-
 
         // Some phones have problems with filtering newline characters using an InputFilter.
         // Therefore this very ugly solution that does the replacement manually.
@@ -380,35 +290,17 @@ public class DialogManager {
         return sb.toString();
     }
 
-    @FunctionalInterface
-    interface BtBrokenDismissHandler {
-        void onDismiss(boolean neverShowAgain);
-    }
-
     void showBtBroken(BtBrokenDismissHandler btBrokenDismissHandler) {
-        if (mDialogOpen) {
-            return;
-        }
-        mDialogOpen = true;
 
-        @SuppressLint("InflateParams")
-        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View dialogView = inflater.inflate(R.layout.common_dialog_bt_stack_broken, null);
+        View dialogView = View.inflate(mContext, R.layout.common_dialog_bt_stack_broken, null);
         CheckBox checkBox = dialogView.findViewById(R.id.dont_show_again);
-        new AlertDialog.Builder(mContext, R.style.Dialog)
+
+        new DialogBuilder(mContext, mDialogState)
                 .setTitle(R.string.ui_dialog_bt_broken_title)
                 .setMessage(R.string.ui_dialog_bt_broken_text)
                 .setView(dialogView)
-                .setIcon(R.mipmap.ic_launcher)
-                .setPositiveButton(R.string.ui_dialog_bt_broken_confirm, ($$, $$$) -> {
-                    btBrokenDismissHandler.onDismiss(checkBox.isChecked());
-                    mDialogOpen = false;
-                })
-                .setOnDismissListener($ -> {
-                    btBrokenDismissHandler.onDismiss(false);
-                    mDialogOpen = false;
-                })
-                .create()
+                .setOnConfirm(() -> btBrokenDismissHandler.onDismiss(checkBox.isChecked()))
+                .build()
                 .show();
     }
 }
