@@ -16,7 +16,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
-import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.ExternalInvocation;
 import io.auraapp.auraandroid.common.Prefs;
 import io.auraapp.auraandroid.common.Slogan;
@@ -44,16 +43,12 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     private RecyclerView mSlogansRecyclerView;
     private ViewGroup mRootView;
     private MyProfileManager mMyProfileManager;
-    private TextView mSlogansHeadingTextView;
     private InfoBox mSlogansInfoBox;
     private DialogManager mDialogManager;
     private final Handler mHandler = new Handler();
     private TextView mNameView;
     private EditText mTextView;
     private Button mColorButtonView;
-//    private TextView mColorHeading;
-//    private TextView mNameHeading;
-//    private TextView mTextHeading;
 
     public static ProfileFragment create(Context context,
                                          MyProfileManager myProfileManager,
@@ -78,6 +73,7 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
 
         mColorButtonView.setOnClickListener($ ->
                 mDialogManager.showColorPickerDialog(
+                        mMyProfileManager.getProfile().getColor(),
                         mMyProfileManager.getProfile().getColorPickerPointX(),
                         mMyProfileManager.getProfile().getColorPickerPointY(),
                         selected -> {
@@ -104,16 +100,8 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
                 new int[]{EVENT_COLOR_CHANGED, EVENT_NAME_CHANGED, EVENT_TEXT_CHANGED, EVENT_DROPPED},
                 event -> {
                     switch (event) {
-
                         case EVENT_COLOR_CHANGED:
-                            int color = Color.parseColor("#fcfcfc");
-                            int textColor = ColorHelper.getTextColor(color);
-                            mNameView.setBackgroundColor(color);
                             mColorButtonView.setBackgroundColor(Color.parseColor(mMyProfileManager.getColor()));
-                            mTextView.setBackgroundColor(color);
-                            mSlogansRecyclerView.setBackgroundColor(color);
-
-                            mRootView.setBackgroundColor(Color.parseColor("#ffffff"));
                             break;
 
                         case EVENT_NAME_CHANGED:
@@ -132,7 +120,6 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
                             // Attention: First argument to addAndTriggerChangedCallback relies on joint handling
                             // of aforementioned events.
                             mRecyclerAdapter.notifyMySlogansChanged(mMyProfileManager.getProfile().getSlogans());
-                            updateSlogansHeadline();
                     }
                 });
 
@@ -165,13 +152,10 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
 
     private void bindSlogansViews() {
 
-//        mSlogansHeadingTextView = mRootView.findViewById(R.id.my_slogans_heading);
         mSlogansInfoBox = mRootView.findViewById(R.id.my_slogans_info_box);
         mSlogansRecyclerView = mRootView.findViewById(R.id.list_view);
 
         mSlogansRecyclerView.setNestedScrollingEnabled(false);
-
-        updateSlogansHeadline();
 
         final FloatingActionButton addSloganButton = mRootView.findViewById(R.id.add_slogan);
         addSloganButton.setOnClickListener($ -> showAddDialog());
@@ -199,29 +183,6 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
 
         mRecyclerAdapter.notifyMySlogansChanged(mMyProfileManager.getProfile().getSlogans());
     }
-
-    private void updateSlogansHeadline() {
-
-        if (2 > 1) {
-            return;
-        }
-        mSlogansHeadingTextView.setText(EmojiHelper.replaceShortCode(getContext().getResources().getQuantityString(
-                R.plurals.ui_main_my_slogans_heading,
-                mMyProfileManager.getProfile().getSlogans().size(),
-                mMyProfileManager.getProfile().getSlogans().size()
-        )));
-        if (mMyProfileManager.getProfile().getSlogans().size() > 0) {
-            mSlogansInfoBox.setVisibility(View.GONE);
-            return;
-        }
-
-        mSlogansInfoBox.setEmoji(":eyes:");
-        mSlogansInfoBox.setHeading(R.string.ui_main_my_slogans_info_no_slogans_heading);
-        mSlogansInfoBox.setText(R.string.ui_main_my_slogans_info_no_slogans_text);
-        mSlogansInfoBox.setColor(R.color.infoBoxNeutral);
-        mSlogansInfoBox.setVisibility(View.VISIBLE);
-    }
-
 
     private void showAddDialog() {
         if (!mMyProfileManager.spaceAvailable()) {

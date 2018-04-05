@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.text.Editable;
@@ -20,6 +21,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.TreeSet;
@@ -30,17 +32,46 @@ import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Slogan;
+import io.auraapp.auraandroid.ui.common.ColorHelper;
 import io.auraapp.auraandroid.ui.common.ColorPicker;
 
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
 public class DialogManager {
 
-    private static final String TAG = "@aura/ui/" + DialogManager.class.getSimpleName();
-
     @FunctionalInterface
     public interface MyNameEditedCallback {
         public void onNameEdited(String name);
+    }
+
+    @FunctionalInterface
+    public interface MyTextEditedCallback {
+        public void onTextEdited(String name);
+    }
+
+    @FunctionalInterface
+    interface AdoptCallback {
+        void onAdoptSlogan(Slogan sloganToReplace);
+    }
+
+    @FunctionalInterface
+    public interface DropCallback {
+        public void onDropSlogan(Slogan slogan);
+    }
+
+    private static final String TAG = "@aura/ui/" + DialogManager.class.getSimpleName();
+    private final static Pattern mLinebreakPattern = Pattern.compile("\n");
+    private Context mContext;
+    private LayoutInflater mInflater;
+    private boolean mDialogOpen = false;
+
+    public DialogManager(Context context) {
+        mContext = context;
+        mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    }
+
+    private String getString(@StringRes int resource) {
+        return EmojiHelper.replaceShortCode(mContext.getString(resource));
     }
 
     public void showEditMyNameDialog(@Nullable String name, MyNameEditedCallback callback) {
@@ -49,39 +80,36 @@ public class DialogManager {
         }
         mDialogOpen = true;
 
-        @SuppressLint("InflateParams")
-        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View dialogView = inflater.inflate(R.layout.profile_dialog_edit_name, null);
+        View dialogView = mInflater.inflate(R.layout.profile_dialog_edit_name, null);
 
         EditText editText = dialogView.findViewById(R.id.dialog_edit_name_input);
-
         editText.setHint(EmojiHelper.replaceShortCode(getString(R.string.ui_profile_dialog_edit_name_hint)));
 
         if (name != null) {
             editText.setText(name);
         }
 
-        AlertDialog alert = new AlertDialog.Builder(mContext, R.style.Dialog)
-                .setTitle(getString(R.string.ui_profile_dialog_edit_name_title))
-                .setIcon(R.mipmap.ic_memo)
-                .setMessage(getString(R.string.ui_profile_dialog_edit_name_description))
-                .setView(dialogView)
-                .setPositiveButton(getString(R.string.ui_profile_dialog_edit_name_confirm), ($$, $$$) -> callback.onNameEdited(editText.getText().toString()))
-                .setNegativeButton(getString(R.string.ui_profile_dialog_edit_name_cancel), ($$, $$$) -> {
-                })
-                .setOnDismissListener($ -> mDialogOpen = false)
-                .create();
-        if (alert.getWindow() != null) {
-            alert.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        Dialog dialog = new Dialog(mContext, R.style.FullWidthDialog);
+        dialog.setContentView(dialogView);
+        dialog.setOnDismissListener($ -> mDialogOpen = false);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         }
-        alert.show();
-        editText.requestFocus();
-        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.PROFILE_NAME_MAX_LENGTH)});
-    }
+        dialog.show();
 
-    @FunctionalInterface
-    public interface MyTextEditedCallback {
-        public void onTextEdited(String name);
+        dialog.show();
+        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.PROFILE_NAME_MAX_LENGTH)});
+        editText.requestFocus();
+        editText.selectAll();
+
+        dialogView.findViewById(R.id.dialog_edit_name_cancel).setOnClickListener(
+                $ -> dialog.dismiss()
+        );
+        dialogView.findViewById(R.id.dialog_edit_name_confirm).setOnClickListener($ -> {
+            dialog.dismiss();
+            callback.onNameEdited(editText.getText().toString());
+        });
     }
 
     public void showEditMyTextDialog(@Nullable String text, MyTextEditedCallback callback) {
@@ -100,11 +128,12 @@ public class DialogManager {
             editText.setText(text);
         }
 
-
         Dialog dialog = new Dialog(mContext, R.style.FullWidthDialog);
         dialog.setContentView(dialogView);
         dialog.setOnDismissListener($ -> mDialogOpen = false);
-        dialog.setCanceledOnTouchOutside(true);
+        // Accidentally cancelling can turn out frustrating, let's disable it
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setCancelable(false);
         if (dialog.getWindow() != null) {
             dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
@@ -123,7 +152,10 @@ public class DialogManager {
         });
     }
 
-    public void showColorPickerDialog(float selectedPointX, float selectedPointY, ColorPicker.ColorListener colorListener) {
+    public void showColorPickerDialog(String color,
+                                      float selectedPointX,
+                                      float selectedPointY,
+                                      ColorPicker.ColorListener colorListener) {
 
         if (mDialogOpen) {
             return;
@@ -134,11 +166,20 @@ public class DialogManager {
 
         @SuppressLint("InflateParams")
         LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View dialogView = inflater.inflate(R.layout.profile_dialog_pick_color, null);
+        View dialogView = inflater.inflate(R.layout.profile_dialog_edit_color, null);
 
-        ColorPicker colorPicker = dialogView.findViewById(R.id.color_picker);
+        TextView heading = dialogView.findViewById(R.id.dialog_edit_color_heading);
+        ColorPicker colorPicker = dialogView.findViewById(R.id.dialog_edit_color_picker);
         colorPicker.init(selectedPointX, selectedPointY);
-        colorPicker.setColorListener(colorListener);
+        colorPicker.setColorListener(selectedColor -> {
+            int parsed = Color.parseColor(selectedColor.getColor());
+            heading.setBackgroundColor(parsed);
+            heading.setTextColor(ColorHelper.getTextColor(parsed));
+            colorListener.onColorSelected(selectedColor);
+        });
+        int parsed = Color.parseColor(color);
+        heading.setBackgroundColor(parsed);
+        heading.setTextColor(ColorHelper.getTextColor(parsed));
 
         Dialog dialog = new Dialog(mContext, R.style.FullWidthDialog);
         dialog.setContentView(dialogView);
@@ -148,47 +189,12 @@ public class DialogManager {
 
         if (dialog.getWindow() != null) {
             dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+//            dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+//            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }
-
-//        AlertDialog alert = new AlertDialog.Builder(mContext, R.style.ColorPickerDialog)
-//                .setTitle(getString(R.string.ui_profile_dialog_pick_color_title))
-//                .setIcon(R.mipmap.ic_memo)
-//                .setMessage(getString(message))
-//                .setView(dialogView)
-//                .setPositiveButton(
-//                        getString(R.string.ui_profile_dialog_pick_color_close),
-//                        (instance, $$$) -> instance.dismiss())
-//                .setOnDismissListener($ -> mDialogOpen = false)
-//                .create();
-//        alert.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-//        alert.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-
-//        alert.show();
-    }
-
-    @FunctionalInterface
-    interface AdoptCallback {
-        void onAdoptSlogan(Slogan sloganToReplace);
-    }
-
-    @FunctionalInterface
-    public interface DropCallback {
-        public void onDropSlogan(Slogan slogan);
-    }
-
-    private boolean mDialogOpen = false;
-    private Context mContext;
-
-    private final Pattern mLinebreakPattern = Pattern.compile("\n");
-
-    public DialogManager(Context context) {
-        mContext = context;
-    }
-
-    private String getString(@StringRes int resource) {
-        return EmojiHelper.replaceShortCode(mContext.getString(resource));
+        dialogView.findViewById(R.id.dialog_edit_color_confirm).setOnClickListener($ -> {
+            dialog.dismiss();
+        });
     }
 
     public void showDrop(Slogan slogan, DropCallback dropCallback) {

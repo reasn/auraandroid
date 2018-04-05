@@ -173,11 +173,11 @@ public class MyProfileManager {
             case EVENT_COLOR_CHANGED:
                 return "EVENT_COLOR_CHANGE";
             case EVENT_NAME_CHANGED:
-                return "        EVENT_NAME_CHANGE";
+                return "EVENT_NAME_CHANGE";
             case EVENT_TEXT_CHANGED:
                 return "EVENT_TEXT_CHANGE";
             case EVENT_DROPPED:
-                return "        EVENT_DROPPED";
+                return "EVENT_DROPPED";
             case EVENT_ADOPTED:
                 return "EVENT_ADOPTED";
             case EVENT_REPLACED:

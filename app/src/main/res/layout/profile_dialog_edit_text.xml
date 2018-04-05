@@ -2,8 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:background="@color/white"
     android:gravity="center_horizontal"
     android:orientation="vertical">
+
+    <TextView
+        style="@style/ProfileDialogHeading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/ui_profile_dialog_edit_text_heading" />
 
     <EditText
         android:id="@+id/dialog_edit_text_input"
@@ -22,18 +29,20 @@
         android:orientation="horizontal">
 
         <Button
-            android:text="@string/ui_profile_dialog_edit_text_cancel"
             android:id="@+id/dialog_edit_text_cancel"
+            style="@style/ProfileDialogCancelButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:text="@string/ui_profile_dialog_edit_text_cancel" />
 
         <Button
             android:id="@+id/dialog_edit_text_confirm"
-            android:text="@string/ui_profile_dialog_edit_text_confirm"
+            style="@style/ProfileDialogConfirmButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:text="@string/ui_profile_dialog_edit_text_confirm" />
 
     </LinearLayout>
 

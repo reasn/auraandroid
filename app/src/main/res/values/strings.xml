@@ -137,14 +137,18 @@
     <string name="ui_dialog_bt_broken_confirm">Okay</string>
     <string name="ui_dialog_bt_broken_never_show_again">Don\'t show this message again</string>
 
+    <!--Dialog: Edit Color -->
+    <string name="ui_profile_dialog_edit_color_heading">Change my Color</string>
+    <string name="ui_profile_dialog_edit_color_confirm">Close</string>
+
     <!--Dialog: Edit Name -->
+    <string name="ui_profile_dialog_edit_name_heading">Change my Name</string>
     <string name="ui_profile_dialog_edit_name_hint">Your Name</string>
-    <string name="ui_profile_dialog_edit_name_title">Change my Name</string>
-    <string name="ui_profile_dialog_edit_name_description">It\'s visible next to your :thought_balloon:. Choose anything you like</string>
     <string name="ui_profile_dialog_edit_name_confirm">Save</string>
     <string name="ui_profile_dialog_edit_name_cancel">Cancel</string>
 
     <!--Dialog: Edit Text -->
+    <string name="ui_profile_dialog_edit_text_heading">Change my Bio</string>
     <string name="ui_profile_dialog_edit_text_hint">Your text</string>
     <string name="ui_profile_dialog_edit_text_confirm">Save</string>
     <string name="ui_profile_dialog_edit_text_cancel">Cancel</string>

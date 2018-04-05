@@ -115,7 +115,7 @@ public class InfoBox extends LinearLayout {
         super.onFinishInflate();
 
         mEmojiView = this.findViewById(R.id.emoji);
-        mHeadingView = this.findViewById(R.id.heading);
+        mHeadingView = this.findViewById(R.id.dialog_edit_color_heading);
         mTextView = this.findViewById(R.id.text);
         mButtonView = this.findViewById(R.id.button);
         mSecondTextView = this.findViewById(R.id.second_text);
