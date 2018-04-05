@@ -13,6 +13,7 @@ import android.util.SparseArray;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -101,15 +102,16 @@ public class DialogManager {
 
     public void showEditMyTextDialog(@Nullable String text, MyTextEditedCallback callback) {
 
-        EditText editText = (EditText) View.inflate(mContext, R.layout.profile_dialog_edit_text, null);
+        LinearLayout view = (LinearLayout) View.inflate(mContext, R.layout.profile_dialog_monospace_text, null);
+        EditText editText = (EditText) view.getChildAt(0);
         editText.setText(text != null ? text : "");
         editText.requestFocus();
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.PROFILE_TEXT_MAX_LENGTH)});
         editText.setSelection(0);
 
-        AuraDialog dialog = new DialogBuilder(mContext, mDialogState)
+        FullWidthDialog dialog = new DialogBuilder(mContext, mDialogState)
                 .setTitle(R.string.ui_profile_dialog_edit_text_title)
-                .setView(editText)
+                .setView(view)
                 .enableKeyboard()
                 .setOnConfirm(() -> callback.onTextEdited(editText.getText().toString()))
                 .setCancelText(R.string.ui_profile_dialog_edit_cancel)
@@ -118,7 +120,6 @@ public class DialogManager {
 
         // Accidentally cancelling can turn out frustrating, let's disable it
         dialog.setCanceledOnTouchOutside(false);
-        dialog.setCancelable(false);
         dialog.show();
     }
 
@@ -130,7 +131,7 @@ public class DialogManager {
 
         ColorPicker colorPicker = (ColorPicker) View.inflate(mContext, R.layout.profile_dialog_edit_color, null);
 
-        AuraDialog dialog = new DialogBuilder(mContext, mDialogState)
+        FullWidthDialog dialog = new DialogBuilder(mContext, mDialogState)
                 .setTitle(R.string.ui_profile_dialog_edit_color_title)
                 .setView(colorPicker)
                 .setCancelText(R.string.ui_profile_dialog_edit_cancel)
@@ -160,11 +161,11 @@ public class DialogManager {
 
     public void showDrop(Slogan slogan, DropCallback dropCallback) {
         new DialogBuilder(mContext, mDialogState)
-                .setTitle(EmojiHelper.replaceShortCode(getString(R.string.ui_drop_dialog_title)))
-                .setMessage(getString(R.string.ui_drop_dialog_message))
+                .setTitle(EmojiHelper.replaceShortCode(getString(R.string.ui_profile_dialog_drop_title)))
+                .setMessage(getString(R.string.ui_profile_dialog_drop_message))
                 .setOnConfirm(() -> dropCallback.onDropSlogan(slogan))
-                .setConfirmText(R.string.ui_drop_dialog_confirm)
-                .setCancelText(R.string.ui_drop_dialog_cancel)
+                .setConfirmText(R.string.ui_profile_dialog_drop_confirm)
+                .setCancelText(R.string.ui_profile_dialog_drop_cancel)
                 .build()
                 .show();
     }
@@ -183,12 +184,16 @@ public class DialogManager {
             radioGroup.addView(button);
         }
 
-        AuraDialog dialog = new DialogBuilder(mContext, mDialogState)
-                .setTitle(R.string.ui_replace_dialog_title)
+        FullWidthDialog dialog = new DialogBuilder(mContext, mDialogState)
+                .setTitle(R.string.ui_profile_dialog_replace_title)
                 // TODO pluralize
-                .setMessage(getString(R.string.ui_replace_dialog_message)
-                        .replaceAll("##maxSlogans##", Integer.toString(Config.PROFILE_SLOGANS_MAX_SLOGANS))
-                )
+                .setMessage(EmojiHelper.replaceShortCode(mContext.getResources().getQuantityString(
+                        R.plurals.ui_profile_dialog_replace_message,
+                        Config.PROFILE_SLOGANS_MAX_SLOGANS,
+                        Config.PROFILE_SLOGANS_MAX_SLOGANS
+                )))
+                .setConfirmText(R.string.ui_profile_dialog_replace_confirm)
+                .setCancelText(R.string.ui_profile_dialog_replace_cancel)
                 .setView(radioGroup)
                 .setOnConfirm(() -> adoptCallback.onAdoptSlogan(map.get(radioGroup.getCheckedRadioButtonId())))
                 .build();
@@ -199,18 +204,18 @@ public class DialogManager {
         dialog.show();
     }
 
-
     public void showParametrizedSloganEdit(@StringRes int title,
                                            @Nullable Slogan slogan,
                                            OnSloganEditConfirm onConfirm) {
 
-        EditText editText = (EditText) View.inflate(mContext, R.layout.profile_dialog_edit_slogan, null);
+        LinearLayout view = (LinearLayout) View.inflate(mContext, R.layout.profile_dialog_monospace_text, null);
+        EditText editText = (EditText) view.getChildAt(0);
         editText.setHint(EmojiHelper.replaceShortCode(getString(R.string.ui_profile_dialog_edit_slogan_hint)));
         editText.setText(slogan != null ? slogan.getText() : "");
 
         new DialogBuilder(mContext, mDialogState)
                 .setTitle(title)
-                .setView(editText)
+                .setView(view)
                 .enableKeyboard()
                 .setOnConfirm(() -> onConfirm.onConfirm(editText.getText().toString()))
                 .build()

@@ -33,15 +33,13 @@
             style="@style/DialogCancelButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/ui_profile_dialog_edit_slogan_cancel" />
+            android:layout_weight="1" />
 
         <Button
             android:id="@+id/common_dialog_confirm"
             style="@style/DialogConfirmButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/ui_profile_dialog_edit_slogan_confirm" />
+            android:layout_weight="1" />
     </LinearLayout>
 </LinearLayout>

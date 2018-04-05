@@ -8,40 +8,19 @@
         <!--<item name="colorPrimary">@color/purple</item>-->
     </style>
 
-    <style name="ColorPickerDialog" parent="Theme.AppCompat.Dialog">
-
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:padding">0dp</item>
-        <item name="android:background">@color/transparent</item>
-
-    </style>
-
-
     <style name="FullWidthDialog">
-
         <item name="android:windowIsFloating">true</item>
         <item name="android:windowTitleStyle">@null</item>
         <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
         <item name="android:windowSoftInputMode">stateUnspecified|adjustPan</item>
         <item name="android:backgroundDimEnabled">true</item>
-        <!--<item name="android:background">#00ffffff</item>-->
-
-        <!--<item name="android:layout_width">match_parent</item>-->
-        <!--<item name="android:padding">0dp</item>-->
-        <!--<item name="android:background">@color/transparent</item>-->
-
+        <item name="android:backgroundDimAmount">0.7</item>
     </style>
 
     <style name="AppTheme.Launcher">
         <item name="android:windowBackground">@drawable/launch_screen</item>
         <!-- Optional, on Android 5+ you can modify the colorPrimaryDark color to match the windowBackground color for further branding-->
         <item name="colorPrimaryDark">@color/purple</item>
-    </style>
-
-    <style name="Dialog" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="android:textColor">@color/black</item>
-        <!--<item name="android:gravity">start</item>-->
-        <!--<item name="colorPrimary">@color/purple</item>-->
     </style>
 
     <style name="Button">
@@ -65,12 +44,6 @@
 
     </style>
 
-    <style name="Switch">
-        <!--<item name="colorControlActivated">@color/purple</item>-->
-        <!--<item name="colorAccent">@color/purple</item>-->
-        <!--<item name="colorPrimary">@color/purple</item>-->
-    </style>
-
     <style name="StatusItemSummary">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -79,16 +52,8 @@
         <item name="android:padding">6dp</item>
     </style>
 
-
-    <style name="ProfileProperty">
-        <item name="android:padding">16dip</item>
-        <item name="android:textSize">20sp</item>
-        <item name="android:background">@color/white</item>
-        <item name="android:textColor">@color/black</item>
-    </style>
-
     <!--TODO adjust font size to available width-->
-    <style name="ProfileText">
+    <style name="MonoSpaceEdit">
         <item name="android:ems">14</item>
         <item name="android:gravity">top</item>
         <item name="android:typeface">monospace</item>
@@ -99,11 +64,19 @@
         <item name="android:minLines">5</item>
     </style>
 
+    <style name="MonoSpaceView" parent="MonoSpaceEdit">
+        <item name="android:enabled">true</item>
+        <item name="android:focusable">false</item>
+        <item name="android:focusableInTouchMode">false</item>
+        <item name="android:inputType">textMultiLine</item>
+        <item name="android:longClickable">false</item>
+    </style>
+
     <style name="DialogFlatElement">
         <item name="android:textAppearance">?android:textAppearanceLarge</item>
         <item name="android:elevation">0dp</item>
-        <item name="android:padding">0dp</item>
-        <item name="android:height">50dp</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_margin">0dp</item>
     </style>
 
@@ -117,10 +90,8 @@
         <item name="android:gravity">top</item>
         <item name="android:textColor">@color/black</item>
         <item name="android:background">@color/white</item>
-        <item name="android:paddingTop">10dp</item>
-        <item name="android:paddingBottom">10dp</item>
-        <item name="android:paddingLeft">10dp</item>
-        <item name="android:paddingRight">10dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">20dp</item>
     </style>
 
     <style name="DialogButton" parent="DialogFlatElement">

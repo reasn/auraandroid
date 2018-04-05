@@ -15,7 +15,7 @@ import android.widget.TextView;
 import io.auraapp.auraandroid.R;
 
 
-public class AuraDialog extends Dialog {
+public class FullWidthDialog extends Dialog {
 
     private final LinearLayout mRootView;
     private TextView mTitleView;
@@ -23,40 +23,34 @@ public class AuraDialog extends Dialog {
     private Button mCancelButton;
     private Button mConfirmButton;
 
-    public static AuraDialog create(@NonNull Context context,
-                                    String title,
-                                    View view,
-                                    boolean keyboard,
-                                    DialogManager.DialogState dialogState,
-                                    Runnable onConfirm) {
+    public static FullWidthDialog create(@NonNull Context context,
+                                         String title,
+                                         boolean keyboard,
+                                         DialogManager.DialogState dialogState,
+                                         Runnable onConfirm) {
 
         LinearLayout rootView = (LinearLayout) View.inflate(context, R.layout.common_dialog, null);
 
-        return new AuraDialog(context, rootView, title, view, keyboard, dialogState, onConfirm);
+        return new FullWidthDialog(context, rootView, title, keyboard, dialogState, onConfirm);
     }
 
-    private AuraDialog(@NonNull Context context,
-                       LinearLayout rootView,
-                       String title,
-                       View view,
-                       boolean keyboard,
-                       DialogManager.DialogState dialogState,
-                       Runnable onConfirm) {
+    private FullWidthDialog(@NonNull Context context,
+                            LinearLayout rootView,
+                            String title,
+                            boolean keyboard,
+                            DialogManager.DialogState dialogState,
+                            Runnable onConfirm) {
 
         super(context, R.style.FullWidthDialog);
         mDialogState = dialogState;
         mRootView = rootView;
 
-        init(title, view, keyboard, onConfirm);
+        init(title, keyboard, onConfirm);
     }
 
     private void init(String title,
-                      View contentView,
                       boolean keyboard,
                       Runnable onConfirm) {
-
-        LinearLayout wrapper = mRootView.findViewById(R.id.common_dialog_view_wrapper);
-        wrapper.addView(contentView);
 
         mTitleView = mRootView.findViewById(R.id.common_dialog_title);
         mTitleView.setText(title);
@@ -64,6 +58,8 @@ public class AuraDialog extends Dialog {
         setContentView(mRootView);
         if (getWindow() != null) {
             getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+//            getWindow().setBackgroundDrawableResource(R.color.dialogBackground);
+
             if (keyboard) {
                 getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
             }
@@ -82,6 +78,10 @@ public class AuraDialog extends Dialog {
         super.setOnDismissListener($ -> mDialogState.open = false);
 
         setCanceledOnTouchOutside(true);
+    }
+
+    public void setContent(@NonNull View view) {
+        ((LinearLayout) mRootView.findViewById(R.id.common_dialog_view_wrapper)).addView(view);
     }
 
     public void setMessage(@StringRes int message) {

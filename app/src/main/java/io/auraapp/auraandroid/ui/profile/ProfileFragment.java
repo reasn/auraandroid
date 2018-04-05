@@ -11,8 +11,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
@@ -48,7 +48,7 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     private final Handler mHandler = new Handler();
     private TextView mNameView;
     private EditText mTextView;
-    private Button mColorButtonView;
+    private LinearLayout mColorWrapper;
 
     public static ProfileFragment create(Context context,
                                          MyProfileManager myProfileManager,
@@ -67,11 +67,11 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
         mRootView = (ViewGroup) inflater.inflate(
                 R.layout.profile_fragment, container, false);
 
-        mColorButtonView = mRootView.findViewById(R.id.color_button);
+        mColorWrapper = mRootView.findViewById(R.id.color_button_wrapper);
         mNameView = mRootView.findViewById(R.id.my_name);
         mTextView = mRootView.findViewById(R.id.my_text);
 
-        mColorButtonView.setOnClickListener($ ->
+        mColorWrapper.setOnClickListener($ ->
                 mDialogManager.showColorPickerDialog(
                         mMyProfileManager.getProfile().getColor(),
                         mMyProfileManager.getProfile().getColorPickerPointX(),
@@ -101,7 +101,7 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
                 event -> {
                     switch (event) {
                         case EVENT_COLOR_CHANGED:
-                            mColorButtonView.setBackgroundColor(Color.parseColor(mMyProfileManager.getColor()));
+                            mColorWrapper.getChildAt(0).setBackgroundColor(Color.parseColor(mMyProfileManager.getColor()));
                             break;
 
                         case EVENT_NAME_CHANGED:

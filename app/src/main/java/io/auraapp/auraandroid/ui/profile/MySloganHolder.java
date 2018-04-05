@@ -7,7 +7,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
-import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.ui.common.lists.ItemViewHolder;
 import io.auraapp.auraandroid.ui.common.lists.ListItem;
 import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapter;
@@ -32,10 +31,14 @@ public class MySloganHolder extends ItemViewHolder {
         mExpandedWrapper = itemView.findViewById(R.id.expanded_wrapper);
         mEditButtonView = itemView.findViewById(R.id.edit_button);
         mDropButtonView = itemView.findViewById(R.id.drop_button);
-        itemView.setOnClickListener($ -> collapseExpandHandler.flip(getLastBoundItem()));
 
-        mEditButtonView.setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_profile_list_item_edit)));
-        mDropButtonView.setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_profile_list_item_drop)));
+        itemView.setOnClickListener($ -> collapseExpandHandler.flip(getLastBoundItem()));
+        mSloganTextView.setOnClickListener($ -> collapseExpandHandler.flip(getLastBoundItem()));
+
+        mEditButtonView.setText("Edit");
+        mDropButtonView.setText("Delete");
+//        mEditButtonView.setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_profile_list_item_edit)));
+//        mDropButtonView.setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_profile_list_item_drop)));
     }
 
     @Override
@@ -47,6 +50,7 @@ public class MySloganHolder extends ItemViewHolder {
         mItemView.setBackgroundColor(mBackgroundColor);
 
         MySloganListItem castItem = (MySloganListItem) item;
+
         mSloganTextView.setTextColor(mTextColor);
         mSloganTextView.setText(castItem.getSlogan().getText());
         if (!castItem.mExpanded) {

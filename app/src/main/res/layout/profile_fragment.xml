@@ -26,25 +26,31 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <!--TODO change margin into padding to increase click area-->
-                <Button
-                    android:id="@+id/color_button"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_gravity="center"
-                    android:layout_margin="14dp"
-                    android:elevation="0dp"
-                    android:shadowRadius="0" />
+                <LinearLayout
+                    android:id="@+id/color_button_wrapper"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
 
-                <!--TODO add overflow ... if too long-->
+                    <LinearLayout
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_margin="14dp" />
+
+                </LinearLayout>
+
                 <TextView
                     android:id="@+id/my_name"
-                    style="@style/ProfileProperty"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:background="@color/white"
                     android:ellipsize="end"
                     android:maxLines="1"
+                    android:padding="16dp"
+                    android:paddingEnd="16dp"
+                    android:paddingStart="0dp"
+                    android:textColor="@color/black"
+
                     android:textSize="24sp" />
             </LinearLayout>
 
@@ -52,14 +58,9 @@
                  consistent with the corresponding edit dialog -->
             <EditText
                 android:id="@+id/my_text"
-                style="@style/ProfileText"
+                style="@style/MonoSpaceView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:enabled="true"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:inputType="textMultiLine"
-                android:longClickable="false"
                 tools:ignore="LabelFor" />
 
             <!--<LinearLayout-->

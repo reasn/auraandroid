@@ -6,12 +6,13 @@ import android.support.annotation.StringRes;
 import android.view.View;
 
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.EmojiHelper;
 
 public class DialogBuilder {
 
     private Context mContext;
     private String mTitle;
-    private View mView;
+    private View mView = null;
     private boolean keyboard;
     private DialogManager.DialogState mDialogState;
     private Runnable mOnConfirm;
@@ -86,14 +87,17 @@ public class DialogBuilder {
         return this;
     }
 
-    public AuraDialog build() {
-        AuraDialog dialog = AuraDialog.create(
+    public FullWidthDialog build() {
+        FullWidthDialog dialog = FullWidthDialog.create(
                 mContext,
-                mTitle,
-                mView,
+                EmojiHelper.replaceShortCode(mTitle),
                 keyboard,
                 mDialogState,
                 mOnConfirm);
+
+        if (mView != null) {
+            dialog.setContent(mView);
+        }
 
         dialog.getCancelButton().setText(mCancelText);
         dialog.getConfirmButton().setText(mConfirmText);
