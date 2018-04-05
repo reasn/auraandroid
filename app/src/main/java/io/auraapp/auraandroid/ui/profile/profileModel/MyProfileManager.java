@@ -21,7 +21,6 @@ import static android.content.Context.MODE_PRIVATE;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
 
 public class MyProfileManager {
-
     @FunctionalInterface
     public interface MyProfileChangedCallback {
         public void myProfileChanged(int event);
@@ -150,6 +149,12 @@ public class MyProfileManager {
         mMyProfile.mSlogans.remove(slogan);
 
         persistProfile(EVENT_DROPPED);
+    }
+
+    public void dropAllSlogans() {
+        for (Slogan slogan : getProfile().getSlogans().toArray(new Slogan[getProfile().getSlogans().size()])) {
+            dropSlogan(slogan);
+        }
     }
 
     private void persistProfile(int event) {

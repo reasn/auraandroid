@@ -77,9 +77,7 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
             }
             mMyProfileManager.setText(text.toString());
             mMyProfileManager.setColor(new ColorPicker.SelectedColor("#ff00ff", 0, 0));
-            for (Slogan slogan : mMyProfileManager.getProfile().getSlogans()) {
-                mMyProfileManager.dropSlogan(slogan);
-            }
+            mMyProfileManager.dropAllSlogans();
             for (int i = 0; i < Config.PROFILE_SLOGANS_MAX_SLOGANS; i++) {
                 mMyProfileManager.adopt(Slogan.create(createRandomStringOfLength(Config.PROFILE_SLOGANS_MAX_LENGTH)));
             }
@@ -90,9 +88,7 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
             mMyProfileManager.setName("Anonymous");
             mMyProfileManager.setText(EmojiHelper.replaceShortCode(":fire::fire::fire:\nDemocracy prevails. Let your kindness be a symbol for humanism and a better future"));
             mMyProfileManager.setColor(new ColorPicker.SelectedColor("#000000", 0, 0));
-            for (Slogan slogan : mMyProfileManager.getProfile().getSlogans()) {
-                mMyProfileManager.dropSlogan(slogan);
-            }
+            mMyProfileManager.dropAllSlogans();
             mMyProfileManager.adopt(Slogan.create("Death to the dictator!"));
         }));
 
@@ -100,9 +96,7 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
             mMyProfileManager.setName("Clara");
             mMyProfileManager.setText(EmojiHelper.replaceShortCode("My brother wants to collect"));
             mMyProfileManager.setColor(new ColorPicker.SelectedColor("#00ff00", 0, 0));
-            for (Slogan slogan : mMyProfileManager.getProfile().getSlogans()) {
-                mMyProfileManager.dropSlogan(slogan);
-            }
+            mMyProfileManager.dropAllSlogans();
             mMyProfileManager.adopt(Slogan.create("Hello Moto"));
         }));
 
