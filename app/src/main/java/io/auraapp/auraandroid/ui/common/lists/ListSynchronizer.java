@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import io.auraapp.auraandroid.ui.profile.SpacerItem;
+
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
@@ -20,15 +22,19 @@ public class ListSynchronizer {
     }
 
     public static void syncLists(List<ListItem> items,
-                          List<ListItem> newItems,
-                          RecyclerView.Adapter<?> notificationReceiver,
-                          CompareCallback compareCallback) {
+                                 List<ListItem> newItems,
+                                 RecyclerView.Adapter<?> notificationReceiver,
+                                 CompareCallback compareCallback) {
         d(TAG, "Updating list, mySlogans: %d", newItems.size());
 
         Set<Runnable> mutations = new HashSet<>();
 
         // Update changed and remove absent items
         for (ListItem item : items) {
+
+            if (item instanceof SpacerItem) {
+                continue;
+            }
 
             boolean found = false;
             for (ListItem newItem : newItems) {

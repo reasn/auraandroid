@@ -66,6 +66,12 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
                 case MyProfileManager.EVENT_TEXT_CHANGED:
                     fragment.updateNameAndTextViews();
                     break;
+                case MyProfileManager.EVENT_DROPPED:
+                case MyProfileManager.EVENT_ADOPTED:
+                    // If the numbers of slogans changes, the background has to be adapted
+                    // to maintain color alternation
+                    fragment.updateViewsWithColor();
+                    break;
             }
         });
 

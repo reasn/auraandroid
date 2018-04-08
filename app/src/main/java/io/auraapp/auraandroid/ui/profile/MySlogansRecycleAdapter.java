@@ -31,7 +31,7 @@ public class MySlogansRecycleAdapter extends RecyclerAdapter {
     private final MyProfileManager mMyProfileManager;
 
     @FunctionalInterface
-    public static interface OnMySloganActionCallback {
+    public interface OnMySloganActionCallback {
         int ACTION_EDIT = 2;
         int ACTION_DROP = 3;
 
@@ -40,6 +40,7 @@ public class MySlogansRecycleAdapter extends RecyclerAdapter {
 
     private static final String TAG = "@aura/" + MySlogansRecycleAdapter.class.getSimpleName();
 
+    private final static int TYPE_SPACER = 197;
     private final static int TYPE_MY_SLOGAN = 198;
     private final OnMySloganActionCallback mOnMySloganActionCallback;
 
@@ -50,11 +51,14 @@ public class MySlogansRecycleAdapter extends RecyclerAdapter {
         super(context, listView);
         mOnMySloganActionCallback = onMySloganActionCallback;
         mMyProfileManager = myProfileManager;
+        mItems.add(new SpacerItem());
+
         mMyProfileManager.addChangedCallback(event -> {
+
             if (event == EVENT_COLOR_CHANGED) {
                 notifyDataSetChanged();
-            }
-            if (event == EVENT_ADOPTED
+
+            } else if (event == EVENT_ADOPTED
                     || event == EVENT_DROPPED
                     || event == EVENT_REPLACED) {
                 i(TAG, "Slogans changes (%s), synchronizing view", MyProfileManager.nameEvent(event));
@@ -74,13 +78,16 @@ public class MySlogansRecycleAdapter extends RecyclerAdapter {
                 mItems,
                 newItems,
                 this,
-                (item, newItem) -> item.compareIndex(newItem) > 0
+                (item, newItem) -> item instanceof SpacerItem || item.compareIndex(newItem) > 0
         );
     }
 
     @NonNull
     @Override
     public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (viewType == TYPE_SPACER) {
+            return new SpacerHolder(mInflater.inflate(R.layout.profile_list_item_spacer, parent, false));
+        }
         return new MySloganHolder(
                 mInflater.inflate(R.layout.profile_list_item_slogan, parent, false),
                 mContext,
@@ -93,10 +100,16 @@ public class MySlogansRecycleAdapter extends RecyclerAdapter {
     public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
 
+        if (holder instanceof SpacerHolder) {
+            return;
+        }
+
         // Alternating colors
         int color = Color.parseColor(mMyProfileManager.getColor());
-        ((MySloganHolder) holder).colorize(
-                position % 2 == 0 ? color : ColorHelper.getAccent(color),
+        holder.colorize(
+                position % 2 == 0
+                        ? color
+                        : ColorHelper.getAccent(color),
                 ColorHelper.getTextColor(color)
         );
 
@@ -104,6 +117,9 @@ public class MySlogansRecycleAdapter extends RecyclerAdapter {
 
     @Override
     public int getItemViewType(int position) {
+        if (mItems.get(position) instanceof SpacerItem) {
+            return TYPE_SPACER;
+        }
         return TYPE_MY_SLOGAN;
     }
 }
