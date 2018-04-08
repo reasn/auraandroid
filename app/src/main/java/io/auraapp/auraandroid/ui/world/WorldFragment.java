@@ -101,7 +101,6 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
 
     public void updateAllViews() {
 
-
         if (mRootView == null) {
             // onCreateView has not been called yet, no need to update any views.
             return;
@@ -155,7 +154,7 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
             return;
 
         }
-        String headerText = mContext.getResources().getQuantityString(R.plurals.ui_main_peers_heading_slogans, mLastPeerSloganMap.size(), mLastPeerSloganMap.size());
+        String headerText = mContext.getResources().getQuantityString(R.plurals.ui_world_peers_heading_slogans, mLastPeerSloganMap.size(), mLastPeerSloganMap.size());
 
         boolean synchronizing = false;
         for (Peer peer : mLastPeers) {
@@ -192,18 +191,18 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
 //        }
 
         if (System.currentTimeMillis() - mLastState.mScanStartTimestamp < Config.MAIN_LOOKING_AROUND_SHOW_DURATION) {
-            mPeersInfoBox.setHeading(R.string.ui_main_status_peers_starting_heading);
-            mPeersInfoBox.setText(R.string.ui_main_status_peers_starting_text);
+            mPeersInfoBox.setHeading(R.string.ui_world_starting_heading);
+            mPeersInfoBox.setText(R.string.ui_world_starting_text);
             mPeersInfoBox.setEmoji(":satellite_antenna:");
             mPeersInfoBox.hideButton();
 
         } else {
-            mPeersInfoBox.setHeading(R.string.ui_main_status_peers_no_peers_info_heading);
-            mPeersInfoBox.setText(R.string.ui_main_status_peers_no_peers_info_text);
+            mPeersInfoBox.setHeading(R.string.ui_world_no_peers_info_heading);
+            mPeersInfoBox.setText(R.string.ui_world_no_peers_info_text);
             mPeersInfoBox.setEmoji(":see_no_evil:");
             mPeersInfoBox.showButton(
-                    R.string.ui_main_status_peers_no_peers_info_heading_cta,
-                    R.string.ui_main_status_peers_no_peers_info_second_text,
+                    R.string.ui_world_no_peers_info_heading_cta,
+                    R.string.ui_world_no_peers_info_second_text,
                     $ -> {
                         Intent sendIntent = new Intent();
                         sendIntent.setAction(Intent.ACTION_SEND);

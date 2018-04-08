@@ -7,23 +7,22 @@
 
     <string name="ui_main_share_text">Hey check out Aura, I promise you haven\'t seen any app like it :fire: https://www.getaura.io</string>
 
-    <!--Toolbar-->
+    <!-- Toolbar -->
     <string name="ui_toolbar_enable_on">On\u00A0\u00A0</string>
     <string name="ui_toolbar_enable_off">Off\u00A0\u00A0</string>
     <string name="ui_toolbar_help">Help</string>
     <string name="ui_toolbar_debug">Debug</string>
     <string name="ui_toolbar_refresh">Refresh</string>
 
-    <!--Permissions Missing fragment-->
-    <string name="ui_permissionsMissing_heading">Welcome!</string>
-    <string name="ui_permissionsMissing_text">Aura can only work with some basic permissions.\n\nDon\'t worry, no data will be transmitted via the internet. \nYou are safe.</string>
-    <string name="ui_permissionsMissing_request">Allow my Aura</string>
-    <string name="ui_permissionsMissing_second_text">If clicking the button above doesn\'t work, you have to manually grant Aura the necessary permissions.\nPlease click the button below, then "Permissions" and grant Aura access to your location.</string>
-    <string name="ui_permissionsMissing_appSettings">Open App Settings</string>
+    <!-- Permissions Missing -->
+    <string name="ui_permissions_heading">Welcome!</string>
+    <string name="ui_permissions_text">Aura can only work with some basic permissions.\n\nDon\'t worry, no data will be transmitted via the internet. \nYou are safe.</string>
+    <string name="ui_permissions_request">Allow my Aura</string>
+    <string name="ui_permissions_second_text">If clicking the button above doesn\'t work, you have to manually grant Aura the necessary permissions.\nPlease click the button below, then "Permissions" and grant Aura access to your location.</string>
+    <string name="ui_permissions_appSettings">Open App Settings</string>
+    <string name="ui_permissions_granted_text">Great, you\'re all set!\nSwipe to start.</string>
 
-    <string name="ui_permissionsMissing_granted_text">Great, you\'re all set!\nSwipe to start.</string>
-
-    <!--Privacy fragment-->
+    <!-- Privacy -->
     <string name="ui_screen_privacy_heading">Aura Agreement</string>
     <string name="ui_screen_privacy_first_text">Five points worth reading.</string>
     <string name="ui_screen_privacy_second_text">1. The data you enter is visible to Aura users around you.
@@ -33,85 +32,72 @@
         \n\n5. Aura believes in humanism, freedom of speech, respect and equality of all people. If you don\'t, please uninstall it and read a wide variety of books.
         \n\n\nIf you agree, swipe to continue</string>
 
-    <!--Profile fragment-->
+    <!-- Profile -->
     <string name="ui_profile_list_item_edit">Edit</string>
     <string name="ui_profile_list_item_drop">Delete</string>
-
-    <!--Main Activity-->
-
-    <string name="ui_main_toast_debug_view_enabled">Debug view enabled</string>
-    <string name="ui_main_toast_debug_view_disabled">Debug view disabled</string>
-
-    <string name="ui_main_toast_slogan_already_adopted">This idea is already in your Aura</string>
-    <string name="ui_main_toast_cannot_add_no_space_available">Please delete on of your ideas before adding a new one</string>
     <string name="ui_profile_toast_slogan_adopted">Idea adopted</string>
     <string name="ui_profile_toast_slogan_replaced">Idea changed</string>
     <string name="ui_profile_toast_slogan_dropped">Idea removed</string>
     <string name="ui_profile_toast_name_changed">Name changed</string>
     <string name="ui_profile_toast_text_changed">Bio changed</string>
+    <!--Dialog: Edit Profile Property-->
+    <string name="ui_profile_dialog_edit_confirm">Save</string>
+    <string name="ui_profile_dialog_edit_cancel">Cancel</string>
+    <!--Dialog: Edit Color -->
+    <string name="ui_profile_dialog_edit_color_title">Your Aura\'s Color</string>
+    <!--Dialog: Edit Name -->
+    <string name="ui_profile_dialog_edit_name_title">Change my Name</string>
+    <string name="ui_profile_dialog_edit_name_hint">Your Name</string>
+    <!--Dialog: Edit Text -->
+    <string name="ui_profile_dialog_edit_text_title">Change my Bio</string>
+    <string name="ui_profile_dialog_edit_text_hint">My text</string>
+    <!--Dialog: Add/Edit Slogan-->
+    <string name="ui_profile_dialog_edit_slogan_hint">Your idea</string>
+    <!--Dialog: Add Slogan-->
+    <string name="ui_profile_dialog_add_slogan_title">Add an Idea</string>
+    <string name="ui_main_add_slogan_too_short">Nothing added - too short</string>
+    <!--Dialog: Edit Slogan-->
+    <string name="ui_profile_dialog_edit_slogan_title">Change my Idea</string>
+    <plurals name="ui_dialog_edit_slogan_line_break_limit">
+        <item quantity="zero">You cannot add line breaks</item>
+        <item quantity="one">You can only add one line break</item>
+        <item quantity="other">You can only add %d line breaks</item>
+    </plurals>
+    <!--Dialog: Replace Slogan-->
+    <string name="ui_profile_dialog_replace_title">Adopt Idea</string>
+    <plurals name="ui_profile_dialog_replace_message">
+        <item quantity="zero">You can\'t have any ideas</item>
+        <item quantity="one">You can have only one idea. Please choose one of your idea to replace.</item>
+        <item quantity="two">You can have only two ideas. Please choose one of your idea to replace.</item>
+        <item quantity="other">You can have up to %d ideas. Please choose one of your idea to replace.</item>
+    </plurals>
+    <string name="ui_profile_dialog_replace_confirm">Replace</string>
+    <string name="ui_profile_dialog_replace_cancel">Cancel</string>
+    <!--Dialog: Drop Slogan-->
+    <string name="ui_profile_dialog_drop_title">Delete this Idea?</string>
+    <string name="ui_profile_dialog_drop_message">The idea will no longer be visible to others. This cannot be undone.</string>
+    <string name="ui_profile_dialog_drop_confirm">Delete it</string>
+    <string name="ui_profile_dialog_drop_cancel">Cancel</string>
 
-    <string name="ui_main_toast_refresh_no_peers">Refreshing …</string>
-    <plurals name="ui_main_toast_refresh">
+    <!-- World -->
+    <string name="ui_world_toast_slogan_already_adopted">This idea is already in your Aura</string>
+    <string name="ui_world_toast_cannot_add_no_space_available">Please delete on of your ideas before adding a new one</string>
+    <string name="ui_world_toast_refresh_no_peers">Refreshing …</string>
+    <plurals name="ui_world_toast_refresh">
         <item quantity="one">Refreshing nearby ideas …</item>
         <item quantity="other">Refreshing nearby ideas …</item>
     </plurals>
-
-    <string name="ui_main_status_communicator_bt_restart_required_heading">Bluetooth Crashed</string>
-    <string name="ui_main_status_communicator_bt_restart_required_text">Error: ##error##
-        \nMany devices (including yours) have issues with Bluetooth crashing.
-    \nPlease disable Bluetooth and activate it again.
-    \nIf that doesn\'t solve the issue, try restarting your device.
-    \nThis problem is not caused by Aura. Sorry about this!</string>
-
-    <string name="ui_main_status_communicator_bt_disabled_heading">Bluetooth Off</string>
-    <string name="ui_main_status_communicator_bt_disabled_text">Please enable Bluetooth to turn your Aura on.</string>
-
-    <string name="ui_main_status_summary_communicator_bt_turning_on">:hourglass: Bluetooth is starting.</string>
-    <string name="ui_main_status_summary_communicator_on_not_active">:hourglass: Aura is getting ready.</string>
-    <!--<string name="ui_main_status_summary_communicator_on">Your Aura is on - people see you :sunglasses:</string>-->
-    <plurals name="ui_main_status_summary_peers">
-        <item quantity="one">One :silhouette_head: nearby.</item>
-        <item quantity="other">%d :silhouette_head: nearby.</item>
-    </plurals>
-
-    <string name="ui_main_status_communicator_ble_not_supported_heading">Device Unsupported</string>
-    <string name="ui_main_status_communicator_ble_not_supported_text">Your device doesn\'t properly support Bluetooth LE.
-        \nWe\'re really sorry, you can\'t use Aura.
-        \nThis is a hardware issue and won\'t change in the future.</string>
-
-    <string name="ui_main_status_communicator_disabled_heading">Your Aura is off</string>
-    <string name="ui_main_status_communicator_disabled_text">You\'re invisible and receive no updates.</string>
-
-    <string name="ui_main_status_communicator_advertising_not_supported_heading">You\'re invisible.</string>
-    <string name="ui_main_status_communicator_advertising_not_supported_text">Your device supports seeing others but not showing your Aura.
-        \nThis is a hardware issue and won\'t change in the future.</string>
-
-    <string name="ui_main_status_peers_no_peers_info_heading">Nobody Around</string>
-    <string name="ui_main_status_peers_no_peers_info_text">Make it more exciting - invite people!</string>
-    <string name="ui_main_status_peers_no_peers_info_heading_cta">:fire: Invite Friends!</string>
-    <string name="ui_main_status_peers_no_peers_info_second_text">Should be seeing someone? Try turning Bluetooth off and on again.
-    </string>
-    <string name="ui_main_status_peers_not_scanning_heading">Your Aura is off</string>
-    <string name="ui_main_status_peers_not_scanning_text">Turn on your Aura to see the ideas of others.</string>
-
-    <string name="ui_main_status_peers_starting_heading">Looking around</string>
-    <string name="ui_main_status_peers_starting_text">Let\'s give it a few seconds to see if there\'s anybody around.</string>
-
-    <plurals name="ui_main_my_slogans_heading">
-        <item quantity="zero">You don't have any ideas</item>
-        <item quantity="one">You have one idea</item>
-        <item quantity="other">You have %d ideas</item>
-    </plurals>
-    <string name="ui_main_my_slogans_info_no_slogans_heading">Your Aura is empty</string>
-    <string name="ui_main_my_slogans_info_no_slogans_text">Your Aura contains no ideas for others to see.</string>
-    <!--<string name="ui_main_my_slogans_info_no_slogans_heading_cta">Add my first idea</string>-->
-
-    <plurals name="ui_main_peers_heading_slogans">
+    <string name="ui_world_no_peers_info_heading">Nobody Around</string>
+    <string name="ui_world_no_peers_info_text">Make it more exciting - invite people!</string>
+    <string name="ui_world_no_peers_info_heading_cta">:fire: Invite Friends!</string>
+    <string name="ui_world_no_peers_info_second_text">Should be seeing someone? Try turning Bluetooth off and on again.</string>
+    <string name="ui_world_starting_heading">Looking around</string>
+    <string name="ui_world_starting_text">Let\'s give it a few seconds to see if there\'s anybody around.</string>
+    <plurals name="ui_world_peers_heading_slogans">
         <item quantity="zero">No ideas nearby</item>
         <item quantity="one">Others shared one idea</item>
         <item quantity="other">Others shared %d idea</item>
     </plurals>
-
     <string name="ui_world_peer_slogan_adopt">:fire:</string>
     <plurals name="ui_world_peer_slogan_authors">
         <!--Must never be displayed-->
@@ -121,13 +107,38 @@
         <item quantity="two">Two authors</item>
         <item quantity="other">%d authors</item>
     </plurals>
-    <string name="ui_main_peer_slogan_last_seen_lt_10s">Nearby</string>
-    <string name="ui_main_peer_slogan_last_seen_lt_1min">Less than a minute ago</string>
-    <string name="ui_main_peer_slogan_last_seen_lt_10min">Less than ##elapsed_minutes##"min ago</string>
-    <string name="ui_main_peer_slogan_last_seen_lt_30min">Less than 30min ago</string>
-    <string name="ui_main_peer_slogan_last_seen_lt_45min">Less than 45min ago</string>
-    <string name="ui_main_peer_slogan_last_seen_lte_1h">Less than an hour ago</string>
-    <string name="ui_main_peer_slogan_last_seen_gt_1h">More than an hour ago</string>
+    <string name="ui_world_slogan_last_seen_lt_10s">Nearby</string>
+    <string name="ui_world_slogan_last_seen_lt_1min">Less than a minute ago</string>
+    <string name="ui_world_slogan_last_seen_lt_10min">Less than ##elapsed_minutes##"min ago</string>
+    <string name="ui_world_slogan_last_seen_lt_30min">Less than 30min ago</string>
+    <string name="ui_world_slogan_last_seen_lt_45min">Less than 45min ago</string>
+    <string name="ui_world_slogan_last_seen_lte_1h">Less than an hour ago</string>
+    <string name="ui_world_slogan_last_seen_gt_1h">More than an hour ago</string>
+
+    <!--Main Activity-->
+    <string name="ui_main_toast_debug_view_enabled">Debug view enabled</string>
+    <string name="ui_main_toast_debug_view_disabled">Debug view disabled</string>
+
+    <!-- Common > Communicator State -->
+    <string name="ui_common_communicator_bt_restart_required_heading">Bluetooth Crashed</string>
+    <string name="ui_common_communicator_bt_restart_required_text">Error: ##error##
+        \nMany devices (including yours) have issues with Bluetooth crashing.
+    \nPlease disable Bluetooth and activate it again.
+    \nIf that doesn\'t solve the issue, try restarting your device.
+    \nThis problem is not caused by Aura. Sorry about this!</string>
+    <string name="ui_common_communicator_bt_disabled_heading">Bluetooth Off</string>
+    <string name="ui_common_communicator_bt_disabled_text">Please enable Bluetooth to turn your Aura on.</string>
+    <string name="ui_common_communicator_summary_bt_turning_on">:hourglass: Bluetooth is starting.</string>
+    <string name="ui_common_communicator_summary_on_not_active">:hourglass: Aura is getting ready.</string>
+    <string name="ui_common_communicator_ble_not_supported_heading">Device Unsupported</string>
+    <string name="ui_common_communicator_ble_not_supported_text">Your device doesn\'t properly support Bluetooth LE.
+        \nWe\'re really sorry, you can\'t use Aura.
+        \nThis is a hardware issue and won\'t change in the future.</string>
+    <string name="ui_common_communicator_disabled_heading">Your Aura is off</string>
+    <string name="ui_common_communicator_disabled_text">You\'re invisible and receive no updates.</string>
+    <string name="ui_common_communicator_advertising_not_supported_heading">You\'re invisible.</string>
+    <string name="ui_common_communicator_advertising_not_supported_text">Your device supports seeing others but not showing your Aura.
+        \nThis is a hardware issue and won\'t change in the future.</string>
 
     <!--Dialog: Common-->
     <string name="ui_common_dialog_confirm">Okay</string>
@@ -139,80 +150,17 @@
     <string name="ui_dialog_bt_broken_confirm">Okay</string>
     <string name="ui_dialog_bt_broken_never_show_again">Don\'t show this message again</string>
 
-    <!--Dialog: Edit Profile Property-->
-    <string name="ui_profile_dialog_edit_confirm">Save</string>
-    <string name="ui_profile_dialog_edit_cancel">Cancel</string>
-
-    <!--Dialog: Edit Color -->
-    <string name="ui_profile_dialog_edit_color_title">Change my Color</string>
-
-    <!--Dialog: Edit Name -->
-    <string name="ui_profile_dialog_edit_name_title">Change my Name</string>
-    <string name="ui_profile_dialog_edit_name_hint">Your Name</string>
-
-    <!--Dialog: Edit Text -->
-    <string name="ui_profile_dialog_edit_text_title">Change my Bio</string>
-    <string name="ui_profile_dialog_edit_text_hint">My text</string>
-
-    <!--Dialog: Add/Edit Slogan-->
-    <string name="ui_profile_dialog_edit_slogan_hint">Your idea</string>
-
-    <!--Dialog: Add Slogan-->
-    <string name="ui_profile_dialog_add_slogan_title">Add an Idea</string>
-    <string name="ui_main_add_slogan_too_short">Nothing added - too short</string>
-
-    <!--Dialog: Edit Slogan-->
-    <string name="ui_profile_dialog_edit_slogan_title">Change my Idea</string>
-
-
-    <plurals name="ui_dialog_edit_slogan_line_break_limit">
-        <item quantity="zero">You cannot add line breaks</item>
-        <item quantity="one">You can only add one line break</item>
-        <item quantity="other">You can only add %d line breaks</item>
-    </plurals>
-
-    <!--Dialog: Replace Slogan-->
-    <string name="ui_profile_dialog_replace_title">Adopt Idea</string>
-    <plurals name="ui_profile_dialog_replace_message">
-        <item quantity="zero">You can\'t have any ideas</item>
-        <item quantity="one">You can have only one idea. Please choose one of your idea to replace.</item>
-        <item quantity="two">You can have only two ideas. Please choose one of your idea to replace.</item>
-        <item quantity="other">You can have up to %d ideas. Please choose one of your idea to replace.</item>
-    </plurals>
-    <string name="ui_profile_dialog_replace_confirm">Replace</string>
-    <string name="ui_profile_dialog_replace_cancel">Cancel</string>
-
-    <!--Dialog: Drop Slogan-->
-    <string name="ui_profile_dialog_drop_title">Delete this Idea?</string>
-    <string name="ui_profile_dialog_drop_message">The idea will no longer be visible to others. This cannot be undone.</string>
-    <string name="ui_profile_dialog_drop_confirm">Delete it</string>
-    <string name="ui_profile_dialog_drop_cancel">Cancel</string>
-
     <!--Notifications-->
     <string name="ui_notification_no_permission_title">Your Aura is off</string>
     <string name="ui_notification_no_permission_text">Aura needs permissions to run</string>
-
     <string name="ui_notification_bt_disabled_title">Your Aura is off</string>
     <string name="ui_notification_bt_disabled_text">Please activate Bluetooth for Aura to work</string>
-
     <string name="ui_notification_ble_not_supported_title">Your Aura is off</string>
     <string name="ui_notification_ble_not_supported_text">Your device doesn\'t support Bluetooth LE</string>
-
     <string name="ui_notification_disabled_title">Your Aura is off</string>
-
     <string name="ui_notification_advertising_not_supported_title">Your Aura is invisible</string>
     <string name="ui_notification_advertising_not_supported_text">Your device doesn\'t support being visible :/</string>
-
     <string name="ui_notification_on_not_active_title">Your Aura is getting ready</string>
-
     <string name="ui_notification_on_title">Your Aura is on</string>
-
-    <string name="title_activity_tutorial_first_screen">TutorialFirstScreenActivity</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
-
-    <string name="title_activity_tutorial_second_screen">TutorialSecondScreenActivity</string>
-    <string name="ui_profile_dialog_pick_color_title">Your Aura\'s Color</string>
-    <string name="ui_profile_dialog_pick_color_close">Close</string>
 
 </resources>

@@ -176,7 +176,7 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
 
     private void showAddDialog() {
         if (!mMyProfileManager.spaceAvailable()) {
-            toast(R.string.ui_main_toast_cannot_add_no_space_available);
+            toast(R.string.ui_world_toast_cannot_add_no_space_available);
             return;
         }
         mDialogManager.showParametrizedSloganEdit(R.string.ui_profile_dialog_add_slogan_title,

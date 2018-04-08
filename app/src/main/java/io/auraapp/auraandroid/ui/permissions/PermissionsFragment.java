@@ -61,7 +61,7 @@ public class PermissionsFragment extends ScreenFragment {
             }
         });
         Button showAppSettingsButton = mView.findViewById(R.id.show_app_settings);
-        showAppSettingsButton.setText(EmojiHelper.replaceShortCode(getString(R.string.ui_permissionsMissing_appSettings)));
+        showAppSettingsButton.setText(EmojiHelper.replaceShortCode(getString(R.string.ui_permissions_appSettings)));
         showAppSettingsButton.setOnClickListener($ -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getContext().getPackageName()));
@@ -74,7 +74,7 @@ public class PermissionsFragment extends ScreenFragment {
         });
 
         ((TextView) mView.findViewById(R.id.granted_emoji)).setText(EmojiHelper.replaceShortCode(":grinning_face:"));
-        ((TextView) mView.findViewById(R.id.granted_text)).setText(EmojiHelper.replaceShortCode(getContext().getString(R.string.ui_permissionsMissing_granted_text)));
+        ((TextView) mView.findViewById(R.id.granted_text)).setText(EmojiHelper.replaceShortCode(getContext().getString(R.string.ui_permissions_granted_text)));
 
         if (mRedirected) {
             mView.findViewById(R.id.not_granted).setVisibility(View.GONE);

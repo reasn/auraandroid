@@ -27,8 +27,8 @@ public class CommunicatorStateRenderer {
 
         Runnable showAuraOffInfoBox = () -> {
             infoBox.setEmoji(":sleeping_sign:");
-            infoBox.setHeading(R.string.ui_main_status_communicator_disabled_heading);
-            infoBox.setText(R.string.ui_main_status_communicator_disabled_text);
+            infoBox.setHeading(R.string.ui_common_communicator_disabled_heading);
+            infoBox.setText(R.string.ui_common_communicator_disabled_text);
             infoBox.hideButton();
             infoBox.setColor(R.color.infoBoxWarning);
         };
@@ -39,27 +39,27 @@ public class CommunicatorStateRenderer {
 
         } else if (state.mBluetoothRestartRequired) {
             infoBox.setEmoji(":dizzy_face:");
-            infoBox.setHeading(R.string.ui_main_status_communicator_bt_restart_required_heading);
-            infoBox.setText(context.getString(R.string.ui_main_status_communicator_bt_restart_required_text)
+            infoBox.setHeading(R.string.ui_common_communicator_bt_restart_required_heading);
+            infoBox.setText(context.getString(R.string.ui_common_communicator_bt_restart_required_text)
                     .replaceAll("##error##", state.mLastError != null ? state.mLastError : "unknown"));
             infoBox.hideButton();
             infoBox.setColor(R.color.infoBoxError);
             show = BOX;
 
         } else if (state.mBtTurningOn) {
-            summary.setText(EmojiHelper.replaceShortCode(context.getString(R.string.ui_main_status_summary_communicator_bt_turning_on)));
+            summary.setText(EmojiHelper.replaceShortCode(context.getString(R.string.ui_common_communicator_summary_bt_turning_on)));
             summary.setBackgroundColor(context.getResources().getColor(R.color.yellow));
         } else if (!state.mBtEnabled) {
             infoBox.setEmoji(":broken_heart:");
-            infoBox.setHeading(R.string.ui_main_status_communicator_bt_disabled_heading);
-            infoBox.setText(R.string.ui_main_status_communicator_bt_disabled_text);
+            infoBox.setHeading(R.string.ui_common_communicator_bt_disabled_heading);
+            infoBox.setText(R.string.ui_common_communicator_bt_disabled_text);
             infoBox.hideButton();
             infoBox.setColor(R.color.infoBoxWarning);
             show = BOX;
         } else if (!state.mBleSupported) {
             infoBox.setEmoji(":dizzy_face:");
-            infoBox.setHeading(context.getString(R.string.ui_main_status_communicator_ble_not_supported_heading));
-            infoBox.setText(R.string.ui_main_status_communicator_ble_not_supported_text);
+            infoBox.setHeading(context.getString(R.string.ui_common_communicator_ble_not_supported_heading));
+            infoBox.setText(R.string.ui_common_communicator_ble_not_supported_text);
             infoBox.hideButton();
             infoBox.setColor(R.color.infoBoxError);
             show = BOX;
@@ -68,18 +68,18 @@ public class CommunicatorStateRenderer {
             show = BOX;
         } else if (!state.mAdvertisingSupported) {
             infoBox.setEmoji(":broken_heart:");
-            infoBox.setHeading(R.string.ui_main_status_communicator_advertising_not_supported_heading);
-            infoBox.setText(R.string.ui_main_status_communicator_advertising_not_supported_text);
+            infoBox.setHeading(R.string.ui_common_communicator_advertising_not_supported_heading);
+            infoBox.setText(R.string.ui_common_communicator_advertising_not_supported_text);
             infoBox.hideButton();
             infoBox.setColor(R.color.infoBoxWarning);
             show = BOX;
         } else if (!state.mAdvertising) {
             w(TAG, "Not advertising although it is possible.");
-            summary.setText(EmojiHelper.replaceShortCode(context.getString(R.string.ui_main_status_summary_communicator_on_not_active)));
+            summary.setText(EmojiHelper.replaceShortCode(context.getString(R.string.ui_common_communicator_summary_on_not_active)));
             summary.setBackgroundColor(context.getResources().getColor(R.color.yellow));
         } else if (!state.mScanning) {
             w(TAG, "Not scanning although it is possible.");
-            summary.setText(EmojiHelper.replaceShortCode(context.getString(R.string.ui_main_status_summary_communicator_on_not_active)));
+            summary.setText(EmojiHelper.replaceShortCode(context.getString(R.string.ui_common_communicator_summary_on_not_active)));
             summary.setBackgroundColor(context.getResources().getColor(R.color.yellow));
 
         } else {

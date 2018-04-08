@@ -44,11 +44,11 @@
             android:id="@+id/info_box"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:button_caption="@string/ui_permissionsMissing_request"
+            app:button_caption="@string/ui_permissions_request"
             app:emoji=":sun_behind_small_cloud:"
-            app:heading="@string/ui_permissionsMissing_heading"
-            app:second_text="@string/ui_permissionsMissing_second_text"
-            app:text="@string/ui_permissionsMissing_text" />
+            app:heading="@string/ui_permissions_heading"
+            app:second_text="@string/ui_permissions_second_text"
+            app:text="@string/ui_permissions_text" />
 
         <Button
             android:id="@+id/show_app_settings"

@@ -77,20 +77,20 @@ public class PeerSloganItemHolder extends ItemViewHolder {
 
         String text;
         if (elapsedSeconds < 10) {
-            text = mContext.getString(R.string.ui_main_peer_slogan_last_seen_lt_10s);
+            text = mContext.getString(R.string.ui_world_slogan_last_seen_lt_10s);
         } else if (elapsedSeconds < 60) {
-            text = mContext.getString(R.string.ui_main_peer_slogan_last_seen_lt_1min);
+            text = mContext.getString(R.string.ui_world_slogan_last_seen_lt_1min);
         } else if (elapsedSeconds < 10 * 60) {
-            text = mContext.getString(R.string.ui_main_peer_slogan_last_seen_lt_10min)
+            text = mContext.getString(R.string.ui_world_slogan_last_seen_lt_10min)
                     .replace("##elapsed_minutes##", (int) Math.ceil(elapsedSeconds / 60) + "");
         } else if (elapsedSeconds < 30 * 60) {
-            text = mContext.getString(R.string.ui_main_peer_slogan_last_seen_lt_30min);
+            text = mContext.getString(R.string.ui_world_slogan_last_seen_lt_30min);
         } else if (elapsedSeconds < 45 * 60) {
-            text = mContext.getString(R.string.ui_main_peer_slogan_last_seen_lt_45min);
+            text = mContext.getString(R.string.ui_world_slogan_last_seen_lt_45min);
         } else if (elapsedSeconds < 61 * 60) {
-            text = mContext.getString(R.string.ui_main_peer_slogan_last_seen_lte_1h);
+            text = mContext.getString(R.string.ui_world_slogan_last_seen_lte_1h);
         } else {
-            text = mContext.getString(R.string.ui_main_peer_slogan_last_seen_gt_1h);
+            text = mContext.getString(R.string.ui_world_slogan_last_seen_gt_1h);
         }
 
         mLastSeenTextView.setText(text);
