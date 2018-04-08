@@ -64,35 +64,32 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
 
         mRootView = (ViewGroup) inflater.inflate(R.layout.world_fragment, container, false);
 
-        mHandler.post(() -> {
+        mStatusSummary = mRootView.findViewById(R.id.status_summary);
+        mStatusInfoBox = mRootView.findViewById(R.id.status_info_box);
 
-            mStatusSummary = mRootView.findViewById(R.id.status_summary);
-            mStatusInfoBox = mRootView.findViewById(R.id.status_info_box);
+        mPeerSlogansHeadingText = mRootView.findViewById(R.id.peer_slogans_heading_text);
+        mPeerSlogansHeadingProgressBar = mRootView.findViewById(R.id.peer_slogans_heading_progress_bar);
+        mPeerSlogansHeadingInfoBox = mRootView.findViewById(R.id.peer_slogans_info_box);
 
-            mPeerSlogansHeadingText = mRootView.findViewById(R.id.peer_slogans_heading_text);
-            mPeerSlogansHeadingProgressBar = mRootView.findViewById(R.id.peer_slogans_heading_progress_bar);
-            mPeerSlogansHeadingInfoBox = mRootView.findViewById(R.id.peer_slogans_info_box);
+        mPeerListView = mRootView.findViewById(R.id.list_view);
+        mPeerListView.setNestedScrollingEnabled(false);
 
-            mPeerListView = mRootView.findViewById(R.id.list_view);
-            mPeerListView.setNestedScrollingEnabled(false);
+        mPeerListAdapter = new PeerSlogansRecycleAdapter(mContext, mPeerListView, mOnAdoptCallback);
 
-            mPeerListAdapter = new PeerSlogansRecycleAdapter(mContext, mPeerListView, mOnAdoptCallback);
+        mPeerListView.setAdapter(mPeerListAdapter);
+        mPeerListView.setLayoutManager(new LinearLayoutManager(mContext));
 
-            mPeerListView.setAdapter(mPeerListAdapter);
-            mPeerListView.setLayoutManager(new LinearLayoutManager(mContext));
+        // With change animations enabled mStatusItem keeps flashing because updates come in
+        ((SimpleItemAnimator) mPeerListView.getItemAnimator()).setSupportsChangeAnimations(false);
 
-            // With change animations enabled mStatusItem keeps flashing because updates come in
-            ((SimpleItemAnimator) mPeerListView.getItemAnimator()).setSupportsChangeAnimations(false);
+        mSwipeRefresh = mRootView.findViewById(R.id.fake_swipe_to_refresh);
+        mSwipeRefresh.setEnabled(false);
 
-            mSwipeRefresh = mRootView.findViewById(R.id.fake_swipe_to_refresh);
-            mSwipeRefresh.setEnabled(false);
-
-            mHasView = true;
-            if (mDeferredUpdate != null) {
-                mDeferredUpdate.run();
-                mDeferredUpdate = null;
-            }
-        });
+        mHasView = true;
+        if (mDeferredUpdate != null) {
+            mDeferredUpdate.run();
+            mDeferredUpdate = null;
+        }
 
         return mRootView;
     }

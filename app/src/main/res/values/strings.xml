@@ -25,13 +25,13 @@
 
     <!--Privacy fragment-->
     <string name="ui_screen_privacy_heading">Aura Agreement</string>
-    <string name="ui_screen_privacy_first_text">Five points worth reading. :sunglasses:</string>
+    <string name="ui_screen_privacy_first_text">Five points worth reading.</string>
     <string name="ui_screen_privacy_second_text">1. The data you enter is visible to Aura users around you.
         \n\n2. No data is sent over the internet.
         \n\n3. We don\'t collect any data.
         \n\n4. Aura is and will remain free
         \n\n5. Aura believes in humanism, freedom of speech, respect and equality of all people. If you don\'t, please uninstall it and read a wide variety of books.
-        \n\n\nIf you agree, swipe to continue :lollipop:</string>
+        \n\n\nIf you agree, swipe to continue</string>
 
     <!--Profile fragment-->
     <string name="ui_profile_list_item_edit">Edit</string>
@@ -42,18 +42,18 @@
     <string name="ui_main_toast_debug_view_enabled">Debug view enabled</string>
     <string name="ui_main_toast_debug_view_disabled">Debug view disabled</string>
 
-    <string name="ui_main_toast_slogan_already_adopted">This :thought_balloon: is already in your Aura</string>
-    <string name="ui_main_toast_cannot_add_no_space_available">Please delete on of your :thought_balloon: before adding a new one</string>
-    <string name="ui_profile_toast_slogan_adopted">:thought_balloon: adopted</string>
-    <string name="ui_profile_toast_slogan_replaced">:thought_balloon: changed</string>
-    <string name="ui_profile_toast_slogan_dropped">:thought_balloon: removed</string>
+    <string name="ui_main_toast_slogan_already_adopted">This idea is already in your Aura</string>
+    <string name="ui_main_toast_cannot_add_no_space_available">Please delete on of your ideas before adding a new one</string>
+    <string name="ui_profile_toast_slogan_adopted">Idea adopted</string>
+    <string name="ui_profile_toast_slogan_replaced">Idea changed</string>
+    <string name="ui_profile_toast_slogan_dropped">Idea removed</string>
     <string name="ui_profile_toast_name_changed">Name changed</string>
     <string name="ui_profile_toast_text_changed">Bio changed</string>
 
     <string name="ui_main_toast_refresh_no_peers">Refreshing …</string>
     <plurals name="ui_main_toast_refresh">
-        <item quantity="one">Refreshing nearby :thought_balloon: …</item>
-        <item quantity="other">Refreshing nearby :thought_balloon: …</item>
+        <item quantity="one">Refreshing nearby ideas …</item>
+        <item quantity="other">Refreshing nearby ideas …</item>
     </plurals>
 
     <string name="ui_main_status_communicator_bt_restart_required_heading">Bluetooth Crashed</string>
@@ -92,26 +92,26 @@
     <string name="ui_main_status_peers_no_peers_info_second_text">Should be seeing someone? Try turning Bluetooth off and on again.
     </string>
     <string name="ui_main_status_peers_not_scanning_heading">Your Aura is off</string>
-    <string name="ui_main_status_peers_not_scanning_text">Turn on your Aura to see the :thought_balloon: of others.</string>
+    <string name="ui_main_status_peers_not_scanning_text">Turn on your Aura to see the ideas of others.</string>
 
     <string name="ui_main_status_peers_starting_heading">Looking around</string>
     <string name="ui_main_status_peers_starting_text">Let\'s give it a few seconds to see if there\'s anybody around.</string>
 
     <plurals name="ui_main_my_slogans_heading">
-        <item quantity="zero">You don't have any :thought_balloon:</item>
-        <item quantity="one">You have one :thought_balloon:</item>
-        <item quantity="other">You have %d :thought_balloon:</item>
+        <item quantity="zero">You don't have any ideas</item>
+        <item quantity="one">You have one idea</item>
+        <item quantity="other">You have %d ideas</item>
     </plurals>
     <string name="ui_main_my_slogans_info_no_slogans_heading">Your Aura is empty</string>
-    <string name="ui_main_my_slogans_info_no_slogans_text">Your Aura contains no :thought_balloon: for others to see.</string>
-    <!--<string name="ui_main_my_slogans_info_no_slogans_heading_cta">Add my first :thought_balloon:</string>-->
+    <string name="ui_main_my_slogans_info_no_slogans_text">Your Aura contains no ideas for others to see.</string>
+    <!--<string name="ui_main_my_slogans_info_no_slogans_heading_cta">Add my first idea</string>-->
 
     <string name="ui_main_peers_heading_no_peers">Nobody Nearby</string>
 
     <plurals name="ui_main_peers_heading_slogans">
-        <item quantity="zero">No :thought_balloon: Nearby</item>
-        <item quantity="one">Others shared one :thought_balloon:</item>
-        <item quantity="other">Others shared %d :thought_balloon:</item>
+        <item quantity="zero">No ideas nearby</item>
+        <item quantity="one">Others shared one idea</item>
+        <item quantity="other">Others shared %d idea</item>
     </plurals>
 
     <string name="ui_world_peer_slogan_adopt">:fire:</string>
@@ -157,14 +157,14 @@
     <string name="ui_profile_dialog_edit_text_hint">My text</string>
 
     <!--Dialog: Add/Edit Slogan-->
-    <string name="ui_profile_dialog_edit_slogan_hint">Your :thought_balloon:</string>
+    <string name="ui_profile_dialog_edit_slogan_hint">Your idea</string>
 
     <!--Dialog: Add Slogan-->
-    <string name="ui_profile_dialog_add_slogan_title">Add a :thought_balloon:</string>
+    <string name="ui_profile_dialog_add_slogan_title">Add an Idea</string>
     <string name="ui_main_add_slogan_too_short">Nothing added - too short</string>
 
     <!--Dialog: Edit Slogan-->
-    <string name="ui_profile_dialog_edit_slogan_title">Change my :thought_balloon:</string>
+    <string name="ui_profile_dialog_edit_slogan_title">Change my Idea</string>
 
 
     <plurals name="ui_dialog_edit_slogan_line_break_limit">
@@ -174,19 +174,19 @@
     </plurals>
 
     <!--Dialog: Replace Slogan-->
-    <string name="ui_profile_dialog_replace_title">Adopt :thought_balloon:</string>
+    <string name="ui_profile_dialog_replace_title">Adopt Idea</string>
     <plurals name="ui_profile_dialog_replace_message">
-        <item quantity="zero">You can\'t have an :thought_balloon:</item>
-        <item quantity="one">You can have only one :thought_balloon:. Please choose one of your :thought_balloon: to replace.</item>
-        <item quantity="two">You can have only two :thought_balloon:. Please choose one of your :thought_balloon: to replace.</item>
-        <item quantity="other">You can have up to %d :thought_balloon:. Please choose one of your :thought_balloon: to replace.</item>
+        <item quantity="zero">You can\'t have any ideas</item>
+        <item quantity="one">You can have only one idea. Please choose one of your idea to replace.</item>
+        <item quantity="two">You can have only two ideas. Please choose one of your idea to replace.</item>
+        <item quantity="other">You can have up to %d ideas. Please choose one of your idea to replace.</item>
     </plurals>
     <string name="ui_profile_dialog_replace_confirm">Replace</string>
     <string name="ui_profile_dialog_replace_cancel">Cancel</string>
 
     <!--Dialog: Drop Slogan-->
-    <string name="ui_profile_dialog_drop_title">Delete this :thought_balloon: ?</string>
-    <string name="ui_profile_dialog_drop_message">This :thought_balloon: will no longer be visible to others. This cannot be undone.</string>
+    <string name="ui_profile_dialog_drop_title">Delete this Idea ?</string>
+    <string name="ui_profile_dialog_drop_message">The idea will no longer be visible to others. This cannot be undone.</string>
     <string name="ui_profile_dialog_drop_confirm">Delete it</string>
     <string name="ui_profile_dialog_drop_cancel">Cancel</string>
 

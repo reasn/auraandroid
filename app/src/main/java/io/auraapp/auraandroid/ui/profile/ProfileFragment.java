@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -35,7 +34,6 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
 
     private static final String TAG = "@aura/ui/profile/fragment";
     private SharedPreferences mPrefs;
-    private MySlogansRecycleAdapter mRecyclerAdapter;
     private RecyclerView mSlogansRecyclerView;
     private ViewGroup mRootView;
     private MyProfileManager mMyProfileManager;
@@ -147,10 +145,9 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     private void bindSlogansViews() {
         mSlogansRecyclerView.setNestedScrollingEnabled(false);
 
-        final FloatingActionButton addSloganButton = mRootView.findViewById(R.id.add_slogan);
-        addSloganButton.setOnClickListener($ -> showAddDialog());
+        mRootView.findViewById(R.id.add_slogan).setOnClickListener($ -> showAddDialog());
 
-        mRecyclerAdapter = new MySlogansRecycleAdapter(
+        MySlogansRecycleAdapter adapter = new MySlogansRecycleAdapter(
                 getContext(),
                 mSlogansRecyclerView,
                 (Slogan slogan, int action) -> {
@@ -167,10 +164,10 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
                 },
                 mMyProfileManager);
 
-        mSlogansRecyclerView.setAdapter(mRecyclerAdapter);
+        mSlogansRecyclerView.setAdapter(adapter);
         mSlogansRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        mRecyclerAdapter.notifyMySlogansChanged(mMyProfileManager.getProfile().getSlogans());
+        adapter.notifyMySlogansChanged(mMyProfileManager.getProfile().getSlogans());
     }
 
     private void showAddDialog() {
