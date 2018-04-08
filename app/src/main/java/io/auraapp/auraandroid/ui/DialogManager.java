@@ -63,18 +63,24 @@ public class DialogManager {
         public void onConfirm(String text);
     }
 
-    class DialogState {
+    public static class DialogState {
         boolean open = false;
     }
 
     private static final String TAG = "@aura/ui/" + DialogManager.class.getSimpleName();
     private final static Pattern mLinebreakPattern = Pattern.compile("\n");
-    private final DialogState mDialogState = new DialogState();
+    private final DialogState mDialogState;
     private Context mContext;
     private ColorPicker.SelectedColor mPickedColor = null;
 
     public DialogManager(Context context) {
         mContext = context;
+        mDialogState = new DialogState();
+    }
+
+    public DialogManager(Context context, DialogState dialogState) {
+        mContext = context;
+        mDialogState = dialogState;
     }
 
     private String getString(@StringRes int resource) {

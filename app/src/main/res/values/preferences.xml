@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="world_peers_retention_captions">
+        <item>For a minute</item>
+        <item>For five minutes</item>
+        <item>For 30 minutes</item>
+        <item>For one hour</item>
+        <item>For 24 hours</item>
+    </string-array>
+    <string-array name="world_peers_retention_values">
+        <item>60000</item>
+        <item>300000</item>
+        <item>1800000</item>
+        <item>3600000</item>
+        <item>86400000</item>
+    </string-array>
+</resources>

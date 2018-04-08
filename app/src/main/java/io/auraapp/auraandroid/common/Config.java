@@ -63,4 +63,5 @@ public class Config {
     public static final int MAIN_DEBUG_VIEW_SWITCH_CLICKS = 5;
     public static final int MAIN_DEBUG_VIEW_SWITCH_INTERVAL = 3000;
 
+    public static final String PREFERENCES_BUCKET = "aura_prefs_v1";
 }

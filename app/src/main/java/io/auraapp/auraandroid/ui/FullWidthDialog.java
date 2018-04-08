@@ -72,7 +72,9 @@ public class FullWidthDialog extends Dialog {
         mConfirmButton = mRootView.findViewById(R.id.common_dialog_confirm);
         mConfirmButton.setOnClickListener($ -> {
             dismiss();
-            onConfirm.run();
+            if (onConfirm != null) {
+                onConfirm.run();
+            }
         });
 
         super.setOnDismissListener($ -> mDialogState.open = false);

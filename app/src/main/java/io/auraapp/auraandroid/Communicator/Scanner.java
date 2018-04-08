@@ -12,6 +12,7 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 
 import java.nio.charset.Charset;
@@ -20,10 +21,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.Peer;
 
 import static android.bluetooth.BluetoothProfile.STATE_CONNECTED;
+import static android.content.Context.MODE_PRIVATE;
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.e;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
@@ -37,6 +40,8 @@ import static io.auraapp.auraandroid.common.FormattedLog.w;
  */
 class Scanner {
 
+
+    private long mPeerRetention;
 
     @FunctionalInterface
     interface CurrentPeersCallback {
@@ -60,6 +65,15 @@ class Scanner {
         mContext = context;
         mPeerBroadcaster = peerBroadcaster;
         mOnErrorCallback = onErrorCallback;
+
+        SharedPreferences prefs = context.getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE);
+        String key = context.getString(R.string.prefs_retention_key);
+        prefs.registerOnSharedPreferenceChangeListener(($, changedKey) -> {
+            if (key.equals(changedKey)) {
+                mPeerRetention = Long.parseLong(prefs.getString(key, R.string.prefs_retention_default + ""));
+            }
+        });
+        mPeerRetention = Long.parseLong(prefs.getString(key, R.string.prefs_retention_default + ""));
     }
 
     void start() {
@@ -148,7 +162,7 @@ class Scanner {
                         device.shouldDisconnect = true;
                         device.stats.mErrors++;
 
-                    } else if (now - device.lastSeenTimestamp > Config.COMMUNICATOR_PEER_FORGET_AFTER) {
+                    } else if (now - device.lastSeenTimestamp > mPeerRetention) {
                         // lastSeenTimestamp may be 0
                         v(TAG, "Forgetting device, id: %s", id);
                         device.bt.device = null;

@@ -17,8 +17,8 @@ import android.widget.TextView;
 
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.ExternalInvocation;
-import io.auraapp.auraandroid.common.Prefs;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.DialogManager;
 import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
@@ -53,7 +53,7 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
         fragment.setContext(context);
         fragment.mMyProfileManager = myProfileManager;
         fragment.mDialogManager = dialogManager;
-        fragment.mPrefs = context.getSharedPreferences(Prefs.PREFS_BUCKET, MODE_PRIVATE);
+        fragment.mPrefs = context.getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE);
 
         myProfileManager.addChangedCallback(event -> {
             switch (event) {

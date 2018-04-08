@@ -1,16 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen>
-    <!--<CheckBoxPreference-->
-        <!--android:defaultValue="true"-->
-        <!--android:key="enabled"-->
-        <!--android:summary="@string/pref_sync_summ"-->
-        <!--android:title="@string/pref_sync" />-->
-    <!--<ListPreference-->
-        <!--android:defaultValue="@string/pref_syncConnectionTypes_default"-->
-        <!--android:dependency="pref_sync"-->
-        <!--android:dialogTitle="@string/pref_syncConnectionType"-->
-        <!--android:entries="@array/pref_syncConnectionTypes_entries"-->
-        <!--android:entryValues="@array/pref_syncConnectionTypes_values"-->
-        <!--android:key="pref_syncConnectionType"-->
-        <!--android:title="@string/pref_syncConnectionType" />-->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+        <!--android:dialogMessage="@string/ui_prefs_retention_dialog_message"-->
+    <ListPreference
+        android:defaultValue="@string/prefs_retention_default"
+        android:dialogTitle="@string/prefs_retention_dialog_title"
+        android:entries="@array/world_peers_retention_captions"
+        android:entryValues="@array/world_peers_retention_values"
+        android:key="@string/prefs_retention_key"
+        android:summary="@string/prefs_retention_summary"
+        android:title="@string/prefs_retention_title" />
+
+    <Preference
+        android:key="@string/prefs_feedback_key"
+        android:summary="@string/prefs_feedback_summary"
+        android:title="@string/prefs_feedback_title" />
+
+    <Preference
+        android:key="@string/prefs_about_key"
+        android:summary="@string/prefs_about_summary"
+        android:title="@string/prefs_about_title" />
 </PreferenceScreen>

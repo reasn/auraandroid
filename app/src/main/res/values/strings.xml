@@ -163,4 +163,26 @@
     <string name="ui_notification_on_not_active_title">Your Aura is getting ready</string>
     <string name="ui_notification_on_title">Your Aura is on</string>
 
+    <!--Preferences-->
+    <string name="toolbar_preferences">Settings</string>
+    <string name="prefs_current_screen_key">current_screen</string>
+    <string name="prefs_hide_broken_bt_warning_key">hide_broken_bt_stack_warning</string>
+    <string name="prefs_enabled_key">enabled</string>
+    <string name="prefs_my_profile_key">my_profile</string>
+    <string name="prefs_retention_key">retention</string>
+    <string name="prefs_retention_title">How long to keep others\' ideas</string>
+    <string name="prefs_retention_summary">Change how long you see ideas of others after you left their proximity</string>
+    <string name="prefs_retention_dialog_title">Keep Others\' Ideas</string>
+    <!--<string name="ui_prefs_retention_dialog_message">If you pass by another Aura, its ideas remain visible afterwards. After what time should they disappear to make space?</string>-->
+    <string name="prefs_retention_default">300000</string>
+    <string name="prefs_feedback_key">feedback</string>
+    <string name="prefs_feedback_title">Feedback</string>
+    <string name="prefs_feedback_summary">It would be great if you took a few minutes to help make Aura better!</string>
+    <string name="prefs_about_title">About</string>
+    <string name="prefs_about_summary">Find </string>
+    <string name="prefs_about_key">about</string>
+    <string name="prefs_about_dialog_title">About Aura</string>
+    <string name="prefs_about_dialog_message">\nCopyright 2018\nVersion VERSION_NAME (build VERSION_CODE).\n</string>
+    <string name="prefs_about_dialog_confirm">Close</string>
+
 </resources>

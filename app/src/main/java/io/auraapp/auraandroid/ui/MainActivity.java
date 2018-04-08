@@ -20,7 +20,6 @@ import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.ExternalInvocation;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.PermissionHelper;
-import io.auraapp.auraandroid.common.Prefs;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxy;
 import io.auraapp.auraandroid.ui.debug.DebugFragment;
 import io.auraapp.auraandroid.ui.permissions.PermissionsFragment;
@@ -74,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         mHandler.post(() -> {
             v(TAG, "onCreate, intent: %s", getIntent().getAction());
 
-            setContentView(R.layout.activity);
+            setContentView(R.layout.activity_main);
 
             mPager = findViewById(R.id.pager);
 
@@ -82,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                     this,
                     slogan -> {
                         if (mMyProfileManager.getProfile().getSlogans().contains(slogan)) {
-                            toast(R.string.ui_main_toast_slogan_already_adopted);
+                            toast(R.string.ui_world_toast_slogan_already_adopted);
                         } else if (mMyProfileManager.spaceAvailable()) {
                             mMyProfileManager.adopt(slogan);
                         } else {
@@ -107,19 +106,19 @@ public class MainActivity extends AppCompatActivity {
             mPager.setAdapter(mPagerAdapter);
 
             // Load preferences
-            mPrefs = getSharedPreferences(Prefs.PREFS_BUCKET, MODE_PRIVATE);
+            mPrefs = getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE);
+
+            String prefKey = getString(R.string.prefs_current_screen_key);
 
             if (!PermissionHelper.granted(this)) {
                 showPermissionMissingFragment();
             } else {
-                String currentScreen = mPrefs.getString(Prefs.PREFS_CURRENT_SCREEN, ScreenPagerAdapter.SCREEN_WELCOME);
+                String currentScreen = mPrefs.getString(prefKey, ScreenPagerAdapter.SCREEN_WELCOME);
                 i(TAG, "Current screen is set to %s", currentScreen);
                 mPager.goTo(mPagerAdapter.getClassForHandle(currentScreen), false);
 
                 mPager.addChangeListener(fragment -> mPrefs.edit()
-                        .putString(
-                                Prefs.PREFS_CURRENT_SCREEN,
-                                mPagerAdapter.getHandleForClass(fragment.getClass()))
+                        .putString(prefKey, mPagerAdapter.getHandleForClass(fragment.getClass()))
                         .apply());
             }
 
@@ -243,14 +242,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showBrokenBtStackAlert() {
+        String prefKey = getString(R.string.prefs_hide_broken_bt_warning_key);
         if (!inForeground
                 || System.currentTimeMillis() - mBrokenBtStackLastVisibleTimestamp > BROKEN_BT_STACK_ALERT_DEBOUNCE
-                || mPrefs.getBoolean(Prefs.PREFS_HIDE_BROKEN_BT_STACK_WARNING, false)) {
+                || mPrefs.getBoolean(prefKey, false)) {
             return;
         }
         mDialogManager.showBtBroken(neverShowAgain -> {
             if (neverShowAgain) {
-                mPrefs.edit().putBoolean(Prefs.PREFS_HIDE_BROKEN_BT_STACK_WARNING, true).apply();
+                mPrefs.edit().putBoolean(prefKey, true).apply();
             } else {
                 mBrokenBtStackLastVisibleTimestamp = System.currentTimeMillis();
             }

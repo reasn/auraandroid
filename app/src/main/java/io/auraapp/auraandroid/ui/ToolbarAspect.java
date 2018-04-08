@@ -1,6 +1,7 @@
 package io.auraapp.auraandroid.ui;
 
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -19,11 +20,11 @@ import java.util.List;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
-import io.auraapp.auraandroid.common.Prefs;
 import io.auraapp.auraandroid.ui.common.ColorHelper;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxy;
 import io.auraapp.auraandroid.ui.debug.DebugFragment;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
+import io.auraapp.auraandroid.ui.settings.SettingsActivity;
 
 import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_COLOR_CHANGED;
@@ -65,10 +66,19 @@ public class ToolbarAspect {
 
     public void initToolbar() {
 
-        mAuraEnabled = mPrefs.getBoolean(Prefs.PREFS_ENABLED, true);
+        mAuraEnabled = mPrefs.getBoolean(mActivity.getString(R.string.prefs_enabled_key), true);
 
         mToolbar = mActivity.findViewById(R.id.toolbar);
         mActivity.setSupportActionBar(mToolbar);
+
+        mToolbar.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.action_settings) {
+                mActivity.startActivity(new Intent(mActivity, SettingsActivity.class));
+                return true;
+            }
+            return false;
+        });
+
         mToolbar.setNavigationIcon(R.mipmap.ic_launcher);
         mToolbar.setNavigationOnClickListener($ -> mHandler.post(() -> {
             if (!Config.MAIN_DEBUG_VIEW_ENABLED || mDebugFragmentEnabled) {
@@ -146,7 +156,7 @@ public class ToolbarAspect {
 
         mEnabledSwitch.setOnCheckedChangeListener((CompoundButton $, boolean isChecked) -> {
             mAuraEnabled = isChecked;
-            mPrefs.edit().putBoolean(Prefs.PREFS_ENABLED, isChecked).apply();
+            mPrefs.edit().putBoolean(mActivity.getString(R.string.prefs_enabled_key), isChecked).apply();
             if (isChecked) {
                 mCommunicatorProxy.enable();
                 mCommunicatorProxy.updateMyProfile(mMyProfileManager.getProfile());

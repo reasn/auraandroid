@@ -13,7 +13,6 @@ import java.util.Set;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
-import io.auraapp.auraandroid.common.Prefs;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.common.ColorPicker;
 
@@ -35,7 +34,7 @@ public class MyProfileManager {
     public final static int EVENT_DROPPED = 14;
     public final static int EVENT_ADOPTED = 15;
     public final static int EVENT_REPLACED = 16;
-
+    private final String mProfilePrefKey;
     private final Context mContext;
     private final MyProfile mMyProfile;
     private final Set<MyProfileChangedCallback> mChangedCallbacks = new HashSet<>();
@@ -43,10 +42,12 @@ public class MyProfileManager {
     public MyProfileManager(Context context) {
         mContext = context;
 
+        mProfilePrefKey = context.getString(R.string.prefs_my_profile_key);
+
         // Without a persisted value, serialization fails and the default profile is persisted.
         @Nullable String serializedProfile = mContext
-                .getSharedPreferences(Prefs.PREFS_BUCKET, MODE_PRIVATE)
-                .getString(Prefs.PREFS_MY_PROFILE, "{invalidJson}");
+                .getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE)
+                .getString(mProfilePrefKey, "{invalidJson}");
 
 
         MyProfile profile;
@@ -163,9 +164,9 @@ public class MyProfileManager {
 
     private void persistProfile(int event) {
         i(TAG, "Persisting my profile, event: %s, profile: %s,", nameEvent(event), mMyProfile.toString());
-        mContext.getSharedPreferences(Prefs.PREFS_BUCKET, MODE_PRIVATE)
+        mContext.getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE)
                 .edit()
-                .putString(Prefs.PREFS_MY_PROFILE, new GsonBuilder().create().toJson(mMyProfile))
+                .putString(mProfilePrefKey, new GsonBuilder().create().toJson(mMyProfile))
                 .apply();
 
         if (event != EVENT_NONE) {
