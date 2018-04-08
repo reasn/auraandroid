@@ -19,6 +19,7 @@ public class MySloganHolder extends ItemViewHolder {
     private final Button mEditButtonView;
     private final Button mDropButtonView;
     private final MySlogansRecycleAdapter.OnMySloganActionCallback mOnMySloganActionCallback;
+    private final RecyclerAdapter.CollapseExpandHandler mCollapseExpandHandler;
     private Context mContext;
 
     public MySloganHolder(View itemView,
@@ -32,6 +33,7 @@ public class MySloganHolder extends ItemViewHolder {
         mExpandedWrapper = itemView.findViewById(R.id.expanded_wrapper);
         mEditButtonView = itemView.findViewById(R.id.edit_button);
         mDropButtonView = itemView.findViewById(R.id.drop_button);
+        mCollapseExpandHandler = collapseExpandHandler;
 
         itemView.setOnClickListener($ -> collapseExpandHandler.flip(getLastBoundItem()));
         mSloganTextView.setOnClickListener($ -> collapseExpandHandler.flip(getLastBoundItem()));
@@ -61,10 +63,16 @@ public class MySloganHolder extends ItemViewHolder {
         mExpandedWrapper.setVisibility(View.VISIBLE);
 
         mEditButtonView.setOnClickListener(
-                $ -> mOnMySloganActionCallback.onActionTaken(castItem.getSlogan(), MySlogansRecycleAdapter.OnMySloganActionCallback.ACTION_EDIT)
+                $ -> {
+                    mOnMySloganActionCallback.onActionTaken(castItem.getSlogan(), MySlogansRecycleAdapter.OnMySloganActionCallback.ACTION_EDIT);
+                    mCollapseExpandHandler.flip(item);
+                }
         );
         mDropButtonView.setOnClickListener(
-                $ -> mOnMySloganActionCallback.onActionTaken(castItem.getSlogan(), MySlogansRecycleAdapter.OnMySloganActionCallback.ACTION_DROP)
+                $ -> {
+                    mOnMySloganActionCallback.onActionTaken(castItem.getSlogan(), MySlogansRecycleAdapter.OnMySloganActionCallback.ACTION_DROP);
+                    mCollapseExpandHandler.flip(item);
+                }
         );
     }
 }

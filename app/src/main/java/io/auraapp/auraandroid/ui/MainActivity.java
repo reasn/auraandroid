@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private ToolbarAspect mToolbarAspect;
     private DebugFragment mDebugFragment;
     private WorldFragment mWorldFragment;
+    private ProfileFragment mProfileFragment;
 
     @Override
     @ExternalInvocation
@@ -95,9 +96,11 @@ public class MainActivity extends AppCompatActivity {
             mMyProfileManager = new MyProfileManager(this);
             mDialogManager = new DialogManager(this);
 
+            mProfileFragment = ProfileFragment.create(this, mMyProfileManager, mDialogManager);
+
             mPagerAdapter = new ScreenPagerAdapter(
                     getSupportFragmentManager(),
-                    ProfileFragment.create(this, mMyProfileManager, mDialogManager),
+                    mProfileFragment ,
                     mWorldFragment,
                     mPager,
                     this);
@@ -124,15 +127,17 @@ public class MainActivity extends AppCompatActivity {
                 d(TAG, "My profile changed");
                 mCommunicatorProxy.updateMyProfile(mMyProfileManager.getProfile());
                 reflectStatus();
-
                 switch (event) {
                     case MyProfileManager.EVENT_ADOPTED:
+//                        mProfileFragment.notifySlogansChanged();
                         toast(R.string.ui_profile_toast_slogan_adopted);
                         break;
                     case MyProfileManager.EVENT_REPLACED:
+//                        mProfileFragment.notifySlogansChanged();
                         toast(R.string.ui_profile_toast_slogan_replaced);
                         break;
                     case MyProfileManager.EVENT_DROPPED:
+//                        mProfileFragment.notifySlogansChanged();
                         toast(R.string.ui_profile_toast_slogan_dropped);
                         break;
                     case MyProfileManager.EVENT_COLOR_CHANGED:

@@ -54,6 +54,21 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
         fragment.mMyProfileManager = myProfileManager;
         fragment.mDialogManager = dialogManager;
         fragment.mPrefs = context.getSharedPreferences(Prefs.PREFS_BUCKET, MODE_PRIVATE);
+
+        myProfileManager.addChangedCallback(event -> {
+            switch (event) {
+                case MyProfileManager.EVENT_COLOR_CHANGED:
+                    fragment.updateViewsWithColor();
+                    break;
+                case MyProfileManager.EVENT_NAME_CHANGED:
+                    fragment.updateNameAndTextViews();
+                    break;
+                case MyProfileManager.EVENT_TEXT_CHANGED:
+                    fragment.updateNameAndTextViews();
+                    break;
+            }
+        });
+
         return fragment;
     }
 
@@ -70,16 +85,6 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
         mSlogansInfoBox = mRootView.findViewById(R.id.my_slogans_info_box);
         mSlogansRecyclerView = mRootView.findViewById(R.id.list_view);
 
-        mTextView.invalidate();
-
-        return mRootView;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        mColorWrapper.getChildAt(0).setBackgroundColor(Color.parseColor(mMyProfileManager.getColor()));
         mColorWrapper.setOnClickListener($ ->
                 mDialogManager.showColorPickerDialog(
                         mMyProfileManager.getProfile().getColor(),
@@ -91,7 +96,6 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
                         })
         );
 
-        mNameView.setText(mMyProfileManager.getProfile().getName());
         mNameView.setOnClickListener($ ->
                 mDialogManager.showEditMyNameDialog(
                         mMyProfileManager.getProfile().getName(),
@@ -99,7 +103,6 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
                 )
         );
 
-        mTextView.setText(mMyProfileManager.getProfile().getText());
         mTextView.setOnClickListener($ ->
                 mDialogManager.showEditMyTextDialog(
                         mMyProfileManager.getProfile().getText(),
@@ -108,6 +111,31 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
         );
 
         bindSlogansViews();
+
+        return mRootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        updateNameAndTextViews();
+        updateViewsWithColor();
+    }
+
+    private void updateNameAndTextViews() {
+        mNameView.setText(mMyProfileManager.getProfile().getName());
+        mTextView.setText(mMyProfileManager.getProfile().getText());
+    }
+
+    private void updateViewsWithColor() {
+        int color = Color.parseColor(mMyProfileManager.getColor());
+        mColorWrapper.getChildAt(0).setBackgroundColor(color);
+        // Make sure that there's an alternation i.e. background and color of last item don't match
+        mRootView.setBackgroundColor(
+                mMyProfileManager.getProfile().getSlogans().size() % 2 == 0
+                        ? color
+                        : ColorHelper.getAccent(color));
     }
 
     private void bindSlogansViews() {
@@ -119,8 +147,6 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
         final FloatingActionButton addSloganButton = mRootView.findViewById(R.id.add_slogan);
         addSloganButton.setOnClickListener($ -> showAddDialog());
 
-        mSlogansRecyclerView.setBackgroundColor(ColorHelper.getAccent(Color.parseColor(mMyProfileManager.getColor())));
-
         mRecyclerAdapter = new MySlogansRecycleAdapter(
                 getContext(),
                 mSlogansRecyclerView,
@@ -128,6 +154,10 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
                     if (action == MySlogansRecycleAdapter.OnMySloganActionCallback.ACTION_EDIT) {
                         mDialogManager.showParametrizedSloganEdit(R.string.ui_profile_dialog_edit_slogan_title,
                                 slogan,
+                                // TODO results in a drop/add animation instead of changing one item.
+                                // Reason is that slogans are indexed by name and therefore ListSynchronizer
+                                // cannot detect edits. Identify slogans by int index (would also get rid of sorting)
+                                // and pass index around
                                 sloganText -> mMyProfileManager.replace(slogan, Slogan.create(sloganText)));
                     }
                     mDialogManager.showDrop(slogan, mMyProfileManager::dropSlogan);

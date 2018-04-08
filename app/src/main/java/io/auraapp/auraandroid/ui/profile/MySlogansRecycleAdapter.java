@@ -20,7 +20,11 @@ import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapter;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
+import static io.auraapp.auraandroid.common.FormattedLog.i;
+import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_ADOPTED;
 import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_COLOR_CHANGED;
+import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_DROPPED;
+import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_REPLACED;
 
 public class MySlogansRecycleAdapter extends RecyclerAdapter {
 
@@ -49,6 +53,12 @@ public class MySlogansRecycleAdapter extends RecyclerAdapter {
         mMyProfileManager.addChangedCallback(event -> {
             if (event == EVENT_COLOR_CHANGED) {
                 notifyDataSetChanged();
+            }
+            if (event == EVENT_ADOPTED
+                    || event == EVENT_DROPPED
+                    || event == EVENT_REPLACED) {
+                i(TAG, "Slogans changes (%s), synchronizing view", MyProfileManager.nameEvent(event));
+                notifyMySlogansChanged(mMyProfileManager.getProfile().getSlogans());
             }
         });
     }

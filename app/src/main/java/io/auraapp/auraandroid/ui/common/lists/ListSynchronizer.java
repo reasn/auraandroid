@@ -37,8 +37,6 @@ public class ListSynchronizer {
                     if (!item.equals(newItem)) {
                         item.updateWith(newItem);
                         int index = items.indexOf(item);
-//                        items.remove(index);
-//                        items.add(index, newItem);
                         notificationReceiver.notifyItemChanged(index);
                     }
                     break;

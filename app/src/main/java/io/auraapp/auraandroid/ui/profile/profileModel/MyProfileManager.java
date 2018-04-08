@@ -21,6 +21,7 @@ import static android.content.Context.MODE_PRIVATE;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
 
 public class MyProfileManager {
+
     @FunctionalInterface
     public interface MyProfileChangedCallback {
         public void myProfileChanged(int event);

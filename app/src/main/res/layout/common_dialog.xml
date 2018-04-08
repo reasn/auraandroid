@@ -23,9 +23,11 @@
         android:layout_height="wrap_content"
         android:orientation="vertical" />
 
+    <!--Has the color of the button that's least likely to be hidden to avoid aliasing issues between the buttons-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/green"
         android:orientation="horizontal">
 
         <Button
