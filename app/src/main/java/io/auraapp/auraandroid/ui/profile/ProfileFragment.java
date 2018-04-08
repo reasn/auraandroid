@@ -145,9 +145,6 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     }
 
     private void bindSlogansViews() {
-
-        // TODO add spacer at end to keep recycler from overlapping last item during collapse animation of arbitrary item
-
         mSlogansRecyclerView.setNestedScrollingEnabled(false);
 
         final FloatingActionButton addSloganButton = mRootView.findViewById(R.id.add_slogan);

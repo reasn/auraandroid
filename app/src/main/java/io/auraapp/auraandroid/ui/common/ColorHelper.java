@@ -35,8 +35,9 @@ public class ColorHelper {
 
     public static int getAccent(int color) {
         int brightness = getBrightness(color);
+
         return brightness > 128
-                ? adjustBrightness(color, -10)
+                ? adjustBrightness(color, -10 - (brightness * 30 / 128 / 2))
                 : adjustBrightness(color, 20 + min(40, 1000 / (brightness + 1)));
     }
 
