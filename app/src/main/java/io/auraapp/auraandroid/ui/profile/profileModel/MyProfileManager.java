@@ -55,10 +55,13 @@ public class MyProfileManager {
             profile = new Gson().fromJson(serializedProfile, MyProfile.class);
 
             i(TAG, "Profile loaded");
+
         } catch (JsonSyntaxException e) {
             i(TAG, "No valid profile persisted, creating default");
             profile = createDefaultProfile();
+            mMyProfile = profile;
             persistProfile(EVENT_NONE);
+            return;
         }
 
         if (!(profile instanceof MyProfile)) {

@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
 
             mPagerAdapter = new ScreenPagerAdapter(
                     getSupportFragmentManager(),
-                    mProfileFragment ,
+                    mProfileFragment,
                     mWorldFragment,
                     mPager,
                     this);
@@ -159,6 +159,8 @@ public class MainActivity extends AppCompatActivity {
                         mPeerSloganMap = PeerMapTransformer.buildMapFromPeerList(peers);
                         mWorldFragment.notifyPeerSlogansChanged(mPeerSloganMap);
                         reflectStatus();
+                        mWorldFragment.setData(mCommunicatorState, mPeerSloganMap, mPeers);
+                        mWorldFragment.updateViews();
                     },
                     peer -> {
                         for (Peer candidate : mPeers) {
@@ -171,15 +173,25 @@ public class MainActivity extends AppCompatActivity {
                         mPeerSloganMap = PeerMapTransformer.buildMapFromPeerAndPreviousMap(peer, mPeerSloganMap);
                         mWorldFragment.notifyPeerSlogansChanged(mPeerSloganMap);
                         reflectStatus();
+                        mWorldFragment.setData(mCommunicatorState, mPeerSloganMap, mPeers);
+                        mWorldFragment.updateViews();
                     },
                     state -> {
                         if (mCommunicatorState == null || !mCommunicatorState.mScanning && state.mScanning) {
                             // Scan just started, let's make sure we hide the "looking around" info if
                             // nothing is found for some time.
-                            mHandler.postDelayed(this::reflectStatus, Config.MAIN_LOOKING_AROUND_SHOW_DURATION);
+                            mHandler.postDelayed(() -> {
+                                reflectStatus();
+                                mWorldFragment.setData(mCommunicatorState, mPeerSloganMap, mPeers);
+                                mWorldFragment.reflectCommunicatorState();
+                                mProfileFragment.reflectCommunicatorState(mCommunicatorState);
+                            }, Config.MAIN_LOOKING_AROUND_SHOW_DURATION);
                         }
                         mCommunicatorState = state;
                         reflectStatus();
+                        mWorldFragment.setData(mCommunicatorState, mPeerSloganMap, mPeers);
+                        mWorldFragment.reflectCommunicatorState();
+                        mProfileFragment.reflectCommunicatorState(mCommunicatorState);
                     });
 
             mDebugFragment = DebugFragment.create(this, mMyProfileManager);
@@ -203,10 +215,13 @@ public class MainActivity extends AppCompatActivity {
             mCommunicatorProxy.updateMyProfile(mMyProfileManager.getProfile());
 
             reflectStatus();
+            mWorldFragment.setData(mCommunicatorState, mPeerSloganMap, mPeers);
         });
     }
 
-    // TODO peer adopts and drops slogan but stays visible here
+    // TODO Bug: peer adopts and drops slogan but stays visible here
+
+    // TODO keep peers if aura disabled and communicator destroyed
 
     private void reflectStatus() {
         v(TAG, "Reflecting status, peers: %d, slogans: %d, state: %s", mPeers.size(), mPeerSloganMap.size(), mCommunicatorState);
@@ -215,11 +230,6 @@ public class MainActivity extends AppCompatActivity {
             mDebugFragment.update(mCommunicatorState, mPeers);
         }
 
-        mWorldFragment.update(
-                mCommunicatorState,
-                mPeerSloganMap,
-                mPeers);
-
         if (mCommunicatorState == null) {
             return;
         }
@@ -227,10 +237,6 @@ public class MainActivity extends AppCompatActivity {
             showPermissionMissingFragment();
             return;
         }
-
-        // TODO keep peers if aura disabled and communicator destroyed
-
-
         if (mCommunicatorState.mRecentBtTurnOnEvents >= Config.COMMUNICATOR_RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD) {
             showBrokenBtStackAlert();
         }

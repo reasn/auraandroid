@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.ExternalInvocation;
 import io.auraapp.auraandroid.common.Prefs;
@@ -22,6 +23,7 @@ import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.DialogManager;
 import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
 import io.auraapp.auraandroid.ui.common.ColorHelper;
+import io.auraapp.auraandroid.ui.common.CommunicatorStateRenderer;
 import io.auraapp.auraandroid.ui.common.InfoBox;
 import io.auraapp.auraandroid.ui.common.ScreenFragment;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
@@ -76,6 +78,13 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
         return fragment;
     }
 
+    public void reflectCommunicatorState(CommunicatorState state) {
+        CommunicatorStateRenderer.populateInfoBoxWithState(state,
+                mRootView.findViewById(R.id.status_info_box),
+                mRootView.findViewById(R.id.status_summary),
+                getContext());
+    }
+
     @Override
     @ExternalInvocation
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -116,15 +125,10 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
 
         bindSlogansViews();
 
-        return mRootView;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
         updateNameAndTextViews();
         updateViewsWithColor();
+
+        return mRootView;
     }
 
     private void updateNameAndTextViews() {

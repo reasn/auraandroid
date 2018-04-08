@@ -106,8 +106,6 @@
     <string name="ui_main_my_slogans_info_no_slogans_text">Your Aura contains no ideas for others to see.</string>
     <!--<string name="ui_main_my_slogans_info_no_slogans_heading_cta">Add my first idea</string>-->
 
-    <string name="ui_main_peers_heading_no_peers">Nobody Nearby</string>
-
     <plurals name="ui_main_peers_heading_slogans">
         <item quantity="zero">No ideas nearby</item>
         <item quantity="one">Others shared one idea</item>
