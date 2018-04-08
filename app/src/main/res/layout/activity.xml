@@ -18,6 +18,5 @@
     <io.auraapp.auraandroid.ui.ScreenPager xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/black_overlay" />
+        android:layout_height="match_parent" />
 </LinearLayout>

@@ -2,14 +2,15 @@
 <io.auraapp.auraandroid.ui.world.FakeSwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/fake_swipe_to_refresh"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/yellow">
 
     <ScrollView
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:fillViewport="true"
-        android:scrollbars="none"
-        android:layout_height="match_parent">
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -25,16 +26,17 @@
                 android:id="@+id/status_info_box"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="100dp"
                 android:visibility="gone" />
 
             <LinearLayout
+                android:id="@+id/peer_slogans_heading_wrapper"
                 style="@style/HeadingItem"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal">
 
                 <LinearLayout
-                    android:id="@+id/peer_slogans_heading_wrapper"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
@@ -61,8 +63,8 @@
                 android:id="@+id/peer_slogans_info_box"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="100dp"
                 android:visibility="gone" />
-
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/list_view"

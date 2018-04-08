@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
                         mWorldFragment.notifyPeerSlogansChanged(mPeerSloganMap);
                         reflectStatus();
                         mWorldFragment.setData(mCommunicatorState, mPeerSloganMap, mPeers);
-                        mWorldFragment.updateViews();
+                        mWorldFragment.updateAllViews();
                     },
                     peer -> {
                         for (Peer candidate : mPeers) {
@@ -174,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
                         mWorldFragment.notifyPeerSlogansChanged(mPeerSloganMap);
                         reflectStatus();
                         mWorldFragment.setData(mCommunicatorState, mPeerSloganMap, mPeers);
-                        mWorldFragment.updateViews();
+                        mWorldFragment.updateAllViews();
                     },
                     state -> {
                         if (mCommunicatorState == null || !mCommunicatorState.mScanning && state.mScanning) {

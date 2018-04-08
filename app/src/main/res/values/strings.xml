@@ -183,7 +183,7 @@
     <string name="ui_profile_dialog_replace_cancel">Cancel</string>
 
     <!--Dialog: Drop Slogan-->
-    <string name="ui_profile_dialog_drop_title">Delete this Idea ?</string>
+    <string name="ui_profile_dialog_drop_title">Delete this Idea?</string>
     <string name="ui_profile_dialog_drop_message">The idea will no longer be visible to others. This cannot be undone.</string>
     <string name="ui_profile_dialog_drop_confirm">Delete it</string>
     <string name="ui_profile_dialog_drop_cancel">Cancel</string>

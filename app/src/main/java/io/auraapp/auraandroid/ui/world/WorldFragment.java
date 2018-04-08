@@ -45,6 +45,7 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
     private CommunicatorState mLastState = null;
     private TreeMap<String, PeerSlogan> mLastPeerSloganMap = null;
     private Set<Peer> mLastPeers = null;
+    private InfoBox mPeersInfoBox;
 
     public static WorldFragment create(Context context, OnAdoptCallback onAdoptCallback) {
         WorldFragment fragment = new WorldFragment();
@@ -61,6 +62,7 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
 
         mStatusSummary = mRootView.findViewById(R.id.status_summary);
         mCommunicatorStateInfoBox = mRootView.findViewById(R.id.status_info_box);
+        mPeersInfoBox = mRootView.findViewById(R.id.peer_slogans_info_box);
 
         RecyclerView recycler = mRootView.findViewById(R.id.list_view);
         recycler.setNestedScrollingEnabled(false);
@@ -73,7 +75,7 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
         mSwipeRefresh = mRootView.findViewById(R.id.fake_swipe_to_refresh);
         mSwipeRefresh.setEnabled(false);
 
-        updateViews();
+        updateAllViews();
         return mRootView;
     }
 
@@ -97,22 +99,22 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
         }
     }
 
-    public void updateViews() {
+    public void updateAllViews() {
 
 
-        if (mSwipeRefresh == null) {
-            // onCreateView has not been called yet
+        if (mRootView == null) {
+            // onCreateView has not been called yet, no need to update any views.
             return;
         }
 
-        mSwipeRefresh.setEnabled(mLastState != null && mLastState.mScanning);
+        mSwipeRefresh.setEnabled(mLastState != null && mLastState.mScanning && mLastPeers != null && mLastPeers.size() > 0);
         mSwipeRefresh.setPeerCount(mLastPeers != null ? mLastPeers.size() : 0);
 
         if (mLastPeers == null || mLastPeerSloganMap == null) {
             return;
         }
 
-        updateSlogansHeading();
+        reflectCommunicatorState();
     }
 
     @ExternalInvocation
@@ -122,34 +124,6 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
         mLastState = state;
         mLastPeerSloganMap = peerSloganMap;
         mLastPeers = peers;
-    }
-
-    private void updateSlogansHeading() {
-
-        if (mLastPeers.size() == 0) {
-            mRootView.findViewById(R.id.peer_slogans_heading_wrapper).setVisibility(View.GONE);
-            return;
-        }
-
-        String heading = mContext.getResources().getQuantityString(R.plurals.ui_main_peers_heading_slogans, mLastPeerSloganMap.size(), mLastPeerSloganMap.size());
-
-        boolean synchronizing = false;
-        for (Peer peer : mLastPeers) {
-            if (peer.mSynchronizing) {
-                synchronizing = true;
-                break;
-            }
-        }
-        mRootView.findViewById(R.id.peer_slogans_heading_progress_bar).setVisibility(
-                synchronizing
-                        ? View.VISIBLE
-                        : View.GONE
-        );
-
-        ((TextView) mRootView.findViewById(R.id.peer_slogans_heading_text)).setText(EmojiHelper.replaceShortCode(heading));
-
-        mRootView.findViewById(R.id.peer_slogans_heading_wrapper).setVisibility(View.VISIBLE);
-
     }
 
     public void reflectCommunicatorState() {
@@ -165,11 +139,47 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
                 mStatusSummary,
                 mContext);
 
-        InfoBox peersInfoBox = mRootView.findViewById(R.id.peer_slogans_info_box);
+        updatePeersInfoBox();
 
-        // Show peersInfoBox only if there's no communicator state info box visible and there's no peers
+        updatePeersHeading();
+    }
+
+    private void updatePeersHeading() {
+
+        View heading = mRootView.findViewById(R.id.peer_slogans_heading_wrapper);
+
+        // Don't show heading if any info boxes are visible
+        if (mCommunicatorStateInfoBox.getVisibility() == View.VISIBLE
+                || mPeersInfoBox.getVisibility() == View.VISIBLE) {
+            heading.setVisibility(View.GONE);
+            return;
+
+        }
+        String headerText = mContext.getResources().getQuantityString(R.plurals.ui_main_peers_heading_slogans, mLastPeerSloganMap.size(), mLastPeerSloganMap.size());
+
+        boolean synchronizing = false;
+        for (Peer peer : mLastPeers) {
+            if (peer.mSynchronizing) {
+                synchronizing = true;
+                break;
+            }
+        }
+        mRootView.findViewById(R.id.peer_slogans_heading_progress_bar).setVisibility(
+                synchronizing
+                        ? View.VISIBLE
+                        : View.GONE
+        );
+
+        ((TextView) mRootView.findViewById(R.id.peer_slogans_heading_text)).setText(EmojiHelper.replaceShortCode(headerText));
+
+        heading.setVisibility(View.VISIBLE);
+    }
+
+    private void updatePeersInfoBox() {
+
+        // Show mPeersInfoBox only if there's no communicator state info box visible and there's no peers
         if (mCommunicatorStateInfoBox.getVisibility() == View.VISIBLE || mLastPeers.size() > 0) {
-            peersInfoBox.setVisibility(View.GONE);
+            mPeersInfoBox.setVisibility(View.GONE);
             return;
         }
 
@@ -182,16 +192,16 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
 //        }
 
         if (System.currentTimeMillis() - mLastState.mScanStartTimestamp < Config.MAIN_LOOKING_AROUND_SHOW_DURATION) {
-            peersInfoBox.setHeading(R.string.ui_main_status_peers_starting_heading);
-            peersInfoBox.setText(R.string.ui_main_status_peers_starting_text);
-            peersInfoBox.setEmoji(":satellite_antenna:");
-            peersInfoBox.hideButton();
+            mPeersInfoBox.setHeading(R.string.ui_main_status_peers_starting_heading);
+            mPeersInfoBox.setText(R.string.ui_main_status_peers_starting_text);
+            mPeersInfoBox.setEmoji(":satellite_antenna:");
+            mPeersInfoBox.hideButton();
 
         } else {
-            peersInfoBox.setHeading(R.string.ui_main_status_peers_no_peers_info_heading);
-            peersInfoBox.setText(R.string.ui_main_status_peers_no_peers_info_text);
-            peersInfoBox.setEmoji(":see_no_evil:");
-            peersInfoBox.showButton(
+            mPeersInfoBox.setHeading(R.string.ui_main_status_peers_no_peers_info_heading);
+            mPeersInfoBox.setText(R.string.ui_main_status_peers_no_peers_info_text);
+            mPeersInfoBox.setEmoji(":see_no_evil:");
+            mPeersInfoBox.showButton(
                     R.string.ui_main_status_peers_no_peers_info_heading_cta,
                     R.string.ui_main_status_peers_no_peers_info_second_text,
                     $ -> {
@@ -206,9 +216,8 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
                     });
         }
 
-        peersInfoBox.setBackgroundColor(mContext.getResources().getColor(R.color.infoBoxWarning));
-        peersInfoBox.setVisibility(View.VISIBLE);
-
+        mPeersInfoBox.setBackgroundColor(mContext.getResources().getColor(R.color.infoBoxWarning));
+        mPeersInfoBox.setVisibility(View.VISIBLE);
     }
 
     public void notifyPeerSlogansChanged(TreeMap<String, PeerSlogan> mPeerSloganMap) {
