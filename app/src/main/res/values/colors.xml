@@ -22,5 +22,5 @@
     <color name="dark_blue">#3996d1</color>
     <color name="transparent">#00000000</color>
 
-    <color name="black_overlay">#66000000</color>
+    <color name="black_overlay">#cc000000</color>
 </resources>

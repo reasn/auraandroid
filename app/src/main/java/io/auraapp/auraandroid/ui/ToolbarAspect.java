@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -32,7 +31,7 @@ import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EV
 public class ToolbarAspect {
 
     private static final String TAG = "@aura/ui/" + ToolbarAspect.class.getSimpleName();
-    private final AppCompatActivity mActivity;
+    private final MainActivity mActivity;
     private final ScreenPager mPager;
     private final SharedPreferences mPrefs;
     private final CommunicatorProxy mCommunicatorProxy;
@@ -48,7 +47,7 @@ public class ToolbarAspect {
     private SwitchCompat mEnabledSwitch;
     private Toolbar mToolbar;
 
-    public ToolbarAspect(AppCompatActivity activity,
+    public ToolbarAspect(MainActivity activity,
                          ScreenPager pager,
                          SharedPreferences prefs,
                          CommunicatorProxy communicatorProxy,
@@ -76,11 +75,14 @@ public class ToolbarAspect {
                 mActivity.startActivity(new Intent(mActivity, SettingsActivity.class));
                 return true;
             }
+            if (item.getItemId() == R.id.action_tutorial) {
+                mActivity.showTutorial();
+                return true;
+            }
             return false;
         });
 
-        mToolbar.setNavigationIcon(R.mipmap.ic_launcher);
-        mToolbar.setNavigationOnClickListener($ -> mHandler.post(() -> {
+        mToolbar.setOnClickListener($ -> mHandler.post(() -> {
             if (!Config.MAIN_DEBUG_VIEW_ENABLED || mDebugFragmentEnabled) {
                 return;
             }

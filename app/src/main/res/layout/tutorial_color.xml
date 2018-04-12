@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/TutorialWrapper"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/tutorial_overlay"
+        style="@style/TutorialOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/tutorial_heading"
+            style="@style/TutorialHeadlineWithArrow.Left"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                style="@style/TutorialHeadlineWithArrowArrow.Left"
+                android:layout_width="40dp"
+                android:layout_marginLeft="0dp"
+                android:layout_marginRight="10dp"
+                android:layout_height="70dp" />
+
+            <TextView
+                style="@style/TutorialHeadlineWithArrowText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Color your Aura" />
+
+        </LinearLayout>
+
+        <TextView
+            style="@style/TutorialMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Bla Bla Bla Lorem Ipsum  is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book " />
+
+        <LinearLayout
+            style="@style/TutorialButtonWrapper"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/tutorial_back"
+                style="@style/TutorialButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/tutorial_button_back" />
+
+            <Button
+                android:id="@+id/tutorial_next"
+                style="@style/TutorialButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/tutorial_button_next" />
+        </LinearLayout>
+    </RelativeLayout>
+</LinearLayout>

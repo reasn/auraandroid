@@ -7,8 +7,9 @@
     android:background="@color/white"
     android:orientation="vertical">
 
+
     <ScrollView
-        android:id="@+id/scroll_view"
+        android:id="@+id/profile_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="none">
@@ -20,12 +21,12 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/status_summary"
+                android:id="@+id/profile_status_summary"
                 style="@style/StatusItemSummary"
                 android:visibility="gone" />
 
             <io.auraapp.auraandroid.ui.common.InfoBox
-                android:id="@+id/status_info_box"
+                android:id="@+id/profile_status_info_box"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone" />
@@ -43,7 +44,7 @@
                     android:orientation="horizontal">
 
                     <LinearLayout
-                        android:id="@+id/color_button_wrapper"
+                        android:id="@+id/profile_color_button_wrapper"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
 
@@ -55,7 +56,7 @@
                     </LinearLayout>
 
                     <TextView
-                        android:id="@+id/my_name"
+                        android:id="@+id/profile_my_name"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -72,7 +73,7 @@
                 <!-- This is not a TextView to make sure width and breaks are
                      consistent with the corresponding edit dialog -->
                 <EditText
-                    android:id="@+id/my_text"
+                    android:id="@+id/profile_my_text"
                     style="@style/MonoSpaceView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -94,43 +95,28 @@
             <!--</LinearLayout>-->
 
             <io.auraapp.auraandroid.ui.common.InfoBox
-                android:id="@+id/my_slogans_info_box"
+                android:id="@+id/profile_my_slogans_info_box"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone" />
 
             <android.support.v7.widget.RecyclerView
-                android:id="@+id/list_view"
+                android:id="@+id/profile_slogans_recycler"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
         </LinearLayout>
     </ScrollView>
 
     <Button
-        android:id="@+id/add_slogan"
+        android:id="@+id/profile_add_slogan"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_gravity="end|bottom"
         android:layout_margin="26dp"
         android:background="@mipmap/ic_launcher"
         android:padding="0dp"
-        app:layout_anchor="@id/scroll_view"
+        app:layout_anchor="@id/profile_scroll_view"
         app:layout_anchorGravity="bottom|end" />
-
-
-
-    <!--<android.support.design.widget.FloatingActionButton-->
-    <!--android:id="@+id/add_slogan"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_gravity="end|bottom"-->
-    <!--android:layout_margin="26dp"-->
-    <!--android:background="@color/transparent"-->
-    <!--android:src="@color/transparent"-->
-    <!--app:backgroundTint="@color/transparent"-->
-    <!--app:borderWidth="0dp"-->
-    <!--app:layout_anchor="@id/scroll_view"-->
-    <!--app:layout_anchorGravity="bottom|right|end" />-->
 
 
 </android.support.design.widget.CoordinatorLayout>

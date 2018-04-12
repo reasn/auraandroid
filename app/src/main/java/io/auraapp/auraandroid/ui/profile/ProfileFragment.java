@@ -80,8 +80,8 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
 
     public void reflectCommunicatorState(CommunicatorState state) {
         CommunicatorStateRenderer.populateInfoBoxWithState(state,
-                mRootView.findViewById(R.id.status_info_box),
-                mRootView.findViewById(R.id.status_summary),
+                mRootView.findViewById(R.id.profile_status_info_box),
+                mRootView.findViewById(R.id.profile_status_summary),
                 getContext());
     }
 
@@ -91,12 +91,12 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
         v(TAG, "onCreateView");
         mRootView = (ViewGroup) inflater.inflate(R.layout.profile_fragment, container, false);
 
-        mColorWrapper = mRootView.findViewById(R.id.color_button_wrapper);
-        mNameView = mRootView.findViewById(R.id.my_name);
-        mTextView = mRootView.findViewById(R.id.my_text);
+        mColorWrapper = mRootView.findViewById(R.id.profile_color_button_wrapper);
+        mNameView = mRootView.findViewById(R.id.profile_my_name);
+        mTextView = mRootView.findViewById(R.id.profile_my_text);
 
-        mSlogansInfoBox = mRootView.findViewById(R.id.my_slogans_info_box);
-        mSlogansRecyclerView = mRootView.findViewById(R.id.list_view);
+        mSlogansInfoBox = mRootView.findViewById(R.id.profile_my_slogans_info_box);
+        mSlogansRecyclerView = mRootView.findViewById(R.id.profile_slogans_recycler);
 
         mColorWrapper.setOnClickListener($ ->
                 mDialogManager.showColorPickerDialog(
@@ -125,6 +125,8 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
 
         bindSlogansViews();
 
+        // EditTexts keep their state and might ignore setText without this setting
+        mTextView.setSaveEnabled(false);
         updateNameAndTextViews();
         updateViewsWithColor();
 
@@ -132,8 +134,14 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     }
 
     private void updateNameAndTextViews() {
-        mNameView.setText(mMyProfileManager.getProfile().getName());
-        mTextView.setText(mMyProfileManager.getProfile().getText());
+        String name = mMyProfileManager.getProfile().getName();
+        String text = mMyProfileManager.getProfile().getText();
+        i(TAG,
+                "Updating name and text views, name: %s, text: %s",
+                name.substring(0, Math.min(10, name.length())),
+                text.substring(0, Math.min(10, text.length())));
+        mNameView.setText(name);
+        mTextView.setText(text);
     }
 
     private void updateViewsWithColor() {
@@ -149,7 +157,7 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     private void bindSlogansViews() {
         mSlogansRecyclerView.setNestedScrollingEnabled(false);
 
-        mRootView.findViewById(R.id.add_slogan).setOnClickListener($ -> showAddDialog());
+        mRootView.findViewById(R.id.profile_add_slogan).setOnClickListener($ -> showAddDialog());
 
         MySlogansRecycleAdapter adapter = new MySlogansRecycleAdapter(
                 getContext(),

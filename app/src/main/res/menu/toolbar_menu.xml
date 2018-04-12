@@ -12,4 +12,9 @@
         android:icon="@android:drawable/ic_menu_preferences"
         android:title="@string/toolbar_preferences"
         app:showAsAction="withText" />
+    <item
+        android:id="@+id/action_tutorial"
+        android:icon="@android:drawable/ic_menu_help"
+        android:title="@string/toolbar_tutorial"
+        app:showAsAction="withText" />
 </menu>

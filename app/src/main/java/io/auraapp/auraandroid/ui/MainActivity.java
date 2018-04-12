@@ -1,12 +1,18 @@
 package io.auraapp.auraandroid.ui;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.util.HashSet;
@@ -25,6 +31,12 @@ import io.auraapp.auraandroid.ui.debug.DebugFragment;
 import io.auraapp.auraandroid.ui.permissions.PermissionsFragment;
 import io.auraapp.auraandroid.ui.profile.ProfileFragment;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
+import io.auraapp.auraandroid.ui.tutorial.ColorStep;
+import io.auraapp.auraandroid.ui.tutorial.EnabledStep;
+import io.auraapp.auraandroid.ui.tutorial.NameStep;
+import io.auraapp.auraandroid.ui.tutorial.SwipeStep;
+import io.auraapp.auraandroid.ui.tutorial.TextStep;
+import io.auraapp.auraandroid.ui.tutorial.TutorialStep;
 import io.auraapp.auraandroid.ui.world.PeerMapTransformer;
 import io.auraapp.auraandroid.ui.world.PeerSlogan;
 import io.auraapp.auraandroid.ui.world.WorldFragment;
@@ -318,5 +330,89 @@ public class MainActivity extends AppCompatActivity {
 
             mWorldFragment.onPause();
         });
+    }
+
+
+    TutorialManager mTutorialManager = null;
+
+    public void showTutorial() {
+        if (mTutorialManager != null) {
+            return;
+        }
+        mTutorialManager = new TutorialManager(this, findViewById(R.id.activity_wrapper), mPager, () -> {
+            mTutorialManager = null;
+        });
+        mTutorialManager.goTo(EnabledStep.class);
+    }
+
+    static class TutorialManager {
+
+        private final Context mContext;
+        private final RelativeLayout mRootView;
+        private final ScreenPager mPager;
+        private final Runnable mEndCallback;
+        private LayoutInflater mInflater;
+        private View mCurrentScreen;
+        private TutorialStep mCurrentStep = null;
+
+        public TutorialManager(Context context,
+                               RelativeLayout rootView,
+                               ScreenPager pager,
+                               Runnable endCallback) {
+            mContext = context;
+            mRootView = rootView;
+            mPager = pager;
+            mEndCallback = endCallback;
+            mInflater = LayoutInflater.from(mContext);
+        }
+
+        public void goTo(Class<? extends TutorialStep> step) {
+            if (step == null) {
+                close();
+                return;
+            }
+            if (mCurrentStep != null) {
+                mCurrentStep.leave();
+                removeCurrentScreen();
+            }
+            if (step.equals(EnabledStep.class)) {
+                mCurrentStep = new EnabledStep(mRootView, mContext, mPager);
+            } else if (step.equals(SwipeStep.class)) {
+                mCurrentStep = new SwipeStep(mRootView, mContext, mPager);
+            } else if (step.equals(ColorStep.class)) {
+                mCurrentStep = new ColorStep(mRootView, mContext, mPager);
+            } else if (step.equals(NameStep.class)) {
+                mCurrentStep = new NameStep(mRootView, mContext, mPager);
+            } else if (step.equals(TextStep.class)) {
+                mCurrentStep = new TextStep(mRootView, mContext, mPager);
+            }
+            mCurrentScreen = mCurrentStep.enter();
+
+            Button backButton = mCurrentScreen.findViewById(R.id.tutorial_back);
+            if (backButton != null) {
+                backButton.setOnClickListener($ -> goTo(mCurrentStep.getPrevious()));
+            }
+            Button nextButton = mCurrentScreen.findViewById(R.id.tutorial_next);
+            if (nextButton != null) {
+                nextButton.setOnClickListener($ -> goTo(mCurrentStep.getNextStep()));
+            }
+
+            mCurrentScreen.findViewById(R.id.tutorial_overlay).setOnClickListener($ -> {
+                // Just catch clicks so that they don't bubble to the background
+            });
+            mRootView.addView(mCurrentScreen);
+        }
+
+        private void removeCurrentScreen() {
+            i(TAG, "Removing current tutorial screen");
+            ((ViewGroup) mCurrentScreen.getParent()).removeView(mCurrentScreen);
+            mCurrentScreen = null;
+        }
+
+        private void close() {
+            removeCurrentScreen();
+            mPager.setLocked(false);
+            mEndCallback.run();
+        }
     }
 }

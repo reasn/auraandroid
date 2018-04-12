@@ -60,11 +60,11 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
 
         mRootView = (ViewGroup) inflater.inflate(R.layout.world_fragment, container, false);
 
-        mStatusSummary = mRootView.findViewById(R.id.status_summary);
-        mCommunicatorStateInfoBox = mRootView.findViewById(R.id.status_info_box);
+        mStatusSummary = mRootView.findViewById(R.id.profile_status_summary);
+        mCommunicatorStateInfoBox = mRootView.findViewById(R.id.profile_status_info_box);
         mPeersInfoBox = mRootView.findViewById(R.id.peer_slogans_info_box);
 
-        RecyclerView recycler = mRootView.findViewById(R.id.list_view);
+        RecyclerView recycler = mRootView.findViewById(R.id.profile_slogans_recycler);
         recycler.setNestedScrollingEnabled(false);
         mPeerListAdapter = new PeerSlogansRecycleAdapter(mContext, recycler, mOnAdoptCallback);
         recycler.setAdapter(mPeerListAdapter);

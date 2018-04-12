@@ -6,7 +6,7 @@
     android:background="@color/yellow">
 
     <ScrollView
-        android:id="@+id/scroll_view"
+        android:id="@+id/profile_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
@@ -18,12 +18,12 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/status_summary"
+                android:id="@+id/profile_status_summary"
                 style="@style/StatusItemSummary"
                 android:visibility="gone" />
 
             <io.auraapp.auraandroid.ui.common.InfoBox
-                android:id="@+id/status_info_box"
+                android:id="@+id/profile_status_info_box"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="100dp"
@@ -67,7 +67,7 @@
                 android:visibility="gone" />
 
             <android.support.v7.widget.RecyclerView
-                android:id="@+id/list_view"
+                android:id="@+id/profile_slogans_recycler"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
