@@ -10,14 +10,14 @@ class DeviceMap {
     /**
      * Id:Device
      */
-    private final HashMap<String, Device> mDeviceMap = new HashMap<>();
+    private final HashMap<Integer, Device> mDeviceMap = new HashMap<>();
 
     /**
      * Address:Id
      */
-    private final HashMap<String, String> mIdMap = new HashMap<>();
+    private final HashMap<String, Integer> mIdMap = new HashMap<>();
 
-    void setId(String address, String id) {
+    void setId(String address, int id) {
         mIdMap.put(address, id);
     }
 
@@ -25,7 +25,7 @@ class DeviceMap {
         return mDeviceMap.values();
     }
 
-    Collection<String> ids() {
+    Collection<Integer> ids() {
         return mIdMap.values();
     }
 
@@ -60,7 +60,7 @@ class DeviceMap {
     }
 
     boolean has(String address) {
-        String id = mIdMap.get(address);
+        Integer id = mIdMap.get(address);
         return id != null && mDeviceMap.containsKey(id);
     }
 }

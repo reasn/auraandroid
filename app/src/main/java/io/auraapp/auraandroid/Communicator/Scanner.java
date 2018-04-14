@@ -27,6 +27,7 @@ import io.auraapp.auraandroid.common.Peer;
 
 import static android.bluetooth.BluetoothProfile.STATE_CONNECTED;
 import static android.content.Context.MODE_PRIVATE;
+import static io.auraapp.auraandroid.Communicator.MetaDataUnpacker.byteArrayToString;
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.e;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
@@ -139,7 +140,7 @@ class Scanner {
 
         long now = System.currentTimeMillis();
 
-        for (String id : mDeviceMap.ids()) {
+        for (int id : mDeviceMap.ids()) {
 
             Device device = mDeviceMap.getById(id);
 
@@ -174,7 +175,7 @@ class Scanner {
                         });
 
                     } else if (device.mOutdated) {
-                        d(TAG, "Connecting to gatt server, id: %s", id);
+                        d(TAG, "Device is marked as outdated, connecting to gatt server, id: %s", id);
                         device.connectionAttempts++;
                         device.mSynchronizing = true;
                         device.lastConnectAttempt = now;
@@ -187,8 +188,8 @@ class Scanner {
                         }
                         device.bt.gatt = device.bt.device.connectGatt(mContext, false, mGattCallback);
 
-                    } else {
-                        v(TAG, "Nothing to do for disconnected device, id: %s", id);
+//                    } else {
+//                        v(TAG, "Nothing to do for disconnected device, id: %s", id);
                     }
                     continue;
                 }
@@ -432,7 +433,7 @@ class Scanner {
                             propValue);
                 }
                 try {
-                    Device.Profile previousProfile = device.buildProfile();
+                    DevicePeerProfile previousProfile = device.buildProfile();
                     Set<String> previousSlogans = device.buildSlogans();
                     if (device.updateWithReceivedAttribute(uuid, propValue)) {
 
@@ -447,7 +448,7 @@ class Scanner {
                             }
                         }
 
-                        Device.Profile profile = device.buildProfile();
+                        DevicePeerProfile profile = device.buildProfile();
                         v(TAG, "Propagating peer updated with received characteristic, slogans: %s, slogan changed: %s, profile changed: %s",
                                 newSlogans.size(),
                                 existingSloganChanged,
@@ -477,11 +478,19 @@ class Scanner {
 
             String address = result.getDevice().getAddress();
 
-            MetaDataUnpacker.MetaData metaData = MetaDataUnpacker.unpack(result.getScanRecord());
+            MetaDataUnpacker.MetaData metaData = null;
+            byte[] rawMeta = new byte[0];
 
-            final String id = metaData.isPresent()
-                    ? "" + metaData.getId()
-                    : address;
+            if (result.getScanRecord() == null) {
+                w(TAG, "Meta data is null");
+            } else {
+                rawMeta = result.getScanRecord().getServiceData(UuidSet.SERVICE_DATA_PARCEL);
+                metaData = MetaDataUnpacker.unpack(rawMeta);
+            }
+
+            final int id = metaData != null
+                    ? metaData.getId()
+                    : Integer.decode("0x" + address.replaceAll(":", ""));
 
             mDeviceMap.setId(address, id);
             final Device device = mDeviceMap.get(address);
@@ -491,17 +500,31 @@ class Scanner {
                     i(TAG, "Resetting remote device instance, BT address changed since last seen, id: %s", id);
                     device.bt.device = result.getDevice();
                 }
-                v(TAG, "Seen known device, id: %s, metaData: %s", id, metaData.toString());
+
+                v(TAG, "Seen known device, id: %s, connected: %s, version: %d (was %d), meta: %s, unpacked: %s",
+                        id,
+                        device.connected,
+                        metaData != null
+                                ? metaData.getDataVersion()
+                                : "null",
+                        device.mDataVersion,
+                        byteArrayToString(rawMeta),
+                        metaData);
+
                 device.lastSeenTimestamp = System.currentTimeMillis();
-                if (metaData.isPresent() && device.mDataVersion != metaData.getDataVersion()) {
+                if (metaData != null && device.mDataVersion != metaData.getDataVersion()) {
                     device.mOutdated = true;
                     device.mDataVersion = metaData.getDataVersion();
                 }
                 mPeerBroadcaster.propagatePeer(device, false, countSlogans());
                 return;
             }
-            i(TAG, "Seen unknown device, id: %s, metaData: %s", id, metaData.toString());
             final Device unknownDevice = Device.create(id, result.getDevice());
+            i(TAG, "Seen unknown device, id: %s, connected: %s, meta: unpacked: %s",
+                    id,
+                    unknownDevice.connected,
+                    byteArrayToString(rawMeta),
+                    metaData);
             unknownDevice.lastSeenTimestamp = System.currentTimeMillis();
             mDeviceMap.put(address, unknownDevice);
             mPeerBroadcaster.propagatePeerList(mDeviceMap);

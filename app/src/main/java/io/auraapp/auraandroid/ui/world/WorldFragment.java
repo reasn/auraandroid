@@ -28,7 +28,7 @@ import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
 import io.auraapp.auraandroid.ui.common.CommunicatorStateRenderer;
 import io.auraapp.auraandroid.ui.common.InfoBox;
 import io.auraapp.auraandroid.ui.world.list.OnAdoptCallback;
-import io.auraapp.auraandroid.ui.world.list.PeerSlogansRecycleAdapter;
+import io.auraapp.auraandroid.ui.world.list.PeersRecycleAdapter;
 
 public class WorldFragment extends Fragment implements FragmentWithToolbarButtons {
 
@@ -39,7 +39,7 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
     private TextView mStatusSummary;
     private Handler mHandler = new Handler();
     private OnAdoptCallback mOnAdoptCallback;
-    private PeerSlogansRecycleAdapter mPeerListAdapter;
+    private PeersRecycleAdapter mPeerListAdapter;
     private FakeSwipeRefreshLayout mSwipeRefresh;
 
     private CommunicatorState mLastState = null;
@@ -66,7 +66,7 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
 
         RecyclerView recycler = mRootView.findViewById(R.id.profile_slogans_recycler);
         recycler.setNestedScrollingEnabled(false);
-        mPeerListAdapter = new PeerSlogansRecycleAdapter(mContext, recycler, mOnAdoptCallback);
+        mPeerListAdapter = new PeersRecycleAdapter(mContext, recycler, mOnAdoptCallback);
         recycler.setAdapter(mPeerListAdapter);
         recycler.setLayoutManager(new LinearLayoutManager(mContext));
         // With change animations enabled items flash as updates come in
@@ -138,9 +138,9 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
                 mStatusSummary,
                 mContext);
 
-        updatePeersInfoBox();
+//        updatePeersInfoBox();
 
-        updatePeersHeading();
+//        updatePeersHeading();
     }
 
     private void updatePeersHeading() {
@@ -219,9 +219,9 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
         mPeersInfoBox.setVisibility(View.VISIBLE);
     }
 
-    public void notifyPeerSlogansChanged(TreeMap<String, PeerSlogan> mPeerSloganMap) {
+    public void notifyPeersChanged(Set<Peer> peers) {
         if (mPeerListAdapter != null) {
-            mPeerListAdapter.notifyPeerSloganListChanged(mPeerSloganMap);
+            mPeerListAdapter.notifyPeersChanged(peers);
         }
     }
 }

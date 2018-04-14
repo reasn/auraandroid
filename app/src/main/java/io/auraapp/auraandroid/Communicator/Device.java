@@ -16,50 +16,6 @@ import io.auraapp.auraandroid.common.PeerStatsSet;
 
 class Device {
 
-    static class Profile {
-        final String mColor;
-        final String mName;
-        final String mText;
-
-        public Profile(String mColor, String mName, String mText) {
-            this.mColor = mColor;
-            this.mName = mName;
-            this.mText = mText;
-        }
-
-        String getColor() {
-            return mColor;
-        }
-
-        String getName() {
-            return mName;
-        }
-
-        String getText() {
-            return mText;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            Profile profile = (Profile) o;
-
-            if (!mColor.equals(profile.mColor)) return false;
-            if (!mName.equals(profile.mName)) return false;
-            return mText.equals(profile.mText);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = mColor.hashCode();
-            result = 31 * result + mName.hashCode();
-            result = 31 * result + mText.hashCode();
-            return result;
-        }
-    }
-
     final String mId;
     boolean mOutdated = true;
     long lastSeenTimestamp = 0;
@@ -124,7 +80,7 @@ class Device {
     }
 
     @Nullable
-    Profile buildProfile() {
+    DevicePeerProfile buildProfile() {
         String packed = mPropertyMap.get(UuidSet.PROFILE);
         if (packed == null || packed.equals("")) {
             return null;
@@ -134,7 +90,7 @@ class Device {
         String name = parts[0].replaceAll("\\#", "#");
         String text = parts[1].replaceAll("\\#", "#");
 
-        return new Profile(color, name, text);
+        return new DevicePeerProfile(color, name, text);
     }
 
     int countSlogans() {

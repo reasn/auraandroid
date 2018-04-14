@@ -26,6 +26,7 @@ import io.auraapp.auraandroid.common.Timer;
 import static android.bluetooth.BluetoothGattCharacteristic.PERMISSION_READ;
 import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_NOTIFY;
 import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_READ;
+import static io.auraapp.auraandroid.Communicator.MetaDataUnpacker.byteArrayToString;
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.e;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
@@ -109,6 +110,7 @@ class Advertiser {
     }
 
     void updateAdvertisement() {
+        i(TAG, "Updating advertisement (stopping and starting)");
         mBluetoothAdvertiser.stopAdvertising(mAdvertisingCallback);
         advertise();
         mStateChangeCallback.onStateChange(mAdvertisementSet.mVersion, mAdvertisementSet.mId);
@@ -134,17 +136,19 @@ class Advertiser {
                 .setTimeout(0)
                 .build();
 
+        byte[] metaData = mAdvertisementSet.getMetaData();
 
         AdvertiseData data = new AdvertiseData.Builder()
                 .setIncludeTxPowerLevel(false)
                 .setIncludeDeviceName(false)
                 .addServiceUuid(UuidSet.SERVICE_PARCEL)
-                .addServiceData(UuidSet.SERVICE_DATA_PARCEL, mAdvertisementSet.getMetaData())
+                .addServiceData(UuidSet.SERVICE_DATA_PARCEL, metaData)
                 .build();
 
         mBluetoothAdvertiser.startAdvertising(settings, data, mAdvertisingCallback);
-        i(TAG, "started advertising, id: %d, version: %d, slogans: %d, service: %s",
-                mAdvertisementSet.mId,
+        i(TAG, "started advertising, id: %s, version: %s, meta: %s, slogans: %d, service: %s",
+                Integer.toHexString(mAdvertisementSet.mId),
+                byteArrayToString(metaData),
                 mAdvertisementSet.mSlogans.length,
                 mAdvertisementSet.mVersion,
                 UuidSet.SERVICE);

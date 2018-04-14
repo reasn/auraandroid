@@ -13,11 +13,13 @@ public class PeerSloganListItem extends ListItem {
 
     private final Slogan mSlogan;
     private final Set<Peer> mPeers;
+    private String mColor;
 
     public PeerSloganListItem(@NonNull Slogan slogan, @NonNull Set<Peer> peers) {
         super("peer-slogan-" + slogan.getText());
         mSlogan = slogan;
         mPeers = peers;
+        mColor = peers.iterator().next().mColor;
     }
 
     @Override
@@ -27,6 +29,7 @@ public class PeerSloganListItem extends ListItem {
         }
         mPeers.clear();
         mPeers.addAll(((PeerSloganListItem) newItem).getPeers());
+        mColor = mPeers.iterator().next().mColor;
     }
 
     @Nullable
@@ -36,6 +39,10 @@ public class PeerSloganListItem extends ListItem {
 
     public Slogan getSlogan() {
         return mSlogan;
+    }
+
+    public String getColor() {
+        return mColor;
     }
 
     public long getLastSeen() {

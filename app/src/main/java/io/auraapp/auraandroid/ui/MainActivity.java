@@ -26,8 +26,8 @@ import io.auraapp.auraandroid.ui.permissions.PermissionsFragment;
 import io.auraapp.auraandroid.ui.profile.ProfileFragment;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 import io.auraapp.auraandroid.ui.tutorial.SloganAddStep;
+import io.auraapp.auraandroid.ui.tutorial.TutorialManager;
 import io.auraapp.auraandroid.ui.welcome.TermsFragment;
-import io.auraapp.auraandroid.ui.welcome.TutorialManager;
 import io.auraapp.auraandroid.ui.world.PeerMapTransformer;
 import io.auraapp.auraandroid.ui.world.PeerSlogan;
 import io.auraapp.auraandroid.ui.world.WorldFragment;
@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
                     peers -> {
                         mPeers = peers;
                         mPeerSloganMap = PeerMapTransformer.buildMapFromPeerList(peers);
-                        mWorldFragment.notifyPeerSlogansChanged(mPeerSloganMap);
+                        mWorldFragment.notifyPeersChanged(peers);
                         reflectStatus();
                         mWorldFragment.setData(mCommunicatorState, mPeerSloganMap, mPeers);
                         mWorldFragment.updateAllViews();
@@ -170,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         mPeers.add(peer);
                         mPeerSloganMap = PeerMapTransformer.buildMapFromPeerAndPreviousMap(peer, mPeerSloganMap);
-                        mWorldFragment.notifyPeerSlogansChanged(mPeerSloganMap);
+                        mWorldFragment.notifyPeersChanged(mPeers);
                         reflectStatus();
                         mWorldFragment.setData(mCommunicatorState, mPeerSloganMap, mPeers);
                         mWorldFragment.updateAllViews();

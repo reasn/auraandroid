@@ -1,4 +1,4 @@
-package io.auraapp.auraandroid.ui.welcome;
+package io.auraapp.auraandroid.ui.tutorial;
 
 import android.content.Context;
 import android.view.View;
@@ -8,14 +8,6 @@ import android.widget.RelativeLayout;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.ui.ScreenPager;
-import io.auraapp.auraandroid.ui.tutorial.ColorStep;
-import io.auraapp.auraandroid.ui.tutorial.EnabledStep;
-import io.auraapp.auraandroid.ui.tutorial.NameStep;
-import io.auraapp.auraandroid.ui.tutorial.SloganAddStep;
-import io.auraapp.auraandroid.ui.tutorial.SloganEditStep;
-import io.auraapp.auraandroid.ui.tutorial.SwipeStep;
-import io.auraapp.auraandroid.ui.tutorial.TextStep;
-import io.auraapp.auraandroid.ui.tutorial.TutorialStep;
 
 import static io.auraapp.auraandroid.common.FormattedLog.i;
 

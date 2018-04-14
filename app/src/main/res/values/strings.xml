@@ -108,13 +108,13 @@
         <item quantity="two">Two authors</item>
         <item quantity="other">%d authors</item>
     </plurals>
-    <string name="ui_world_slogan_last_seen_lt_10s">Nearby</string>
-    <string name="ui_world_slogan_last_seen_lt_1min">Less than a minute ago</string>
-    <string name="ui_world_slogan_last_seen_lt_10min">Less than ##elapsed_minutes##"min ago</string>
-    <string name="ui_world_slogan_last_seen_lt_30min">Less than 30min ago</string>
-    <string name="ui_world_slogan_last_seen_lt_45min">Less than 45min ago</string>
-    <string name="ui_world_slogan_last_seen_lte_1h">Less than an hour ago</string>
-    <string name="ui_world_slogan_last_seen_gt_1h">More than an hour ago</string>
+    <string name="world_peer_last_seen_lt_10s">Nearby</string>
+    <string name="world_peer_last_seen_lt_1min">Less than a minute ago</string>
+    <string name="world_peer_last_seen_lt_10min">Less than ##elapsed_minutes##"min ago</string>
+    <string name="world_peer_last_seen_lt_30min">Less than 30min ago</string>
+    <string name="world_peer_last_seen_lt_45min">Less than 45min ago</string>
+    <string name="world_peer_last_seen_lte_1h">Less than an hour ago</string>
+    <string name="world_peer_last_seen_gt_1h">More than an hour ago</string>
 
     <!--Main Activity-->
     <string name="ui_main_toast_debug_view_enabled">Debug view enabled</string>

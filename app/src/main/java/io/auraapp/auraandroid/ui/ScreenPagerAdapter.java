@@ -13,8 +13,8 @@ import java.util.List;
 import io.auraapp.auraandroid.ui.debug.DebugFragment;
 import io.auraapp.auraandroid.ui.permissions.PermissionsFragment;
 import io.auraapp.auraandroid.ui.profile.ProfileFragment;
+import io.auraapp.auraandroid.ui.tutorial.TutorialManager;
 import io.auraapp.auraandroid.ui.welcome.TermsFragment;
-import io.auraapp.auraandroid.ui.welcome.TutorialManager;
 import io.auraapp.auraandroid.ui.welcome.WelcomeFragment;
 import io.auraapp.auraandroid.ui.world.WorldFragment;
 

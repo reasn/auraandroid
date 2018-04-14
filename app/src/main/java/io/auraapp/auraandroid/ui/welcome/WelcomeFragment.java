@@ -12,6 +12,7 @@ import io.auraapp.auraandroid.ui.common.ScreenFragment;
 import io.auraapp.auraandroid.ui.permissions.FragmentCameIntoView;
 import io.auraapp.auraandroid.ui.profile.ProfileFragment;
 import io.auraapp.auraandroid.ui.tutorial.EnabledStep;
+import io.auraapp.auraandroid.ui.tutorial.TutorialManager;
 
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 

@@ -129,7 +129,9 @@ public class Communicator extends Service {
                     if (contentChanged) {
                         showPeerNotification();
                         // TODO notification prefs
-                        d(TAG, "Content added, sending peer update intent, id: %s, slogans: %d", peer.mId, peer.mSlogans.size());
+                        d(TAG, "Content added, sending peer update intent, id: %s, slogans: %d",
+                                peer.mId,
+                                peer.mSlogans.size());
                     } else {
                         v(TAG, "Sending peer update intent, id: %s, slogans: %d", peer.mId, peer.mSlogans.size());
                     }
@@ -496,7 +498,7 @@ public class Communicator extends Service {
             }
 
             if (mState.mAdvertising && advertisementChanged) {
-                i(TAG, "Updating advertisement, new version: %d, color: %d chars, slogans: %d",
+                i(TAG, "Updating advertisement, new version: %d, profile: %d chars, slogans: %d",
                         mAdvertisementSet.getVersion(),
                         mAdvertisementSet.getProfile().length(),
                         mAdvertisementSet.mSlogans.length);

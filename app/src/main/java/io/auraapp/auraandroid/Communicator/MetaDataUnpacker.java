@@ -1,26 +1,20 @@
 package io.auraapp.auraandroid.Communicator;
 
-import android.bluetooth.le.ScanRecord;
+import android.support.annotation.Nullable;
 
 import static io.auraapp.auraandroid.common.FormattedLog.w;
 
 class MetaDataUnpacker {
 
     static class MetaData {
-        boolean mPresent;
         byte mAuraVersion;
         byte mDataVersion;
         int mId;
 
-        public MetaData(boolean present, byte auraVersion, byte dataVersion, int id) {
-            this.mPresent = present;
+        public MetaData(byte auraVersion, byte dataVersion, int id) {
             this.mAuraVersion = auraVersion;
             this.mDataVersion = dataVersion;
             this.mId = id;
-        }
-
-        boolean isPresent() {
-            return mPresent;
         }
 
         byte getAuraVersion() {
@@ -38,7 +32,6 @@ class MetaDataUnpacker {
         @Override
         public String toString() {
             return "MetaData{" +
-                    "mPresent=" + mPresent +
                     ", mAuraVersion=" + mAuraVersion +
                     ", mDataVersion=" + mDataVersion +
                     ", mId=" + mId +
@@ -53,32 +46,25 @@ class MetaDataUnpacker {
      * https://stackoverflow.com/questions/5399798/byte-array-and-int-conversion-in-java/11419863
      * https://stackoverflow.com/questions/2817752/java-code-to-convert-byte-to-hexadecimal/21178195
      */
-    static MetaData unpack(ScanRecord scanRecord) {
+    @Nullable
+    static MetaData unpack(byte[] metaData) {
 
-        MetaData absent = new MetaData(false, (byte) 0, (byte) 0, 0);
-
-        if (scanRecord == null) {
-            w(TAG, "Scan record is null");
-            return absent;
-        }
-        byte[] metaData = scanRecord.getServiceData(UuidSet.SERVICE_DATA_PARCEL);
         if (metaData == null) {
             w(TAG, "Additional data missing, null");
-            return absent;
+            return null;
         } else if (metaData.length < AdvertisementSet.BYTE_LENGTH) {
             w(TAG, "Additional data invalid, length: %d", metaData.length);
-            return absent;
+            return null;
         }
 
         final byte auraVersion = metaData[0];
-        final byte dataVersion = metaData[0];
+        final byte dataVersion = metaData[1];
         final int id = extractInt(new byte[]{
-                metaData[1],
                 metaData[2],
                 metaData[3],
-                metaData[4]
+                metaData[4],
+                metaData[5]
         });
-
         // toHexString assumes 4 bytes of output so we chop of the first 2 characters (`substring(2)`)
 //        final String color = "#" + Integer.toHexString(extractInt(new byte[]{
 //                metaData[1],
@@ -94,7 +80,15 @@ class MetaDataUnpacker {
 //            value += (metaData[i] & 0x000000FF) << shift;
 //        }
 //        final int id = value;
-        return new MetaData(true, auraVersion, dataVersion, id);
+        return new MetaData(auraVersion, dataVersion, id);
+    }
+
+    public static String byteArrayToString(byte[] bytes) {
+        StringBuilder result = new StringBuilder();
+        for (byte element : bytes) {
+            result.append(" ").append(String.format("%02X", element));
+        }
+        return result.toString().substring(1);
     }
 
     private static int extractInt(byte[] array) {

@@ -70,7 +70,7 @@ class PeerBroadcaster {
         peer.mSynchronizing = device.mSynchronizing;
         peer.mSuccessfulRetrievals = device.stats.mSuccessfulRetrievals;
         peer.mErrors = device.stats.mErrors;
-        Device.Profile profile = device.buildProfile();
+        DevicePeerProfile profile = device.buildProfile();
         if (profile != null) {
             peer.mColor = profile.getColor();
             peer.mName = profile.getName();

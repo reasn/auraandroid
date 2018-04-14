@@ -31,6 +31,7 @@
 
             <LinearLayout
                 android:id="@+id/peer_slogans_heading_wrapper"
+                android:visibility="gone"
                 style="@style/HeadingItem"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
