@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Peer implements Serializable {
 
-    public final String mId;
+    public final int mId;
     public int mSuccessfulRetrievals = 0;
     public long mLastSeenTimestamp = 0;
     public int mErrors = 0;
@@ -18,7 +18,7 @@ public class Peer implements Serializable {
     public final List<Slogan> mSlogans = new ArrayList<>();
     public boolean mSynchronizing = false;
 
-    public Peer(String id) {
+    public Peer(int id) {
         mId = id;
     }
 //
@@ -34,7 +34,7 @@ public class Peer implements Serializable {
     @Override
     public String toString() {
         return "Peer{" +
-                "mId='" + mId + '\'' +
+                "mId=" + mId +
                 ", mSuccessfulRetrievals=" + mSuccessfulRetrievals +
                 ", mLastSeenTimestamp=" + mLastSeenTimestamp +
                 ", mErrors=" + mErrors +
@@ -53,11 +53,11 @@ public class Peer implements Serializable {
 
         Peer peer = (Peer) o;
 
+        if (mId != peer.mId) return false;
         if (mSuccessfulRetrievals != peer.mSuccessfulRetrievals) return false;
         if (mLastSeenTimestamp != peer.mLastSeenTimestamp) return false;
         if (mErrors != peer.mErrors) return false;
         if (mSynchronizing != peer.mSynchronizing) return false;
-        if (!mId.equals(peer.mId)) return false;
         if (mColor != null ? !mColor.equals(peer.mColor) : peer.mColor != null) return false;
         if (mText != null ? !mText.equals(peer.mText) : peer.mText != null) return false;
         if (mName != null ? !mName.equals(peer.mName) : peer.mName != null) return false;
@@ -66,7 +66,7 @@ public class Peer implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = mId.hashCode();
+        int result = mId;
         result = 31 * result + mSuccessfulRetrievals;
         result = 31 * result + (int) (mLastSeenTimestamp ^ (mLastSeenTimestamp >>> 32));
         result = 31 * result + mErrors;

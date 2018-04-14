@@ -1,8 +1,12 @@
 package io.auraapp.auraandroid.Communicator;
 
+import android.util.SparseArray;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 class DeviceMap {
@@ -10,7 +14,7 @@ class DeviceMap {
     /**
      * Id:Device
      */
-    private final HashMap<Integer, Device> mDeviceMap = new HashMap<>();
+    private final SparseArray<Device> mDeviceMap = new SparseArray<>();
 
     /**
      * Address:Id
@@ -22,7 +26,11 @@ class DeviceMap {
     }
 
     Collection<Device> values() {
-        return mDeviceMap.values();
+        List<Device> arrayList = new ArrayList<>(mDeviceMap.size());
+        for (int i = 0; i < mDeviceMap.size(); i++) {
+            arrayList.add(mDeviceMap.valueAt(i));
+        }
+        return arrayList;
     }
 
     Collection<Integer> ids() {
@@ -33,7 +41,7 @@ class DeviceMap {
         return mDeviceMap.get(mIdMap.get(address));
     }
 
-    Device getById(String id) {
+    Device getById(int id) {
         return mDeviceMap.get(id);
     }
 
@@ -46,7 +54,7 @@ class DeviceMap {
         mIdMap.clear();
     }
 
-    void removeById(String id) {
+    void removeById(int id) {
         mDeviceMap.remove(id);
         Set<Runnable> mutations = new HashSet<>();
         for (final String address : mIdMap.keySet()) {
@@ -61,6 +69,6 @@ class DeviceMap {
 
     boolean has(String address) {
         Integer id = mIdMap.get(address);
-        return id != null && mDeviceMap.containsKey(id);
+        return id != null && mDeviceMap.indexOfKey(id) > -1;
     }
 }

@@ -41,13 +41,14 @@ class PeerBroadcaster {
      * contentChanged differentiates between "peer seen again" and "color/name/slogan/... changed"
      */
     void propagatePeer(Device device, boolean contentChanged, int sloganCount) {
+        String hexId = Integer.toHexString(device.mId);
         if (contentChanged) {
             // Not debouncing because otherwise contentAdded can get lost and no notification
             // (e.g. vibration) is sent to the user
-            mTimer.clear(device.mId);
+            mTimer.clear(hexId);
             mPeerChangedCallback.peerChanged(buildPeer(device), true, sloganCount);
         } else {
-            mTimer.debounce(device.mId, () -> mPeerChangedCallback.peerChanged(buildPeer(device), false, sloganCount), DEBOUNCE);
+            mTimer.debounce(hexId, () -> mPeerChangedCallback.peerChanged(buildPeer(device), false, sloganCount), DEBOUNCE);
         }
     }
 

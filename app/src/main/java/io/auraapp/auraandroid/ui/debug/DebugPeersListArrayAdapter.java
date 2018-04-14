@@ -33,7 +33,7 @@ public class DebugPeersListArrayAdapter extends ArrayAdapter<Peer> {
         TextView emojiTextView = convertView.findViewById(R.id.emoji);
         TextView detailsTextView = convertView.findViewById(R.id.details);
 
-        emojiTextView.setText(CuteHasher.hash(peer.mId));
+        emojiTextView.setText(CuteHasher.hash(Integer.toHexString(peer.mId)));
 
         String text = "";
 

@@ -114,7 +114,10 @@ class Scanner {
     }
 
     private void disconnectDevice(Device device) {
-        i(TAG, "Disconnecting device, slogans known: %d, id: %s, stats: %s", device.buildSlogans().size(), device.mId, device.stats);
+        i(TAG, "Disconnecting device, slogans known: %d, id: %s, stats: %s",
+                device.buildSlogans().size(),
+                Integer.toHexString(device.mId),
+                device.stats);
         if (device.bt.gatt != null) {
             device.bt.gatt.close();
         }
@@ -143,6 +146,7 @@ class Scanner {
         for (int id : mDeviceMap.ids()) {
 
             Device device = mDeviceMap.getById(id);
+            String hexId = Integer.toHexString(id);
 
             try {
                 if (device.shouldDisconnect) {
@@ -153,19 +157,19 @@ class Scanner {
 
                 if (!device.connected) {
                     if (device.bt.device == null) {
-                        v(TAG, "Waiting for next time sight, id: %s", id);
+                        v(TAG, "Waiting for next sighting to set device property, id: %s", hexId);
 
                     } else if (device.lastConnectAttempt != 0 && now - device.lastConnectAttempt <= Config.COMMUNICATOR_PEER_CONNECT_TIMEOUT) {
-                        v(TAG, "Nothing to do, connection attempt is in progress, id: %s", id);
+                        v(TAG, "Nothing to do, connection attempt is in progress, id: %s", hexId);
 
                     } else if (device.lastConnectAttempt != 0 && now - device.lastConnectAttempt > Config.COMMUNICATOR_PEER_CONNECT_TIMEOUT) {
-                        d(TAG, "Connection timeout, closing gatt, id: %s", id);
+                        d(TAG, "Connection timeout, closing gatt, id: %s", hexId);
                         device.shouldDisconnect = true;
                         device.stats.mErrors++;
 
                     } else if (now - device.lastSeenTimestamp > mPeerRetention) {
                         // lastSeenTimestamp may be 0
-                        v(TAG, "Forgetting device, id: %s", id);
+                        v(TAG, "Forgetting device, id: %s", hexId);
                         device.bt.device = null;
                         device.bt.gatt = null;
                         device.bt.service = null;
@@ -175,13 +179,13 @@ class Scanner {
                         });
 
                     } else if (device.mOutdated) {
-                        d(TAG, "Device is marked as outdated, connecting to gatt server, id: %s", id);
+                        d(TAG, "Device is marked as outdated, connecting to gatt server, id: %s", hexId);
                         device.connectionAttempts++;
                         device.mSynchronizing = true;
                         device.lastConnectAttempt = now;
                         device.setAllPropertiesOutdated();
                         if (device.bt.device == null) {
-                            i(TAG, "BluetoothDevice is null, maybe BT has just been disabled, id: %s", id);
+                            i(TAG, "BluetoothDevice is null, maybe BT has just been disabled, id: %s", hexId);
                             device.shouldDisconnect = true;
                             device.stats.mErrors++;
                             continue;
@@ -189,7 +193,7 @@ class Scanner {
                         device.bt.gatt = device.bt.device.connectGatt(mContext, false, mGattCallback);
 
 //                    } else {
-//                        v(TAG, "Nothing to do for disconnected device, id: %s", id);
+//                        v(TAG, "Nothing to do for disconnected device, id: %s", hexId);
                     }
                     continue;
                 }
@@ -198,7 +202,7 @@ class Scanner {
 
                 if (device.bt.service == null && !device.isDiscoveringServices) {
                     device.isDiscoveringServices = true;
-                    i(TAG, "Connected to %s, discovering services", id);
+                    i(TAG, "Connected to %s, discovering services", hexId);
                     if (device.bt.gatt == null) {
                         device.stats.mErrors++;
                         device.shouldDisconnect = true;
@@ -207,14 +211,14 @@ class Scanner {
                     continue;
                 }
                 if (device.bt.service == null) {
-                    v(TAG, "Still discovering services, id: %s", id);
+                    v(TAG, "Still discovering services, id: %s", hexId);
                     continue;
                 }
 
                 // device has a service and is not discovering
 
                 if (device.mFetchingAProp) {
-                    v(TAG, "Still fetching prop, id: %s", id);
+                    v(TAG, "Still fetching prop, id: %s", hexId);
                     continue;
                 }
 
@@ -225,7 +229,7 @@ class Scanner {
                     continue;
                 }
 
-                i(TAG, "All props fresh, should disconnect, props: %s, id: %s", device.props(), id);
+                i(TAG, "All props fresh, should disconnect, props: %s, id: %s", device.props(), hexId);
                 device.mOutdated = false;
                 device.mSynchronizing = false;
                 device.stats.mSuccessfulRetrievals++;
@@ -249,17 +253,19 @@ class Scanner {
 
     private void requestCharacteristic(Device device, UUID uuid) {
         device.mFetchingAProp = true;
-        d(TAG, "Requesting characteristic, device: %s, characteristic: %s", device.mId, uuid);
+        d(TAG, "Requesting characteristic, id: %s, characteristic: %s", Integer.toHexString(device.mId), uuid);
         BluetoothGattCharacteristic chara = device.bt.service.getCharacteristic(uuid);
         if (chara == null) {
-            w(TAG, "Remote seems to not advertise characteristic. Disconnecting, id: %s, characteristic: %s", device.mId, uuid);
+            w(TAG, "Remote seems to not advertise characteristic. Disconnecting, id: %s, characteristic: %s",
+                    Integer.toHexString(device.mId),
+                    uuid);
             device.shouldDisconnect = true;
             device.stats.mErrors++;
             returnControl();
             return;
         }
         if (!device.bt.gatt.readCharacteristic(chara)) {
-            d(TAG, "Failed to request prop. Disconnecting, device: %s, characteristic: %s", device.mId, uuid);
+            d(TAG, "Failed to request prop. Disconnecting, id: %s, characteristic: %s", Integer.toHexString(device.mId), uuid);
             device.shouldDisconnect = true;
             device.stats.mErrors++;
             returnControl();
@@ -339,7 +345,7 @@ class Scanner {
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             mHandler.post(() -> {
                 String address = gatt.getDevice().getAddress();
-                d(TAG, "onConnectionStateChange, device: %s, status: %s, newState: %s", address, BtConst.nameGattStatus(status), BtConst.nameConnectionState(newState));
+                d(TAG, "onConnectionStateChange, address: %s, status: %s, newState: %s", address, BtConst.nameGattStatus(status), BtConst.nameConnectionState(newState));
                 if (!assertPeer(address, gatt, "onConnectionStateChange")) {
                     return;
                 }
@@ -360,7 +366,7 @@ class Scanner {
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             mHandler.post(() -> {
                 String address = gatt.getDevice().getAddress();
-                v(TAG, "onServicesDiscovered, device: %s, status: %s", address, BtConst.nameGattStatus(status));
+                v(TAG, "onServicesDiscovered, address: %s, status: %s", address, BtConst.nameGattStatus(status));
 
                 if (!assertPeer(address, gatt, "onServicesDiscovered")) {
                     return;
@@ -375,12 +381,15 @@ class Scanner {
                     return;
                 }
 
-                d(TAG, "Discovered %d services, id: %s, services: %s", gatt.getServices().size(), device.mId, gatt.getServices().toString());
+                d(TAG, "Discovered %d services, id: %s, services: %s",
+                        gatt.getServices().size(),
+                        Integer.toHexString(device.mId),
+                        gatt.getServices().toString());
 
                 BluetoothGattService service = gatt.getService(UuidSet.SERVICE);
 
                 if (service == null) {
-                    i(TAG, "Service %s not advertised, disconnecting, id: %s", UuidSet.SERVICE, device.mId);
+                    i(TAG, "Service %s not advertised, disconnecting, id: %s", UuidSet.SERVICE, Integer.toHexString(device.mId));
                     device.shouldDisconnect = true;
                     device.stats.mErrors++;
                     returnControl();
@@ -396,13 +405,17 @@ class Scanner {
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             mHandler.post(() -> {
                 String address = gatt.getDevice().getAddress();
-                v(TAG, "onCharacteristicRead, address: %s, characteristic: %s, status: %s", address, characteristic.getUuid(), BtConst.nameGattStatus(status));
+                v(TAG, "onCharacteristicRead, address: %s, characteristic: %s, status: %s",
+                        address,
+                        characteristic.getUuid(),
+                        BtConst.nameGattStatus(status));
 
                 if (!assertPeer(address, gatt, "onCharacteristicRead")) {
                     return;
                 }
 
                 Device device = mDeviceMap.get(address);
+                String hexId = Integer.toHexString(device.mId);
 
                 if (status != BluetoothGatt.GATT_SUCCESS) {
                     w(TAG, "onCharacteristicRead unsuccessful");
@@ -413,7 +426,7 @@ class Scanner {
                 }
                 byte[] value = characteristic.getValue();
                 if (value == null) {
-                    w(TAG, "Retrieved null prop, id: %s", device.mId);
+                    w(TAG, "Retrieved null prop, id: %s", hexId);
                     device.shouldDisconnect = true;
                     device.stats.mErrors++;
                     returnControl();
@@ -424,11 +437,11 @@ class Scanner {
                 String propValue = new String(value, UTF8_CHARSET);
 
                 if (propValue.length() == 0) {
-                    w(TAG, "Retrieved zero-length prop, id: %s, uuid: %s", device.mId, uuid);
+                    w(TAG, "Retrieved zero-length prop, id: %s, uuid: %s", hexId, uuid);
                 } else {
                     d(TAG, "Retrieved prop, length: %d, id: %s, uuid: %s, propValue: %s",
                             propValue.length(),
-                            device.mId,
+                            hexId,
                             uuid,
                             propValue);
                 }
@@ -461,7 +474,7 @@ class Scanner {
                                 countSlogans());
                     }
                 } catch (UnknownAdvertisementException e) {
-                    w(TAG, "Characteristic retrieved matches no prop UUID, id: %s, uuid: %s", device.mId, uuid);
+                    w(TAG, "Characteristic retrieved matches no prop UUID, id: %s, uuid: %s", hexId, uuid);
                 }
                 device.mFetchingAProp = false;
                 returnControl();
@@ -492,17 +505,19 @@ class Scanner {
                     ? metaData.getId()
                     : Integer.decode("0x" + address.replaceAll(":", ""));
 
+            final String hexId = Integer.toHexString(id);
+
             mDeviceMap.setId(address, id);
             final Device device = mDeviceMap.get(address);
             if (device != null) {
                 if (!result.getDevice().equals(device.bt.device)) {
                     // This is the case if the advertisement is restarted, e.g. in case the version changes
-                    i(TAG, "Resetting remote device instance, BT address changed since last seen, id: %s", id);
+                    i(TAG, "Resetting remote device instance, BT address changed since last seen, id: %s", hexId);
                     device.bt.device = result.getDevice();
                 }
 
                 v(TAG, "Seen known device, id: %s, connected: %s, version: %d (was %d), meta: %s, unpacked: %s",
-                        id,
+                        hexId,
                         device.connected,
                         metaData != null
                                 ? metaData.getDataVersion()
@@ -521,7 +536,7 @@ class Scanner {
             }
             final Device unknownDevice = Device.create(id, result.getDevice());
             i(TAG, "Seen unknown device, id: %s, connected: %s, meta: unpacked: %s",
-                    id,
+                    hexId,
                     unknownDevice.connected,
                     byteArrayToString(rawMeta),
                     metaData);

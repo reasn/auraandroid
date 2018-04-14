@@ -58,28 +58,16 @@ class MetaDataUnpacker {
         }
 
         final byte auraVersion = metaData[0];
-        final byte dataVersion = metaData[1];
         final int id = extractInt(new byte[]{
+                metaData[1],
                 metaData[2],
                 metaData[3],
-                metaData[4],
-                metaData[5]
+                metaData[4]
         });
-        // toHexString assumes 4 bytes of output so we chop of the first 2 characters (`substring(2)`)
-//        final String color = "#" + Integer.toHexString(extractInt(new byte[]{
-//                metaData[1],
-//                metaData[2],
-//                metaData[3]
-//        })).substring(2);
+        final byte dataVersion = metaData[5];
 
         // TODO generate warning/drop/migrate if auraVersion doesn't match
 
-//        int value = 0;
-//        for (int i = 1; i < 5; i++) {
-//            int shift = (4 - 1 - i + 1) * 8;
-//            value += (metaData[i] & 0x000000FF) << shift;
-//        }
-//        final int id = value;
         return new MetaData(auraVersion, dataVersion, id);
     }
 

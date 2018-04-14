@@ -16,7 +16,7 @@ import io.auraapp.auraandroid.common.PeerStatsSet;
 
 class Device {
 
-    final String mId;
+    final int mId;
     boolean mOutdated = true;
     long lastSeenTimestamp = 0;
     long lastConnectAttempt = 0;
@@ -39,7 +39,7 @@ class Device {
     private final Map<UUID, String> mPropertyMap;
     boolean mSynchronizing = false;
 
-    private Device(String id) {
+    private Device(int id) {
         mFreshMap = new HashMap<>();
         mId = id;
 
@@ -52,7 +52,7 @@ class Device {
         }
     }
 
-    static Device create(String id, @NonNull BluetoothDevice btDevice) {
+    static Device create(int id, @NonNull BluetoothDevice btDevice) {
         Device device = new Device(id);
         device.bt.device = btDevice;
         return device;

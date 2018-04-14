@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
                     },
                     peer -> {
                         for (Peer candidate : mPeers) {
-                            if (candidate.mId.equals(peer.mId)) {
+                            if (candidate.mId == peer.mId) {
                                 mPeers.remove(candidate);
                                 break;
                             }

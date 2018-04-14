@@ -17,6 +17,7 @@ import io.auraapp.auraandroid.ui.common.lists.ListItem;
 import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapter;
 
 import static io.auraapp.auraandroid.common.FormattedLog.e;
+import static io.auraapp.auraandroid.common.FormattedLog.quickDump;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
 public class PeerItemHolder extends ItemViewHolder {
@@ -120,10 +121,10 @@ public class PeerItemHolder extends ItemViewHolder {
     private void bindSlogans(Peer peer, ColorSet colorSet) {
 
         // TODO avoid recreation on each change, e.g. cache stuff on Peer
-
+        quickDump(".." + peer.mSlogans.size());
         mSlogansListView.setAdapter(new PeerSloganListAdapter(
                 mContext,
-                android.R.layout.simple_list_item_1,
+                R.layout.world_peer_item_slogan,
                 colorSet,
                 peer.mSlogans
         ));

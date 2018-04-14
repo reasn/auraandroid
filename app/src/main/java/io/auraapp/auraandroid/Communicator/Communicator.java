@@ -130,10 +130,12 @@ public class Communicator extends Service {
                         showPeerNotification();
                         // TODO notification prefs
                         d(TAG, "Content added, sending peer update intent, id: %s, slogans: %d",
-                                peer.mId,
+                                Integer.toHexString(peer.mId),
                                 peer.mSlogans.size());
                     } else {
-                        v(TAG, "Sending peer update intent, id: %s, slogans: %d", peer.mId, peer.mSlogans.size());
+                        v(TAG, "Sending peer update intent, id: %s, slogans: %d",
+                                Integer.toHexString(peer.mId),
+                                peer.mSlogans.size());
                     }
                     sendBroadcast(IntentFactory.peerUpdated(peer));
                 });

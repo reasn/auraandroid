@@ -44,7 +44,7 @@ public class PeerMapTransformer {
             }
             if (!hasSlogan
                     && map.get(sloganText).mPeers.size() == 1
-                    && map.get(sloganText).mPeers.iterator().next().mId.equals(peer.mId)) {
+                    && map.get(sloganText).mPeers.iterator().next().mId == peer.mId) {
                 mutations.add(() -> map.remove(sloganText));
             }
         }
