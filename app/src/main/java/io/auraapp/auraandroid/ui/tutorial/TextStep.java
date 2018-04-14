@@ -38,7 +38,7 @@ public class TextStep extends ProfileStatusHidingStep {
 
     @Override
     public Class<? extends TutorialStep> getNextStep() {
-        return null;
+        return SloganAddStep.class;
     }
 
 

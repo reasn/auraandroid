@@ -23,14 +23,15 @@
     <string name="ui_permissions_granted_text">Great, you\'re all set!\nSwipe to start.</string>
 
     <!-- Privacy -->
-    <string name="ui_screen_privacy_heading">Aura Agreement</string>
-    <string name="ui_screen_privacy_first_text">Five points worth reading.</string>
-    <string name="ui_screen_privacy_second_text">1. The data you enter is visible to Aura users around you.
-        \n\n2. No data is sent over the internet.
+    <string name="terms_heading">Welcome!</string>
+    <string name="terms_text">1. Data you enter is visible to nearby people.
+        \n\n2. Nothing is sent over the internet.
         \n\n3. We don\'t collect any data.
-        \n\n4. Aura is and will remain free
+        \n\n4. Aura is and stays free
         \n\n5. Aura believes in humanism, freedom of speech, respect and equality of all people. If you don\'t, please uninstall it and read a wide variety of books.
-        \n\n\nIf you agree, swipe to continue</string>
+    </string>
+    <string name="terms_disagree">Disagree</string>
+    <string name="terms_agree">Agree</string>
 
     <!-- Profile -->
     <string name="ui_profile_list_item_edit">Edit</string>
@@ -165,7 +166,7 @@
 
     <!--Preferences-->
     <string name="toolbar_preferences">Settings</string>
-    <string name="prefs_current_screen_key">current_screen</string>
+    <string name="prefs_terms_agreed">terms_agreed</string>
     <string name="prefs_hide_broken_bt_warning_key">hide_broken_bt_stack_warning</string>
     <string name="prefs_enabled_key">enabled</string>
     <string name="prefs_my_profile_key">my_profile</string>
@@ -185,6 +186,7 @@
     <string name="prefs_about_dialog_message">\nCopyright 2018\nVersion VERSION_NAME (build VERSION_CODE).\n</string>
     <string name="prefs_about_dialog_confirm">Close</string>
     <string name="toolbar_tutorial">Tutorial</string>
+    <string name="toolbar_terms">Reset Terms agreement</string>
 
     <string name="tutorial_button_close">Close</string>
     <string name="tutorial_button_back">Back</string>

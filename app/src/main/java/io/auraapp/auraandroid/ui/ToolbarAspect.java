@@ -79,11 +79,16 @@ public class ToolbarAspect {
                 mActivity.showTutorial();
                 return true;
             }
+            if (item.getItemId() == R.id.action_terms) {
+                mPrefs.edit().putBoolean(mActivity.getString(R.string.prefs_terms_agreed), false).apply();
+                mActivity.finish();
+                return true;
+            }
             return false;
         });
 
         mToolbar.setOnClickListener($ -> mHandler.post(() -> {
-            if (!Config.MAIN_DEBUG_VIEW_ENABLED || mDebugFragmentEnabled) {
+            if (!Config.MAIN_DEBUG_UI_ENABLED || mDebugFragmentEnabled) {
                 return;
             }
             long now = System.currentTimeMillis();
@@ -124,6 +129,8 @@ public class ToolbarAspect {
 
         MenuItem enabledItem = menu.findItem(R.id.menu_item_enabled);
         enabledItem.setActionView(R.layout.common_toolbar_switch);
+
+        menu.findItem(R.id.action_terms).setVisible(Config.MAIN_DEBUG_UI_ENABLED);
 
         mEnabledSwitch = enabledItem.getActionView().findViewById(R.id.enabled_switch);
         mEnabledSwitch.setChecked(mAuraEnabled);

@@ -1,18 +1,12 @@
 package io.auraapp.auraandroid.ui;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.util.HashSet;
@@ -31,18 +25,14 @@ import io.auraapp.auraandroid.ui.debug.DebugFragment;
 import io.auraapp.auraandroid.ui.permissions.PermissionsFragment;
 import io.auraapp.auraandroid.ui.profile.ProfileFragment;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
-import io.auraapp.auraandroid.ui.tutorial.ColorStep;
-import io.auraapp.auraandroid.ui.tutorial.EnabledStep;
-import io.auraapp.auraandroid.ui.tutorial.NameStep;
-import io.auraapp.auraandroid.ui.tutorial.SwipeStep;
-import io.auraapp.auraandroid.ui.tutorial.TextStep;
-import io.auraapp.auraandroid.ui.tutorial.TutorialStep;
+import io.auraapp.auraandroid.ui.tutorial.SloganAddStep;
+import io.auraapp.auraandroid.ui.welcome.TermsFragment;
+import io.auraapp.auraandroid.ui.welcome.TutorialManager;
 import io.auraapp.auraandroid.ui.world.PeerMapTransformer;
 import io.auraapp.auraandroid.ui.world.PeerSlogan;
 import io.auraapp.auraandroid.ui.world.WorldFragment;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
-import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
 public class MainActivity extends AppCompatActivity {
@@ -72,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private DebugFragment mDebugFragment;
     private WorldFragment mWorldFragment;
     private ProfileFragment mProfileFragment;
+    private TutorialManager mTutorialManager;
 
     @Override
     @ExternalInvocation
@@ -107,31 +98,29 @@ public class MainActivity extends AppCompatActivity {
             mMyProfileManager = new MyProfileManager(this);
             mDialogManager = new DialogManager(this);
 
-            mProfileFragment = ProfileFragment.create(this, mMyProfileManager, mDialogManager);
+            mProfileFragment = ProfileFragment.create(this, mMyProfileManager, mDialogManager, mPager);
+
+            mTutorialManager = new TutorialManager(this, findViewById(R.id.activity_wrapper), mPager);
 
             mPagerAdapter = new ScreenPagerAdapter(
                     getSupportFragmentManager(),
                     mProfileFragment,
                     mWorldFragment,
                     mPager,
+                    mTutorialManager,
                     this);
             mPager.setAdapter(mPagerAdapter);
 
             // Load preferences
             mPrefs = getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE);
 
-            String prefKey = getString(R.string.prefs_current_screen_key);
+            String prefKey = getString(R.string.prefs_terms_agreed);
 
             if (!PermissionHelper.granted(this)) {
                 showPermissionMissingFragment();
-            } else {
-                String currentScreen = mPrefs.getString(prefKey, ScreenPagerAdapter.SCREEN_WELCOME);
-                i(TAG, "Current screen is set to %s", currentScreen);
-                mPager.goTo(mPagerAdapter.getClassForHandle(currentScreen), false);
-
-                mPager.addChangeListener(fragment -> mPrefs.edit()
-                        .putString(prefKey, mPagerAdapter.getHandleForClass(fragment.getClass()))
-                        .apply());
+            } else if (!mPrefs.getBoolean(prefKey, false)) {
+                mPager.getScreenAdapter().addWelcomeFragments();
+                mPager.goTo(TermsFragment.class, false);
             }
 
             mMyProfileManager.addChangedCallback(event -> {
@@ -333,86 +322,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    TutorialManager mTutorialManager = null;
-
     public void showTutorial() {
-        if (mTutorialManager != null) {
-            return;
-        }
-        mTutorialManager = new TutorialManager(this, findViewById(R.id.activity_wrapper), mPager, () -> {
-            mTutorialManager = null;
-        });
-        mTutorialManager.goTo(EnabledStep.class);
+        mTutorialManager.goTo(SloganAddStep.class);
     }
 
-    static class TutorialManager {
-
-        private final Context mContext;
-        private final RelativeLayout mRootView;
-        private final ScreenPager mPager;
-        private final Runnable mEndCallback;
-        private LayoutInflater mInflater;
-        private View mCurrentScreen;
-        private TutorialStep mCurrentStep = null;
-
-        public TutorialManager(Context context,
-                               RelativeLayout rootView,
-                               ScreenPager pager,
-                               Runnable endCallback) {
-            mContext = context;
-            mRootView = rootView;
-            mPager = pager;
-            mEndCallback = endCallback;
-            mInflater = LayoutInflater.from(mContext);
-        }
-
-        public void goTo(Class<? extends TutorialStep> step) {
-            if (step == null) {
-                close();
-                return;
-            }
-            if (mCurrentStep != null) {
-                mCurrentStep.leave();
-                removeCurrentScreen();
-            }
-            if (step.equals(EnabledStep.class)) {
-                mCurrentStep = new EnabledStep(mRootView, mContext, mPager);
-            } else if (step.equals(SwipeStep.class)) {
-                mCurrentStep = new SwipeStep(mRootView, mContext, mPager);
-            } else if (step.equals(ColorStep.class)) {
-                mCurrentStep = new ColorStep(mRootView, mContext, mPager);
-            } else if (step.equals(NameStep.class)) {
-                mCurrentStep = new NameStep(mRootView, mContext, mPager);
-            } else if (step.equals(TextStep.class)) {
-                mCurrentStep = new TextStep(mRootView, mContext, mPager);
-            }
-            mCurrentScreen = mCurrentStep.enter();
-
-            Button backButton = mCurrentScreen.findViewById(R.id.tutorial_back);
-            if (backButton != null) {
-                backButton.setOnClickListener($ -> goTo(mCurrentStep.getPrevious()));
-            }
-            Button nextButton = mCurrentScreen.findViewById(R.id.tutorial_next);
-            if (nextButton != null) {
-                nextButton.setOnClickListener($ -> goTo(mCurrentStep.getNextStep()));
-            }
-
-            mCurrentScreen.findViewById(R.id.tutorial_overlay).setOnClickListener($ -> {
-                // Just catch clicks so that they don't bubble to the background
-            });
-            mRootView.addView(mCurrentScreen);
-        }
-
-        private void removeCurrentScreen() {
-            i(TAG, "Removing current tutorial screen");
-            ((ViewGroup) mCurrentScreen.getParent()).removeView(mCurrentScreen);
-            mCurrentScreen = null;
-        }
-
-        private void close() {
-            removeCurrentScreen();
-            mPager.setLocked(false);
-            mEndCallback.run();
-        }
-    }
 }

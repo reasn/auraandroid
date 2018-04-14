@@ -24,12 +24,10 @@
         android:textColor="@color/black"
         android:textSize="20sp" />
 
-    <TextView
+    <Button
+        android:id="@+id/welcome_start"
+        style="@style/FlatButtonConfirm"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:padding="16dp"
-        android:text="Swipe to start."
-        android:textColor="@color/black"
-        android:textSize="20sp" />
+        android:text="Let\'s go!" />
 </LinearLayout>

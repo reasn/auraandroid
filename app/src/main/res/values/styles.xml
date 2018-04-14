@@ -123,11 +123,11 @@
         <item name="android:textColor">@color/white</item>
     </style>
 
-    <style name="DialogConfirmButton" parent="FlatButton">
+    <style name="FlatButtonConfirm" parent="FlatButton">
         <item name="android:background">@color/green</item>
     </style>
 
-    <style name="DialogCancelButton" parent="FlatButton">
+    <style name="FlatButtonCancel" parent="FlatButton">
         <item name="android:background">@color/red</item>
     </style>
 
@@ -166,6 +166,18 @@
         <item name="android:background">@color/black_overlay</item>
     </style>
 
+    <style name="TutorialWrapper">
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="TutorialOverlay">
+        <item name="android:background">@color/black_overlay</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+    <style name="TutorialOverlay.Top" parent="TutorialOverlay">
+        <item name="android:gravity">bottom</item>
+    </style>
+
     <style name="TutorialText">
         <item name="android:fontFamily">@font/rancho_regular</item>
         <item name="android:textColor">@color/yellow</item>
@@ -178,43 +190,75 @@
         <item name="android:layoutDirection">rtl</item>
     </style>
 
+
     <style name="TutorialHeadlineWithArrow.Left">
         <item name="android:layout_margin">20dp</item>
         <item name="android:orientation">horizontal</item>
         <item name="android:gravity">left</item>
         <item name="android:layoutDirection">ltr</item>
     </style>
+    <style name="TutorialHeadlineWithArrow.Top" parent="TutorialHeadlineWithArrow">
+        <item name="android:layoutDirection">rtl</item>
+    </style>
+    <style name="TutorialHeadlineWithArrow.Left.Top" parent="TutorialHeadlineWithArrow.Left">
+        <item name="android:layoutDirection">rtl</item>
+    </style>
+
 
     <style name="TutorialHeadlineWithArrowArrow">
         <item name="android:background">@drawable/tutorial_arrow_up</item>
         <item name="android:scaleType">matrix</item>
     </style>
-
     <style name="TutorialHeadlineWithArrowArrow.Left" parent="TutorialHeadlineWithArrowArrow">
         <item name="android:scaleX">-1</item>
     </style>
+    <style name="TutorialHeadlineWithArrowArrow.Top" parent="TutorialHeadlineWithArrowArrow">
+        <item name="android:scaleY">-1</item>
+    </style>
+    <style name="TutorialHeadlineWithArrowArrow.Left.Top" parent="TutorialHeadlineWithArrowArrow">
+        <item name="android:scaleY">-1</item>
+        <item name="android:scaleX">-1</item>
+    </style>
 
-    <style name="TutorialHeadlineWithArrowText" parent="TutorialText">
-        <item name="android:layout_marginTop">40dp</item>
+    <style name="TutorialHeadlineText" parent="TutorialText">
+        <item name="android:layout_margin">20dp</item>
         <item name="android:textSize">30sp</item>
     </style>
 
-    <style name="TutorialHeadline" parent="TutorialText">
-        <item name="android:layout_margin">20dp</item>
+    <style name="TutorialHeadlineWithArrowText" parent="TutorialText">
         <item name="android:textSize">30sp</item>
+    </style>
+    <style name="TutorialHeadlineWithArrowText.Bottom" parent="TutorialHeadlineWithArrowText">
+        <item name="android:paddingTop">40dp</item>
+    </style>
+    <style name="TutorialHeadlineWithArrowText.Top" parent="TutorialHeadlineWithArrowText">
+        <item name="android:paddingBottom">0dp</item>
     </style>
 
     <style name="TutorialMessage" parent="TutorialText">
         <item name="android:textSize">20sp</item>
         <item name="android:layout_margin">20dp</item>
-        <item name="android:layout_marginTop">0dp</item>
         <item name="android:textAppearance">?android:textAppearanceMedium</item>
         <item name="android:layout_below">@id/tutorial_heading</item>
+    </style>
+
+    <style name="TutorialMessage.Bottom" parent="TutorialMessage">
+        <item name="android:layout_marginTop">0dp</item>
+        <item name="android:layout_below">@id/tutorial_heading</item>
+    </style>
+
+    <style name="TutorialMessage.Top" parent="TutorialMessage">
+        <item name="android:layout_marginBottom">0dp</item>
     </style>
 
     <style name="TutorialButtonWrapper">
         <item name="android:layout_alignParentBottom">true</item>
         <item name="android:orientation">horizontal</item>
+    </style>
+
+    <style name="TutorialButtonWrapper.Top" parent="TutorialButtonWrapper">
+        <item name="android:layout_alignParentBottom">false</item>
+        <item name="android:layout_alignParentTop">true</item>
     </style>
 
     <style name="TutorialButton" parent="FlatButton">
@@ -223,12 +267,4 @@
         <item name="android:layout_weight">1</item>
     </style>
 
-    <style name="TutorialWrapper">
-        <item name="android:orientation">vertical</item>
-    </style>
-
-    <style name="TutorialOverlay">
-        <item name="android:background">@color/black_overlay</item>
-        <item name="android:orientation">vertical</item>
-    </style>
 </resources>

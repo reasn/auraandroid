@@ -17,4 +17,16 @@
         android:icon="@android:drawable/ic_menu_help"
         android:title="@string/toolbar_tutorial"
         app:showAsAction="withText" />
+    <group>
+        <item android:title="Debug">
+            <menu>
+
+                <item
+                    android:id="@+id/action_terms"
+                    android:icon="@android:drawable/ic_menu_agenda"
+                    android:title="@string/toolbar_terms"
+                    app:showAsAction="withText" />
+            </menu>
+        </item>
+    </group>
 </menu>

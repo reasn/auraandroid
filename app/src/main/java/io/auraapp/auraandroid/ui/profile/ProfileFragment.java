@@ -22,17 +22,19 @@ import io.auraapp.auraandroid.common.ExternalInvocation;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.DialogManager;
 import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
+import io.auraapp.auraandroid.ui.ScreenPager;
 import io.auraapp.auraandroid.ui.common.ColorHelper;
 import io.auraapp.auraandroid.ui.common.CommunicatorStateRenderer;
 import io.auraapp.auraandroid.ui.common.InfoBox;
 import io.auraapp.auraandroid.ui.common.ScreenFragment;
+import io.auraapp.auraandroid.ui.permissions.FragmentCameIntoView;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 
 import static android.content.Context.MODE_PRIVATE;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
-public class ProfileFragment extends ScreenFragment implements FragmentWithToolbarButtons {
+public class ProfileFragment extends ScreenFragment implements FragmentWithToolbarButtons, FragmentCameIntoView {
 
     private static final String TAG = "@aura/ui/profile/fragment";
     private SharedPreferences mPrefs;
@@ -45,14 +47,19 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     private TextView mNameView;
     private EditText mTextView;
     private LinearLayout mColorWrapper;
+    private ScreenPager mPager;
+    private MySlogansRecycleAdapter mAdapter;
+    private CommunicatorState mLastCommunicatorState;
 
     public static ProfileFragment create(Context context,
                                          MyProfileManager myProfileManager,
-                                         DialogManager dialogManager) {
+                                         DialogManager dialogManager,
+                                         ScreenPager pager) {
         ProfileFragment fragment = new ProfileFragment();
         fragment.setContext(context);
         fragment.mMyProfileManager = myProfileManager;
         fragment.mDialogManager = dialogManager;
+        fragment.mPager = pager;
         fragment.mPrefs = context.getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE);
 
         myProfileManager.addChangedCallback(event -> {
@@ -79,10 +86,14 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     }
 
     public void reflectCommunicatorState(CommunicatorState state) {
-        CommunicatorStateRenderer.populateInfoBoxWithState(state,
-                mRootView.findViewById(R.id.profile_status_info_box),
-                mRootView.findViewById(R.id.profile_status_summary),
-                getContext());
+        mLastCommunicatorState = state;
+        updateViewsWithCommunicatorState();
+    }
+
+    @Override
+    public void cameIntoView() {
+        mPager.getScreenAdapter().removeWelcomeFragments();
+        mPrefs.edit().putBoolean(getString(R.string.prefs_terms_agreed), true).apply();
     }
 
     @Override
@@ -123,7 +134,10 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
                 )
         );
 
-        bindSlogansViews();
+        mSlogansRecyclerView.setNestedScrollingEnabled(false);
+        mSlogansRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        mRootView.findViewById(R.id.profile_add_slogan).setOnClickListener($ -> showAddDialog());
+        createAdapter();
 
         // EditTexts keep their state and might ignore setText without this setting
         mTextView.setSaveEnabled(false);
@@ -131,6 +145,22 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
         updateViewsWithColor();
 
         return mRootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        createAdapter();
+        updateViewsWithCommunicatorState();
+    }
+
+    private void updateViewsWithCommunicatorState() {
+        if (mRootView != null && getContext() != null) {
+            CommunicatorStateRenderer.populateInfoBoxWithState(mLastCommunicatorState,
+                    mRootView.findViewById(R.id.profile_status_info_box),
+                    mRootView.findViewById(R.id.profile_status_summary),
+                    getContext());
+        }
     }
 
     private void updateNameAndTextViews() {
@@ -154,12 +184,13 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
                         : ColorHelper.getAccent(color));
     }
 
-    private void bindSlogansViews() {
-        mSlogansRecyclerView.setNestedScrollingEnabled(false);
+    private void createAdapter() {
 
-        mRootView.findViewById(R.id.profile_add_slogan).setOnClickListener($ -> showAddDialog());
+        if (mAdapter != null || getContext() == null) {
+            return;
+        }
 
-        MySlogansRecycleAdapter adapter = new MySlogansRecycleAdapter(
+        mAdapter = new MySlogansRecycleAdapter(
                 getContext(),
                 mSlogansRecyclerView,
                 (Slogan slogan, int action) -> {
@@ -176,10 +207,8 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
                 },
                 mMyProfileManager);
 
-        mSlogansRecyclerView.setAdapter(adapter);
-        mSlogansRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        adapter.notifyMySlogansChanged(mMyProfileManager.getProfile().getSlogans());
+        mSlogansRecyclerView.setAdapter(mAdapter);
+        mAdapter.notifyMySlogansChanged(mMyProfileManager.getProfile().getSlogans());
     }
 
     private void showAddDialog() {

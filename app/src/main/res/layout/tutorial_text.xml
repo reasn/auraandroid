@@ -17,17 +17,10 @@
             android:layout_height="wrap_content"
             android:gravity="center">
 
-            <ImageView
-                style="@style/TutorialHeadlineWithArrowArrow.Left"
-                android:layout_width="40dp"
-                android:layout_height="70dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp" />
-
             <TextView
-                style="@style/TutorialHeadlineWithArrowText"
+                style="@style/TutorialHeadlineWithArrowText.Bottom"
                 android:layout_width="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="10dp"
                 android:layout_height="wrap_content"
                 android:text="Add a Text" />
 
@@ -41,7 +34,7 @@
         </LinearLayout>
 
         <TextView
-            style="@style/TutorialMessage"
+            style="@style/TutorialMessage.Bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Bla Bla Bla Lorem Ipsum  is simply galley of type and scrambled it to make a type specimen book " />
