@@ -17,7 +17,7 @@ class UuidSet {
 
     static final ParcelUuid SERVICE_DATA_PARCEL = new ParcelUuid(SERVICE_DATA);
 
-    static final UUID USER = UUID.fromString("0A12350F-DEB0-467D-8B6F-1A05FFE9761D");
+    static final UUID PROFILE = UUID.fromString("0A12350F-DEB0-467D-8B6F-1A05FFE9761D");
 
     static final UUID SLOGAN_1 = UUID.fromString("D58F2517-F61F-4091-A7C7-6842C146A841");
     static final UUID SLOGAN_2 = UUID.fromString("D41B65A3-C25A-4B38-923B-429F508745FE");

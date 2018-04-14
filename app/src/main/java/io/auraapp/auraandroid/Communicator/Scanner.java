@@ -421,8 +421,18 @@ class Scanner {
 
                 UUID uuid = characteristic.getUuid();
                 String propValue = new String(value, UTF8_CHARSET);
-                d(TAG, "Retrieved prop, id: %s, uuid: %s, propValue: %s", device.mId, uuid, propValue);
+
+                if (propValue.length() == 0) {
+                    w(TAG, "Retrieved zero-length prop, id: %s, uuid: %s", device.mId, uuid);
+                } else {
+                    d(TAG, "Retrieved prop, length: %d, id: %s, uuid: %s, propValue: %s",
+                            propValue.length(),
+                            device.mId,
+                            uuid,
+                            propValue);
+                }
                 try {
+                    Device.Profile previousProfile = device.buildProfile();
                     Set<String> previousSlogans = device.buildSlogans();
                     if (device.updateWithReceivedAttribute(uuid, propValue)) {
 
@@ -436,8 +446,17 @@ class Scanner {
                                 break;
                             }
                         }
+
+                        Device.Profile profile = device.buildProfile();
+                        v(TAG, "Propagating peer updated with received characteristic, slogans: %s, slogan changed: %s, profile changed: %s",
+                                newSlogans.size(),
+                                existingSloganChanged,
+                                !profile.equals(previousProfile)
+                        );
                         mPeerBroadcaster.propagatePeer(device,
-                                newSlogans.size() > previousSlogans.size() || existingSloganChanged,
+                                newSlogans.size() > previousSlogans.size()
+                                        || existingSloganChanged
+                                        || !profile.equals(previousProfile),
                                 countSlogans());
                     }
                 } catch (UnknownAdvertisementException e) {
@@ -458,14 +477,13 @@ class Scanner {
 
             String address = result.getDevice().getAddress();
 
-            AdditionalDataUnpacker.Result additionalData = AdditionalDataUnpacker.unpack(result.getScanRecord());
+            MetaDataUnpacker.MetaData metaData = MetaDataUnpacker.unpack(result.getScanRecord());
 
-            final String id = additionalData.isPresent()
-                    ? "" + additionalData.getId()
+            final String id = metaData.isPresent()
+                    ? "" + metaData.getId()
                     : address;
 
             mDeviceMap.setId(address, id);
-
             final Device device = mDeviceMap.get(address);
             if (device != null) {
                 if (!result.getDevice().equals(device.bt.device)) {
@@ -473,16 +491,16 @@ class Scanner {
                     i(TAG, "Resetting remote device instance, BT address changed since last seen, id: %s", id);
                     device.bt.device = result.getDevice();
                 }
-                v(TAG, "Known device seen, id: %s", id);
+                v(TAG, "Seen known device, id: %s, metaData: %s", id, metaData.toString());
                 device.lastSeenTimestamp = System.currentTimeMillis();
-                if (additionalData.isPresent() && device.mAdvertisementVersion != additionalData.getVersion()) {
+                if (metaData.isPresent() && device.mDataVersion != metaData.getDataVersion()) {
                     device.mOutdated = true;
-                    device.mAdvertisementVersion = additionalData.getVersion();
+                    device.mDataVersion = metaData.getDataVersion();
                 }
                 mPeerBroadcaster.propagatePeer(device, false, countSlogans());
                 return;
             }
-            i(TAG, "Device yet unknown, id: %s", id);
+            i(TAG, "Seen unknown device, id: %s, metaData: %s", id, metaData.toString());
             final Device unknownDevice = Device.create(id, result.getDevice());
             unknownDevice.lastSeenTimestamp = System.currentTimeMillis();
             mDeviceMap.put(address, unknownDevice);

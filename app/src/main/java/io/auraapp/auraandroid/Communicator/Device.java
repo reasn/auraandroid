@@ -2,6 +2,7 @@ package io.auraapp.auraandroid.Communicator;
 
 import android.bluetooth.BluetoothDevice;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,6 +15,50 @@ import java.util.UUID;
 import io.auraapp.auraandroid.common.PeerStatsSet;
 
 class Device {
+
+    static class Profile {
+        final String mColor;
+        final String mName;
+        final String mText;
+
+        public Profile(String mColor, String mName, String mText) {
+            this.mColor = mColor;
+            this.mName = mName;
+            this.mText = mText;
+        }
+
+        String getColor() {
+            return mColor;
+        }
+
+        String getName() {
+            return mName;
+        }
+
+        String getText() {
+            return mText;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Profile profile = (Profile) o;
+
+            if (!mColor.equals(profile.mColor)) return false;
+            if (!mName.equals(profile.mName)) return false;
+            return mText.equals(profile.mText);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = mColor.hashCode();
+            result = 31 * result + mName.hashCode();
+            result = 31 * result + mText.hashCode();
+            return result;
+        }
+    }
 
     final String mId;
     boolean mOutdated = true;
@@ -32,7 +77,7 @@ class Device {
 
     boolean mFetchingAProp = false;
 
-    byte mAdvertisementVersion = 0;
+    byte mDataVersion = 0;
 
     private final Map<UUID, Boolean> mFreshMap;
     private final Map<UUID, String> mPropertyMap;
@@ -76,6 +121,20 @@ class Device {
             }
         }
         return slogans;
+    }
+
+    @Nullable
+    Profile buildProfile() {
+        String packed = mPropertyMap.get(UuidSet.PROFILE);
+        if (packed == null || packed.equals("")) {
+            return null;
+        }
+        String color = "#" + packed.substring(0, 6);
+        String[] parts = packed.substring(6).split(" # ");
+        String name = parts[0].replaceAll("\\#", "#");
+        String text = parts[1].replaceAll("\\#", "#");
+
+        return new Profile(color, name, text);
     }
 
     int countSlogans() {
@@ -126,7 +185,7 @@ class Device {
                 ", shouldDisconnect=" + shouldDisconnect +
                 ", connectionAttempts=" + connectionAttempts +
                 ", mFetchingAProp=" + mFetchingAProp +
-                ", mAdvertisementVersion=" + mAdvertisementVersion +
+                ", mDataVersion=" + mDataVersion +
                 ", mFreshMap=" + mFreshMap +
                 ", mPropertyMap=" + mPropertyMap +
                 ", mSynchronizing=" + mSynchronizing +

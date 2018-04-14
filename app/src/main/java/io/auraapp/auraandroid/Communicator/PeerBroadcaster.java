@@ -9,9 +9,12 @@ import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.common.Timer;
 
+import static io.auraapp.auraandroid.common.FormattedLog.v;
+
 class PeerBroadcaster {
 
     private static final String DEBOUNCE_ID_ALL_PEERS = "all-peers";
+    private static final String TAG = "@aura/communicator/" + PeerBroadcaster.class.getSimpleName();
 
     @FunctionalInterface
     interface PeerListChangedCallback {
@@ -20,7 +23,7 @@ class PeerBroadcaster {
 
     @FunctionalInterface
     interface PeerChangedCallback {
-        void peerChanged(Peer peer, boolean contentAdded, int sloganCount);
+        void peerChanged(Peer peer, boolean contentChanged, int sloganCount);
     }
 
     private static final int DEBOUNCE = 3000;
@@ -34,8 +37,11 @@ class PeerBroadcaster {
         mPeerChangedCallback = peerChangedCallback;
     }
 
-    void propagatePeer(Device device, boolean contentAdded, int sloganCount) {
-        if (contentAdded) {
+    /**
+     * contentChanged differentiates between "peer seen again" and "color/name/slogan/... changed"
+     */
+    void propagatePeer(Device device, boolean contentChanged, int sloganCount) {
+        if (contentChanged) {
             // Not debouncing because otherwise contentAdded can get lost and no notification
             // (e.g. vibration) is sent to the user
             mTimer.clear(device.mId);
@@ -64,9 +70,18 @@ class PeerBroadcaster {
         peer.mSynchronizing = device.mSynchronizing;
         peer.mSuccessfulRetrievals = device.stats.mSuccessfulRetrievals;
         peer.mErrors = device.stats.mErrors;
+        Device.Profile profile = device.buildProfile();
+        if (profile != null) {
+            peer.mColor = profile.getColor();
+            peer.mName = profile.getName();
+            peer.mText = profile.getText();
+        }
+
         for (String sloganText : device.buildSlogans()) {
             peer.mSlogans.add(Slogan.create(sloganText));
         }
+
+        v(TAG, "Built peer %s", peer.toString());
         return peer;
     }
 }

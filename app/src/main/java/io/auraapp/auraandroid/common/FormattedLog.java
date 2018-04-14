@@ -53,7 +53,7 @@ public class FormattedLog {
 //            if (gson == null) {
 //                gson = new GsonBuilder().setPrettyPrinting().create();
 //            }
-            Log.w("@aura/quickDump", o.toString());
+            Log.w("@aura/quickDump", o == null ? "null" : o.toString());
         }
     }
 

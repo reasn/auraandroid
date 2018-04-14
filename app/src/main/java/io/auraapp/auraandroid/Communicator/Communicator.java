@@ -29,7 +29,6 @@ import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.PermissionHelper;
-import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfile;
 
@@ -46,6 +45,8 @@ import static java.lang.String.format;
  * Thx to https://medium.com/@rotxed/going-multiprocess-on-android-52975ed8863c
  */
 public class Communicator extends Service {
+
+    static final byte PROTOCOL_VERSION = 1;
 
     private final static String TAG = "@aura/ble/communicator";
 
@@ -121,15 +122,18 @@ public class Communicator extends Service {
                     sendBroadcast(IntentFactory.peerListUpdated(peers, mState));
                     d(TAG, "Sent peer list intent with %d peers", peers.size());
                 }),
-                (peer, contentAdded, sloganCount) -> {
+                (peer, contentChanged, sloganCount) -> {
 
                     mPeerSloganCount = sloganCount;
 
-                    if (contentAdded) {
+                    if (contentChanged) {
                         showPeerNotification();
+                        // TODO notification prefs
+                        d(TAG, "Content added, sending peer update intent, id: %s, slogans: %d", peer.mId, peer.mSlogans.size());
+                    } else {
+                        v(TAG, "Sending peer update intent, id: %s, slogans: %d", peer.mId, peer.mSlogans.size());
                     }
                     sendBroadcast(IntentFactory.peerUpdated(peer));
-                    d(TAG, "Sent peer update intent, id: %s, slogans: %d, content added: %s", peer.mId, peer.mSlogans.size(), contentAdded);
                 });
 
         mScanner = new Scanner(
@@ -473,23 +477,32 @@ public class Communicator extends Service {
                 w(TAG, "No profile found in intent");
                 return;
             }
+            d(TAG, "Received profile %s, advertising: %s", myProfile.toString(), mState.mAdvertising);
 
-            String[] mySloganStrings = new String[myProfile.getSlogans().size()];
-            int index = 0;
-            for (Slogan slogan : myProfile.getSlogans()) {
-                mySloganStrings[index++] = slogan.getText();
+            boolean advertisementChanged = false;
+
+            String[] preparedSlogans = AdvertisementSet.prepareSlogans(myProfile.getSlogans());
+            if (!Arrays.equals(mAdvertisementSet.mSlogans, preparedSlogans)) {
+                mAdvertisementSet.mSlogans = preparedSlogans;
+                mAdvertisementSet.increaseVersion();
+                advertisementChanged = true;
             }
 
-            String[] prepared = AdvertisementSet.prepareSlogans(mySloganStrings);
-            boolean slogansChanged = Arrays.equals(mAdvertisementSet.mSlogans, prepared);
-            mAdvertisementSet.mSlogans = prepared;
-
-            if (slogansChanged && mState.mAdvertising) {
-                mAdvertiser.increaseVersion();
-                i(TAG, "Updating advertisement, new version: %d, slogans: %d", mAdvertisementSet.getVersion(), mAdvertisementSet.mSlogans.length);
-            } else {
-                v(TAG, "Updating advertisement because nothing changed, version: %d, slogans: %d", mAdvertisementSet.getVersion(), mAdvertisementSet.mSlogans.length);
+            String preparedProfile = AdvertisementSet.prepareProfile(myProfile.getColor(), myProfile.getName(), myProfile.getText());
+            if (!preparedProfile.equals(mAdvertisementSet.getProfile())) {
+                mAdvertisementSet.setProfile(preparedProfile);
+                mAdvertisementSet.increaseVersion();
+                advertisementChanged = true;
             }
+
+            if (mState.mAdvertising && advertisementChanged) {
+                i(TAG, "Updating advertisement, new version: %d, color: %d chars, slogans: %d",
+                        mAdvertisementSet.getVersion(),
+                        mAdvertisementSet.getProfile().length(),
+                        mAdvertisementSet.mSlogans.length);
+                mAdvertiser.updateAdvertisement();
+            }
+
             sendState();
         } else {
             w(TAG, "Received unknown intent, intent: %s", intent);

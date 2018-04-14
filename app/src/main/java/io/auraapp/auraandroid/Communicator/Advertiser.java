@@ -15,6 +15,7 @@ import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.content.Context;
 import android.os.Handler;
 
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -107,8 +108,7 @@ class Advertiser {
         });
     }
 
-    void increaseVersion() {
-        mAdvertisementSet.increaseVersion();
+    void updateAdvertisement() {
         mBluetoothAdvertiser.stopAdvertising(mAdvertisingCallback);
         advertise();
         mStateChangeCallback.onStateChange(mAdvertisementSet.mVersion, mAdvertisementSet.mId);
@@ -139,7 +139,7 @@ class Advertiser {
                 .setIncludeTxPowerLevel(false)
                 .setIncludeDeviceName(false)
                 .addServiceUuid(UuidSet.SERVICE_PARCEL)
-                .addServiceData(UuidSet.SERVICE_DATA_PARCEL, mAdvertisementSet.getAdditionalData())
+                .addServiceData(UuidSet.SERVICE_DATA_PARCEL, mAdvertisementSet.getMetaData())
                 .build();
 
         mBluetoothAdvertiser.startAdvertising(settings, data, mAdvertisingCallback);
@@ -193,11 +193,16 @@ class Advertiser {
             @Override
             public void onCharacteristicReadRequest(BluetoothDevice device, int requestId, int offset, BluetoothGattCharacteristic characteristic) {
                 mHandler.post(() -> {
-                    v(TAG, "onCharacteristicReadRequest address: %s, requestId: %d, offset: %d, characteristic: %s", device.getAddress(), requestId, offset, characteristic.getUuid());
 
                     try {
+
+                        String propValue = mAdvertisementSet.getProp(characteristic.getUuid());
+                        v(TAG, "onCharacteristicReadRequest address: %s, requestId: %d, offset: %d, characteristic: %s, value: %s", device.getAddress(), requestId, offset, characteristic.getUuid(), propValue);
+
                         byte[] response = chunk(
-                                mAdvertisementSet.getChunkedResponsePayload(characteristic.getUuid()),
+                                propValue == null
+                                        ? new byte[0]
+                                        : propValue.getBytes(Charset.forName("UTF-8")),
                                 offset);
                         v(TAG, "sending response, bytes: %d", response.length);
                         mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, response);
@@ -226,11 +231,11 @@ class Advertiser {
      * For that to be achieved sendResponse() has to be eventually invoked with an empty byte[].
      * Otherwise the payload is transmitted multiple times, significantly reducing throughput.
      */
-    private byte[] chunk(byte[] slogan, int offset) {
-        if (offset > slogan.length) {
+    private byte[] chunk(byte[] source, int offset) {
+        if (offset > source.length) {
             return new byte[0];
         }
-        return Arrays.copyOfRange(slogan, offset, slogan.length);
+        return Arrays.copyOfRange(source, offset, source.length);
     }
 
     private BluetoothGattService createSloganService() {

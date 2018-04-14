@@ -43,10 +43,10 @@ public class MyProfile implements Serializable {
     public String toString() {
         return "MyProfile{" +
                 "mColor='" + mColor + '\'' +
-                ", mColorPickerPointX=" + mColorPickerPointX +
-                ", mColorPickerPointY=" + mColorPickerPointY +
                 ", mName='" + mName + '\'' +
                 ", mText='" + mText + '\'' +
+                ", mColorPickerPointX=" + mColorPickerPointX +
+                ", mColorPickerPointY=" + mColorPickerPointY +
                 ", mSlogans=" + mSlogans +
                 '}';
     }
