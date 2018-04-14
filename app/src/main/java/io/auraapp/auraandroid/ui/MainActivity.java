@@ -122,7 +122,6 @@ public class MainActivity extends AppCompatActivity {
                 mPager.getScreenAdapter().addWelcomeFragments();
                 mPager.goTo(TermsFragment.class, false);
             }
-
             mMyProfileManager.addChangedCallback(event -> {
                 d(TAG, "My profile changed");
                 mCommunicatorProxy.updateMyProfile(mMyProfileManager.getProfile());

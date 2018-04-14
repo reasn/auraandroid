@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import io.auraapp.auraandroid.common.Config;
+import io.auraapp.auraandroid.common.ExternalInvocation;
 import io.auraapp.auraandroid.common.Timer;
 
 import static android.bluetooth.BluetoothGattCharacteristic.PERMISSION_READ;
@@ -80,6 +81,7 @@ class Advertiser {
         mOnErrorCallback = onErrorCallback;
     }
 
+    @ExternalInvocation
     void start() {
         mHandler.post(() -> {
             BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -141,19 +143,33 @@ class Advertiser {
                 .build();
 
         mBluetoothAdvertiser.startAdvertising(settings, data, mAdvertisingCallback);
-        i(TAG, "started advertising, id: %d, version: %d, service: %s", mAdvertisementSet.mId, mAdvertisementSet.mVersion, UuidSet.SERVICE);
+        i(TAG, "started advertising, id: %d, version: %d, slogans: %d, service: %s",
+                mAdvertisementSet.mId,
+                mAdvertisementSet.mSlogans.length,
+                mAdvertisementSet.mVersion,
+                UuidSet.SERVICE);
     }
 
+    @ExternalInvocation
     void stop() {
         mHandler.post(() -> {
             d(TAG, "Making sure advertising is stopped");
             mTimer.clear("shuffle-id");
             if (mBluetoothGattServer != null) {
                 mBluetoothGattServer.clearServices();
-                mBluetoothGattServer.close();
-            }
-            if (mBluetoothAdvertiser != null) {
-                mBluetoothAdvertiser.stopAdvertising(mAdvertisingCallback);
+                try {
+                    mBluetoothGattServer.close();
+                } finally {
+                    mBluetoothGattServer = null;
+
+                    if (mBluetoothAdvertiser != null) {
+                        try {
+                            mBluetoothAdvertiser.stopAdvertising(mAdvertisingCallback);
+                        } finally {
+                            mBluetoothAdvertiser = null;
+                        }
+                    }
+                }
             }
         });
     }

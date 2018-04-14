@@ -155,6 +155,7 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     }
 
     private void updateViewsWithCommunicatorState() {
+        // getContext() was observed to be null after long inactivity of the app
         if (mRootView != null && getContext() != null) {
             CommunicatorStateRenderer.populateInfoBoxWithState(mLastCommunicatorState,
                     mRootView.findViewById(R.id.profile_status_info_box),

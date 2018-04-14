@@ -64,9 +64,7 @@ public class Communicator extends Service {
 
     @FunctionalInterface
     interface OnErrorCallback {
-
         void onUnrecoverableError(String errorName);
-
     }
 
     @Override
@@ -400,6 +398,8 @@ public class Communicator extends Service {
 
         final String action = intent.getAction();
 
+        d(TAG, "handleIntent, action: %s", action);
+
         if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
             final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
             w(TAG, "Bluetooth state changed, state: %s", BtConst.nameAdapterState(state));
@@ -453,7 +453,7 @@ public class Communicator extends Service {
                 d(TAG, "Sent intent with %d peers", peers.size());
             });
 
-        } else if (IntentFactory.INTENT_MY_SLOGANS_CHANGED_ACTION.equals(action)) {
+        } else if (IntentFactory.INTENT_MY_PROFILE_CHANGED_ACTION.equals(action)) {
 
             if (!mState.mShouldCommunicate) {
                 w(TAG, "Received %s intent while being not supposed to communicate. Starting to communicate to fulfill intent.", action);
@@ -468,8 +468,7 @@ public class Communicator extends Service {
             }
 
             @SuppressWarnings("unchecked")
-            MyProfile myProfile = (MyProfile) extras.getSerializable(IntentFactory.INTENT_MY_SLOGANS_CHANGED_EXTRA_PROFILE);
-//            String[] mySlogans = extras.getStringArray(IntentFactory.INTENT_MY_SLOGANS_CHANGED_EXTRA_SLOGANS);
+            MyProfile myProfile = (MyProfile) extras.getSerializable(IntentFactory.INTENT_MY_PROFILE_CHANGED_EXTRA_PROFILE);
             if (myProfile == null) {
                 w(TAG, "No profile found in intent");
                 return;
@@ -487,6 +486,9 @@ public class Communicator extends Service {
 
             if (slogansChanged && mState.mAdvertising) {
                 mAdvertiser.increaseVersion();
+                i(TAG, "Updating advertisement, new version: %d, slogans: %d", mAdvertisementSet.getVersion(), mAdvertisementSet.mSlogans.length);
+            } else {
+                v(TAG, "Updating advertisement because nothing changed, version: %d, slogans: %d", mAdvertisementSet.getVersion(), mAdvertisementSet.mSlogans.length);
             }
             sendState();
         } else {

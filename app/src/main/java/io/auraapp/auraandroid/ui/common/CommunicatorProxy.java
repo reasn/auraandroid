@@ -142,6 +142,20 @@ public class CommunicatorProxy {
         mContext.startService(intent);
     }
 
+    public void updateMyProfile(MyProfile myProfile) {
+        if (mState != null && !mState.mShouldCommunicate) {
+            return;
+        }
+
+        v(TAG, "Sending profile to communicator, color: %s, slogans: %d", myProfile.getColor(), myProfile.getSlogans().size());
+
+        Intent intent = new Intent(mContext, Communicator.class);
+        intent.setAction(IntentFactory.INTENT_MY_PROFILE_CHANGED_ACTION);
+        intent.putExtra(IntentFactory.INTENT_MY_PROFILE_CHANGED_EXTRA_PROFILE, myProfile);
+
+        mContext.startService(intent);
+    }
+
     public void disable() {
         d(TAG, "Disabling communicator");
         if (!mState.mShouldCommunicate) {
@@ -156,27 +170,6 @@ public class CommunicatorProxy {
         v(TAG, "Asking for peers update");
         Intent intent = new Intent(mContext, Communicator.class);
         intent.setAction(IntentFactory.INTENT_REQUEST_PEERS_ACTION);
-        mContext.startService(intent);
-    }
-
-    public void updateMyProfile(MyProfile myProfile) {
-        if (mState == null || !mState.mShouldCommunicate) {
-            return;
-        }
-
-        v(TAG, "Sending profile to communicator, color: %s, slogans: %d", myProfile.getColor(), myProfile.getSlogans().size());
-
-        Intent intent = new Intent(mContext, Communicator.class);
-        intent.setAction(IntentFactory.INTENT_MY_SLOGANS_CHANGED_ACTION);
-//
-//        String[] mySloganStrings = new String[myProfile.mSlogans.size()];
-//        int index = 0;
-//        for (Slogan slogan : myProfile.mSlogans) {
-//            mySloganStrings[index++] = slogan.getText();
-//        }
-//        intent.putExtra(IntentFactory.INTENT_MY_SLOGANS_CHANGED_EXTRA_SLOGANS, mySloganStrings);
-        intent.putExtra(IntentFactory.INTENT_MY_SLOGANS_CHANGED_EXTRA_PROFILE, myProfile);
-
         mContext.startService(intent);
     }
 }

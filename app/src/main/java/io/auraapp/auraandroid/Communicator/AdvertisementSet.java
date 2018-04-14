@@ -5,6 +5,8 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.UUID;
 
+import static io.auraapp.auraandroid.common.Config.PROFILE_SLOGANS_MAX_SLOGANS;
+
 class AdvertisementSet {
 
     static final UUID[] ADVERTISED_UUIDS = new UUID[]{
@@ -22,13 +24,13 @@ class AdvertisementSet {
 
     int mId = 0;
     byte mVersion = 0;
-    String[] mSlogans = new String[3];
+    String[] mSlogans = new String[PROFILE_SLOGANS_MAX_SLOGANS];
     private String mUser;
-
+    // TODO make number of slogans part of advertisement
 
     static String[] prepareSlogans(String[] slogans) {
-        String[] result = new String[3];
-        for (int i = 0; i < 3; i++) {
+        String[] result = new String[PROFILE_SLOGANS_MAX_SLOGANS];
+        for (int i = 0; i < PROFILE_SLOGANS_MAX_SLOGANS; i++) {
             result[i] = slogans.length <= i || slogans[i] == null
                     ? null
                     : slogans[i];
@@ -48,6 +50,10 @@ class AdvertisementSet {
         while (mId == 0) {
             mId = (int) (Math.round(Math.random() * Integer.MAX_VALUE * 2) - Integer.MAX_VALUE);
         }
+    }
+
+    public byte getVersion() {
+        return mVersion;
     }
 
     byte[] getAdditionalData() {
