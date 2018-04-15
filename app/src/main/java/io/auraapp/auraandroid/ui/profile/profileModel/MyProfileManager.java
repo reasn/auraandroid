@@ -77,6 +77,11 @@ public class MyProfileManager {
         mChangedCallbacks.add(callback);
     }
 
+    public void removeChangedCallback(MyProfileChangedCallback mProfileChangedCallback) {
+        mChangedCallbacks.remove(mProfileChangedCallback);
+    }
+
+
     public void addAndTriggerChangedCallback(int[] events, MyProfileChangedCallback callback) {
         mChangedCallbacks.add(callback);
         for (int event : events) {

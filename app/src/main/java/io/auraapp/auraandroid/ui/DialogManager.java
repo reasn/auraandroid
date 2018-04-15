@@ -45,8 +45,8 @@ public class DialogManager {
     }
 
     @FunctionalInterface
-    interface AdoptCallback {
-        void onAdoptSlogan(Slogan sloganToReplace);
+    public interface AdoptCallback {
+        public void onAdoptSlogan(Slogan sloganToReplace);
     }
 
     @FunctionalInterface
@@ -176,7 +176,7 @@ public class DialogManager {
                 .show();
     }
 
-    void showReplace(TreeSet<Slogan> mySlogans, AdoptCallback adoptCallback) {
+    public void showReplace(TreeSet<Slogan> mySlogans, AdoptCallback adoptCallback) {
 
         RadioGroup radioGroup = (RadioGroup) View.inflate(mContext, R.layout.profile_dialog_replace_slogan, null);
         SparseArray<Slogan> map = new SparseArray<>();

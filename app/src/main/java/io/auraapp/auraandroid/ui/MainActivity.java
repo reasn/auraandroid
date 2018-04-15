@@ -9,11 +9,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.widget.Toast;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.TreeMap;
 
-import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
@@ -47,8 +44,6 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences mPrefs;
 
     private long mBrokenBtStackLastVisibleTimestamp;
-    private CommunicatorState mCommunicatorState;
-    private Set<Peer> mPeers = new HashSet<>();
     private final Handler mHandler = new Handler();
     /**
      * slogan:PeerSlogan
@@ -56,13 +51,17 @@ public class MainActivity extends AppCompatActivity {
     TreeMap<String, PeerSlogan> mPeerSloganMap = new TreeMap<>();
     private DialogManager mDialogManager;
 
-    private ScreenPager mPager;
     private ScreenPagerAdapter mPagerAdapter;
     private ToolbarAspect mToolbarAspect;
     private DebugFragment mDebugFragment;
     private WorldFragment mWorldFragment;
     private ProfileFragment mProfileFragment;
-    private TutorialManager mTutorialManager;
+
+    private ActivityState mState;
+
+    public ActivityState getState() {
+        return mState;
+    }
 
     @Override
     @ExternalInvocation
@@ -78,38 +77,25 @@ public class MainActivity extends AppCompatActivity {
 
             setContentView(R.layout.activity_main);
 
-            mPager = findViewById(R.id.pager);
-
-            mWorldFragment = WorldFragment.create(
-                    this,
-                    slogan -> {
-                        if (mMyProfileManager.getProfile().getSlogans().contains(slogan)) {
-                            toast(R.string.ui_world_toast_slogan_already_adopted);
-                        } else if (mMyProfileManager.spaceAvailable()) {
-                            mMyProfileManager.adopt(slogan);
-                        } else {
-                            mDialogManager.showReplace(
-                                    mMyProfileManager.getProfile().getSlogans(),
-                                    sloganToReplace -> mMyProfileManager.replace(sloganToReplace, slogan)
-                            );
-                        }
-                    });
+            mWorldFragment = new WorldFragment();
 
             mMyProfileManager = new MyProfileManager(this);
             mDialogManager = new DialogManager(this);
 
-            mProfileFragment = ProfileFragment.create(this, mMyProfileManager, mDialogManager, mPager);
+            mState = new ActivityState();
+            mState.mMyProfileManager = mMyProfileManager;
+            mState.mDialogManager = mDialogManager;
+            mState.mPager = findViewById(R.id.pager);
 
-            mTutorialManager = new TutorialManager(this, findViewById(R.id.activity_wrapper), mPager);
+            mProfileFragment = new ProfileFragment();
+
+            mState.mTutorialManager = new TutorialManager(this, findViewById(R.id.activity_wrapper), mState.mPager);
 
             mPagerAdapter = new ScreenPagerAdapter(
                     getSupportFragmentManager(),
                     mProfileFragment,
-                    mWorldFragment,
-                    mPager,
-                    mTutorialManager,
-                    this);
-            mPager.setAdapter(mPagerAdapter);
+                    mWorldFragment);
+            mState.mPager.setAdapter(mPagerAdapter);
 
             // Load preferences
             mPrefs = getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE);
@@ -119,8 +105,8 @@ public class MainActivity extends AppCompatActivity {
             if (!PermissionHelper.granted(this)) {
                 showPermissionMissingFragment();
             } else if (!mPrefs.getBoolean(prefKey, false)) {
-                mPager.getScreenAdapter().addWelcomeFragments();
-                mPager.goTo(TermsFragment.class, false);
+                mState.mPager.getScreenAdapter().addWelcomeFragments();
+                mState.mPager.goTo(TermsFragment.class, false);
             }
             mMyProfileManager.addChangedCallback(event -> {
                 d(TAG, "My profile changed");
@@ -154,50 +140,50 @@ public class MainActivity extends AppCompatActivity {
             mCommunicatorProxy = new CommunicatorProxy(
                     this,
                     peers -> {
-                        mPeers = peers;
+                        mState.mPeers = peers;
                         mPeerSloganMap = PeerMapTransformer.buildMapFromPeerList(peers);
                         mWorldFragment.notifyPeersChanged(peers);
                         reflectStatus();
-                        mWorldFragment.setData(mCommunicatorState, mPeerSloganMap, mPeers);
+                        mWorldFragment.setData(mState.mCommunicatorState, mPeerSloganMap, mState.mPeers);
                         mWorldFragment.updateAllViews();
                     },
                     peer -> {
-                        for (Peer candidate : mPeers) {
+                        for (Peer candidate : mState.mPeers) {
                             if (candidate.mId == peer.mId) {
-                                mPeers.remove(candidate);
+                                mState.mPeers.remove(candidate);
                                 break;
                             }
                         }
-                        mPeers.add(peer);
+                        mState.mPeers.add(peer);
                         mPeerSloganMap = PeerMapTransformer.buildMapFromPeerAndPreviousMap(peer, mPeerSloganMap);
-                        mWorldFragment.notifyPeersChanged(mPeers);
+                        mWorldFragment.notifyPeersChanged(mState.mPeers);
                         reflectStatus();
-                        mWorldFragment.setData(mCommunicatorState, mPeerSloganMap, mPeers);
+                        mWorldFragment.setData(mState.mCommunicatorState, mPeerSloganMap, mState.mPeers);
                         mWorldFragment.updateAllViews();
                     },
                     state -> {
-                        if (mCommunicatorState == null || !mCommunicatorState.mScanning && state.mScanning) {
+                        if (mState.mCommunicatorState == null || !mState.mCommunicatorState.mScanning && state.mScanning) {
                             // Scan just started, let's make sure we hide the "looking around" info if
                             // nothing is found for some time.
                             mHandler.postDelayed(() -> {
                                 reflectStatus();
-                                mWorldFragment.setData(mCommunicatorState, mPeerSloganMap, mPeers);
+                                mWorldFragment.setData(mState.mCommunicatorState, mPeerSloganMap, mState.mPeers);
                                 mWorldFragment.reflectCommunicatorState();
-                                mProfileFragment.reflectCommunicatorState(mCommunicatorState);
+                                mProfileFragment.reflectCommunicatorState(mState.mCommunicatorState);
                             }, Config.MAIN_LOOKING_AROUND_SHOW_DURATION);
                         }
-                        mCommunicatorState = state;
+                        mState.mCommunicatorState = state;
                         reflectStatus();
-                        mWorldFragment.setData(mCommunicatorState, mPeerSloganMap, mPeers);
+                        mWorldFragment.setData(mState.mCommunicatorState, mPeerSloganMap, mState.mPeers);
                         mWorldFragment.reflectCommunicatorState();
-                        mProfileFragment.reflectCommunicatorState(mCommunicatorState);
+                        mProfileFragment.reflectCommunicatorState(mState.mCommunicatorState);
                     });
 
-            mDebugFragment = DebugFragment.create(this, mMyProfileManager);
+            mDebugFragment = new DebugFragment();
 
             mToolbarAspect = new ToolbarAspect(
                     this,
-                    mPager,
+                    mState.mPager,
                     mPrefs,
                     mCommunicatorProxy,
                     mMyProfileManager,
@@ -214,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
             mCommunicatorProxy.updateMyProfile(mMyProfileManager.getProfile());
 
             reflectStatus();
-            mWorldFragment.setData(mCommunicatorState, mPeerSloganMap, mPeers);
+            mWorldFragment.setData(mState.mCommunicatorState, mPeerSloganMap, mState.mPeers);
         });
     }
 
@@ -223,20 +209,16 @@ public class MainActivity extends AppCompatActivity {
     // TODO keep peers if aura disabled and communicator destroyed
 
     private void reflectStatus() {
-        v(TAG, "Reflecting status, peers: %d, slogans: %d, state: %s", mPeers.size(), mPeerSloganMap.size(), mCommunicatorState);
+        v(TAG, "Reflecting status, peers: %d, slogans: %d, state: %s", mState.mPeers.size(), mPeerSloganMap.size(), mState.mCommunicatorState);
 
-        if (mToolbarAspect != null && mToolbarAspect.isDebugFragmentEnabled()) {
-            mDebugFragment.update(mCommunicatorState, mPeers);
-        }
-
-        if (mCommunicatorState == null) {
+        if (mState.mCommunicatorState == null) {
             return;
         }
-        if (!mCommunicatorState.mHasPermission) {
+        if (!mState.mCommunicatorState.mHasPermission) {
             showPermissionMissingFragment();
             return;
         }
-        if (mCommunicatorState.mRecentBtTurnOnEvents >= Config.COMMUNICATOR_RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD) {
+        if (mState.mCommunicatorState.mRecentBtTurnOnEvents >= Config.COMMUNICATOR_RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD) {
             showBrokenBtStackAlert();
         }
     }
@@ -283,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showPermissionMissingFragment() {
         mPagerAdapter.addPermissionsFragment();
-        mPager.goTo(PermissionsFragment.class, false);
+        mState.mPager.goTo(PermissionsFragment.class, false);
     }
 
     @Override
@@ -322,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void showTutorial() {
-        mTutorialManager.goTo(SloganAddStep.class);
+        mState.mTutorialManager.goTo(SloganAddStep.class);
     }
 
 }

@@ -25,6 +25,7 @@ import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATED_AC
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATED_EXTRA_PEER;
 
 public class CommunicatorProxy {
+
     private static final String TAG = "@aura/communicatorProxy";
 
     private CommunicatorState mState = null;
@@ -109,6 +110,10 @@ public class CommunicatorProxy {
                 if (stateChanged) {
                     i(TAG, "Communicator state changed, state: %s", state);
                     stateUpdatedCallback.onStateUpdated(state);
+
+//                    Intent stateUpdate = new Intent(LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION);
+//                    stateUpdate.putExtra(LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_STATE, state);
+//                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(stateUpdate);
                 }
             }
         };

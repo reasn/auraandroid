@@ -111,7 +111,6 @@ public class ToolbarAspect {
                         Toast.LENGTH_SHORT
                 ).show();
                 mPager.getScreenAdapter().addDebugFragment(mDebugFragment);
-                mDebugFragment.update(null, null);
             }
         }));
     }

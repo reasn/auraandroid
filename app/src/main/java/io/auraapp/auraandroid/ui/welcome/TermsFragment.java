@@ -1,13 +1,14 @@
 package io.auraapp.auraandroid.ui.welcome;
 
-import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import io.auraapp.auraandroid.R;
-import io.auraapp.auraandroid.common.ExternalInvocation;
+import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.ScreenPager;
 import io.auraapp.auraandroid.ui.common.ScreenFragment;
 import io.auraapp.auraandroid.ui.permissions.FragmentCameIntoView;
@@ -18,26 +19,27 @@ public class TermsFragment extends ScreenFragment implements FragmentCameIntoVie
 
     private static final String TAG = "@aura/ui/welcome/" + TermsFragment.class.getSimpleName();
     private ScreenPager mPager;
-    private Activity mActivity;
+    private View.OnClickListener finishActivity;
 
-    public static TermsFragment create(Activity activity, ScreenPager pager) {
-        TermsFragment fragment = new TermsFragment();
-        fragment.setContext(activity);
-        fragment.mPager = pager;
-        fragment.mActivity = activity;
-        return fragment;
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (!(context instanceof MainActivity)) {
+            throw new RuntimeException("May only attached to " + MainActivity.class.getSimpleName());
+        }
+        mPager = ((MainActivity) context).getState().mPager;
+        finishActivity = $ -> ((MainActivity) context).finish();
     }
 
     @Override
-    @ExternalInvocation
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         v(TAG, "onCreateView");
 
         ViewGroup rootView = (ViewGroup) inflater.inflate(
                 R.layout.terms_fragment, container, false);
 
         rootView.findViewById(R.id.terms_agree).setOnClickListener($ -> mPager.goTo(WelcomeFragment.class, true));
-        rootView.findViewById(R.id.terms_disagree).setOnClickListener($ -> mActivity.finish());
+        rootView.findViewById(R.id.terms_disagree).setOnClickListener(finishActivity);
 
         return rootView;
     }

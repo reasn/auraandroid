@@ -16,6 +16,12 @@ import static io.auraapp.auraandroid.common.FormattedLog.w;
 public class CommunicatorStateRenderer {
     private static final String TAG = "@aura/ui/common/" + CommunicatorStateRenderer.class.getSimpleName();
 
+    public static class InconsistentStateException extends Exception {
+        public InconsistentStateException() {
+            super("Not scanning or advertising although state indicates that it's possible");
+        }
+    }
+
     public static void populateInfoBoxWithState(CommunicatorState state, InfoBox infoBox, TextView summary, Context context) {
 
         final int NONE = 0;

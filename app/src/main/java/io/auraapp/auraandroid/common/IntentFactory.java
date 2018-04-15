@@ -31,6 +31,10 @@ public class IntentFactory {
     public static final String INTENT_PEER_UPDATED_ACTION = prefix + "peerUpdated";
     public static final String INTENT_PEER_UPDATED_EXTRA_PEER = prefix + "extraPeer";
 
+    // local (activity)
+    public static final String LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION = prefix + "local.communicatorState";
+    public static final String LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_STATE = prefix + "local.extraState";
+
     public static Intent peerListUpdated(Set<Peer> peers, CommunicatorState state) {
         Intent intent = new Intent(INTENT_PEER_LIST_UPDATED_ACTION);
         intent.putExtra(INTENT_PEER_LIST_UPDATED_EXTRA_PEERS, (Serializable) peers);

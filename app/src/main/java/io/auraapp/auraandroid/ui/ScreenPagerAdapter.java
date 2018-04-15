@@ -1,6 +1,5 @@
 package io.auraapp.auraandroid.ui;
 
-import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -13,7 +12,6 @@ import java.util.List;
 import io.auraapp.auraandroid.ui.debug.DebugFragment;
 import io.auraapp.auraandroid.ui.permissions.PermissionsFragment;
 import io.auraapp.auraandroid.ui.profile.ProfileFragment;
-import io.auraapp.auraandroid.ui.tutorial.TutorialManager;
 import io.auraapp.auraandroid.ui.welcome.TermsFragment;
 import io.auraapp.auraandroid.ui.welcome.WelcomeFragment;
 import io.auraapp.auraandroid.ui.world.WorldFragment;
@@ -23,22 +21,12 @@ public class ScreenPagerAdapter extends FragmentStatePagerAdapter {
     public static final String SCREEN_WELCOME = "welcome";
     private static final String SCREEN_WORLD = "world";
     private static final String SCREEN_PROFILE = "profile";
-    private final ScreenPager mPager;
-    private final Activity mActivity;
     private final List<Fragment> mFragments;
-    private final TutorialManager mTutorialManager;
 
     public ScreenPagerAdapter(FragmentManager fm,
                               ProfileFragment profileFragment,
-                              WorldFragment worldFragment,
-                              ScreenPager pager,
-                              TutorialManager tutorialManager,
-                              Activity activity) {
+                              WorldFragment worldFragment) {
         super(fm);
-        this.mPager = pager;
-        mActivity = activity;
-        mTutorialManager = tutorialManager;
-
         mFragments = new ArrayList<>();
         mFragments.add(profileFragment);
         mFragments.add(worldFragment);
@@ -80,9 +68,8 @@ public class ScreenPagerAdapter extends FragmentStatePagerAdapter {
     }
 
     public void addPermissionsFragment() {
-
         if (!has(PermissionsFragment.class)) {
-            mFragments.add(0, PermissionsFragment.create(mActivity, mPager));
+            mFragments.add(0, new PermissionsFragment());
             notifyDataSetChanged();
         }
     }
@@ -97,11 +84,11 @@ public class ScreenPagerAdapter extends FragmentStatePagerAdapter {
     public void addWelcomeFragments() {
         boolean added = false;
         if (!has(WelcomeFragment.class)) {
-            mFragments.add(0, WelcomeFragment.create(mActivity, mPager, mTutorialManager));
+            mFragments.add(0, new WelcomeFragment());
             added = true;
         }
         if (!has(TermsFragment.class)) {
-            mFragments.add(0, TermsFragment.create(mActivity, mPager));
+            mFragments.add(new TermsFragment());
             added = true;
         }
 

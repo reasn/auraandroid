@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
@@ -24,17 +23,19 @@ import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.ExternalInvocation;
 import io.auraapp.auraandroid.common.Peer;
+import io.auraapp.auraandroid.ui.ActivityState;
 import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
+import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.common.CommunicatorStateRenderer;
 import io.auraapp.auraandroid.ui.common.InfoBox;
+import io.auraapp.auraandroid.ui.common.ScreenFragment;
 import io.auraapp.auraandroid.ui.world.list.OnAdoptCallback;
 import io.auraapp.auraandroid.ui.world.list.PeersRecycleAdapter;
 
-public class WorldFragment extends Fragment implements FragmentWithToolbarButtons {
+public class WorldFragment extends ScreenFragment implements FragmentWithToolbarButtons {
 
     private static final String TAG = "@aura/ui/world/fragment";
     private ViewGroup mRootView;
-    private Context mContext;
     private InfoBox mCommunicatorStateInfoBox;
     private TextView mStatusSummary;
     private Handler mHandler = new Handler();
@@ -47,11 +48,28 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
     private Set<Peer> mLastPeers = null;
     private InfoBox mPeersInfoBox;
 
-    public static WorldFragment create(Context context, OnAdoptCallback onAdoptCallback) {
-        WorldFragment fragment = new WorldFragment();
-        fragment.mContext = context;
-        fragment.mOnAdoptCallback = onAdoptCallback;
-        return fragment;
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (!(context instanceof MainActivity)) {
+            throw new RuntimeException("May only attached to " + MainActivity.class.getSimpleName());
+        }
+
+        ActivityState state = ((MainActivity) context).getState();
+
+        mOnAdoptCallback = slogan -> {
+            if (state.mMyProfileManager.getProfile().getSlogans().contains(slogan)) {
+                toast(R.string.ui_world_toast_slogan_already_adopted);
+            } else if (state.mMyProfileManager.spaceAvailable()) {
+                state.mMyProfileManager.adopt(slogan);
+            } else {
+                state.mDialogManager.showReplace(
+                        state.mMyProfileManager.getProfile().getSlogans(),
+                        sloganToReplace -> state.mMyProfileManager.replace(sloganToReplace, slogan)
+                );
+            }
+        };
     }
 
     @Override
@@ -64,20 +82,26 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
         mCommunicatorStateInfoBox = mRootView.findViewById(R.id.profile_status_info_box);
         mPeersInfoBox = mRootView.findViewById(R.id.peer_slogans_info_box);
 
-        RecyclerView recycler = mRootView.findViewById(R.id.profile_slogans_recycler);
-        recycler.setNestedScrollingEnabled(false);
-        mPeerListAdapter = new PeersRecycleAdapter(mContext, recycler, mOnAdoptCallback);
-        recycler.setAdapter(mPeerListAdapter);
-        recycler.setLayoutManager(new LinearLayoutManager(mContext));
-        // With change animations enabled items flash as updates come in
-        ((SimpleItemAnimator) recycler.getItemAnimator()).setSupportsChangeAnimations(false);
-
         mSwipeRefresh = mRootView.findViewById(R.id.fake_swipe_to_refresh);
         mSwipeRefresh.setEnabled(false);
 
-        updateAllViews();
         return mRootView;
     }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        RecyclerView recycler = mRootView.findViewById(R.id.profile_slogans_recycler);
+        recycler.setNestedScrollingEnabled(false);
+        mPeerListAdapter = new PeersRecycleAdapter(getContext(), recycler, mOnAdoptCallback);
+        recycler.setAdapter(mPeerListAdapter);
+        recycler.setLayoutManager(new LinearLayoutManager(getContext()));
+        // With change animations enabled items flash as updates come in
+        ((SimpleItemAnimator) recycler.getItemAnimator()).setSupportsChangeAnimations(false);
+
+        updateAllViews();
+    }
+
 
     @Override
     @ExternalInvocation
@@ -136,7 +160,7 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
                 mLastState,
                 mCommunicatorStateInfoBox,
                 mStatusSummary,
-                mContext);
+                getContext());
 
 //        updatePeersInfoBox();
 
@@ -154,7 +178,7 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
             return;
 
         }
-        String headerText = mContext.getResources().getQuantityString(R.plurals.ui_world_peers_heading_slogans, mLastPeerSloganMap.size(), mLastPeerSloganMap.size());
+        String headerText = getContext().getResources().getQuantityString(R.plurals.ui_world_peers_heading_slogans, mLastPeerSloganMap.size(), mLastPeerSloganMap.size());
 
         boolean synchronizing = false;
         for (Peer peer : mLastPeers) {
@@ -208,14 +232,14 @@ public class WorldFragment extends Fragment implements FragmentWithToolbarButton
                         sendIntent.setAction(Intent.ACTION_SEND);
                         sendIntent.putExtra(
                                 Intent.EXTRA_TEXT,
-                                EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_main_share_text))
+                                EmojiHelper.replaceShortCode(getContext().getString(R.string.ui_main_share_text))
                         );
                         sendIntent.setType("text/plain");
-                        mContext.startActivity(sendIntent);
+                        getContext().startActivity(sendIntent);
                     });
         }
 
-        mPeersInfoBox.setBackgroundColor(mContext.getResources().getColor(R.color.infoBoxWarning));
+        mPeersInfoBox.setBackgroundColor(getContext().getResources().getColor(R.color.infoBoxWarning));
         mPeersInfoBox.setVisibility(View.VISIBLE);
     }
 

@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,8 @@ import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.ExternalInvocation;
 import io.auraapp.auraandroid.common.PermissionHelper;
+import io.auraapp.auraandroid.ui.ActivityState;
+import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.ScreenPager;
 import io.auraapp.auraandroid.ui.common.InfoBox;
 import io.auraapp.auraandroid.ui.common.ScreenFragment;
@@ -39,16 +42,19 @@ public class PermissionsFragment extends ScreenFragment {
     private ViewGroup mView;
     private boolean mRedirected = false;
 
-    public static PermissionsFragment create(Context context, ScreenPager pager) {
-        PermissionsFragment fragment = new PermissionsFragment();
-        fragment.setContext(context);
-        fragment.mPager = pager;
-        return fragment;
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (!(context instanceof MainActivity)) {
+            throw new RuntimeException("May only attached to " + MainActivity.class.getSimpleName());
+        }
+        ActivityState state = ((MainActivity) context).getState();
+        mPager = state.mPager;
     }
 
+
     @Override
-    @ExternalInvocation
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         v(TAG, "onCreateView");
 
         mView = (ViewGroup) inflater.inflate(R.layout.permissions_fragment, container, false);
@@ -83,14 +89,6 @@ public class PermissionsFragment extends ScreenFragment {
         }
         return mView;
     }
-
-    @Override
-    public void onPause() {
-        v(TAG, "onPause");
-        super.onPause();
-        mHandler.removeCallbacks(this::continuouslyCheckForPermissions);
-    }
-
     @Override
     @ExternalInvocation
     public void onResume() {
@@ -105,6 +103,14 @@ public class PermissionsFragment extends ScreenFragment {
             continuouslyCheckForPermissions();
         }
     }
+
+    @Override
+    public void onPause() {
+        v(TAG, "onPause");
+        super.onPause();
+        mHandler.removeCallbacks(this::continuouslyCheckForPermissions);
+    }
+
 
     private void continuouslyCheckForPermissions() {
         if (!PermissionHelper.granted(getContext())) {
