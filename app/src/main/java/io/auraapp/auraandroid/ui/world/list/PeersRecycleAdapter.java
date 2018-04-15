@@ -31,7 +31,7 @@ public class PeersRecycleAdapter extends RecyclerAdapter {
     }
 
     public void notifyPeersChanged(Set<Peer> peers) {
-        d(TAG, "Updating list, peer slogans: %d", peers.size());
+        d(TAG, "Updating list, peers: %d", peers.size());
 
         final List<ListItem> newItems = new ArrayList<>();
         for (Peer peer : peers) {

@@ -14,6 +14,8 @@ import java.util.List;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Slogan;
 
+import static io.auraapp.auraandroid.common.FormattedLog.quickDump;
+
 public class PeerSloganListAdapter extends ArrayAdapter<Slogan> {
     private final PeerItemHolder.ColorSet mColorSet;
 
@@ -21,7 +23,12 @@ public class PeerSloganListAdapter extends ArrayAdapter<Slogan> {
                                  int resource,
                                  PeerItemHolder.ColorSet colorSet,
                                  @NonNull List<Slogan> slogans) {
-        super(context, resource, slogans.toArray(new Slogan[slogans.size()]));
+        super(context, resource, new Slogan[]{
+                Slogan.create("hi"),
+                Slogan.create("ho"),
+                Slogan.create("alal"),
+        });
+//        super(context, resource, slogans.toArray(new Slogan[slogans.size()]));
         mColorSet = colorSet;
     }
 
@@ -32,6 +39,7 @@ public class PeerSloganListAdapter extends ArrayAdapter<Slogan> {
         if (slogan == null) {
             throw new RuntimeException("Slogan must not be null");
         }
+        quickDump(slogan);
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.world_peer_item_slogan, parent, false);

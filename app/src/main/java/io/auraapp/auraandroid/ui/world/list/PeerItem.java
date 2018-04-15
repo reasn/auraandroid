@@ -25,4 +25,19 @@ public class PeerItem extends ListItem {
     Peer getPeer() {
         return mPeer;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PeerItem peerItem = (PeerItem) o;
+
+        return mPeer != null ? mPeer.equals(peerItem.mPeer) : peerItem.mPeer == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return mPeer != null ? mPeer.hashCode() : 0;
+    }
 }
