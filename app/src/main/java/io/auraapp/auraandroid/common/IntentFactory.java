@@ -2,6 +2,7 @@ package io.auraapp.auraandroid.common;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -34,6 +35,15 @@ public class IntentFactory {
     // local (activity)
     public static final String LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION = prefix + "local.communicatorState";
     public static final String LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_STATE = prefix + "local.extraState";
+
+
+    public static IntentFilter communicatorIntentFilter() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(INTENT_COMMUNICATOR_STATE_UPDATED_ACTION);
+        filter.addAction(INTENT_PEER_LIST_UPDATED_ACTION);
+        filter.addAction(INTENT_PEER_UPDATED_ACTION);
+        return filter;
+    }
 
     public static Intent peerListUpdated(Set<Peer> peers, CommunicatorState state) {
         Intent intent = new Intent(INTENT_PEER_LIST_UPDATED_ACTION);

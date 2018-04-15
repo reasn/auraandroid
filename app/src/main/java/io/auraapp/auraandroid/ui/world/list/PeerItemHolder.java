@@ -129,8 +129,8 @@ public class PeerItemHolder extends ItemViewHolder {
         );
 
         mSlogansListView.setBackgroundColor(colorSet.mAccentBackground);
-        mSlogansListView.setNestedScrollingEnabled(false);
         mSlogansListView.setAdapter(adapter);
+        mSlogansListView.setNestedScrollingEnabled(false);
     }
 
     private void bindStats(Peer peer, ColorSet colorSet) {

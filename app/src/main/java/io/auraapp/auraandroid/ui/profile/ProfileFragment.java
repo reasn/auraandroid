@@ -1,6 +1,8 @@
 package io.auraapp.auraandroid.ui.profile;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,11 +19,12 @@ import android.widget.TextView;
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Config;
+import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Slogan;
-import io.auraapp.auraandroid.ui.ActivityState;
 import io.auraapp.auraandroid.ui.DialogManager;
 import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
 import io.auraapp.auraandroid.ui.MainActivity;
+import io.auraapp.auraandroid.ui.SharedServicesSet;
 import io.auraapp.auraandroid.ui.common.ColorHelper;
 import io.auraapp.auraandroid.ui.common.CommunicatorStateRenderer;
 import io.auraapp.auraandroid.ui.common.InfoBox;
@@ -44,7 +47,7 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     private EditText mTextView;
     private LinearLayout mColorWrapper;
     private MySlogansRecycleAdapter mAdapter;
-    private CommunicatorState mLastCommunicatorState;
+    private CommunicatorState mCommunicatorState;
     private DialogManager mDialogManager;
     private MyProfileManager mMyProfileManager;
 
@@ -71,43 +74,39 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
                 break;
         }
     };
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context $, Intent intent) {
+            v(TAG, "onReceive, intent: %s", intent.getAction());
+            Bundle extras = intent.getExtras();
+            if (extras == null) {
+                return;
+            }
+            CommunicatorState state = (CommunicatorState) extras.getSerializable(IntentFactory.INTENT_COMMUNICATOR_EXTRA_STATE);
+            if (state != null) {
+                v(TAG, "Received new communicator state, state: %s", mCommunicatorState);
+                // Intents only have state if it changed
+                mCommunicatorState = state;
+            }
+            reflectCommunicatorState();
+        }
+    };
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-
         if (!(context instanceof MainActivity)) {
             throw new RuntimeException("May only attached to " + MainActivity.class.getSimpleName());
         }
 
-        ActivityState state = ((MainActivity) context).getState();
+        SharedServicesSet servicesSet = ((MainActivity) context).getSharedServicesSet();
+        hideWelcomeFragments = () -> servicesSet.mPager.getScreenAdapter().removeWelcomeFragments();
 
-        hideWelcomeFragments = () -> state.mPager.getScreenAdapter().removeWelcomeFragments();
-
-        mMyProfileManager = state.mMyProfileManager;
-        mDialogManager = state.mDialogManager;
+        mMyProfileManager = servicesSet.mMyProfileManager;
+        mDialogManager = servicesSet.mDialogManager;
 
         mMyProfileManager.removeChangedCallback(mProfileChangedCallback);
         mMyProfileManager.addChangedCallback(mProfileChangedCallback);
-
-        if (mAdapter == null) {
-            mAdapter = new MySlogansRecycleAdapter(
-                    context,
-                    mSlogansRecyclerView,
-                    (Slogan slogan, int action) -> {
-                        if (action == MySlogansRecycleAdapter.OnMySloganActionCallback.ACTION_EDIT) {
-                            mDialogManager.showParametrizedSloganEdit(R.string.ui_profile_dialog_edit_slogan_title,
-                                    slogan,
-                                    // TODO results in a drop/add animation instead of changing one item.
-                                    // Reason is that slogans are indexed by name and therefore ListSynchronizer
-                                    // cannot detect edits. Identify slogans by int index (would also get rid of sorting)
-                                    // and pass index around
-                                    sloganText -> mMyProfileManager.replace(slogan, Slogan.create(sloganText)));
-                        }
-                        mDialogManager.showDrop(slogan, mMyProfileManager::dropSlogan);
-                    },
-                    mMyProfileManager);
-        }
 
         onColorClick = $ ->
                 mDialogManager.showColorPickerDialog(
@@ -148,9 +147,8 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
         mNameView.setOnClickListener(onNameClick);
         mTextView.setOnClickListener(onTextClick);
 
-        mSlogansRecyclerView.setNestedScrollingEnabled(false);
         mSlogansRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        mSlogansRecyclerView.setAdapter(mAdapter);
+        mSlogansRecyclerView.setNestedScrollingEnabled(false);
         mRootView.findViewById(R.id.profile_add_slogan).setOnClickListener($ -> showAddDialog());
 
         // EditTexts keep their state and might ignore setText without this setting
@@ -164,8 +162,24 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     @Override
     public void onResume() {
         super.onResume();
+        if (getContext() != null) {
+            getContext().registerReceiver(mReceiver, IntentFactory.communicatorIntentFilter());
+            v(TAG, "Receiver registered");
+            mCommunicatorState = ((MainActivity) getContext()).getSharedState().mCommunicatorState;
+            createAdapter();
+        }
+
         mAdapter.notifyMySlogansChanged(mMyProfileManager.getProfile().getSlogans());
-        updateViewsWithCommunicatorState();
+        reflectCommunicatorState();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (getContext() != null) {
+            getContext().unregisterReceiver(mReceiver);
+            v(TAG, "Receiver unregistered");
+        }
     }
 
     @Override
@@ -181,15 +195,34 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
         }
     }
 
-    public void reflectCommunicatorState(CommunicatorState state) {
-        mLastCommunicatorState = state;
-        updateViewsWithCommunicatorState();
+    private void createAdapter() {
+        if (mAdapter == null) {
+            mAdapter = new MySlogansRecycleAdapter(
+                    getContext(),
+                    mSlogansRecyclerView,
+                    (Slogan slogan, int action) -> {
+                        if (action == MySlogansRecycleAdapter.OnMySloganActionCallback.ACTION_EDIT) {
+                            mDialogManager.showParametrizedSloganEdit(R.string.ui_profile_dialog_edit_slogan_title,
+                                    slogan,
+                                    // TODO results in a drop/add animation instead of changing one item.
+                                    // Reason is that slogans are indexed by name and therefore ListSynchronizer
+                                    // cannot detect edits. Identify slogans by int index (would also get rid of sorting)
+                                    // and pass index around
+                                    sloganText -> mMyProfileManager.replace(slogan, Slogan.create(sloganText)));
+                        }
+                        mDialogManager.showDrop(slogan, mMyProfileManager::dropSlogan);
+                    },
+                    mMyProfileManager);
+        }
+        if (mSlogansRecyclerView != null) {
+            mSlogansRecyclerView.setAdapter(mAdapter);
+        }
     }
 
-    private void updateViewsWithCommunicatorState() {
+    private void reflectCommunicatorState() {
         // getContext() was observed to be null after long inactivity of the app
         if (mRootView != null && getContext() != null) {
-            CommunicatorStateRenderer.populateInfoBoxWithState(mLastCommunicatorState,
+            CommunicatorStateRenderer.populateInfoBoxWithState(mCommunicatorState,
                     mRootView.findViewById(R.id.profile_status_info_box),
                     mRootView.findViewById(R.id.profile_status_summary),
                     getContext());

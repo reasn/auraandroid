@@ -35,8 +35,13 @@ public class PeersRecycleAdapter extends RecyclerAdapter {
 
     public void notifyPeersChanged(Set<Peer> peerSet) {
 
-//        //TODO make comparator configurable
-        Comparator<Peer> comparator = (a, b) -> a.mName.compareTo(b.mName);
+        //TODO make comparator configurable
+        Comparator<Peer> comparator = (a, b) -> {
+            if (a.mName == null || b.mName == null) {
+                return a.mId - b.mId;
+            }
+            return a.mName.compareTo(b.mName);
+        };
         TreeSet<Peer> treeSet = new TreeSet<>(comparator);
         treeSet.addAll(peerSet);
         ArrayList<Peer> sortedPeers = new ArrayList<>(treeSet);

@@ -21,7 +21,6 @@ import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.ExternalInvocation;
 import io.auraapp.auraandroid.common.PermissionHelper;
-import io.auraapp.auraandroid.ui.ActivityState;
 import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.ScreenPager;
 import io.auraapp.auraandroid.ui.common.InfoBox;
@@ -48,8 +47,7 @@ public class PermissionsFragment extends ScreenFragment {
         if (!(context instanceof MainActivity)) {
             throw new RuntimeException("May only attached to " + MainActivity.class.getSimpleName());
         }
-        ActivityState state = ((MainActivity) context).getState();
-        mPager = state.mPager;
+        mPager = ((MainActivity) context).getSharedServicesSet().mPager;
     }
 
 
@@ -89,6 +87,7 @@ public class PermissionsFragment extends ScreenFragment {
         }
         return mView;
     }
+
     @Override
     @ExternalInvocation
     public void onResume() {

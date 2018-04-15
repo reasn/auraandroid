@@ -52,6 +52,9 @@ public abstract class RecyclerAdapter extends RecyclerView.Adapter<ItemViewHolde
 
     public RecyclerAdapter(@NonNull Context context, RecyclerView listView) {
         super();
+        if (listView == null) {
+            throw new RuntimeException("Provided list view is null");
+        }
         mContext = context;
         mListView = listView;
         mInflater = LayoutInflater.from(context);

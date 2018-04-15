@@ -21,10 +21,10 @@ import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.ui.common.ColorHelper;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxy;
-import io.auraapp.auraandroid.ui.debug.DebugFragment;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 import io.auraapp.auraandroid.ui.settings.SettingsActivity;
 
+import static android.content.Context.MODE_PRIVATE;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_COLOR_CHANGED;
 
@@ -32,35 +32,23 @@ public class ToolbarAspect {
 
     private static final String TAG = "@aura/ui/" + ToolbarAspect.class.getSimpleName();
     private final MainActivity mActivity;
-    private final ScreenPager mPager;
     private final SharedPreferences mPrefs;
-    private final CommunicatorProxy mCommunicatorProxy;
-    private final MyProfileManager mMyProfileManager;
     private final Handler mHandler;
 
     private final List<Long> mToolbarIconClicks = new ArrayList<>();
+    private final CommunicatorProxy mCommunicatorProxy;
 
     private boolean mAuraEnabled;
-    private DebugFragment mDebugFragment;
     private boolean mDebugFragmentEnabled = false;
 
     private SwitchCompat mEnabledSwitch;
     private Toolbar mToolbar;
 
-    public ToolbarAspect(MainActivity activity,
-                         ScreenPager pager,
-                         SharedPreferences prefs,
-                         CommunicatorProxy communicatorProxy,
-                         MyProfileManager myProfileManager,
-                         Handler handler,
-                         DebugFragment debugFragment) {
+    public ToolbarAspect(MainActivity activity, CommunicatorProxy communicatorProxy, Handler handler) {
         this.mActivity = activity;
-        this.mPager = pager;
-        this.mPrefs = prefs;
         this.mCommunicatorProxy = communicatorProxy;
-        this.mMyProfileManager = myProfileManager;
+        this.mPrefs = activity.getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE);;
         this.mHandler = handler;
-        this.mDebugFragment = debugFragment;
     }
 
     public void initToolbar() {
@@ -110,7 +98,7 @@ public class ToolbarAspect {
                         EmojiHelper.replaceShortCode(mActivity.getString(R.string.ui_main_toast_debug_view_enabled)),
                         Toast.LENGTH_SHORT
                 ).show();
-                mPager.getScreenAdapter().addDebugFragment(mDebugFragment);
+                mActivity.getSharedServicesSet().mPager.getScreenAdapter().addDebugFragment();
             }
         }));
     }
@@ -134,10 +122,13 @@ public class ToolbarAspect {
         mEnabledSwitch = enabledItem.getActionView().findViewById(R.id.enabled_switch);
         mEnabledSwitch.setChecked(mAuraEnabled);
 
+        ScreenPager pager = mActivity.getSharedServicesSet().mPager;
+        MyProfileManager myProfileManager = mActivity.getSharedServicesSet().mMyProfileManager;
+
         // Now that mEnabledSwitch is set we can start coloring toolbar and switch text
-        mMyProfileManager.addAndTriggerChangedCallback(new int[]{EVENT_COLOR_CHANGED}, event -> {
+        myProfileManager.addAndTriggerChangedCallback(new int[]{EVENT_COLOR_CHANGED}, event -> {
             if (event == EVENT_COLOR_CHANGED) {
-                String color = mMyProfileManager.getColor();
+                String color = myProfileManager.getColor();
                 i(TAG, "Color set to %s", color);
                 mToolbar.setBackgroundColor(Color.parseColor(color));
                 mEnabledSwitch.setTextColor(ColorHelper.getTextColor(Color.parseColor(color)));
@@ -154,8 +145,8 @@ public class ToolbarAspect {
             }
         };
 
-        mPager.addChangeListener(visibilityUpdater::update);
-        visibilityUpdater.update(mPager.getScreenAdapter().getItem(mPager.getCurrentItem()));
+        pager.addChangeListener(visibilityUpdater::update);
+        visibilityUpdater.update(pager.getScreenAdapter().getItem(pager.getCurrentItem()));
 
         // Managed programmatically because offText XML attribute has no effect for SwitchCompat in menu item
         mEnabledSwitch.setText(mActivity.getString(mAuraEnabled
@@ -167,7 +158,7 @@ public class ToolbarAspect {
             mPrefs.edit().putBoolean(mActivity.getString(R.string.prefs_enabled_key), isChecked).apply();
             if (isChecked) {
                 mCommunicatorProxy.enable();
-                mCommunicatorProxy.updateMyProfile(mMyProfileManager.getProfile());
+                mCommunicatorProxy.updateMyProfile(myProfileManager.getProfile());
                 mCommunicatorProxy.askForPeersUpdate();
                 mEnabledSwitch.setText(mActivity.getString(R.string.ui_toolbar_enable_on));
                 mEnabledSwitch.getThumbDrawable().setColorFilter(mActivity.getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);

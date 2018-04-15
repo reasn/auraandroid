@@ -18,16 +18,13 @@ import io.auraapp.auraandroid.common.ExternalInvocation;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.PermissionHelper;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxy;
-import io.auraapp.auraandroid.ui.debug.DebugFragment;
 import io.auraapp.auraandroid.ui.permissions.PermissionsFragment;
-import io.auraapp.auraandroid.ui.profile.ProfileFragment;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 import io.auraapp.auraandroid.ui.tutorial.SloganAddStep;
 import io.auraapp.auraandroid.ui.tutorial.TutorialManager;
 import io.auraapp.auraandroid.ui.welcome.TermsFragment;
 import io.auraapp.auraandroid.ui.world.PeerMapTransformer;
 import io.auraapp.auraandroid.ui.world.PeerSlogan;
-import io.auraapp.auraandroid.ui.world.WorldFragment;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
@@ -35,31 +32,29 @@ import static io.auraapp.auraandroid.common.FormattedLog.v;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "@aura/main";
-
     private static final int BROKEN_BT_STACK_ALERT_DEBOUNCE = 1000 * 60;
 
     private MyProfileManager mMyProfileManager;
     private CommunicatorProxy mCommunicatorProxy;
     private boolean inForeground = false;
     private SharedPreferences mPrefs;
-
     private long mBrokenBtStackLastVisibleTimestamp;
     private final Handler mHandler = new Handler();
     /**
      * slogan:PeerSlogan
      */
     TreeMap<String, PeerSlogan> mPeerSloganMap = new TreeMap<>();
-    private DialogManager mDialogManager;
 
     private ScreenPagerAdapter mPagerAdapter;
     private ToolbarAspect mToolbarAspect;
-    private DebugFragment mDebugFragment;
-    private WorldFragment mWorldFragment;
-    private ProfileFragment mProfileFragment;
+    private SharedServicesSet mSharedServicesSet;
+    private SharedState mState;
 
-    private ActivityState mState;
+    public SharedServicesSet getSharedServicesSet() {
+        return mSharedServicesSet;
+    }
 
-    public ActivityState getState() {
+    public SharedState getSharedState() {
         return mState;
     }
 
@@ -77,25 +72,19 @@ public class MainActivity extends AppCompatActivity {
 
             setContentView(R.layout.activity_main);
 
-            mWorldFragment = new WorldFragment();
-
             mMyProfileManager = new MyProfileManager(this);
-            mDialogManager = new DialogManager(this);
 
-            mState = new ActivityState();
-            mState.mMyProfileManager = mMyProfileManager;
-            mState.mDialogManager = mDialogManager;
-            mState.mPager = findViewById(R.id.pager);
+            mState = new SharedState();
 
-            mProfileFragment = new ProfileFragment();
+            mSharedServicesSet = new SharedServicesSet();
+            mSharedServicesSet.mMyProfileManager = mMyProfileManager;
+            mSharedServicesSet.mDialogManager = new DialogManager(this);
+            mSharedServicesSet.mPager = findViewById(R.id.pager);
 
-            mState.mTutorialManager = new TutorialManager(this, findViewById(R.id.activity_wrapper), mState.mPager);
+            mSharedServicesSet.mTutorialManager = new TutorialManager(this, findViewById(R.id.activity_wrapper), mSharedServicesSet.mPager);
 
-            mPagerAdapter = new ScreenPagerAdapter(
-                    getSupportFragmentManager(),
-                    mProfileFragment,
-                    mWorldFragment);
-            mState.mPager.setAdapter(mPagerAdapter);
+            mPagerAdapter = new ScreenPagerAdapter(getSupportFragmentManager());
+            mSharedServicesSet.mPager.setAdapter(mPagerAdapter);
 
             // Load preferences
             mPrefs = getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE);
@@ -105,24 +94,20 @@ public class MainActivity extends AppCompatActivity {
             if (!PermissionHelper.granted(this)) {
                 showPermissionMissingFragment();
             } else if (!mPrefs.getBoolean(prefKey, false)) {
-                mState.mPager.getScreenAdapter().addWelcomeFragments();
-                mState.mPager.goTo(TermsFragment.class, false);
+                mSharedServicesSet.mPager.getScreenAdapter().addWelcomeFragments();
+                mSharedServicesSet.mPager.goTo(TermsFragment.class, false);
             }
             mMyProfileManager.addChangedCallback(event -> {
                 d(TAG, "My profile changed");
                 mCommunicatorProxy.updateMyProfile(mMyProfileManager.getProfile());
-                reflectStatus();
                 switch (event) {
                     case MyProfileManager.EVENT_ADOPTED:
-//                        mProfileFragment.notifySlogansChanged();
                         toast(R.string.ui_profile_toast_slogan_adopted);
                         break;
                     case MyProfileManager.EVENT_REPLACED:
-//                        mProfileFragment.notifySlogansChanged();
                         toast(R.string.ui_profile_toast_slogan_replaced);
                         break;
                     case MyProfileManager.EVENT_DROPPED:
-//                        mProfileFragment.notifySlogansChanged();
                         toast(R.string.ui_profile_toast_slogan_dropped);
                         break;
                     case MyProfileManager.EVENT_COLOR_CHANGED:
@@ -140,88 +125,55 @@ public class MainActivity extends AppCompatActivity {
             mCommunicatorProxy = new CommunicatorProxy(
                     this,
                     peers -> {
-                        mState.mPeers = peers;
+                        mSharedServicesSet.mPeers = peers;
                         mPeerSloganMap = PeerMapTransformer.buildMapFromPeerList(peers);
-                        mWorldFragment.notifyPeersChanged(peers);
-                        reflectStatus();
-                        mWorldFragment.setData(mState.mCommunicatorState, mPeerSloganMap, mState.mPeers);
-                        mWorldFragment.updateAllViews();
                     },
                     peer -> {
-                        for (Peer candidate : mState.mPeers) {
+                        for (Peer candidate : mSharedServicesSet.mPeers) {
                             if (candidate.mId == peer.mId) {
-                                mState.mPeers.remove(candidate);
+                                mSharedServicesSet.mPeers.remove(candidate);
                                 break;
                             }
                         }
-                        mState.mPeers.add(peer);
+                        mSharedServicesSet.mPeers.add(peer);
                         mPeerSloganMap = PeerMapTransformer.buildMapFromPeerAndPreviousMap(peer, mPeerSloganMap);
-                        mWorldFragment.notifyPeersChanged(mState.mPeers);
-                        reflectStatus();
-                        mWorldFragment.setData(mState.mCommunicatorState, mPeerSloganMap, mState.mPeers);
-                        mWorldFragment.updateAllViews();
                     },
                     state -> {
-                        if (mState.mCommunicatorState == null || !mState.mCommunicatorState.mScanning && state.mScanning) {
-                            // Scan just started, let's make sure we hide the "looking around" info if
-                            // nothing is found for some time.
-                            mHandler.postDelayed(() -> {
-                                reflectStatus();
-                                mWorldFragment.setData(mState.mCommunicatorState, mPeerSloganMap, mState.mPeers);
-                                mWorldFragment.reflectCommunicatorState();
-                                mProfileFragment.reflectCommunicatorState(mState.mCommunicatorState);
-                            }, Config.MAIN_LOOKING_AROUND_SHOW_DURATION);
-                        }
+                        d(TAG, "Received communicator state, state: %s", state);
+//                        TODO add to world fragment
+//                        if (mState.mCommunicatorState == null || !mState.mCommunicatorState.mScanning && state.mScanning) {
+//                            // Scan just started, let's make sure we hide the "looking around" info if
+//                            // nothing is found for some time.
+//                            mHandler.postDelayed(this::reflectStatus, Config.MAIN_LOOKING_AROUND_SHOW_DURATION);
+//                        }
                         mState.mCommunicatorState = state;
-                        reflectStatus();
-                        mWorldFragment.setData(mState.mCommunicatorState, mPeerSloganMap, mState.mPeers);
-                        mWorldFragment.reflectCommunicatorState();
-                        mProfileFragment.reflectCommunicatorState(mState.mCommunicatorState);
+
+                        if (state != null && !state.mHasPermission) {
+                            showPermissionMissingFragment();
+                            return;
+                        }
+                        if (state != null && state.mRecentBtTurnOnEvents >= Config.COMMUNICATOR_RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD) {
+                            showBrokenBtStackAlert();
+                        }
                     });
 
-            mDebugFragment = new DebugFragment();
-
-            mToolbarAspect = new ToolbarAspect(
-                    this,
-                    mState.mPager,
-                    mPrefs,
-                    mCommunicatorProxy,
-                    mMyProfileManager,
-                    mHandler,
-                    mDebugFragment);
+            mToolbarAspect = new ToolbarAspect(this, mCommunicatorProxy, mHandler);
             mToolbarAspect.initToolbar();
 
             if (mToolbarAspect.isAuraEnabled()) {
+                // Will result in state being sent back
                 mCommunicatorProxy.enable();
             }
 
 //        EmojiCompat.init(new BundledEmojiCompatConfig(this));
 
             mCommunicatorProxy.updateMyProfile(mMyProfileManager.getProfile());
-
-            reflectStatus();
-            mWorldFragment.setData(mState.mCommunicatorState, mPeerSloganMap, mState.mPeers);
         });
     }
 
     // TODO Bug: peer adopts and drops slogan but stays visible here
 
     // TODO keep peers if aura disabled and communicator destroyed
-
-    private void reflectStatus() {
-        v(TAG, "Reflecting status, peers: %d, slogans: %d, state: %s", mState.mPeers.size(), mPeerSloganMap.size(), mState.mCommunicatorState);
-
-        if (mState.mCommunicatorState == null) {
-            return;
-        }
-        if (!mState.mCommunicatorState.mHasPermission) {
-            showPermissionMissingFragment();
-            return;
-        }
-        if (mState.mCommunicatorState.mRecentBtTurnOnEvents >= Config.COMMUNICATOR_RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD) {
-            showBrokenBtStackAlert();
-        }
-    }
 
     private void showBrokenBtStackAlert() {
         String prefKey = getString(R.string.prefs_hide_broken_bt_warning_key);
@@ -230,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
                 || mPrefs.getBoolean(prefKey, false)) {
             return;
         }
-        mDialogManager.showBtBroken(neverShowAgain -> {
+        mSharedServicesSet.mDialogManager.showBtBroken(neverShowAgain -> {
             if (neverShowAgain) {
                 mPrefs.edit().putBoolean(prefKey, true).apply();
             } else {
@@ -241,10 +193,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void toast(@StringRes int text) {
         Toast.makeText(this, EmojiHelper.replaceShortCode(getString(text)), Toast.LENGTH_SHORT).show();
-    }
-
-    private void toast(String text) {
-        Toast.makeText(this, EmojiHelper.replaceShortCode(text), Toast.LENGTH_SHORT).show();
     }
 
     @FunctionalInterface
@@ -265,27 +213,24 @@ public class MainActivity extends AppCompatActivity {
 
     private void showPermissionMissingFragment() {
         mPagerAdapter.addPermissionsFragment();
-        mState.mPager.goTo(PermissionsFragment.class, false);
+        mSharedServicesSet.mPager.goTo(PermissionsFragment.class, false);
     }
 
     @Override
     @ExternalInvocation
     protected void onResume() {
         super.onResume();
+        if (!PermissionHelper.granted(this)) {
+            showPermissionMissingFragment();
+            return;
+        }
 
         mHandler.post(() -> {
-            if (!PermissionHelper.granted(this)) {
-                showPermissionMissingFragment();
-                return;
-            }
-
             mCommunicatorProxy.startListening();
             if (mToolbarAspect.isAuraEnabled()) {
                 mCommunicatorProxy.askForPeersUpdate();
             }
-
             inForeground = true;
-            mWorldFragment.onResume();
         });
     }
 
@@ -297,14 +242,12 @@ public class MainActivity extends AppCompatActivity {
         mHandler.post(() -> {
             mCommunicatorProxy.stopListening();
             inForeground = false;
-
-            mWorldFragment.onPause();
         });
     }
 
 
     public void showTutorial() {
-        mState.mTutorialManager.goTo(SloganAddStep.class);
+        mSharedServicesSet.mTutorialManager.goTo(SloganAddStep.class);
     }
 
 }

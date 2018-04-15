@@ -27,7 +27,7 @@ public class TermsFragment extends ScreenFragment implements FragmentCameIntoVie
         if (!(context instanceof MainActivity)) {
             throw new RuntimeException("May only attached to " + MainActivity.class.getSimpleName());
         }
-        mPager = ((MainActivity) context).getState().mPager;
+        mPager = ((MainActivity) context).getSharedServicesSet().mPager;
         finishActivity = $ -> ((MainActivity) context).finish();
     }
 

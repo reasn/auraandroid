@@ -23,13 +23,11 @@ public class ScreenPagerAdapter extends FragmentStatePagerAdapter {
     private static final String SCREEN_PROFILE = "profile";
     private final List<Fragment> mFragments;
 
-    public ScreenPagerAdapter(FragmentManager fm,
-                              ProfileFragment profileFragment,
-                              WorldFragment worldFragment) {
+    public ScreenPagerAdapter(FragmentManager fm) {
         super(fm);
         mFragments = new ArrayList<>();
-        mFragments.add(profileFragment);
-        mFragments.add(worldFragment);
+        mFragments.add(new ProfileFragment());
+        mFragments.add(new WorldFragment());
     }
 
     private boolean has(Class fragmentClass) {
@@ -74,9 +72,9 @@ public class ScreenPagerAdapter extends FragmentStatePagerAdapter {
         }
     }
 
-    public void addDebugFragment(DebugFragment fragment) {
+    public void addDebugFragment() {
         if (!has(DebugFragment.class)) {
-            mFragments.add(fragment);
+            mFragments.add(new DebugFragment());
             notifyDataSetChanged();
         }
     }
@@ -122,7 +120,7 @@ public class ScreenPagerAdapter extends FragmentStatePagerAdapter {
                 ? index
                 : PagerAdapter.POSITION_NONE;
         // The current solution might have performance implications but none were observed.
-        // Would affect swipes only anyway and all screens' views are inflated continuously anyway
+        // Would affect swipes only and all screens' views are inflated continuously anyway
         // Thanks https://stackoverflow.com/questions/10849552/update-viewpager-dynamically
     }
 

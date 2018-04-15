@@ -2,6 +2,7 @@ package io.auraapp.auraandroid.ui.common;
 
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -22,8 +23,10 @@ public class CommunicatorStateRenderer {
         }
     }
 
-    public static void populateInfoBoxWithState(CommunicatorState state, InfoBox infoBox, TextView summary, Context context) {
-
+    public static void populateInfoBoxWithState(@Nullable CommunicatorState state,
+                                                InfoBox infoBox,
+                                                TextView summary,
+                                                Context context) {
         final int NONE = 0;
         final int BOX = 1;
         final int MESSAGE = 2;

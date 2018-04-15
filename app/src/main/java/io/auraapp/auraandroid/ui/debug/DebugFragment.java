@@ -3,7 +3,6 @@ package io.auraapp.auraandroid.ui.debug;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -17,6 +16,7 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
@@ -27,15 +27,14 @@ import io.auraapp.auraandroid.common.ExternalInvocation;
 import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.Slogan;
-import io.auraapp.auraandroid.ui.ActivityState;
 import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
 import io.auraapp.auraandroid.ui.MainActivity;
+import io.auraapp.auraandroid.ui.SharedState;
 import io.auraapp.auraandroid.ui.common.ColorPicker;
 import io.auraapp.auraandroid.ui.common.ScreenFragment;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 
 import static io.auraapp.auraandroid.common.FormattedLog.v;
-import static io.auraapp.auraandroid.common.IntentFactory.INTENT_COMMUNICATOR_STATE_UPDATED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_LIST_UPDATED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_LIST_UPDATED_EXTRA_PEERS;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATED_ACTION;
@@ -47,7 +46,7 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
     private static final String characters = "📜📡💚😇abcdefghijklmnopqrstuvwxyz1234567890 ,.-öä#ü+!\"§$%&/()=?`";
     private final Handler mHandler = new Handler();
     @Nullable
-    private Set<Peer> mPeers;
+    private Set<Peer> mPeers = new HashSet<>();
     private Runnable mDemo0ClickListener;
     private Runnable mDemo1ClickListener;
     private Runnable mDemo2ClickListener;
@@ -67,7 +66,7 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
             if (INTENT_PEER_UPDATED_ACTION.equals(intent.getAction())) {
                 @SuppressWarnings("unchecked")
                 Peer peer = (Peer) extras.getSerializable(INTENT_PEER_UPDATED_EXTRA_PEER);
-                if (mPeers != null && peer != null) {
+                if (peer != null) {
                     mPeers.remove(peer);
                     mPeers.add(peer);
                 }
@@ -79,12 +78,9 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
                     mPeers = peers;
                 }
             }
-
             CommunicatorState state = (CommunicatorState) extras.getSerializable(IntentFactory.INTENT_COMMUNICATOR_EXTRA_STATE);
             if (state != null) {
-                if (!state.equals(mState)) {
-                    mHandler.post(() -> reflectState());
-                }
+                // Intents only have state if it changed
                 mState = state;
             }
             reflectState();
@@ -107,11 +103,7 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
             throw new RuntimeException("May only attached to " + MainActivity.class.getSimpleName());
         }
 
-        ActivityState state = ((MainActivity) context).getState();
-        ;
-        MyProfileManager profileManager = state.mMyProfileManager;
-        mPeers = state.mPeers;
-        mState = state.mCommunicatorState;
+        MyProfileManager profileManager = ((MainActivity) context).getSharedServicesSet().mMyProfileManager;
 
         mDemo0ClickListener = () -> {
             profileManager.setName(createRandomStringOfLength(Config.PROFILE_NAME_MAX_LENGTH));
@@ -164,12 +156,15 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
     @Override
     public void onResume() {
         super.onResume();
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(INTENT_COMMUNICATOR_STATE_UPDATED_ACTION);
-        filter.addAction(INTENT_PEER_LIST_UPDATED_ACTION);
-        filter.addAction(INTENT_PEER_UPDATED_ACTION);
-        getContext().registerReceiver(mReceiver, filter);
-        v(TAG, "Receiver registered");
+        if (getContext() != null) {
+            getContext().registerReceiver(mReceiver, IntentFactory.communicatorIntentFilter());
+            v(TAG, "Receiver registered");
+
+            SharedState state = ((MainActivity) getContext()).getSharedState();
+            mPeers = state.mPeers;
+            mState = state.mCommunicatorState;
+
+        }
         reflectState();
     }
 

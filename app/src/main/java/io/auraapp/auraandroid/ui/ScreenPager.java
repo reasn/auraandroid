@@ -16,7 +16,6 @@ import io.auraapp.auraandroid.common.Timer;
 import io.auraapp.auraandroid.ui.permissions.FragmentCameIntoView;
 
 import static io.auraapp.auraandroid.common.FormattedLog.i;
-import static io.auraapp.auraandroid.common.FormattedLog.quickDump;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
 public class ScreenPager extends ViewPager {
@@ -88,7 +87,6 @@ public class ScreenPager extends ViewPager {
     }
 
     private void keepWatching() {
-        quickDump("..." + mWatchRuns);
         int newCurrentItem = getCurrentItem();
         if (mCurrentItem != newCurrentItem) {
             mCurrentItem = newCurrentItem;

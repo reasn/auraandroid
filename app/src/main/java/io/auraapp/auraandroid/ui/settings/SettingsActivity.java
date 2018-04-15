@@ -20,8 +20,6 @@ import io.auraapp.auraandroid.ui.FullWidthDialog;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    public static final int REQUEST_CODE = 864;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Necessary for splash screen
