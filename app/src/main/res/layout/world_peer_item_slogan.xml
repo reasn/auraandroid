@@ -8,6 +8,7 @@
     <TextView
         android:id="@+id/world_peer_item_slogan_text"
         style="@style/FlatMessage"
+        android:background="@color/transparent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

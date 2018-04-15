@@ -30,14 +30,17 @@ public class PeerItem extends ListItem {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
         PeerItem peerItem = (PeerItem) o;
 
-        return mPeer != null ? mPeer.equals(peerItem.mPeer) : peerItem.mPeer == null;
+        return mPeer.equals(peerItem.mPeer);
     }
 
     @Override
     public int hashCode() {
-        return mPeer != null ? mPeer.hashCode() : 0;
+        int result = super.hashCode();
+        result = 31 * result + mPeer.hashCode();
+        return result;
     }
 }

@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Slogan;
@@ -22,41 +22,38 @@ public class PeerSloganListAdapter extends ArrayAdapter<Slogan> {
     public PeerSloganListAdapter(@NonNull Context context,
                                  int resource,
                                  PeerItemHolder.ColorSet colorSet,
-                                 @NonNull List<Slogan> slogans) {
-        super(context, resource, new Slogan[]{
-                Slogan.create("hi"),
-                Slogan.create("ho"),
-                Slogan.create("alal"),
-        });
-//        super(context, resource, slogans.toArray(new Slogan[slogans.size()]));
+                                 ArrayList<Slogan> slogans) {
+        super(context, resource, slogans);
         mColorSet = colorSet;
     }
 
     @NonNull
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+    public View getView(int position, @Nullable View itemView, @NonNull ViewGroup parent) {
         Slogan slogan = getItem(position);
         if (slogan == null) {
             throw new RuntimeException("Slogan must not be null");
         }
-        quickDump(slogan);
         // Check if an existing view is being reused, otherwise inflate the view
-        if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.world_peer_item_slogan, parent, false);
+        if (itemView == null) {
+            itemView = LayoutInflater.from(getContext()).inflate(R.layout.world_peer_item_slogan, parent, false);
         }
+        quickDump(position);
+        quickDump(mColorSet.mAccentBackground);
+        quickDump(mColorSet.mBackground);
 
-        TextView textView = convertView.findViewById(R.id.world_peer_item_slogan_text);
+        TextView textView = itemView.findViewById(R.id.world_peer_item_slogan_text);
         textView.setText(slogan.getText());
 
-        convertView.setBackgroundColor(position % 2 == 0
-                ? mColorSet.mAaccentBackground
+        itemView.setBackgroundColor(position % 2 == 0
+                ? mColorSet.mAccentBackground
                 : mColorSet.mBackground);
 
-        textView.setBackgroundColor(position % 2 == 0
+        textView.setTextColor(position % 2 == 0
                 ? mColorSet.mAccentText
                 : mColorSet.mText);
 
-        return convertView;
+        return itemView;
     }
 
 }

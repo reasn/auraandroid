@@ -17,8 +17,8 @@
         android:id="@+id/world_peer_item_details"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:gravity="center"
+        android:orientation="vertical"
         android:visibility="gone">
 
         <EditText
@@ -35,9 +35,10 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
 
-    <ListView
+    <io.auraapp.auraandroid.ui.world.list.NonScrollingListView
         android:id="@+id/world_peer_item_slogans_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent"
+        android:dividerHeight="0dp" />
 </LinearLayout>
 

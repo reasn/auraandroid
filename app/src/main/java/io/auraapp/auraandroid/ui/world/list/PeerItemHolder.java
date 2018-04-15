@@ -27,14 +27,14 @@ public class PeerItemHolder extends ItemViewHolder {
         @ColorInt
         int mText;
         @ColorInt
-        int mAaccentBackground;
+        int mAccentBackground;
         @ColorInt
         int mAccentText;
 
         private ColorSet(int background, int text, int accentBackground, int accentText) {
             mBackground = background;
             mText = text;
-            mAaccentBackground = accentBackground;
+            mAccentBackground = accentBackground;
             mAccentText = accentText;
         }
 
@@ -127,6 +127,9 @@ public class PeerItemHolder extends ItemViewHolder {
                 colorSet,
                 peer.mSlogans
         );
+
+        mSlogansListView.setBackgroundColor(colorSet.mAccentBackground);
+        mSlogansListView.setNestedScrollingEnabled(false);
         mSlogansListView.setAdapter(adapter);
     }
 

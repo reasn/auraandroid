@@ -6,8 +6,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Peer;
@@ -30,13 +32,29 @@ public class PeersRecycleAdapter extends RecyclerAdapter {
         mOnAdoptCallback = onAdoptCallback;
     }
 
-    public void notifyPeersChanged(Set<Peer> peers) {
-        d(TAG, "Updating list, peers: %d", peers.size());
+    public void notifyPeersChanged(Set<Peer> peerSet) {
+
+//        //TODO make comparator configurable
+        Comparator<Peer> comparator = (a, b) -> a.mName.compareTo(b.mName);
+        TreeSet<Peer> treeSet = new TreeSet<>(comparator);
+        treeSet.addAll(peerSet);
+        ArrayList<Peer> sortedPeers = new ArrayList<>(treeSet);
 
         final List<ListItem> newItems = new ArrayList<>();
-        for (Peer peer : peers) {
+        for (Peer peer : sortedPeers) {
             newItems.add(new PeerItem(peer));
         }
+//
+        d(TAG, "Updating list, peers was %d, is: %d", mItems.size(), newItems.size());
+//
+//        DiffUtil.DiffResult diff = DiffUtil.calculateDiff(new PeersDiffCallback(mItems, newItems));
+//
+//        mItems.clear();
+//        mItems.addAll(newItems);
+//
+//        diff.dispatchUpdatesTo(this);
+
+
         ListSynchronizer.syncLists(
                 mItems,
                 newItems,

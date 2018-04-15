@@ -2,7 +2,6 @@ package io.auraapp.auraandroid.common;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 public class Peer implements Serializable {
 
@@ -15,7 +14,7 @@ public class Peer implements Serializable {
     public String mText;
     public String mName;
 
-    public final List<Slogan> mSlogans = new ArrayList<>();
+    public final ArrayList<Slogan> mSlogans = new ArrayList<>();
     public boolean mSynchronizing = false;
 
     public Peer(int id) {
