@@ -33,12 +33,10 @@ public class ScreenPager extends ViewPager {
         public void onChange(Fragment fragment);
     }
 
+    private Timer.Timeout mItemWatchTimeout;
     private boolean mLocked;
-
     private int mCurrentItem = -1;
-
     private int mWatchRuns = 0;
-
 
     public ScreenPager(@NonNull Context context) {
         super(context);
@@ -83,7 +81,7 @@ public class ScreenPager extends ViewPager {
      */
     private void startWatching() {
         mHandler.post(() -> {
-            mTimer.clear("item-watch");
+            Timer.clear(mItemWatchTimeout);
             mWatchRuns = 10;
             keepWatching();
         });
@@ -96,7 +94,8 @@ public class ScreenPager extends ViewPager {
             mCurrentItem = newCurrentItem;
             propagateScreenChange(mCurrentItem);
         } else if (--mWatchRuns > 0) {
-            mTimer.setTimeout("item-watch", this::keepWatching, 200);
+            Timer.clear(mItemWatchTimeout);
+            mItemWatchTimeout = mTimer.setTimeout(this::keepWatching, 200);
         }
     }
 

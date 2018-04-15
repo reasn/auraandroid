@@ -4,56 +4,87 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class Timer {
 
-    private final Handler mHandler;
+    public static void clear(@Nullable Timeout timeout) {
+        if (timeout != null) {
+            timeout.clear();
+        }
+    }
 
+    @FunctionalInterface
+    public static interface Timeout {
+        void clear();
+    }
+
+    private static int mTimerIndex = 0;
+
+    private final Handler mHandler;
+    private final String mIdPrefix;
+
+    /**
+     * Each Timer has its own prefix so that there's no collisions with
+     * other Timer instances using the same handler
+     */
     public Timer(Handler handler) {
         this.mHandler = handler;
+        this.mIdPrefix = "timer-" + mTimerIndex + "-";
+        mTimerIndex++;
     }
 
-    public void setTimeout(String id, Runnable runnable, long timeout) {
+    public Timeout setTimeout(Runnable runnable, long timeout) {
+        // Collisions don't matter because the queue implementation uses == instead of equals().
+        // Math.random() keeps the compiler from optimizing -.-
+        return setTimeout("timer-" + Math.random(), runnable, timeout);
+    }
+
+    private Timeout setTimeout(String token, Runnable runnable, long timeout) {
         Message message = Message.obtain(mHandler, runnable);
-        message.obj = id;
+        message.obj = token;
         mHandler.sendMessageDelayed(message, timeout);
+        return () -> mHandler.removeCallbacksAndMessages(token);
     }
 
-    public void setSerializedInterval(String id, Runnable runnable, long interval) {
+    public Timeout setSerializedInterval(Runnable runnable, long interval) {
+        return setSerializedInterval("timer-" + Math.random(), runnable, interval);
+    }
+
+    private Timeout setSerializedInterval(String token, Runnable runnable, long interval) {
         setTimeout(
-                id,
+                token,
                 () -> {
                     runnable.run();
-                    setSerializedInterval(id, runnable, interval);
+                    setSerializedInterval(token, runnable, interval);
                 },
                 interval);
+        return () -> mHandler.removeCallbacksAndMessages(token);
     }
 
-    public void clear(@Nullable String id) {
-        if (id != null) {
-            mHandler.removeCallbacksAndMessages(id);
+    public static class Debouncer {
+        private final long mInterval;
+        Timeout mRunTimeout;
+        private long mLastRun = 0;
+        private final Timer mTimer;
+
+        public Debouncer(Timer timer, long interval) {
+            this.mTimer = timer; mInterval = interval;
         }
-    }
 
+        public void debounce(Runnable runnable) {
+            Timer.clear(mRunTimeout);
 
-    private final Map<String, Long> mLastRun = new HashMap<>();
-
-    public void debounce(String id, Runnable runnable, long millis) {
-        clear(id);
-
-        String clearId = "clear-debounce-" + id;
-        clear(clearId);
-
-        long now = System.currentTimeMillis();
-        Long lastRun = mLastRun.get(id);
-        if (lastRun == null || lastRun < now - millis) {
-            mLastRun.put(id, now);
-            runnable.run();
-            setTimeout(clearId, () -> mLastRun.remove(id), millis);
-            return;
+            long now = System.currentTimeMillis();
+            if (mLastRun < now - mInterval) {
+                mLastRun = now;
+                runnable.run();
+                return;
+            }
+            mLastRun = now + mInterval;
+            mRunTimeout = mTimer.setTimeout(runnable, mInterval);
         }
-        setTimeout(id, runnable, millis);
+
+        public void clear() {
+            Timer.clear(mRunTimeout);
+        }
     }
 }

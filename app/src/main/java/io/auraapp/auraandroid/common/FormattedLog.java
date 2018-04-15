@@ -11,6 +11,14 @@ import static java.lang.String.format;
  */
 public class FormattedLog {
 
+
+    public static void iv(String tag, String msg, Object... args) {
+        if (BuildConfig.DEBUG && Config.DEBUG_LOG_INCOMING_VERBOSE) {
+            joinIterablesInPlace(args);
+            Log.v(tag, format(msg, args));
+        }
+    }
+
     public static void v(String tag, String msg, Object... args) {
         if (BuildConfig.DEBUG) {
             joinIterablesInPlace(args);

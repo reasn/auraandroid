@@ -9,6 +9,7 @@ import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.common.Timer;
 
+import static io.auraapp.auraandroid.common.FormattedLog.iv;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
 class PeerBroadcaster {
@@ -31,6 +32,7 @@ class PeerBroadcaster {
     private final PeerListChangedCallback mPeersListCallback;
     private final PeerChangedCallback mPeerChangedCallback;
     private final Timer mTimer = new Timer(new Handler());
+    private final Timer.Debouncer mDebouncer = new Timer.Debouncer(mTimer, DEBOUNCE);
 
     PeerBroadcaster(PeerListChangedCallback peerListChangedCallback, PeerChangedCallback peerChangedCallback) {
         mPeersListCallback = peerListChangedCallback;
@@ -41,19 +43,21 @@ class PeerBroadcaster {
      * contentChanged differentiates between "peer seen again" and "color/name/slogan/... changed"
      */
     void propagatePeer(Device device, boolean contentChanged, int sloganCount) {
-        String hexId = Integer.toHexString(device.mId);
         if (contentChanged) {
+            v(TAG, "Not debouncing because content changed");
             // Not debouncing because otherwise contentAdded can get lost and no notification
             // (e.g. vibration) is sent to the user
-            mTimer.clear(hexId);
+            mDebouncer.clear();
             mPeerChangedCallback.peerChanged(buildPeer(device), true, sloganCount);
         } else {
-            mTimer.debounce(hexId, () -> mPeerChangedCallback.peerChanged(buildPeer(device), false, sloganCount), DEBOUNCE);
+            iv(TAG, "Debouncing propagation of peer");
+            mDebouncer.debounce(() -> mPeerChangedCallback.peerChanged(buildPeer(device), false, sloganCount));
         }
     }
 
     void propagatePeerList(DeviceMap deviceMap) {
-        mTimer.debounce(DEBOUNCE_ID_ALL_PEERS, () -> mPeersListCallback.peerListChanged(buildPeers(deviceMap)), DEBOUNCE);
+        iv(TAG, "Debouncing propagation of peer list");
+        mDebouncer.debounce(() -> mPeersListCallback.peerListChanged(buildPeers(deviceMap)));
     }
 
     Set<Peer> buildPeers(DeviceMap deviceMap) {

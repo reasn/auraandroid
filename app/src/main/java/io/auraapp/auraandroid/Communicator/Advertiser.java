@@ -83,6 +83,8 @@ class Advertiser {
         mOnErrorCallback = onErrorCallback;
     }
 
+    private Timer.Timeout mShuffleIdTimeout;
+
     @ExternalInvocation
     void start() {
         mHandler.post(() -> {
@@ -101,7 +103,8 @@ class Advertiser {
             shuffleId();
             advertise();
             startServer();
-            mTimer.setSerializedInterval("shuffle-id", () -> {
+            Timer.clear(mShuffleIdTimeout);
+            mShuffleIdTimeout = mTimer.setSerializedInterval(() -> {
                 shuffleId();
                 mBluetoothAdvertiser.stopAdvertising(mAdvertisingCallback);
                 advertise();
@@ -158,7 +161,7 @@ class Advertiser {
     void stop() {
         mHandler.post(() -> {
             d(TAG, "Making sure advertising is stopped");
-            mTimer.clear("shuffle-id");
+            Timer.clear(mShuffleIdTimeout);
             if (mBluetoothGattServer != null) {
                 mBluetoothGattServer.clearServices();
                 try {

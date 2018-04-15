@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Slogan;
 
-import static io.auraapp.auraandroid.common.FormattedLog.quickDump;
-
 public class PeerSloganListAdapter extends ArrayAdapter<Slogan> {
     private final PeerItemHolder.ColorSet mColorSet;
 
@@ -38,9 +36,6 @@ public class PeerSloganListAdapter extends ArrayAdapter<Slogan> {
         if (itemView == null) {
             itemView = LayoutInflater.from(getContext()).inflate(R.layout.world_peer_item_slogan, parent, false);
         }
-        quickDump(position);
-        quickDump(mColorSet.mAccentBackground);
-        quickDump(mColorSet.mBackground);
 
         TextView textView = itemView.findViewById(R.id.world_peer_item_slogan_text);
         textView.setText(slogan.getText());

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.TreeMap;
 
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.Timer;
 import io.auraapp.auraandroid.ui.SloganComparator;
 import io.auraapp.auraandroid.ui.common.lists.ItemViewHolder;
 import io.auraapp.auraandroid.ui.common.lists.ListItem;
@@ -48,11 +49,14 @@ public class PeerSlogansRecycleAdapter extends RecyclerAdapter {
         );
     }
 
+    private Timer.Timeout mRedrawTimeout;
+
     /**
      * Ensures that the lastFetch information is properly reflected in items
      */
     public void onResume() {
-        timer.setSerializedInterval("redraw", () -> {
+        Timer.clear(mRedrawTimeout);
+        mRedrawTimeout = timer.setSerializedInterval(() -> {
             long now = System.currentTimeMillis();
             for (ListItem item : mItems) {
                 if (now - ((PeerSloganListItem) item).getLastSeen() > 10000) {
@@ -63,7 +67,7 @@ public class PeerSlogansRecycleAdapter extends RecyclerAdapter {
     }
 
     public void onPause() {
-        timer.clear("redraw");
+        Timer.clear(mRedrawTimeout);
     }
 
     @NonNull

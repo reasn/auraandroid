@@ -31,6 +31,7 @@ import static io.auraapp.auraandroid.Communicator.MetaDataUnpacker.byteArrayToSt
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.e;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
+import static io.auraapp.auraandroid.common.FormattedLog.iv;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 import static io.auraapp.auraandroid.common.FormattedLog.w;
 
@@ -516,7 +517,7 @@ class Scanner {
                     device.bt.device = result.getDevice();
                 }
 
-                v(TAG, "Seen known device, id: %s, connected: %s, version: %d (was %d), meta: %s, unpacked: %s",
+                iv(TAG, "Seen known device, id: %s, connected: %s, version: %d (was %d), meta: %s, unpacked: %s",
                         hexId,
                         device.connected,
                         metaData != null

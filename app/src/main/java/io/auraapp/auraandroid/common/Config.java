@@ -59,7 +59,8 @@ public class Config {
 
     public static final int MAIN_LOOKING_AROUND_SHOW_DURATION = 10000;
 
-    public static final boolean MAIN_DEBUG_UI_ENABLED = true;
+    public static final boolean DEBUG_LOG_INCOMING_VERBOSE = false;
+    public static final boolean DEBUG_UI_ENABLED = true;
     public static final int MAIN_DEBUG_VIEW_SWITCH_CLICKS = 5;
     public static final int MAIN_DEBUG_VIEW_SWITCH_INTERVAL = 3000;
 

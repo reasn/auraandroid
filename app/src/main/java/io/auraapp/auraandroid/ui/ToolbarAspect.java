@@ -88,7 +88,7 @@ public class ToolbarAspect {
         });
 
         mToolbar.setOnClickListener($ -> mHandler.post(() -> {
-            if (!Config.MAIN_DEBUG_UI_ENABLED || mDebugFragmentEnabled) {
+            if (!Config.DEBUG_UI_ENABLED || mDebugFragmentEnabled) {
                 return;
             }
             long now = System.currentTimeMillis();
@@ -130,7 +130,7 @@ public class ToolbarAspect {
         MenuItem enabledItem = menu.findItem(R.id.menu_item_enabled);
         enabledItem.setActionView(R.layout.common_toolbar_switch);
 
-        menu.findItem(R.id.action_terms).setVisible(Config.MAIN_DEBUG_UI_ENABLED);
+        menu.findItem(R.id.action_terms).setVisible(Config.DEBUG_UI_ENABLED);
 
         mEnabledSwitch = enabledItem.getActionView().findViewById(R.id.enabled_switch);
         mEnabledSwitch.setChecked(mAuraEnabled);
