@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
@@ -70,15 +69,13 @@
                         android:textSize="24sp" />
                 </LinearLayout>
 
-                <!-- This is not a TextView to make sure width and breaks are
-                     consistent with the corresponding edit dialog -->
-                <EditText
+                <io.auraapp.auraandroid.ui.common.MonoSpaceText
                     android:id="@+id/profile_my_text"
-                    style="@style/MonoSpaceView"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/white"
-                    tools:ignore="LabelFor" />
+                    android:layout_marginBottom="10dp"
+                    app:minLines="5"/>
+
             </LinearLayout>
             <!--<LinearLayout-->
             <!--style="@style/HeadingItem"-->

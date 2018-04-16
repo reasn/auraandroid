@@ -1,15 +1,11 @@
 package io.auraapp.auraandroid.ui.permissions;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -38,25 +34,19 @@ public class PermissionsFragment extends ScreenFragment {
     private static final int REQUEST_CODE_APP_SETTINGS = 144;
     private Handler mHandler;
     private ScreenPager mPager;
-    private ViewGroup mView;
     private boolean mRedirected = false;
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (!(context instanceof MainActivity)) {
-            throw new RuntimeException("May only attached to " + MainActivity.class.getSimpleName());
-        }
-        mPager = ((MainActivity) context).getSharedServicesSet().mPager;
+    protected int getLayoutResource() {
+        return R.layout.permissions_fragment;
     }
 
-
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        v(TAG, "onCreateView");
+    protected void onReady(MainActivity activity, ViewGroup rootView) {
 
-        mView = (ViewGroup) inflater.inflate(R.layout.permissions_fragment, container, false);
-        InfoBox infoBox = mView.findViewById(R.id.info_box);
+        mPager = activity.getSharedServicesSet().mPager;
+
+        InfoBox infoBox = rootView.findViewById(R.id.info_box);
         infoBox.setButtonClickListener($ -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION}, REQUEST_CODE_LOCATION_REQUEST);
@@ -64,11 +54,11 @@ public class PermissionsFragment extends ScreenFragment {
                 throw new RuntimeException("Attempted to show permission dialog for Android < M");
             }
         });
-        Button showAppSettingsButton = mView.findViewById(R.id.show_app_settings);
+        Button showAppSettingsButton = rootView.findViewById(R.id.show_app_settings);
         showAppSettingsButton.setText(EmojiHelper.replaceShortCode(getString(R.string.ui_permissions_appSettings)));
         showAppSettingsButton.setOnClickListener($ -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getContext().getPackageName()));
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + activity.getPackageName()));
                 intent.addCategory(Intent.CATEGORY_DEFAULT);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivityForResult(intent, REQUEST_CODE_APP_SETTINGS);
@@ -77,15 +67,14 @@ public class PermissionsFragment extends ScreenFragment {
             }
         });
 
-        ((TextView) mView.findViewById(R.id.granted_emoji)).setText(EmojiHelper.replaceShortCode(":grinning_face:"));
-        ((TextView) mView.findViewById(R.id.granted_text)).setText(EmojiHelper.replaceShortCode(getContext().getString(R.string.ui_permissions_granted_text)));
+        ((TextView) rootView.findViewById(R.id.granted_emoji)).setText(EmojiHelper.replaceShortCode(":grinning_face:"));
+        ((TextView) rootView.findViewById(R.id.granted_text)).setText(EmojiHelper.replaceShortCode(activity.getString(R.string.ui_permissions_granted_text)));
 
         if (mRedirected) {
-            mView.findViewById(R.id.not_granted).setVisibility(View.GONE);
+            rootView.findViewById(R.id.not_granted).setVisibility(View.GONE);
         } else {
-            mView.findViewById(R.id.not_granted).setVisibility(View.VISIBLE);
+            rootView.findViewById(R.id.not_granted).setVisibility(View.VISIBLE);
         }
-        return mView;
     }
 
     @Override
@@ -122,10 +111,10 @@ public class PermissionsFragment extends ScreenFragment {
             i(TAG, "Permissions granted");
 
             Animation hide = AnimationUtils.loadAnimation(getContext(), R.anim.screen_permissions_hide);
-            mView.findViewById(R.id.not_granted).startAnimation(hide);
+            getRootView().findViewById(R.id.not_granted).startAnimation(hide);
 
             mHandler.postDelayed(() -> {
-                mView.findViewById(R.id.not_granted).setVisibility(View.GONE);
+                getRootView().findViewById(R.id.not_granted).setVisibility(View.GONE);
                 mPager.setLocked(false);
             }, hide.getDuration());
         }, 500);

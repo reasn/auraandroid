@@ -1,10 +1,6 @@
 package io.auraapp.auraandroid.ui.welcome;
 
 import android.content.Context;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import io.auraapp.auraandroid.R;
@@ -17,8 +13,6 @@ import io.auraapp.auraandroid.ui.profile.ProfileFragment;
 import io.auraapp.auraandroid.ui.tutorial.EnabledStep;
 import io.auraapp.auraandroid.ui.tutorial.TutorialManager;
 
-import static io.auraapp.auraandroid.common.FormattedLog.v;
-
 public class WelcomeFragment extends ScreenFragment implements FragmentCameIntoView {
 
     private static final String TAG = "@aura/ui/permissions/" + WelcomeFragment.class.getSimpleName();
@@ -26,28 +20,30 @@ public class WelcomeFragment extends ScreenFragment implements FragmentCameIntoV
     private TutorialManager mTutorialManager;
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (!(context instanceof MainActivity)) {
-            throw new RuntimeException("May only attached to " + MainActivity.class.getSimpleName());
-        }
-        SharedServicesSet state = ((MainActivity) context).getSharedServicesSet();
-        mPager = state.mPager;
-        mTutorialManager = state.mTutorialManager;
+    protected int getLayoutResource() {
+        return R.layout.welcome_fragment;
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        v(TAG, "onCreateView");
+    protected void onReady(MainActivity activity, ViewGroup rootView) {
 
-        View rootView = inflater.inflate(R.layout.welcome_fragment, container, false);
+        SharedServicesSet state = activity.getSharedServicesSet();
+        mPager = state.mPager;
+        mTutorialManager = state.mTutorialManager;
 
         rootView.findViewById(R.id.welcome_start).setOnClickListener($ -> {
             mPager.goTo(ProfileFragment.class, true);
             mTutorialManager.goTo(EnabledStep.class);
         });
 
-        return rootView;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (!(context instanceof MainActivity)) {
+            throw new RuntimeException("May only attached to " + MainActivity.class.getSimpleName());
+        }
     }
 
     @Override

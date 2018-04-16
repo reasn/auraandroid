@@ -53,7 +53,7 @@ class Scanner {
     private final static String TAG = "@aura/ble/scanner";
 
     private static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
-    private final Communicator.OnErrorCallback mOnErrorCallback;
+    private final Communicator.OnUnrecoverableBtErrorCallback mOnUnrecoverableBtErrorCallback;
 
     private final Context mContext;
     private final Handler mHandler = new Handler();
@@ -63,10 +63,10 @@ class Scanner {
     private boolean mQueued = false;
     private boolean mInactive = false;
 
-    Scanner(Context context, PeerBroadcaster peerBroadcaster, Communicator.OnErrorCallback onErrorCallback) {
+    Scanner(Context context, PeerBroadcaster peerBroadcaster, Communicator.OnUnrecoverableBtErrorCallback onUnrecoverableBtErrorCallback) {
         mContext = context;
         mPeerBroadcaster = peerBroadcaster;
-        mOnErrorCallback = onErrorCallback;
+        mOnUnrecoverableBtErrorCallback = onUnrecoverableBtErrorCallback;
 
         SharedPreferences prefs = context.getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE);
         String key = context.getString(R.string.prefs_retention_key);
@@ -326,7 +326,7 @@ class Scanner {
             @Override
             public void onScanFailed(int errorCode) {
                 w(TAG, "onScanFailed errorCode: %s", BtConst.nameScanError(errorCode));
-                mHandler.post(() -> mOnErrorCallback.onUnrecoverableError(BtConst.nameScanError(errorCode)));
+                mHandler.post(() -> mOnUnrecoverableBtErrorCallback.onUnrecoverableBtError(BtConst.nameScanError(errorCode)));
             }
         });
         i(TAG, "started scanning");

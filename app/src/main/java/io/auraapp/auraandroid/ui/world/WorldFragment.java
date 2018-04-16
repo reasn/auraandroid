@@ -5,12 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -43,7 +40,6 @@ import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATED_EX
 public class WorldFragment extends ScreenFragment implements FragmentWithToolbarButtons {
 
     private static final String TAG = "@aura/ui/world/fragment";
-    private ViewGroup mRootView;
     private InfoBox mCommunicatorStateInfoBox;
     private TextView mStatusSummary;
     private Handler mHandler = new Handler();
@@ -53,8 +49,8 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
 
     private CommunicatorState mCommunicatorState = null;
     private Set<Peer> mPeers = new HashSet<>();
+    private RecyclerView mPeersRecycler;
     private InfoBox mPeersInfoBox;
-
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context $, Intent intent) {
@@ -94,17 +90,15 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
             reflectState();
         }
     };
-    private RecyclerView mPeersRecycler;
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
+    protected int getLayoutResource() {
+        return R.layout.world_fragment;
+    }
 
-        if (!(context instanceof MainActivity)) {
-            throw new RuntimeException("May only attached to " + MainActivity.class.getSimpleName());
-        }
-
-        SharedServicesSet servicesSet = ((MainActivity) context).getSharedServicesSet();
+    @Override
+    protected void onReady(MainActivity activity, ViewGroup rootView) {
+        SharedServicesSet servicesSet = activity.getSharedServicesSet();
 
         mOnAdoptCallback = slogan -> {
             if (servicesSet.mMyProfileManager.getProfile().getSlogans().contains(slogan)) {
@@ -118,28 +112,16 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
                 );
             }
         };
-    }
 
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        mStatusSummary = rootView.findViewById(R.id.profile_status_summary);
+        mCommunicatorStateInfoBox = rootView.findViewById(R.id.profile_status_info_box);
+        mPeersInfoBox = rootView.findViewById(R.id.peer_slogans_info_box);
 
-        mRootView = (ViewGroup) inflater.inflate(R.layout.world_fragment, container, false);
-
-        mStatusSummary = mRootView.findViewById(R.id.profile_status_summary);
-        mCommunicatorStateInfoBox = mRootView.findViewById(R.id.profile_status_info_box);
-        mPeersInfoBox = mRootView.findViewById(R.id.peer_slogans_info_box);
-
-        mSwipeRefresh = mRootView.findViewById(R.id.fake_swipe_to_refresh);
+        mSwipeRefresh = rootView.findViewById(R.id.fake_swipe_to_refresh);
         mSwipeRefresh.setEnabled(false);
 
-        return mRootView;
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mPeersRecycler = mRootView.findViewById(R.id.profile_slogans_recycler);
-        mPeerListAdapter = new PeersRecycleAdapter(getContext(), mPeersRecycler, mOnAdoptCallback);
+        mPeersRecycler = rootView.findViewById(R.id.profile_slogans_recycler);
+        mPeerListAdapter = new PeersRecycleAdapter(activity, mPeersRecycler, mOnAdoptCallback);
         mPeersRecycler.setAdapter(mPeerListAdapter);
         mPeersRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         mPeersRecycler.setNestedScrollingEnabled(false);

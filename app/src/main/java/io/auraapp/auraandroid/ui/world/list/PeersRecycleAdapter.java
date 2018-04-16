@@ -37,10 +37,19 @@ public class PeersRecycleAdapter extends RecyclerAdapter {
 
         //TODO make comparator configurable
         Comparator<Peer> comparator = (a, b) -> {
-            if (a.mName == null || b.mName == null) {
-                return a.mId - b.mId;
+            if (a.mId == b.mId) {
+                // Avoids duplicates when the name changes
+                return 0;
             }
-            return a.mName.compareTo(b.mName);
+
+            if (Math.abs(a.mLastSeenTimestamp - b.mLastSeenTimestamp) < 60000) {
+                if (a.mName == null || b.mName == null) {
+                    return a.mId - b.mId;
+                }
+                return a.mName.compareTo(b.mName);
+            }
+            return (int) (a.mLastSeenTimestamp - b.mLastSeenTimestamp);
+
         };
         TreeSet<Peer> treeSet = new TreeSet<>(comparator);
         treeSet.addAll(peerSet);

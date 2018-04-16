@@ -7,12 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Slogan;
+import io.auraapp.auraandroid.ui.common.MonoSpaceText;
 
 public class PeerSloganListAdapter extends ArrayAdapter<Slogan> {
     private final PeerItemHolder.ColorSet mColorSet;
@@ -37,7 +37,7 @@ public class PeerSloganListAdapter extends ArrayAdapter<Slogan> {
             itemView = LayoutInflater.from(getContext()).inflate(R.layout.world_peer_item_slogan, parent, false);
         }
 
-        TextView textView = itemView.findViewById(R.id.world_peer_item_slogan_text);
+        MonoSpaceText textView = itemView.findViewById(R.id.world_peer_item_slogan_text);
         textView.setText(slogan.getText());
 
         itemView.setBackgroundColor(position % 2 == 0

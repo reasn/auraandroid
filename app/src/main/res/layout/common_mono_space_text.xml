@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <!-- This is not a TextView to make sure width and breaks are
+         consistent with the corresponding edit dialog -->
+    <EditText
+        android:id="@+id/common_mono_space_text_texst"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="6dp"
+        android:layout_marginTop="6dp"
+        android:background="@color/transparent"
+        android:ems="14"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:fontFamily="@font/noto_mono_regular"
+        android:gravity="top"
+        android:inputType="textMultiLine"
+        android:scrollbars="vertical"
+        android:textColor="@color/black"
+        tools:ignore="LabelFor,TextFields" />
+</LinearLayout>

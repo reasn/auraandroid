@@ -5,13 +5,13 @@ import android.graphics.Color;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.ui.common.ColorHelper;
+import io.auraapp.auraandroid.ui.common.MonoSpaceText;
 import io.auraapp.auraandroid.ui.common.lists.ItemViewHolder;
 import io.auraapp.auraandroid.ui.common.lists.ListItem;
 import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapter;
@@ -55,7 +55,7 @@ public class PeerItemHolder extends ItemViewHolder {
     private final TextView mNameView;
     private final Context mContext;
     private final OnAdoptCallback mOnAdoptCallback;
-    private final EditText mTextView;
+    private final MonoSpaceText mTextView;
     private final TextView mStatsView;
     private final View mDetailsView;
     private ListView mSlogansListView;
@@ -110,7 +110,6 @@ public class PeerItemHolder extends ItemViewHolder {
                 : View.GONE);
 
         // EditTexts keep their state and might ignore setText without this setting
-        mTextView.setSaveEnabled(false);
         mTextView.setText(peer.mText);
         mTextView.setBackgroundColor(colorSet.mBackground);
         mTextView.setTextColor(colorSet.mText);

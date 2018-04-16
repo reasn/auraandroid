@@ -29,6 +29,7 @@ import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.common.ColorHelper;
 import io.auraapp.auraandroid.ui.common.ColorPicker;
+import io.auraapp.auraandroid.ui.common.MonoSpaceText;
 
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
@@ -109,7 +110,7 @@ public class DialogManager {
     public void showEditMyTextDialog(@Nullable String text, MyTextEditedCallback callback) {
 
         LinearLayout view = (LinearLayout) View.inflate(mContext, R.layout.profile_dialog_edit_text, null);
-        EditText editText = (EditText) view.getChildAt(0);
+        MonoSpaceText editText = (MonoSpaceText) view.getChildAt(0);
         editText.setText(text != null ? text : "");
         editText.requestFocus();
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.PROFILE_TEXT_MAX_LENGTH)});
@@ -119,7 +120,7 @@ public class DialogManager {
                 .setTitle(R.string.ui_profile_dialog_edit_text_title)
                 .setView(view)
                 .enableKeyboard()
-                .setOnConfirm(() -> callback.onTextEdited(editText.getText().toString()))
+                .setOnConfirm(() -> callback.onTextEdited(editText.getTextAsString()))
                 .setCancelText(R.string.ui_profile_dialog_edit_cancel)
                 .setConfirmText(R.string.ui_profile_dialog_edit_confirm)
                 .build();
@@ -215,7 +216,7 @@ public class DialogManager {
                                            OnSloganEditConfirm onConfirm) {
 
         LinearLayout view = (LinearLayout) View.inflate(mContext, R.layout.profile_dialog_edit_slogan, null);
-        EditText editText = (EditText) view.getChildAt(0);
+        MonoSpaceText editText = (MonoSpaceText) view.getChildAt(0);
         editText.setHint(EmojiHelper.replaceShortCode(getString(R.string.ui_profile_dialog_edit_slogan_hint)));
         editText.setText(slogan != null ? slogan.getText() : "");
 
@@ -225,7 +226,7 @@ public class DialogManager {
                 .setCancelText(R.string.ui_profile_dialog_edit_cancel)
                 .setConfirmText(R.string.ui_profile_dialog_edit_confirm)
                 .enableKeyboard()
-                .setOnConfirm(() -> onConfirm.onConfirm(editText.getText().toString()))
+                .setOnConfirm(() -> onConfirm.onConfirm(editText.getTextAsString()))
                 .build()
                 .show();
 

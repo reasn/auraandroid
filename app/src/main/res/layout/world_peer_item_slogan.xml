@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_vertical"
     android:orientation="horizontal">
 
-    <TextView
+    <io.auraapp.auraandroid.ui.common.MonoSpaceText
         android:id="@+id/world_peer_item_slogan_text"
-        style="@style/FlatMessage"
-        android:background="@color/transparent"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:layout_marginTop="15dp"
+        app:alignCenter="true" />
 
 </LinearLayout>

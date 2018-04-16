@@ -6,13 +6,11 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
+import android.support.annotation.LayoutRes;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -28,6 +26,7 @@ import io.auraapp.auraandroid.ui.SharedServicesSet;
 import io.auraapp.auraandroid.ui.common.ColorHelper;
 import io.auraapp.auraandroid.ui.common.CommunicatorStateRenderer;
 import io.auraapp.auraandroid.ui.common.InfoBox;
+import io.auraapp.auraandroid.ui.common.MonoSpaceText;
 import io.auraapp.auraandroid.ui.common.ScreenFragment;
 import io.auraapp.auraandroid.ui.permissions.FragmentCameIntoView;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
@@ -40,11 +39,10 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
 
     private static final String TAG = "@aura/ui/profile/fragment";
     private RecyclerView mSlogansRecyclerView;
-    private ViewGroup mRootView;
     private InfoBox mSlogansInfoBox;
     private final Handler mHandler = new Handler();
     private TextView mNameView;
-    private EditText mTextView;
+    private MonoSpaceText mTextView;
     private LinearLayout mColorWrapper;
     private MySlogansRecycleAdapter mAdapter;
     private CommunicatorState mCommunicatorState;
@@ -52,9 +50,6 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     private MyProfileManager mMyProfileManager;
 
     private Runnable hideWelcomeFragments;
-    private View.OnClickListener onColorClick;
-    private View.OnClickListener onNameClick;
-    private View.OnClickListener onTextClick;
     private final MyProfileManager.MyProfileChangedCallback mProfileChangedCallback = event -> {
         switch (event) {
             case MyProfileManager.EVENT_COLOR_CHANGED:
@@ -93,13 +88,15 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     };
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (!(context instanceof MainActivity)) {
-            throw new RuntimeException("May only attached to " + MainActivity.class.getSimpleName());
-        }
+    @LayoutRes
+    protected int getLayoutResource() {
+        return R.layout.profile_fragment;
+    }
 
-        SharedServicesSet servicesSet = ((MainActivity) context).getSharedServicesSet();
+    @Override
+    protected void onReady(MainActivity activity, ViewGroup rootView) {
+
+        SharedServicesSet servicesSet = activity.getSharedServicesSet();
         hideWelcomeFragments = () -> servicesSet.mPager.getScreenAdapter().removeWelcomeFragments();
 
         mMyProfileManager = servicesSet.mMyProfileManager;
@@ -108,40 +105,31 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
         mMyProfileManager.removeChangedCallback(mProfileChangedCallback);
         mMyProfileManager.addChangedCallback(mProfileChangedCallback);
 
-        onColorClick = $ ->
-                mDialogManager.showColorPickerDialog(
-                        mMyProfileManager.getProfile().getColor(),
-                        mMyProfileManager.getProfile().getColorPickerPointX(),
-                        mMyProfileManager.getProfile().getColorPickerPointY(),
-                        selected -> {
-                            i(TAG, "Changing my color to %s, x: %f, y: %f", selected.getColor(), selected.getPointX(), selected.getPointY());
-                            mMyProfileManager.setColor(selected);
-                        });
+        mColorWrapper = rootView.findViewById(R.id.profile_color_button_wrapper);
+        mNameView = rootView.findViewById(R.id.profile_my_name);
+        mTextView = rootView.findViewById(R.id.profile_my_text);
 
-        onNameClick = $ ->
-                mDialogManager.showEditMyNameDialog(
-                        mMyProfileManager.getProfile().getName(),
-                        name -> mMyProfileManager.setName(name)
-                );
+        mSlogansInfoBox = rootView.findViewById(R.id.profile_my_slogans_info_box);
+        mSlogansRecyclerView = rootView.findViewById(R.id.profile_slogans_recycler);
 
-        onTextClick = $ ->
-                mDialogManager.showEditMyTextDialog(
-                        mMyProfileManager.getProfile().getText(),
-                        text -> mMyProfileManager.setText(text)
-                );
-    }
+        View.OnClickListener onColorClick = $ -> mDialogManager.showColorPickerDialog(
+                mMyProfileManager.getProfile().getColor(),
+                mMyProfileManager.getProfile().getColorPickerPointX(),
+                mMyProfileManager.getProfile().getColorPickerPointY(),
+                selected -> {
+                    i(TAG, "Changing my color to %s, x: %f, y: %f", selected.getColor(), selected.getPointX(), selected.getPointY());
+                    mMyProfileManager.setColor(selected);
+                });
 
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        v(TAG, "onCreateView");
-        mRootView = (ViewGroup) inflater.inflate(R.layout.profile_fragment, container, false);
+        View.OnClickListener onNameClick = $ -> mDialogManager.showEditMyNameDialog(
+                mMyProfileManager.getProfile().getName(),
+                name -> mMyProfileManager.setName(name)
+        );
 
-        mColorWrapper = mRootView.findViewById(R.id.profile_color_button_wrapper);
-        mNameView = mRootView.findViewById(R.id.profile_my_name);
-        mTextView = mRootView.findViewById(R.id.profile_my_text);
-
-        mSlogansInfoBox = mRootView.findViewById(R.id.profile_my_slogans_info_box);
-        mSlogansRecyclerView = mRootView.findViewById(R.id.profile_slogans_recycler);
+        View.OnClickListener onTextClick = $ -> mDialogManager.showEditMyTextDialog(
+                mMyProfileManager.getProfile().getText(),
+                text -> mMyProfileManager.setText(text)
+        );
 
         mColorWrapper.setOnClickListener(onColorClick);
         mNameView.setOnClickListener(onNameClick);
@@ -149,14 +137,12 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
 
         mSlogansRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mSlogansRecyclerView.setNestedScrollingEnabled(false);
-        mRootView.findViewById(R.id.profile_add_slogan).setOnClickListener($ -> showAddDialog());
+        rootView.findViewById(R.id.profile_add_slogan).setOnClickListener($ -> showAddDialog());
 
         // EditTexts keep their state and might ignore setText without this setting
         mTextView.setSaveEnabled(false);
         updateNameAndTextViews();
         updateViewsWithColor();
-
-        return mRootView;
     }
 
     @Override
@@ -221,10 +207,10 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
 
     private void reflectCommunicatorState() {
         // getContext() was observed to be null after long inactivity of the app
-        if (mRootView != null && getContext() != null) {
+        if (getRootView() != null && getContext() != null) {
             CommunicatorStateRenderer.populateInfoBoxWithState(mCommunicatorState,
-                    mRootView.findViewById(R.id.profile_status_info_box),
-                    mRootView.findViewById(R.id.profile_status_summary),
+                    getRootView().findViewById(R.id.profile_status_info_box),
+                    getRootView().findViewById(R.id.profile_status_summary),
                     getContext());
         }
     }
@@ -244,7 +230,7 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
         int color = Color.parseColor(mMyProfileManager.getColor());
         mColorWrapper.getChildAt(0).setBackgroundColor(color);
         // Make sure that there's an alternation i.e. background and color of last item don't match
-        mRootView.setBackgroundColor(
+        getRootView().setBackgroundColor(
                 mMyProfileManager.getProfile().getSlogans().size() % 2 == 0
                         ? color
                         : ColorHelper.getAccent(color));

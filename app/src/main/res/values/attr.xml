@@ -12,4 +12,14 @@
         <attr name="palette" format="reference" />
         <attr name="selector" format="reference" />
     </declare-styleable>
+
+    <declare-styleable name="MonoSpaceText">
+        <attr name="editable" format="boolean" />
+        <attr name="minLines" format="integer" />
+        <attr name="maxLines" format="integer" />
+        <attr name="alignCenter" format="boolean" />
+        <attr name="largeText" format="boolean" />
+        <attr name="hint" format="string" />
+        <attr name="textBoxPadding" format="dimension" />
+    </declare-styleable>
 </resources>

@@ -6,7 +6,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -35,6 +34,7 @@ import io.auraapp.auraandroid.ui.profile.profileModel.MyProfile;
 import static io.auraapp.auraandroid.common.Config.PEERS_CHANGED_NOTIFICATION_LIGHT_PATTERN;
 import static io.auraapp.auraandroid.common.EmojiHelper.replaceShortCode;
 import static io.auraapp.auraandroid.common.FormattedLog.d;
+import static io.auraapp.auraandroid.common.FormattedLog.e;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 import static io.auraapp.auraandroid.common.FormattedLog.w;
@@ -56,16 +56,20 @@ public class Communicator extends Service {
     private Handler mHandler;
     private final AdvertisementSet mAdvertisementSet = new AdvertisementSet();
     private boolean mIsRunningInForeground = false;
-
     private Set<Long> btTurningOnTimestamps = new TreeSet<>();
-
     private int mPeerSloganCount = 0;
-
+    private int notificationIndex = 0;
+    private long lastNotification = 0;
     private final CommunicatorState mState = new CommunicatorState();
 
     @FunctionalInterface
-    interface OnErrorCallback {
-        void onUnrecoverableError(String errorName);
+    interface OnUnrecoverableBtErrorCallback {
+        void onUnrecoverableBtError(String errorName);
+    }
+
+    @FunctionalInterface
+    interface OnCorruptedStateCallback {
+        void onCorruptedState(Exception exception);
     }
 
     @Override
@@ -93,7 +97,6 @@ public class Communicator extends Service {
         mHandler = new Handler();
 
         mAdvertiser = new Advertiser(
-                (BluetoothManager) getSystemService(BLUETOOTH_SERVICE),
                 mAdvertisementSet,
                 this,
                 (byte version, int id) -> {
@@ -106,6 +109,15 @@ public class Communicator extends Service {
                     mState.mLastError = errorName;
                     updateBtState();
                     actOnState(true);
+                },
+                exception -> {
+                    // Thanks https://stackoverflow.com/questions/5883635/how-to-remove-all-callbacks-from-a-handler
+                    mHandler.removeCallbacks(null);
+
+                    e(TAG, "Corrupted state, stopping service, error: %s", exception == null ? "null" : exception.getMessage());
+                    stopForeground(true);
+                    mIsRunningInForeground = false;
+                    stopSelf();
                 }
         );
 
@@ -162,8 +174,6 @@ public class Communicator extends Service {
         updateBtState();
         actOnStateWhileWaitingForPermissions();
     }
-
-    private long lastNotification = 0;
 
     private void showPeerNotification() {
         long now = System.currentTimeMillis();
@@ -261,8 +271,6 @@ public class Communicator extends Service {
         }
         startForeground(Config.COMMUNICATOR_FOREGROUND_NOTIFICATION_ID, builder.build());
     }
-
-    private int notificationIndex = 0;
 
     /**
      * Thanks to https://stackoverflow.com/questions/47531742/startforeground-fail-after-upgrade-to-android-8-1

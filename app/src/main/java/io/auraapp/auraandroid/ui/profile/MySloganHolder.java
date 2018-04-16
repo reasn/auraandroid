@@ -4,17 +4,17 @@ import android.content.Context;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.EmojiHelper;
+import io.auraapp.auraandroid.ui.common.MonoSpaceText;
 import io.auraapp.auraandroid.ui.common.lists.ItemViewHolder;
 import io.auraapp.auraandroid.ui.common.lists.ListItem;
 import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapter;
 
 public class MySloganHolder extends ItemViewHolder {
 
-    private final TextView mSloganTextView;
+    private final MonoSpaceText mSloganTextView;
     private final LinearLayout mExpandedWrapper;
     private final Button mEditButtonView;
     private final Button mDropButtonView;

@@ -53,47 +53,6 @@
         <item name="android:padding">6dp</item>
     </style>
 
-    <!--TODO adjust font size to available width-->
-    <style name="MonoSpaceEdit">
-        <item name="android:ems">14</item>
-        <item name="android:gravity">top</item>
-        <item name="android:typeface">monospace</item>
-        <item name="android:padding">6dp</item>
-        <item name="android:textAppearance">?android:textAppearanceMedium</item>
-        <item name="android:background">@color/white</item>
-        <item name="android:textColor">@color/black</item>
-        <item name="android:minLines">5</item>
-
-        <item name="android:focusable">true</item>
-        <item name="android:focusableInTouchMode">true</item>
-        <item name="android:inputType">textMultiLine</item>
-        <item name="android:scrollbars">vertical</item>
-    </style>
-
-    <style name="MonoSpaceView" parent="MonoSpaceEdit">
-        <item name="android:focusable">false</item>
-        <item name="android:focusableInTouchMode">false</item>
-        <item name="android:longClickable">false</item>
-    </style>
-
-    <style name="SloganView" parent="MonoSpaceView">
-        <item name="android:gravity">center</item>
-        <item name="android:textAppearance">?android:textAppearanceLarge</item>
-        <item name="android:typeface">normal</item>
-        <item name="android:padding">6dp</item>
-        <item name="android:layout_marginTop">20dp</item>
-        <item name="android:layout_marginBottom">20dp</item>
-        <item name="android:minLines">1</item>
-    </style>
-
-    <style name="SloganEdit" parent="MonoSpaceEdit">
-        <!--From SloganView-->
-        <item name="android:gravity">center</item>
-        <item name="android:textAppearance">?android:textAppearanceLarge</item>
-        <item name="android:typeface">normal</item>
-        <item name="android:minLines">1</item>
-    </style>
-
     <style name="FlatElement">
         <item name="android:textAppearance">?android:textAppearanceLarge</item>
         <item name="android:elevation">0dp</item>
@@ -174,6 +133,7 @@
         <item name="android:background">@color/black_overlay</item>
         <item name="android:orientation">vertical</item>
     </style>
+
     <style name="TutorialOverlay.Top" parent="TutorialOverlay">
         <item name="android:gravity">bottom</item>
     </style>
@@ -197,9 +157,11 @@
         <item name="android:gravity">left</item>
         <item name="android:layoutDirection">ltr</item>
     </style>
+
     <style name="TutorialHeadlineWithArrow.Top" parent="TutorialHeadlineWithArrow">
         <item name="android:layoutDirection">rtl</item>
     </style>
+
     <style name="TutorialHeadlineWithArrow.Left.Top" parent="TutorialHeadlineWithArrow.Left">
         <item name="android:layoutDirection">rtl</item>
     </style>
@@ -209,12 +171,15 @@
         <item name="android:background">@drawable/tutorial_arrow_up</item>
         <item name="android:scaleType">matrix</item>
     </style>
+
     <style name="TutorialHeadlineWithArrowArrow.Left" parent="TutorialHeadlineWithArrowArrow">
         <item name="android:scaleX">-1</item>
     </style>
+
     <style name="TutorialHeadlineWithArrowArrow.Top" parent="TutorialHeadlineWithArrowArrow">
         <item name="android:scaleY">-1</item>
     </style>
+
     <style name="TutorialHeadlineWithArrowArrow.Left.Top" parent="TutorialHeadlineWithArrowArrow">
         <item name="android:scaleY">-1</item>
         <item name="android:scaleX">-1</item>
@@ -228,9 +193,11 @@
     <style name="TutorialHeadlineWithArrowText" parent="TutorialText">
         <item name="android:textSize">30sp</item>
     </style>
+
     <style name="TutorialHeadlineWithArrowText.Bottom" parent="TutorialHeadlineWithArrowText">
         <item name="android:paddingTop">40dp</item>
     </style>
+
     <style name="TutorialHeadlineWithArrowText.Top" parent="TutorialHeadlineWithArrowText">
         <item name="android:paddingBottom">0dp</item>
     </style>

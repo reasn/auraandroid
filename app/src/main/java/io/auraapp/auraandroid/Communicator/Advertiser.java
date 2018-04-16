@@ -13,6 +13,7 @@ import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertiseSettings;
 import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.content.Context;
+import android.os.DeadObjectException;
 import android.os.Handler;
 
 import java.nio.charset.Charset;
@@ -26,6 +27,7 @@ import io.auraapp.auraandroid.common.Timer;
 import static android.bluetooth.BluetoothGattCharacteristic.PERMISSION_READ;
 import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_NOTIFY;
 import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_READ;
+import static android.content.Context.BLUETOOTH_SERVICE;
 import static io.auraapp.auraandroid.Communicator.MetaDataUnpacker.byteArrayToString;
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.e;
@@ -40,6 +42,7 @@ import static io.auraapp.auraandroid.common.FormattedLog.w;
  */
 class Advertiser {
 
+
     @FunctionalInterface
     interface StateChangeCallback {
         void onStateChange(byte version, int id);
@@ -51,7 +54,8 @@ class Advertiser {
     private final AdvertisementSet mAdvertisementSet;
     private final Context mContext;
     private final StateChangeCallback mStateChangeCallback;
-    private final Communicator.OnErrorCallback mOnErrorCallback;
+    private final Communicator.OnUnrecoverableBtErrorCallback mOnBluetoothErrorCallback;
+    private final Communicator.OnCorruptedStateCallback mOnCorruptedState;
     private final Handler mHandler = new Handler();
     private final Timer mTimer = new Timer(mHandler);
 
@@ -71,16 +75,17 @@ class Advertiser {
         }
     };
 
-    Advertiser(BluetoothManager bluetoothManager,
-               AdvertisementSet advertisementSet,
+    Advertiser(AdvertisementSet advertisementSet,
                Context context,
                StateChangeCallback stateChangeCallback,
-               Communicator.OnErrorCallback onErrorCallback) {
-        mBluetoothManager = bluetoothManager;
+               Communicator.OnUnrecoverableBtErrorCallback onBluetoothErrorCallback,
+               Communicator.OnCorruptedStateCallback onCorruptedState) {
         mAdvertisementSet = advertisementSet;
         mContext = context;
         mStateChangeCallback = stateChangeCallback;
-        mOnErrorCallback = onErrorCallback;
+        mOnBluetoothErrorCallback = onBluetoothErrorCallback;
+        mOnCorruptedState = onCorruptedState;
+        mBluetoothManager = (BluetoothManager) context.getSystemService(BLUETOOTH_SERVICE);
     }
 
     private Timer.Timeout mShuffleIdTimeout;
@@ -166,7 +171,6 @@ class Advertiser {
                 mBluetoothGattServer.clearServices();
                 try {
                     mBluetoothGattServer.close();
-                } finally {
                     mBluetoothGattServer = null;
 
                     if (mBluetoothAdvertiser != null) {
@@ -175,6 +179,11 @@ class Advertiser {
                         } finally {
                             mBluetoothAdvertiser = null;
                         }
+                    }
+                } catch (Exception e) {
+                    if (e instanceof DeadObjectException) {
+                        // Observed in real life
+                        mOnCorruptedState.onCorruptedState(e);
                     }
                 }
             }
@@ -185,7 +194,7 @@ class Advertiser {
         d(TAG, "Advertising seems to be unsupported on this device");
         stop();
         if (!recoverable) {
-            mOnErrorCallback.onUnrecoverableError(errorName);
+            mOnBluetoothErrorCallback.onUnrecoverableBtError(errorName);
         }
     }
 
@@ -253,7 +262,7 @@ class Advertiser {
             BluetoothGattCharacteristic chara = new BluetoothGattCharacteristic(uuid, PROPERTY_READ | PROPERTY_NOTIFY, PERMISSION_READ);
             if (!service.addCharacteristic(chara)) {
                 e(TAG, "Could not add characteristic");
-                mOnErrorCallback.onUnrecoverableError("Could not add characteristic");
+                mOnBluetoothErrorCallback.onUnrecoverableBtError("Could not add characteristic");
             }
         }
         return service;

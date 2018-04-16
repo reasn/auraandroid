@@ -5,9 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -23,7 +21,6 @@ import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
-import io.auraapp.auraandroid.common.ExternalInvocation;
 import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.Slogan;
@@ -51,8 +48,6 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
     private Runnable mDemo1ClickListener;
     private Runnable mDemo2ClickListener;
     private CommunicatorState mState;
-
-    private ViewGroup mRootView;
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -96,14 +91,13 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
+    protected int getLayoutResource() {
+        return R.layout.debug_fragment;
+    }
 
-        if (!(context instanceof MainActivity)) {
-            throw new RuntimeException("May only attached to " + MainActivity.class.getSimpleName());
-        }
-
-        MyProfileManager profileManager = ((MainActivity) context).getSharedServicesSet().mMyProfileManager;
+    @Override
+    protected void onReady(MainActivity activity, ViewGroup rootView) {
+        MyProfileManager profileManager = activity.getSharedServicesSet().mMyProfileManager;
 
         mDemo0ClickListener = () -> {
             profileManager.setName(createRandomStringOfLength(Config.PROFILE_NAME_MAX_LENGTH));
@@ -136,21 +130,10 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
             profileManager.dropAllSlogans();
             profileManager.adopt(Slogan.create("Hello Moto"));
         };
-    }
 
-    @Override
-    @ExternalInvocation
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        v(TAG, "onCreateView");
-
-        mRootView = (ViewGroup) inflater.inflate(
-                R.layout.debug_fragment, container, false);
-
-        mRootView.findViewById(R.id.demo_0).setOnClickListener($ -> mHandler.post(mDemo0ClickListener));
-        mRootView.findViewById(R.id.demo_1).setOnClickListener($ -> mHandler.post(mDemo1ClickListener));
-        mRootView.findViewById(R.id.demo_1).setOnClickListener($ -> mHandler.post(mDemo2ClickListener));
-
-        return mRootView;
+        rootView.findViewById(R.id.demo_0).setOnClickListener($ -> mHandler.post(mDemo0ClickListener));
+        rootView.findViewById(R.id.demo_1).setOnClickListener($ -> mHandler.post(mDemo1ClickListener));
+        rootView.findViewById(R.id.demo_1).setOnClickListener($ -> mHandler.post(mDemo2ClickListener));
     }
 
     @Override
@@ -179,17 +162,17 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
 
     private void reflectState() {
 
-        if (mRootView == null || getContext() == null) {
+        if (getRootView() == null || getContext() == null) {
             return;
         }
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String dump = "# communicator: " + gson.toJson(mState);
         dump += "\n# peers: " + gson.toJson(mPeers);
-        TextView communicatorStateDump = mRootView.findViewById(R.id.debug_communicator_state_dump);
+        TextView communicatorStateDump = getRootView().findViewById(R.id.debug_communicator_state_dump);
         communicatorStateDump.setText(dump.replaceAll("\"", "").replaceAll("\n +\\{", " {"));
 
-        ListView peersList = mRootView.findViewById(R.id.debug_peers_list);
+        ListView peersList = getRootView().findViewById(R.id.debug_peers_list);
 
         if (mPeers == null) {
             peersList.setVisibility(View.GONE);

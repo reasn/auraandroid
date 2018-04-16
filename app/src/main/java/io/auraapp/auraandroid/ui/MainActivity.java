@@ -58,8 +58,11 @@ public class MainActivity extends AppCompatActivity {
         return mState;
     }
 
+    /**
+     * Body cannot be wrapped in mHandler.post() because then fragments crash because they use
+     * e.g. SharedState mState.
+     */
     @Override
-    @ExternalInvocation
     protected void onCreate(Bundle savedInstanceState) {
 
         // Necessary for splash screen
@@ -67,108 +70,106 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-        mHandler.post(() -> {
-            v(TAG, "onCreate, intent: %s", getIntent().getAction());
+        v(TAG, "onCreate, intent: %s", getIntent().getAction());
 
-            setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);
 
-            mMyProfileManager = new MyProfileManager(this);
+        mMyProfileManager = new MyProfileManager(this);
 
-            mState = new SharedState();
+        mState = new SharedState();
 
-            mSharedServicesSet = new SharedServicesSet();
-            mSharedServicesSet.mMyProfileManager = mMyProfileManager;
-            mSharedServicesSet.mDialogManager = new DialogManager(this);
-            mSharedServicesSet.mPager = findViewById(R.id.pager);
+        mSharedServicesSet = new SharedServicesSet();
+        mSharedServicesSet.mMyProfileManager = mMyProfileManager;
+        mSharedServicesSet.mDialogManager = new DialogManager(this);
+        mSharedServicesSet.mPager = findViewById(R.id.pager);
 
-            mSharedServicesSet.mTutorialManager = new TutorialManager(this, findViewById(R.id.activity_wrapper), mSharedServicesSet.mPager);
+        mSharedServicesSet.mTutorialManager = new TutorialManager(this, findViewById(R.id.activity_wrapper), mSharedServicesSet.mPager);
 
-            mPagerAdapter = new ScreenPagerAdapter(getSupportFragmentManager());
-            mSharedServicesSet.mPager.setAdapter(mPagerAdapter);
+        mPagerAdapter = new ScreenPagerAdapter(getSupportFragmentManager());
+        mSharedServicesSet.mPager.setAdapter(mPagerAdapter);
 
-            // Load preferences
-            mPrefs = getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE);
+        // Load preferences
+        mPrefs = getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE);
 
-            String prefKey = getString(R.string.prefs_terms_agreed);
+        String prefKey = getString(R.string.prefs_terms_agreed);
 
-            if (!PermissionHelper.granted(this)) {
-                showPermissionMissingFragment();
-            } else if (!mPrefs.getBoolean(prefKey, false)) {
-                mSharedServicesSet.mPager.getScreenAdapter().addWelcomeFragments();
-                mSharedServicesSet.mPager.goTo(TermsFragment.class, false);
+        if (!PermissionHelper.granted(this)) {
+            showPermissionMissingFragment();
+        } else if (!mPrefs.getBoolean(prefKey, false)) {
+            mSharedServicesSet.mPager.getScreenAdapter().addWelcomeFragments();
+            mSharedServicesSet.mPager.goTo(TermsFragment.class, false);
+        }
+        mMyProfileManager.addChangedCallback(event -> {
+            d(TAG, "My profile changed");
+            mCommunicatorProxy.updateMyProfile(mMyProfileManager.getProfile());
+            switch (event) {
+                case MyProfileManager.EVENT_ADOPTED:
+                    toast(R.string.ui_profile_toast_slogan_adopted);
+                    break;
+                case MyProfileManager.EVENT_REPLACED:
+                    toast(R.string.ui_profile_toast_slogan_replaced);
+                    break;
+                case MyProfileManager.EVENT_DROPPED:
+                    toast(R.string.ui_profile_toast_slogan_dropped);
+                    break;
+                case MyProfileManager.EVENT_COLOR_CHANGED:
+                    break;
+                case MyProfileManager.EVENT_NAME_CHANGED:
+                    toast(R.string.ui_profile_toast_name_changed);
+                    break;
+                case MyProfileManager.EVENT_TEXT_CHANGED:
+                    toast(R.string.ui_profile_toast_text_changed);
+                    break;
+                default:
+                    throw new RuntimeException("Unknown slogan event " + event);
             }
-            mMyProfileManager.addChangedCallback(event -> {
-                d(TAG, "My profile changed");
-                mCommunicatorProxy.updateMyProfile(mMyProfileManager.getProfile());
-                switch (event) {
-                    case MyProfileManager.EVENT_ADOPTED:
-                        toast(R.string.ui_profile_toast_slogan_adopted);
-                        break;
-                    case MyProfileManager.EVENT_REPLACED:
-                        toast(R.string.ui_profile_toast_slogan_replaced);
-                        break;
-                    case MyProfileManager.EVENT_DROPPED:
-                        toast(R.string.ui_profile_toast_slogan_dropped);
-                        break;
-                    case MyProfileManager.EVENT_COLOR_CHANGED:
-                        break;
-                    case MyProfileManager.EVENT_NAME_CHANGED:
-                        toast(R.string.ui_profile_toast_name_changed);
-                        break;
-                    case MyProfileManager.EVENT_TEXT_CHANGED:
-                        toast(R.string.ui_profile_toast_text_changed);
-                        break;
-                    default:
-                        throw new RuntimeException("Unknown slogan event " + event);
-                }
-            });
-            mCommunicatorProxy = new CommunicatorProxy(
-                    this,
-                    peers -> {
-                        mSharedServicesSet.mPeers = peers;
-                        mPeerSloganMap = PeerMapTransformer.buildMapFromPeerList(peers);
-                    },
-                    peer -> {
-                        for (Peer candidate : mSharedServicesSet.mPeers) {
-                            if (candidate.mId == peer.mId) {
-                                mSharedServicesSet.mPeers.remove(candidate);
-                                break;
-                            }
+        });
+        mCommunicatorProxy = new CommunicatorProxy(
+                this,
+                peers -> {
+                    mSharedServicesSet.mPeers = peers;
+                    mPeerSloganMap = PeerMapTransformer.buildMapFromPeerList(peers);
+                },
+                peer -> {
+                    for (Peer candidate : mSharedServicesSet.mPeers) {
+                        if (candidate.mId == peer.mId) {
+                            mSharedServicesSet.mPeers.remove(candidate);
+                            break;
                         }
-                        mSharedServicesSet.mPeers.add(peer);
-                        mPeerSloganMap = PeerMapTransformer.buildMapFromPeerAndPreviousMap(peer, mPeerSloganMap);
-                    },
-                    state -> {
-                        d(TAG, "Received communicator state, state: %s", state);
+                    }
+                    mSharedServicesSet.mPeers.add(peer);
+                    mPeerSloganMap = PeerMapTransformer.buildMapFromPeerAndPreviousMap(peer, mPeerSloganMap);
+                },
+                state -> {
+                    d(TAG, "Received communicator state, state: %s", state);
 //                        TODO add to world fragment
 //                        if (mState.mCommunicatorState == null || !mState.mCommunicatorState.mScanning && state.mScanning) {
 //                            // Scan just started, let's make sure we hide the "looking around" info if
 //                            // nothing is found for some time.
 //                            mHandler.postDelayed(this::reflectStatus, Config.MAIN_LOOKING_AROUND_SHOW_DURATION);
 //                        }
-                        mState.mCommunicatorState = state;
+                    mState.mCommunicatorState = state;
 
-                        if (state != null && !state.mHasPermission) {
-                            showPermissionMissingFragment();
-                            return;
-                        }
-                        if (state != null && state.mRecentBtTurnOnEvents >= Config.COMMUNICATOR_RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD) {
-                            showBrokenBtStackAlert();
-                        }
-                    });
+                    if (state != null && !state.mHasPermission) {
+                        showPermissionMissingFragment();
+                        return;
+                    }
+                    if (state != null && state.mRecentBtTurnOnEvents >= Config.COMMUNICATOR_RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD) {
+                        showBrokenBtStackAlert();
+                    }
+                });
 
-            mToolbarAspect = new ToolbarAspect(this, mCommunicatorProxy, mHandler);
-            mToolbarAspect.initToolbar();
+        mToolbarAspect = new ToolbarAspect(this, mCommunicatorProxy, mHandler);
+        mToolbarAspect.initToolbar();
 
-            if (mToolbarAspect.isAuraEnabled()) {
-                // Will result in state being sent back
-                mCommunicatorProxy.enable();
-            }
+        if (mToolbarAspect.isAuraEnabled()) {
+            // Will result in state being sent back
+            mCommunicatorProxy.enable();
+        }
 
 //        EmojiCompat.init(new BundledEmojiCompatConfig(this));
 
-            mCommunicatorProxy.updateMyProfile(mMyProfileManager.getProfile());
-        });
+        mCommunicatorProxy.updateMyProfile(mMyProfileManager.getProfile());
     }
 
     // TODO Bug: peer adopts and drops slogan but stays visible here
