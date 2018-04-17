@@ -110,7 +110,7 @@
     </plurals>
     <string name="world_peer_last_seen_lt_10s">Nearby</string>
     <string name="world_peer_last_seen_lt_1min">Less than a minute ago</string>
-    <string name="world_peer_last_seen_lt_10min">Less than ##elapsed_minutes##"min ago</string>
+    <string name="world_peer_last_seen_lt_10min">Less than ##elapsed_minutes##" min ago</string>
     <string name="world_peer_last_seen_lt_30min">Less than 30min ago</string>
     <string name="world_peer_last_seen_lt_45min">Less than 45min ago</string>
     <string name="world_peer_last_seen_lte_1h">Less than an hour ago</string>

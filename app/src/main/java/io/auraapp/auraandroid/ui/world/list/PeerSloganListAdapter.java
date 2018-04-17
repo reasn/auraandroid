@@ -11,16 +11,15 @@ import android.widget.ArrayAdapter;
 import java.util.ArrayList;
 
 import io.auraapp.auraandroid.R;
-import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.common.MonoSpaceText;
 
-public class PeerSloganListAdapter extends ArrayAdapter<Slogan> {
+public class PeerSloganListAdapter extends ArrayAdapter<PeerSloganItem> {
     private final PeerItemHolder.ColorSet mColorSet;
 
     public PeerSloganListAdapter(@NonNull Context context,
                                  int resource,
                                  PeerItemHolder.ColorSet colorSet,
-                                 ArrayList<Slogan> slogans) {
+                                 ArrayList<PeerSloganItem> slogans) {
         super(context, resource, slogans);
         mColorSet = colorSet;
     }
@@ -28,8 +27,8 @@ public class PeerSloganListAdapter extends ArrayAdapter<Slogan> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View itemView, @NonNull ViewGroup parent) {
-        Slogan slogan = getItem(position);
-        if (slogan == null) {
+        PeerSloganItem item = getItem(position);
+        if (item == null) {
             throw new RuntimeException("Slogan must not be null");
         }
         // Check if an existing view is being reused, otherwise inflate the view
@@ -38,7 +37,7 @@ public class PeerSloganListAdapter extends ArrayAdapter<Slogan> {
         }
 
         MonoSpaceText textView = itemView.findViewById(R.id.world_peer_item_slogan_text);
-        textView.setText(slogan.getText());
+        textView.setText(item.getSlogan().getText());
 
         itemView.setBackgroundColor(position % 2 == 0
                 ? mColorSet.mAccentBackground

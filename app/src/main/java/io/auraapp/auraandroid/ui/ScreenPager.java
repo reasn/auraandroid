@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import io.auraapp.auraandroid.common.Timer;
+import io.auraapp.auraandroid.ui.common.ScreenFragment;
 import io.auraapp.auraandroid.ui.permissions.FragmentCameIntoView;
 
 import static io.auraapp.auraandroid.common.FormattedLog.i;
@@ -98,9 +99,11 @@ public class ScreenPager extends ViewPager {
     }
 
     private void propagateScreenChange(int position) {
-        Fragment fragment = getScreenAdapter().getItem(position);
+        ScreenFragment fragment = (ScreenFragment) getScreenAdapter().getItem(position);
         if (fragment instanceof FragmentCameIntoView) {
-            ((FragmentCameIntoView) fragment).cameIntoView();
+            if (getContext() != null) {
+                ((FragmentCameIntoView) fragment).cameIntoView(fragment.getMainActivity());
+            }
         }
         v(TAG, "setCurrentItem. Invoking change callbacks for %s at %d", fragment, position);
         for (ChangeCallback changeCallback : changeCallbacks) {

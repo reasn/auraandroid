@@ -15,8 +15,8 @@ import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.EmojiHelper;
-import io.auraapp.auraandroid.common.ExternalInvocation;
 import io.auraapp.auraandroid.common.PermissionHelper;
+import io.auraapp.auraandroid.common.Timer;
 import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.ScreenPager;
 import io.auraapp.auraandroid.ui.common.InfoBox;
@@ -24,15 +24,15 @@ import io.auraapp.auraandroid.ui.common.ScreenFragment;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
-import static io.auraapp.auraandroid.common.FormattedLog.v;
 
 public class PermissionsFragment extends ScreenFragment {
 
     private static final String TAG = "@aura/ui/permissions/" + PermissionsFragment.class.getSimpleName();
-
-    private final static int REQUEST_CODE_LOCATION_REQUEST = 149;
+    private static final int REQUEST_CODE_LOCATION_REQUEST = 149;
     private static final int REQUEST_CODE_APP_SETTINGS = 144;
-    private Handler mHandler;
+
+    private final Timer mTimer = new Timer(new Handler());
+    private Timer.Timeout mCheckTimeout;
     private ScreenPager mPager;
     private boolean mRedirected = false;
 
@@ -42,7 +42,7 @@ public class PermissionsFragment extends ScreenFragment {
     }
 
     @Override
-    protected void onReady(MainActivity activity, ViewGroup rootView) {
+    protected void onResumeWithContext(MainActivity activity, ViewGroup rootView) {
 
         mPager = activity.getSharedServicesSet().mPager;
 
@@ -74,46 +74,33 @@ public class PermissionsFragment extends ScreenFragment {
             rootView.findViewById(R.id.not_granted).setVisibility(View.GONE);
         } else {
             rootView.findViewById(R.id.not_granted).setVisibility(View.VISIBLE);
-        }
-    }
-
-    @Override
-    @ExternalInvocation
-    public void onResume() {
-        v(TAG, "onResume");
-        super.onResume();
-        if (!mRedirected) {
             mPager.setLocked(true);
 
-            if (mHandler == null) {
-                mHandler = new Handler();
-            }
             continuouslyCheckForPermissions();
         }
     }
 
     @Override
     public void onPause() {
-        v(TAG, "onPause");
         super.onPause();
-        mHandler.removeCallbacks(this::continuouslyCheckForPermissions);
+        Timer.clear(mCheckTimeout);
     }
 
-
     private void continuouslyCheckForPermissions() {
+        Timer.clear(mCheckTimeout);
         if (!PermissionHelper.granted(getContext())) {
-            mHandler.postDelayed(this::continuouslyCheckForPermissions, 500);
+            mCheckTimeout = mTimer.setSerializedInterval(this::continuouslyCheckForPermissions, 500);
             return;
         }
         mRedirected = true;
         // Give dialog time to hide, leads to glitches otherwise
-        mHandler.postDelayed(() -> {
+        mCheckTimeout = mTimer.setTimeout(() -> {
             i(TAG, "Permissions granted");
 
             Animation hide = AnimationUtils.loadAnimation(getContext(), R.anim.screen_permissions_hide);
             getRootView().findViewById(R.id.not_granted).startAnimation(hide);
 
-            mHandler.postDelayed(() -> {
+            mTimer.setTimeout(() -> {
                 getRootView().findViewById(R.id.not_granted).setVisibility(View.GONE);
                 mPager.setLocked(false);
             }, hide.getDuration());

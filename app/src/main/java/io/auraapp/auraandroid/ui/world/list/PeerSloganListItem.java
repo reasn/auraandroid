@@ -57,4 +57,26 @@ public class PeerSloganListItem extends ListItem {
         }
         return lastSeen;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        PeerSloganListItem that = (PeerSloganListItem) o;
+
+        if (mSlogan != null ? !mSlogan.equals(that.mSlogan) : that.mSlogan != null) return false;
+        if (mPeers != null ? !mPeers.equals(that.mPeers) : that.mPeers != null) return false;
+        return mColor != null ? mColor.equals(that.mColor) : that.mColor == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (mSlogan != null ? mSlogan.hashCode() : 0);
+        result = 31 * result + (mPeers != null ? mPeers.hashCode() : 0);
+        result = 31 * result + (mColor != null ? mColor.hashCode() : 0);
+        return result;
+    }
 }

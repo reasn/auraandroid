@@ -5,11 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.LayoutRes;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -40,7 +38,6 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     private static final String TAG = "@aura/ui/profile/fragment";
     private RecyclerView mSlogansRecyclerView;
     private InfoBox mSlogansInfoBox;
-    private final Handler mHandler = new Handler();
     private TextView mNameView;
     private MonoSpaceText mTextView;
     private LinearLayout mColorWrapper;
@@ -48,8 +45,6 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     private CommunicatorState mCommunicatorState;
     private DialogManager mDialogManager;
     private MyProfileManager mMyProfileManager;
-
-    private Runnable hideWelcomeFragments;
     private final MyProfileManager.MyProfileChangedCallback mProfileChangedCallback = event -> {
         switch (event) {
             case MyProfileManager.EVENT_COLOR_CHANGED:
@@ -94,16 +89,12 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     }
 
     @Override
-    protected void onReady(MainActivity activity, ViewGroup rootView) {
+    protected void onResumeWithContext(MainActivity activity, ViewGroup rootView) {
 
-        SharedServicesSet servicesSet = activity.getSharedServicesSet();
-        hideWelcomeFragments = () -> servicesSet.mPager.getScreenAdapter().removeWelcomeFragments();
+        activity.registerReceiver(mReceiver, IntentFactory.communicatorIntentFilter());
+        v(TAG, "Receiver registered");
 
-        mMyProfileManager = servicesSet.mMyProfileManager;
-        mDialogManager = servicesSet.mDialogManager;
-
-        mMyProfileManager.removeChangedCallback(mProfileChangedCallback);
-        mMyProfileManager.addChangedCallback(mProfileChangedCallback);
+        bindShared(activity);
 
         mColorWrapper = rootView.findViewById(R.id.profile_color_button_wrapper);
         mNameView = rootView.findViewById(R.id.profile_my_name);
@@ -112,79 +103,63 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
         mSlogansInfoBox = rootView.findViewById(R.id.profile_my_slogans_info_box);
         mSlogansRecyclerView = rootView.findViewById(R.id.profile_slogans_recycler);
 
-        View.OnClickListener onColorClick = $ -> mDialogManager.showColorPickerDialog(
+        mColorWrapper.setOnClickListener($ -> mDialogManager.showColorPickerDialog(
                 mMyProfileManager.getProfile().getColor(),
                 mMyProfileManager.getProfile().getColorPickerPointX(),
                 mMyProfileManager.getProfile().getColorPickerPointY(),
                 selected -> {
                     i(TAG, "Changing my color to %s, x: %f, y: %f", selected.getColor(), selected.getPointX(), selected.getPointY());
                     mMyProfileManager.setColor(selected);
-                });
-
-        View.OnClickListener onNameClick = $ -> mDialogManager.showEditMyNameDialog(
+                }));
+        mNameView.setOnClickListener($ -> mDialogManager.showEditMyNameDialog(
                 mMyProfileManager.getProfile().getName(),
                 name -> mMyProfileManager.setName(name)
-        );
-
-        View.OnClickListener onTextClick = $ -> mDialogManager.showEditMyTextDialog(
+        ));
+        mTextView.setOnClickListener($ -> mDialogManager.showEditMyTextDialog(
                 mMyProfileManager.getProfile().getText(),
                 text -> mMyProfileManager.setText(text)
-        );
+        ));
 
-        mColorWrapper.setOnClickListener(onColorClick);
-        mNameView.setOnClickListener(onNameClick);
-        mTextView.setOnClickListener(onTextClick);
-
-        mSlogansRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        mSlogansRecyclerView.setNestedScrollingEnabled(false);
         rootView.findViewById(R.id.profile_add_slogan).setOnClickListener($ -> showAddDialog());
 
-        // EditTexts keep their state and might ignore setText without this setting
-        mTextView.setSaveEnabled(false);
         updateNameAndTextViews();
         updateViewsWithColor();
-    }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (getContext() != null) {
-            getContext().registerReceiver(mReceiver, IntentFactory.communicatorIntentFilter());
-            v(TAG, "Receiver registered");
-            mCommunicatorState = ((MainActivity) getContext()).getSharedState().mCommunicatorState;
-            createAdapter();
-        }
+        bindSlogansRecycler(activity);
 
-        mAdapter.notifyMySlogansChanged(mMyProfileManager.getProfile().getSlogans());
         reflectCommunicatorState();
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (getContext() != null) {
-            getContext().unregisterReceiver(mReceiver);
-            v(TAG, "Receiver unregistered");
-        }
+    private void bindShared(MainActivity activity) {
+        SharedServicesSet servicesSet = activity.getSharedServicesSet();
+        mMyProfileManager = servicesSet.mMyProfileManager;
+        mMyProfileManager.removeChangedCallback(mProfileChangedCallback);
+        mMyProfileManager.addChangedCallback(mProfileChangedCallback);
+
+        mDialogManager = servicesSet.mDialogManager;
+        mCommunicatorState = activity.getSharedState().mCommunicatorState;
     }
 
     @Override
-    public void cameIntoView() {
-        if (hideWelcomeFragments != null) {
-            hideWelcomeFragments.run();
-        }
-        if (getContext() != null) {
-            getContext().getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE)
-                    .edit()
-                    .putBoolean(getString(R.string.prefs_terms_agreed), true)
-                    .apply();
-        }
+    protected void onPauseWithContext(MainActivity activity) {
+        super.onPauseWithContext(activity);
+        activity.unregisterReceiver(mReceiver);
+        v(TAG, "Receiver unregistered");
     }
 
-    private void createAdapter() {
+    @Override
+    public void cameIntoView(MainActivity activity) {
+        activity.getSharedServicesSet().mPager.getScreenAdapter().removeWelcomeFragments();
+        activity.getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE)
+                .edit()
+                .putBoolean(getString(R.string.prefs_terms_agreed), true)
+                .apply();
+    }
+
+    private void bindSlogansRecycler(Context context) {
         if (mAdapter == null) {
             mAdapter = new MySlogansRecycleAdapter(
-                    getContext(),
+                    context,
                     mSlogansRecyclerView,
                     (Slogan slogan, int action) -> {
                         if (action == MySlogansRecycleAdapter.OnMySloganActionCallback.ACTION_EDIT) {
@@ -200,9 +175,11 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
                     },
                     mMyProfileManager);
         }
-        if (mSlogansRecyclerView != null) {
-            mSlogansRecyclerView.setAdapter(mAdapter);
-        }
+
+        mSlogansRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+        mSlogansRecyclerView.setNestedScrollingEnabled(false);
+        mSlogansRecyclerView.setAdapter(mAdapter);
+        mAdapter.notifyMySlogansChanged(mMyProfileManager.getProfile().getSlogans());
     }
 
     private void reflectCommunicatorState() {

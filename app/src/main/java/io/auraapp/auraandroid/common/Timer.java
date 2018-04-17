@@ -6,21 +6,12 @@ import android.support.annotation.Nullable;
 
 public class Timer {
 
-    public static void clear(@Nullable Timeout timeout) {
-        if (timeout != null) {
-            timeout.clear();
-        }
-    }
-
     @FunctionalInterface
     public static interface Timeout {
         void clear();
     }
 
-    private static int mTimerIndex = 0;
-
     private final Handler mHandler;
-    private final String mIdPrefix;
 
     /**
      * Each Timer has its own prefix so that there's no collisions with
@@ -28,8 +19,12 @@ public class Timer {
      */
     public Timer(Handler handler) {
         this.mHandler = handler;
-        this.mIdPrefix = "timer-" + mTimerIndex + "-";
-        mTimerIndex++;
+    }
+
+    public static void clear(@Nullable Timeout timeout) {
+        if (timeout != null) {
+            timeout.clear();
+        }
     }
 
     public Timeout setTimeout(Runnable runnable, long timeout) {
@@ -67,20 +62,29 @@ public class Timer {
         private final Timer mTimer;
 
         public Debouncer(Timer timer, long interval) {
-            this.mTimer = timer; mInterval = interval;
+            this.mTimer = timer;
+            mInterval = interval;
         }
 
-        public void debounce(Runnable runnable) {
-            Timer.clear(mRunTimeout);
+        private Runnable mMostRecentRunnable;
 
+        public void debounce(Runnable runnable) {
+            mMostRecentRunnable = runnable;
+            run();
+        }
+
+        private void run() {
             long now = System.currentTimeMillis();
-            if (mLastRun < now - mInterval) {
+            if (mLastRun <= now - mInterval) {
                 mLastRun = now;
-                runnable.run();
+                mMostRecentRunnable.run();
+                Timer.clear(mRunTimeout);
                 return;
             }
-            mLastRun = now + mInterval;
-            mRunTimeout = mTimer.setTimeout(runnable, mInterval);
+
+            if (mRunTimeout == null) {
+                mRunTimeout = mTimer.setTimeout(this::run, mInterval);
+            }
         }
 
         public void clear() {

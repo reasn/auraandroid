@@ -24,6 +24,7 @@ import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.Slogan;
+import io.auraapp.auraandroid.common.Timer;
 import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
 import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.SharedState;
@@ -42,43 +43,52 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
     private static final String TAG = "@aura/ui/permissions/" + DebugFragment.class.getSimpleName();
     private static final String characters = "📜📡💚😇abcdefghijklmnopqrstuvwxyz1234567890 ,.-öä#ü+!\"§$%&/()=?`";
     private final Handler mHandler = new Handler();
+    private final Timer mTimer = new Timer(mHandler);
+    private Timer.Timeout mRefreshTimeout;
     @Nullable
-    private Set<Peer> mPeers = new HashSet<>();
-    private Runnable mDemo0ClickListener;
-    private Runnable mDemo1ClickListener;
-    private Runnable mDemo2ClickListener;
+    private Set<Peer> mPeers;
     private CommunicatorState mState;
+    private long mLastStateUpdateTimestamp;
+    private long mLastIntentTimestamp;
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context $, Intent intent) {
-            v(TAG, "onReceive, intent: %s", intent.getAction());
-            Bundle extras = intent.getExtras();
-            if (extras == null) {
-                return;
-            }
-
-            if (INTENT_PEER_UPDATED_ACTION.equals(intent.getAction())) {
-                @SuppressWarnings("unchecked")
-                Peer peer = (Peer) extras.getSerializable(INTENT_PEER_UPDATED_EXTRA_PEER);
-                if (peer != null) {
-                    mPeers.remove(peer);
-                    mPeers.add(peer);
+        public void onReceive(Context context, Intent intent) {
+            mHandler.post(() -> {
+                v(TAG, "onReceive, intent: %s", intent.getAction());
+                Bundle extras = intent.getExtras();
+                if (extras == null) {
+                    return;
                 }
 
-            } else if (INTENT_PEER_LIST_UPDATED_ACTION.equals(intent.getAction())) {
-                @SuppressWarnings("unchecked")
-                Set<Peer> peers = (Set<Peer>) extras.getSerializable(INTENT_PEER_LIST_UPDATED_EXTRA_PEERS);
-                if (peers != null) {
-                    mPeers = peers;
+                mLastIntentTimestamp = System.currentTimeMillis();
+
+                if (INTENT_PEER_UPDATED_ACTION.equals(intent.getAction())) {
+                    @SuppressWarnings("unchecked")
+                    Peer peer = (Peer) extras.getSerializable(INTENT_PEER_UPDATED_EXTRA_PEER);
+                    if (peer != null) {
+                        if (mPeers == null) {
+                            mPeers = new HashSet<>();
+                        }
+                        mPeers.remove(peer);
+                        mPeers.add(peer);
+                    }
+
+                } else if (INTENT_PEER_LIST_UPDATED_ACTION.equals(intent.getAction())) {
+                    @SuppressWarnings("unchecked")
+                    Set<Peer> peers = (Set<Peer>) extras.getSerializable(INTENT_PEER_LIST_UPDATED_EXTRA_PEERS);
+                    if (peers != null) {
+                        mPeers = peers;
+                    }
                 }
-            }
-            CommunicatorState state = (CommunicatorState) extras.getSerializable(IntentFactory.INTENT_COMMUNICATOR_EXTRA_STATE);
-            if (state != null) {
-                // Intents only have state if it changed
-                mState = state;
-            }
-            reflectState();
+                CommunicatorState state = (CommunicatorState) extras.getSerializable(IntentFactory.INTENT_COMMUNICATOR_EXTRA_STATE);
+                if (state != null) {
+                    // Intents only have state if it changed
+                    mState = state;
+                    mLastStateUpdateTimestamp = System.currentTimeMillis();
+                }
+                reflectState(context);
+            });
         }
     };
 
@@ -96,10 +106,20 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
     }
 
     @Override
-    protected void onReady(MainActivity activity, ViewGroup rootView) {
+    protected void onResumeWithContext(MainActivity activity, ViewGroup rootView) {
         MyProfileManager profileManager = activity.getSharedServicesSet().mMyProfileManager;
 
-        mDemo0ClickListener = () -> {
+        activity.registerReceiver(mReceiver, IntentFactory.communicatorIntentFilter());
+        v(TAG, "Receiver registered");
+
+        SharedState state = activity.getSharedState();
+        mPeers = state.mPeers;
+        mState = state.mCommunicatorState;
+        mLastStateUpdateTimestamp = System.currentTimeMillis();
+
+        // TODO come up with great personas
+
+        rootView.findViewById(R.id.demo_0).setOnClickListener($ -> mHandler.post(() -> {
             profileManager.setName(createRandomStringOfLength(Config.PROFILE_NAME_MAX_LENGTH));
 
             StringBuilder text = new StringBuilder();
@@ -112,63 +132,45 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
             for (int i = 0; i < Config.PROFILE_SLOGANS_MAX_SLOGANS; i++) {
                 profileManager.adopt(Slogan.create(createRandomStringOfLength(Config.PROFILE_SLOGANS_MAX_LENGTH)));
             }
-        };
-
-        // TODO come up with great personas
-        mDemo1ClickListener = () -> {
+        }));
+        rootView.findViewById(R.id.demo_1).setOnClickListener($ -> mHandler.post(() -> {
             profileManager.setName("Anonymous");
             profileManager.setText(EmojiHelper.replaceShortCode(":fire::fire::fire:\nDemocracy prevails. Let your kindness be a symbol for humanism and a better future"));
             profileManager.setColor(new ColorPicker.SelectedColor("#000000", 0, 0));
             profileManager.dropAllSlogans();
             profileManager.adopt(Slogan.create("Death to the dictator!"));
-        };
-
-        mDemo2ClickListener = () -> {
+        }));
+        rootView.findViewById(R.id.demo_1).setOnClickListener($ -> mHandler.post(() -> {
             profileManager.setName("Clara");
             profileManager.setText(EmojiHelper.replaceShortCode("My brother wants to collect"));
             profileManager.setColor(new ColorPicker.SelectedColor("#00ff00", 0, 0));
             profileManager.dropAllSlogans();
             profileManager.adopt(Slogan.create("Hello Moto"));
-        };
+        }));
 
-        rootView.findViewById(R.id.demo_0).setOnClickListener($ -> mHandler.post(mDemo0ClickListener));
-        rootView.findViewById(R.id.demo_1).setOnClickListener($ -> mHandler.post(mDemo1ClickListener));
-        rootView.findViewById(R.id.demo_1).setOnClickListener($ -> mHandler.post(mDemo2ClickListener));
+        Timer.clear(mRefreshTimeout);
+        mRefreshTimeout = mTimer.setSerializedInterval(() -> mHandler.post(() -> reflectState(activity)), 1000);
+        reflectState(activity);
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        if (getContext() != null) {
-            getContext().registerReceiver(mReceiver, IntentFactory.communicatorIntentFilter());
-            v(TAG, "Receiver registered");
-
-            SharedState state = ((MainActivity) getContext()).getSharedState();
-            mPeers = state.mPeers;
-            mState = state.mCommunicatorState;
-
-        }
-        reflectState();
+    protected void onPauseWithContext(MainActivity activity) {
+        super.onPauseWithContext(activity);
+        Timer.clear(mRefreshTimeout);
+        activity.unregisterReceiver(mReceiver);
+        v(TAG, "Receiver unregistered");
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (getContext() != null) {
-            getContext().unregisterReceiver(mReceiver);
-            v(TAG, "Receiver unregistered");
-        }
-    }
-
-    private void reflectState() {
-
-        if (getRootView() == null || getContext() == null) {
-            return;
-        }
-
+    private void reflectState(Context context) {
+        long now = System.currentTimeMillis();
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        String dump = "# communicator: " + gson.toJson(mState);
-        dump += "\n# peers: " + gson.toJson(mPeers);
+        String dump = "\nlast communicator intent: " +
+                (mLastIntentTimestamp > 0
+                        ? (now - mLastIntentTimestamp) / 1000 + "s ago"
+                        : "never");
+        dump += "\nlast communicator state: " + (now - mLastStateUpdateTimestamp) / 1000 + "s ago";
+        dump += "\ncommunicator: " + gson.toJson(mState);
+        dump += "\npeers: " + gson.toJson(mPeers);
         TextView communicatorStateDump = getRootView().findViewById(R.id.debug_communicator_state_dump);
         communicatorStateDump.setText(dump.replaceAll("\"", "").replaceAll("\n +\\{", " {"));
 
@@ -183,7 +185,7 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
         // Not efficient but minimal code. That's okay because it doesn't affect performance
         // for users
         peersList.setAdapter(new DebugPeersListArrayAdapter(
-                getContext(),
+                context,
                 android.R.layout.simple_list_item_1,
                 mPeers.toArray(new Peer[mPeers.size()])
         ));

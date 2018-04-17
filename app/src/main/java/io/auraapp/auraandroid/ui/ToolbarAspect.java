@@ -47,7 +47,8 @@ public class ToolbarAspect {
     public ToolbarAspect(MainActivity activity, CommunicatorProxy communicatorProxy, Handler handler) {
         this.mActivity = activity;
         this.mCommunicatorProxy = communicatorProxy;
-        this.mPrefs = activity.getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE);;
+        this.mPrefs = activity.getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE);
+        ;
         this.mHandler = handler;
     }
 
@@ -145,6 +146,7 @@ public class ToolbarAspect {
             }
         };
 
+        pager.removeChangeListener(visibilityUpdater::update);
         pager.addChangeListener(visibilityUpdater::update);
         visibilityUpdater.update(pager.getScreenAdapter().getItem(pager.getCurrentItem()));
 

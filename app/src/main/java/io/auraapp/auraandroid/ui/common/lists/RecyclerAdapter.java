@@ -32,7 +32,7 @@ public abstract class RecyclerAdapter extends RecyclerView.Adapter<ItemViewHolde
     protected final CollapseExpandHandler collapseExpandHandler = new CollapseExpandHandler() {
         @Override
         public void flip(ListItem item) {
-            if (item == null) {
+            if (item == null ) {
                 return;
             }
 

@@ -1,6 +1,5 @@
 package io.auraapp.auraandroid.ui.common;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
@@ -22,43 +21,23 @@ abstract public class ScreenFragment extends Fragment {
     private static final String TAG = "@aura/ui/common/" + ScreenFragment.class.getSimpleName();
     private ViewGroup mRootView;
 
-    protected void toast(@StringRes int text) {
-        Toast.makeText(getContext(), EmojiHelper.replaceShortCode(getString(text)), Toast.LENGTH_SHORT).show();
-    }
-
-    private boolean mViewAndContextCreatedInvoked = false;
-
     @LayoutRes
     abstract protected int getLayoutResource();
 
-    abstract protected void onReady(MainActivity activity, ViewGroup rootView);
+    abstract protected void onResumeWithContext(MainActivity activity, ViewGroup rootView);
+
+    protected void onPauseWithContext(MainActivity activity) {
+    }
 
     protected ViewGroup getRootView() {
         return mRootView;
     }
 
-    private void check(Context context) {
-
-        if (!(context instanceof MainActivity)) {
+    public MainActivity getMainActivity() {
+        if (!(getContext() instanceof MainActivity)) {
             throw new RuntimeException("May only attached to " + MainActivity.class.getSimpleName());
         }
-
-        MainActivity activity = (MainActivity) context;
-
-        // Make sure that view exists, MainActivity.onCreate finished and the callback hasn't
-        // been invoked within the current lifecycle
-        if (getRootView() != null
-                && activity.getSharedState() != null
-                && !mViewAndContextCreatedInvoked) {
-            onReady(activity, getRootView());
-            mViewAndContextCreatedInvoked = true;
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        check(context);
+        return (MainActivity) getContext();
     }
 
     @Nullable
@@ -66,19 +45,34 @@ abstract public class ScreenFragment extends Fragment {
     final public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         v(TAG, "onCreateView, fragment: %s", getClass().getSimpleName());
         mRootView = (ViewGroup) inflater.inflate(getLayoutResource(), container, false);
-        check(getContext());
         return mRootView;
     }
+
 
     @Override
     public void onResume() {
         super.onResume();
-        check(getContext());
+
+        MainActivity activity = getMainActivity();
+
+        // Make sure that view exists, MainActivity.onCreate finished and the callback hasn't
+        // been invoked within the current lifecycle
+        if (mRootView != null && activity.getSharedState() != null) {
+            v(TAG, "Invoking onResumeWithContext, fragment: %s", getClass().getSimpleName());
+            onResumeWithContext(activity, mRootView);
+        }
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        mViewAndContextCreatedInvoked = false;
+    public void onPause() {
+        v(TAG, "onPause, fragment: %s", getClass().getSimpleName());
+        if (getContext() != null) {
+            onPauseWithContext(getMainActivity());
+        }
+        super.onPause();
+    }
+
+    protected void toast(@StringRes int text) {
+        Toast.makeText(getContext(), EmojiHelper.replaceShortCode(getString(text)), Toast.LENGTH_SHORT).show();
     }
 }

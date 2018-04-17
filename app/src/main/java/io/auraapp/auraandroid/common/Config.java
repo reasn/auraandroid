@@ -54,7 +54,6 @@ public class Config {
     public static final int COMMUNICATOR_RECENT_BT_TURNING_ON_EVENTS_RECENT_TIMEFRAME = 1000 * 60;
     public static final int COMMUNICATOR_RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD = 2;
 
-
     // Main
 
     public static final int MAIN_LOOKING_AROUND_SHOW_DURATION = 10000;
