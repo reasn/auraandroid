@@ -28,7 +28,7 @@ import io.auraapp.auraandroid.ui.SharedState;
 import io.auraapp.auraandroid.ui.common.CommunicatorStateRenderer;
 import io.auraapp.auraandroid.ui.common.InfoBox;
 import io.auraapp.auraandroid.ui.common.ScreenFragment;
-import io.auraapp.auraandroid.ui.world.list.PeersRecycleAdapter;
+import io.auraapp.auraandroid.ui.world.list.PeerAdapter;
 
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_LIST_UPDATED_ACTION;
@@ -42,7 +42,7 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
     private InfoBox mCommunicatorStateInfoBox;
     private TextView mStatusSummary;
     private Handler mHandler = new Handler();
-    private PeersRecycleAdapter mPeerListAdapter;
+    private PeerAdapter mPeerAdapter;
     private FakeSwipeRefreshLayout mSwipeRefresh;
 
     private CommunicatorState mCommunicatorState = null;
@@ -64,8 +64,8 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
                 if (peer != null) {
                     mPeers.remove(peer);
                     mPeers.add(peer);
-                    if (mPeerListAdapter != null) {
-                        mPeerListAdapter.notifyPeersChanged(mPeers);
+                    if (mPeerAdapter != null) {
+                        mPeerAdapter.notifyPeersChanged(mPeers);
                     }
                 }
 
@@ -74,8 +74,8 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
                 Set<Peer> peers = (Set<Peer>) extras.getSerializable(INTENT_PEER_LIST_UPDATED_EXTRA_PEERS);
                 if (peers != null) {
                     mPeers = peers;
-                    if (mPeerListAdapter != null) {
-                        mPeerListAdapter.notifyPeersChanged(mPeers);
+                    if (mPeerAdapter != null) {
+                        mPeerAdapter.notifyPeersChanged(mPeers);
                     }
                 }
             }
@@ -113,7 +113,7 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
         mSwipeRefresh.setEnabled(false);
         mPeersRecycler = rootView.findViewById(R.id.profile_slogans_recycler);
 
-        mPeerListAdapter = new PeersRecycleAdapter(activity, mPeersRecycler, slogan -> {
+        mPeerAdapter = new PeerAdapter(activity, mPeersRecycler, slogan -> {
             if (servicesSet.mMyProfileManager.getProfile().getSlogans().contains(slogan)) {
                 toast(R.string.ui_world_toast_slogan_already_adopted);
             } else if (servicesSet.mMyProfileManager.spaceAvailable()) {
@@ -125,17 +125,15 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
                 );
             }
         });
-        mPeersRecycler.setAdapter(mPeerListAdapter);
+        mPeersRecycler.setAdapter(mPeerAdapter);
         mPeersRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         mPeersRecycler.setNestedScrollingEnabled(false);
         // With change animations enabled items flash as updates come in
         ((SimpleItemAnimator) mPeersRecycler.getItemAnimator()).setSupportsChangeAnimations(false);
+        mPeerAdapter.onResume();
 
-        // onResume might be called before view has been created (activity.create -> activity.resume -> this.onResume()
-        mPeerListAdapter.onResume();
         reflectState();
         updatePeersInfoBox(activity);
-
     }
 
     @Override
@@ -143,33 +141,22 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
         super.onPauseWithContext(activity);
         activity.unregisterReceiver(mReceiver);
         v(TAG, "Receiver unregistered");
-        if (mPeerListAdapter != null) {
-            // onPause might be called before view has been created (activity.create -> activity.resume -> this.onResume()
-            mPeerListAdapter.onPause();
-        }
+        mPeerAdapter.onPause();
     }
 
     public void reflectState() {
-        if (mSwipeRefresh != null) {
-            // onCreateView might not have been called yet
-            mSwipeRefresh.setEnabled(mCommunicatorState != null && mCommunicatorState.mScanning && mPeers != null && mPeers.size() > 0);
-            mSwipeRefresh.setPeerCount(mPeers != null ? mPeers.size() : 0);
-        }
+        mSwipeRefresh.setEnabled(mCommunicatorState != null && mCommunicatorState.mScanning && mPeers != null && mPeers.size() > 0);
+        mSwipeRefresh.setPeerCount(mPeers != null ? mPeers.size() : 0);
 
-        if (mCommunicatorStateInfoBox != null) {
-            // onCreateView might not have been called yet
-            CommunicatorStateRenderer.populateInfoBoxWithState(
-                    mCommunicatorState,
-                    mCommunicatorStateInfoBox,
-                    mStatusSummary,
-                    getContext());
-            mPeersRecycler.setVisibility(mCommunicatorState != null && mCommunicatorState.mShouldCommunicate
-                    ? View.VISIBLE
-                    : View.GONE
-            );
-        }
-
-
+        CommunicatorStateRenderer.populateInfoBoxWithState(
+                mCommunicatorState,
+                mCommunicatorStateInfoBox,
+                mStatusSummary,
+                getContext());
+        mPeersRecycler.setVisibility(mCommunicatorState != null && mCommunicatorState.mShouldCommunicate
+                ? View.VISIBLE
+                : View.GONE
+        );
 //        updatePeersHeading();
     }
 

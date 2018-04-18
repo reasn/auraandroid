@@ -99,15 +99,7 @@
         <item quantity="one">Others shared one idea</item>
         <item quantity="other">Others shared %d idea</item>
     </plurals>
-    <string name="ui_world_peer_slogan_adopt">:fire:</string>
-    <plurals name="ui_world_peer_slogan_authors">
-        <!--Must never be displayed-->
-        <item quantity="zero">No author</item>
-        <!--Must never be displayed-->
-        <item quantity="one">One author</item>
-        <item quantity="two">Two authors</item>
-        <item quantity="other">%d authors</item>
-    </plurals>
+    <string name="world_peer_slogan_adopt">:fire:</string>
     <string name="world_peer_last_seen_lt_10s">Nearby</string>
     <string name="world_peer_last_seen_lt_1min">Less than a minute ago</string>
     <string name="world_peer_last_seen_lt_10min">Less than ##elapsed_minutes##" min ago</string>

@@ -21,12 +21,14 @@ import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapter;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 
-public class PeersRecycleAdapter extends RecyclerAdapter {
+public class PeerAdapter extends RecyclerAdapter {
 
-    private static final String TAG = "@aura/" + PeersRecycleAdapter.class.getSimpleName();
+    private static final String TAG = "@aura/" + PeerAdapter.class.getSimpleName();
 
     private final static int TYPE_PEER_SLOGAN = 144;
     private final OnAdoptCallback mOnAdoptCallback;
+    private Timer.Timeout mRedrawTimeout;
+
     private final Comparator<Peer> mComparator = (a, b) -> {
         if (a.mId == b.mId) {
             // Avoids duplicates when the name changes
@@ -41,7 +43,7 @@ public class PeersRecycleAdapter extends RecyclerAdapter {
         return (int) (a.mLastSeenTimestamp - b.mLastSeenTimestamp);
     };
 
-    public PeersRecycleAdapter(@NonNull Context context, RecyclerView listView, OnAdoptCallback onAdoptCallback) {
+    public PeerAdapter(@NonNull Context context, RecyclerView listView, OnAdoptCallback onAdoptCallback) {
         super(context, listView);
         mOnAdoptCallback = onAdoptCallback;
     }
@@ -77,8 +79,6 @@ public class PeersRecycleAdapter extends RecyclerAdapter {
 //        );
     }
 
-    private Timer.Timeout mRedrawTimeout;
-
     /**
      * Ensures that the lastFetch information is properly reflected in items
      */
@@ -101,10 +101,10 @@ public class PeersRecycleAdapter extends RecyclerAdapter {
     @NonNull
     @Override
     public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new PeerItemHolder(
+        return new PeerHolder(
                 mInflater.inflate(R.layout.world_peer_item, parent, false),
                 mContext,
-                collapseExpandHandler,
+                mCollapseExpandHandler,
                 mOnAdoptCallback);
     }
 

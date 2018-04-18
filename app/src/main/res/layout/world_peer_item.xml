@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/world_peer_item"
+    android:id="@+id/world_peer_wrapper"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/world_peer_item_name"
+        android:id="@+id/world_peer_name"
         style="@style/FlatTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
@@ -15,7 +15,7 @@
     <!-- This is not a TextView to make sure width and breaks are
          consistent with the corresponding edit dialog -->
     <LinearLayout
-        android:id="@+id/world_peer_item_details"
+        android:id="@+id/world_peer_details"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -23,20 +23,21 @@
         android:visibility="gone">
 
         <io.auraapp.auraandroid.ui.common.MonoSpaceText
-            android:id="@+id/world_peer_item_text"
+            android:id="@+id/world_peer_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:minLines="5" />
 
         <TextView
-            android:id="@+id/world_peer_item_stats"
+            android:id="@+id/world_peer_stats"
             style="@style/FlatMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>
 
-    <io.auraapp.auraandroid.ui.world.list.NonScrollingListView
-        android:id="@+id/world_peer_item_slogans_list"
+    <android.support.v7.widget.RecyclerView
+
+        android:id="@+id/world_peer_slogans_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:dividerHeight="0dp" />

@@ -29,25 +29,29 @@ public abstract class RecyclerAdapter extends RecyclerView.Adapter<ItemViewHolde
     protected final List<ListItem> mItems = new ArrayList<>();
     private final RecyclerView mListView;
 
-    protected final CollapseExpandHandler collapseExpandHandler = new CollapseExpandHandler() {
-        @Override
-        public void flip(ListItem item) {
-            if (item == null ) {
-                return;
-            }
-
-            for (int i = 0; i < mItems.size(); i++) {
-                ListItem candidate = mItems.get(i);
-                if (candidate.mExpanded && !candidate.equals(item)) {
-                    v(TAG, "Collapsing other item at index %d", i);
-                    candidate.mExpanded = false;
-                    notifyItemChanged(i);
-                }
-            }
-            item.mExpanded = !item.mExpanded;
-            notifyItemChanged(mItems.indexOf(item));
-            mListView.smoothScrollToPosition(mItems.indexOf(item));
+    protected final CollapseExpandHandler mCollapseExpandHandler = item -> {
+        if (item == null) {
+            return;
         }
+
+        for (int i = 0; i < mItems.size(); i++) {
+            ListItem candidate = mItems.get(i);
+            if (candidate.mExpanded && !candidate.equals(item)) {
+                v(TAG, "Collapsing other item at index %d", i);
+                candidate.mExpanded = false;
+                notifyItemChanged(i);
+            }
+        }
+
+        int position = mItems.indexOf(item);
+        if (item.mExpanded) {
+            v(TAG, "Collapsing item at index %d", position);
+        } else {
+            v(TAG, "Expanding item at index %d", position);
+        }
+        item.mExpanded = !item.mExpanded;
+        notifyItemChanged(position);
+//            mListView.smoothScrollToPosition(mItems.indexOf(item));
     };
 
     public RecyclerAdapter(@NonNull Context context, RecyclerView listView) {

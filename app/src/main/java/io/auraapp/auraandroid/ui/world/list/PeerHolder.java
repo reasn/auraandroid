@@ -1,16 +1,16 @@
 package io.auraapp.auraandroid.ui.world.list;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Peer;
-import io.auraapp.auraandroid.ui.common.ColorHelper;
+import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.common.MonoSpaceText;
 import io.auraapp.auraandroid.ui.common.lists.ItemViewHolder;
 import io.auraapp.auraandroid.ui.common.lists.ListItem;
@@ -19,60 +19,31 @@ import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapter;
 import static io.auraapp.auraandroid.common.FormattedLog.e;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
-public class PeerItemHolder extends ItemViewHolder {
+public class PeerHolder extends ItemViewHolder {
 
-    static class ColorSet {
-        @ColorInt
-        int mBackground;
-        @ColorInt
-        int mText;
-        @ColorInt
-        int mAccentBackground;
-        @ColorInt
-        int mAccentText;
-
-        private ColorSet(int background, int text, int accentBackground, int accentText) {
-            mBackground = background;
-            mText = text;
-            mAccentBackground = accentBackground;
-            mAccentText = accentText;
-        }
-
-        static ColorSet create(@NonNull String color) {
-            int background = Color.parseColor(color);
-            int accentBackground = ColorHelper.getAccent(background);
-
-            return new ColorSet(
-                    background,
-                    ColorHelper.getTextColor(background),
-                    accentBackground,
-                    ColorHelper.getTextColor(accentBackground)
-            );
-        }
-    }
-
-    private static final String TAG = "aura/list/" + PeerItemHolder.class.getSimpleName();
+    private static final String TAG = "@aura/list/" + PeerHolder.class.getSimpleName();
     private final TextView mNameView;
     private final Context mContext;
     private final OnAdoptCallback mOnAdoptCallback;
     private final MonoSpaceText mTextView;
     private final TextView mStatsView;
     private final View mDetailsView;
-    private ListView mSlogansListView;
+    private RecyclerView mSlogansListView;
 
-    public PeerItemHolder(View itemView,
-                          Context context,
-                          RecyclerAdapter.CollapseExpandHandler collapseExpandHandler, OnAdoptCallback onAdoptCallback) {
+    public PeerHolder(View itemView,
+                      Context context,
+                      RecyclerAdapter.CollapseExpandHandler collapseExpandHandler,
+                      OnAdoptCallback onAdoptCallback) {
         super(itemView);
 
         mContext = context;
         mOnAdoptCallback = onAdoptCallback;
-        mNameView = itemView.findViewById(R.id.world_peer_item_name);
-        mDetailsView = itemView.findViewById(R.id.world_peer_item_details);
-        mTextView = itemView.findViewById(R.id.world_peer_item_text);
-        mStatsView = itemView.findViewById(R.id.world_peer_item_stats);
-        mSlogansListView = itemView.findViewById(R.id.world_peer_item_slogans_list);
-
+        mNameView = itemView.findViewById(R.id.world_peer_name);
+        mDetailsView = itemView.findViewById(R.id.world_peer_details);
+        mTextView = itemView.findViewById(R.id.world_peer_text);
+        mStatsView = itemView.findViewById(R.id.world_peer_stats);
+        mSlogansListView = itemView.findViewById(R.id.world_peer_slogans_list);
+        mSlogansListView.setNestedScrollingEnabled(false);
         itemView.setOnClickListener($ -> collapseExpandHandler.flip(getLastBoundItem()));
     }
 
@@ -80,11 +51,11 @@ public class PeerItemHolder extends ItemViewHolder {
     public void bind(ListItem item, View itemView) {
         v(TAG, "Binding list item view");
         if (item == null) {
-            e(TAG, "Trying to bind %s to null ListItem", PeerItemHolder.class.getSimpleName());
+            e(TAG, "Trying to bind %s to null ListItem", PeerHolder.class.getSimpleName());
             return;
         }
         if (!(item instanceof PeerItem)) {
-            e(TAG, "Trying to bind %s with %s", PeerItemHolder.class.getSimpleName(), item.getClass().getSimpleName());
+            e(TAG, "Trying to bind %s with %s", PeerHolder.class.getSimpleName(), item.getClass().getSimpleName());
             return;
         }
 
@@ -120,16 +91,22 @@ public class PeerItemHolder extends ItemViewHolder {
 
         // TODO avoid recreation on each change, e.g. cache stuff on Peer
 
-        PeerSloganListAdapter adapter = new PeerSloganListAdapter(
+        ArrayList<PeerSloganItem> items = new ArrayList<>();
+        for (Slogan slogan : peer.mSlogans) {
+            items.add(new PeerSloganItem(slogan.getText(), slogan));
+        }
+
+        PeerSloganAdapter adapter = new PeerSloganAdapter(
                 mContext,
-                R.layout.world_peer_item_slogan,
+                mSlogansListView,
                 colorSet,
-                peer.mSlogans
+                mOnAdoptCallback,
+                items
         );
 
         mSlogansListView.setBackgroundColor(colorSet.mAccentBackground);
         mSlogansListView.setAdapter(adapter);
-        mSlogansListView.setNestedScrollingEnabled(false);
+        mSlogansListView.setLayoutManager(new LinearLayoutManager(mContext));
     }
 
     private void bindStats(Peer peer, ColorSet colorSet) {

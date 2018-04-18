@@ -92,7 +92,7 @@ public class MySlogansRecycleAdapter extends RecyclerAdapter {
                 mInflater.inflate(R.layout.profile_list_item_slogan, parent, false),
                 mContext,
                 mOnMySloganActionCallback,
-                this.collapseExpandHandler
+                this.mCollapseExpandHandler
         );
     }
 
