@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
@@ -24,7 +25,7 @@ import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
 import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.SharedServicesSet;
-import io.auraapp.auraandroid.ui.SharedState;
+import io.auraapp.auraandroid.ui.common.CommunicatorProxyState;
 import io.auraapp.auraandroid.ui.common.CommunicatorStateRenderer;
 import io.auraapp.auraandroid.ui.common.InfoBox;
 import io.auraapp.auraandroid.ui.common.ScreenFragment;
@@ -35,6 +36,7 @@ import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_LIST_UPDAT
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_LIST_UPDATED_EXTRA_PEERS;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATED_EXTRA_PEER;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION;
 
 public class WorldFragment extends ScreenFragment implements FragmentWithToolbarButtons {
 
@@ -45,7 +47,7 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
     private PeerAdapter mPeerAdapter;
     private FakeSwipeRefreshLayout mSwipeRefresh;
 
-    private CommunicatorState mCommunicatorState = null;
+    private CommunicatorProxyState mComProxyState = null;
     private Set<Peer> mPeers = new HashSet<>();
     private RecyclerView mPeersRecycler;
     private InfoBox mPeersInfoBox;
@@ -79,14 +81,18 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
                     }
                 }
             }
-
-            CommunicatorState state = (CommunicatorState) extras.getSerializable(IntentFactory.INTENT_COMMUNICATOR_EXTRA_STATE);
-            if (state != null) {
-                // Intents only have state if it changed
-                mCommunicatorState = state;
+            reflectState(context);
+        }
+    };
+    private BroadcastReceiver mCommunicatorProxyStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            v(TAG, "onReceive, intent: %s", intent.getAction());
+            Bundle extras = intent.getExtras();
+            if (extras != null) {
+                mComProxyState = (CommunicatorProxyState) extras.getSerializable(IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE);
+                reflectState(context);
             }
-            reflectState();
-            updatePeersInfoBox(context);
         }
     };
 
@@ -99,12 +105,12 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
     protected void onResumeWithContext(MainActivity activity, ViewGroup rootView) {
 
         activity.registerReceiver(mReceiver, IntentFactory.communicatorIntentFilter());
-        v(TAG, "Receiver registered");
+        LocalBroadcastManager.getInstance(activity).registerReceiver(mCommunicatorProxyStateReceiver, IntentFactory.createFilter(LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION));
+        v(TAG, "Receivers registered");
 
         SharedServicesSet servicesSet = activity.getSharedServicesSet();
-        SharedState state = activity.getSharedState();
-        mPeers = state.mPeers;
-        mCommunicatorState = state.mCommunicatorState;
+        mPeers = servicesSet.mCommunicatorProxy.getPeers();
+        mComProxyState = servicesSet.mCommunicatorProxy.getState();
 
         mStatusSummary = rootView.findViewById(R.id.profile_status_summary);
         mCommunicatorStateInfoBox = rootView.findViewById(R.id.profile_status_info_box);
@@ -132,33 +138,80 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
         ((SimpleItemAnimator) mPeersRecycler.getItemAnimator()).setSupportsChangeAnimations(false);
         mPeerAdapter.onResume();
 
-        reflectState();
-        updatePeersInfoBox(activity);
+        reflectState(activity);
     }
 
     @Override
     protected void onPauseWithContext(MainActivity activity) {
         super.onPauseWithContext(activity);
         activity.unregisterReceiver(mReceiver);
-        v(TAG, "Receiver unregistered");
+        LocalBroadcastManager.getInstance(activity).unregisterReceiver(mCommunicatorProxyStateReceiver);
+        v(TAG, "Receivers unregistered");
         mPeerAdapter.onPause();
     }
 
-    public void reflectState() {
-        mSwipeRefresh.setEnabled(mCommunicatorState != null && mCommunicatorState.mScanning && mPeers != null && mPeers.size() > 0);
+    public void reflectState(Context context) {
+        boolean scanning = mComProxyState.mEnabled
+                && mComProxyState.mCommunicatorState != null
+                && mComProxyState.mCommunicatorState.mScanning;
+
+        mSwipeRefresh.setEnabled(scanning
+                && mPeers != null
+                && mPeers.size() > 0);
         mSwipeRefresh.setPeerCount(mPeers != null ? mPeers.size() : 0);
 
         CommunicatorStateRenderer.populateInfoBoxWithState(
-                mCommunicatorState,
+                mComProxyState,
                 mCommunicatorStateInfoBox,
                 mStatusSummary,
                 getContext());
-        mPeersRecycler.setVisibility(mCommunicatorState != null && mCommunicatorState.mShouldCommunicate
+        mPeersRecycler.setVisibility(scanning
                 ? View.VISIBLE
                 : View.GONE
         );
 //        updatePeersHeading();
+
+        CommunicatorState communicatorState = mComProxyState.mCommunicatorState;
+        if (communicatorState == null || mPeers.size() > 0) {
+            // Show mPeersInfoBox only if there's no communicator state info box visible and there's no peers
+            mPeersInfoBox.setVisibility(View.GONE);
+        } else {
+            updatePeersInfoBox(context, communicatorState);
+        }
     }
+
+    private void updatePeersInfoBox(Context context, CommunicatorState communicatorState) {
+
+        long scanDuration = System.currentTimeMillis() - communicatorState.mScanStartTimestamp;
+        if (scanDuration < Config.MAIN_LOOKING_AROUND_SHOW_DURATION) {
+            mPeersInfoBox.setHeading(R.string.ui_world_starting_heading);
+            mPeersInfoBox.setText(R.string.ui_world_starting_text);
+            mPeersInfoBox.setEmoji(":satellite_antenna:");
+            mPeersInfoBox.hideButton();
+
+        } else {
+            mPeersInfoBox.setHeading(R.string.ui_world_no_peers_info_heading);
+            mPeersInfoBox.setText(R.string.ui_world_no_peers_info_text);
+            mPeersInfoBox.setEmoji(":see_no_evil:");
+            mPeersInfoBox.showButton(
+                    R.string.ui_world_no_peers_info_heading_cta,
+                    R.string.ui_world_no_peers_info_second_text,
+                    $ -> {
+                        Intent sendIntent = new Intent();
+                        sendIntent.setAction(Intent.ACTION_SEND);
+                        sendIntent.putExtra(
+                                Intent.EXTRA_TEXT,
+                                EmojiHelper.replaceShortCode(context.getString(R.string.ui_main_share_text))
+                        );
+                        sendIntent.setType("text/plain");
+                        context.startActivity(sendIntent);
+                    });
+        }
+
+        mPeersInfoBox.setBackgroundColor(context.getResources().getColor(R.color.infoBoxWarning));
+        mPeersInfoBox.setVisibility(View.VISIBLE);
+    }
+
 
 //    private void updatePeersHeading() {
 //
@@ -190,49 +243,4 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
 //
 //        heading.setVisibility(View.VISIBLE);
 //    }
-
-    private void updatePeersInfoBox(Context context) {
-
-        // Show mPeersInfoBox only if there's no communicator state info box visible and there's no peers
-        if (mCommunicatorStateInfoBox.getVisibility() == View.VISIBLE || mPeers.size() > 0) {
-            mPeersInfoBox.setVisibility(View.GONE);
-            return;
-        }
-
-//        int nearbyPeers = 0;
-//        long now = System.currentTimeMillis();
-//        for (Peer peer : peers) {
-//            if (now - peer.mLastSeenTimestamp < 30000) {
-//                nearbyPeers++;
-//            }
-//        }
-
-        if (System.currentTimeMillis() - mCommunicatorState.mScanStartTimestamp < Config.MAIN_LOOKING_AROUND_SHOW_DURATION) {
-            mPeersInfoBox.setHeading(R.string.ui_world_starting_heading);
-            mPeersInfoBox.setText(R.string.ui_world_starting_text);
-            mPeersInfoBox.setEmoji(":satellite_antenna:");
-            mPeersInfoBox.hideButton();
-
-        } else {
-            mPeersInfoBox.setHeading(R.string.ui_world_no_peers_info_heading);
-            mPeersInfoBox.setText(R.string.ui_world_no_peers_info_text);
-            mPeersInfoBox.setEmoji(":see_no_evil:");
-            mPeersInfoBox.showButton(
-                    R.string.ui_world_no_peers_info_heading_cta,
-                    R.string.ui_world_no_peers_info_second_text,
-                    $ -> {
-                        Intent sendIntent = new Intent();
-                        sendIntent.setAction(Intent.ACTION_SEND);
-                        sendIntent.putExtra(
-                                Intent.EXTRA_TEXT,
-                                EmojiHelper.replaceShortCode(context.getString(R.string.ui_main_share_text))
-                        );
-                        sendIntent.setType("text/plain");
-                        context.startActivity(sendIntent);
-                    });
-        }
-
-        mPeersInfoBox.setBackgroundColor(context.getResources().getColor(R.color.infoBoxWarning));
-        mPeersInfoBox.setVisibility(View.VISIBLE);
-    }
 }

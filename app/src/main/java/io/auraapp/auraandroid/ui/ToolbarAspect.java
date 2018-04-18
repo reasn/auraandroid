@@ -10,7 +10,6 @@ import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -53,8 +52,6 @@ public class ToolbarAspect {
     }
 
     public void initToolbar() {
-
-        mAuraEnabled = mPrefs.getBoolean(mActivity.getString(R.string.prefs_enabled_key), true);
 
         mToolbar = mActivity.findViewById(R.id.toolbar);
         mActivity.setSupportActionBar(mToolbar);
@@ -104,14 +101,6 @@ public class ToolbarAspect {
         }));
     }
 
-    public boolean isAuraEnabled() {
-        return mAuraEnabled;
-    }
-
-    public boolean isDebugFragmentEnabled() {
-        return mDebugFragmentEnabled;
-    }
-
     public void createOptionsMenu(Menu menu) {
         mActivity.getMenuInflater().inflate(R.menu.toolbar_menu, menu);
 
@@ -121,7 +110,8 @@ public class ToolbarAspect {
         menu.findItem(R.id.action_terms).setVisible(Config.DEBUG_UI_ENABLED);
 
         mEnabledSwitch = enabledItem.getActionView().findViewById(R.id.enabled_switch);
-        mEnabledSwitch.setChecked(mAuraEnabled);
+        boolean enabled = mCommunicatorProxy.getState().mEnabled;
+        mEnabledSwitch.setChecked(enabled);
 
         ScreenPager pager = mActivity.getSharedServicesSet().mPager;
         MyProfileManager myProfileManager = mActivity.getSharedServicesSet().mMyProfileManager;
@@ -151,13 +141,12 @@ public class ToolbarAspect {
         visibilityUpdater.update(pager.getScreenAdapter().getItem(pager.getCurrentItem()));
 
         // Managed programmatically because offText XML attribute has no effect for SwitchCompat in menu item
-        mEnabledSwitch.setText(mActivity.getString(mAuraEnabled
+        mEnabledSwitch.setText(mActivity.getString(enabled
                 ? R.string.ui_toolbar_enable_on
                 : R.string.ui_toolbar_enable_off));
 
-        mEnabledSwitch.setOnCheckedChangeListener((CompoundButton $, boolean isChecked) -> {
-            mAuraEnabled = isChecked;
-            mPrefs.edit().putBoolean(mActivity.getString(R.string.prefs_enabled_key), isChecked).apply();
+        mEnabledSwitch.setOnCheckedChangeListener(($, isChecked) -> {
+
             if (isChecked) {
                 mCommunicatorProxy.enable();
                 mCommunicatorProxy.updateMyProfile(myProfileManager.getProfile());

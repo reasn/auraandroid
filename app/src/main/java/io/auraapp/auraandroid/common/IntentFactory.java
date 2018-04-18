@@ -34,14 +34,21 @@ public class IntentFactory {
 
     // local (activity)
     public static final String LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION = prefix + "local.communicatorState";
-    public static final String LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_STATE = prefix + "local.extraState";
-
+    public static final String LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE = prefix + "local.extraProxyState";
 
     public static IntentFilter communicatorIntentFilter() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(INTENT_COMMUNICATOR_STATE_UPDATED_ACTION);
         filter.addAction(INTENT_PEER_LIST_UPDATED_ACTION);
         filter.addAction(INTENT_PEER_UPDATED_ACTION);
+        return filter;
+    }
+
+    public static IntentFilter createFilter(String... actions) {
+        IntentFilter filter = new IntentFilter();
+        for (String action : actions) {
+            filter.addAction(action);
+        }
         return filter;
     }
 

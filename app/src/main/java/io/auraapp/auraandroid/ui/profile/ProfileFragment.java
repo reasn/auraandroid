@@ -6,13 +6,13 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.IntentFactory;
@@ -22,6 +22,7 @@ import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
 import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.SharedServicesSet;
 import io.auraapp.auraandroid.ui.common.ColorHelper;
+import io.auraapp.auraandroid.ui.common.CommunicatorProxyState;
 import io.auraapp.auraandroid.ui.common.CommunicatorStateRenderer;
 import io.auraapp.auraandroid.ui.common.InfoBox;
 import io.auraapp.auraandroid.ui.common.MonoSpaceText;
@@ -32,6 +33,7 @@ import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 import static android.content.Context.MODE_PRIVATE;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION;
 
 public class ProfileFragment extends ScreenFragment implements FragmentWithToolbarButtons, FragmentCameIntoView {
 
@@ -42,7 +44,7 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     private MonoSpaceText mTextView;
     private LinearLayout mColorWrapper;
     private MySlogansRecycleAdapter mAdapter;
-    private CommunicatorState mCommunicatorState;
+    private CommunicatorProxyState mCommunicatorState;
     private DialogManager mDialogManager;
     private MyProfileManager mMyProfileManager;
     private final MyProfileManager.MyProfileChangedCallback mProfileChangedCallback = event -> {
@@ -69,16 +71,10 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
         public void onReceive(Context $, Intent intent) {
             v(TAG, "onReceive, intent: %s", intent.getAction());
             Bundle extras = intent.getExtras();
-            if (extras == null) {
-                return;
+            if (extras != null) {
+                mCommunicatorState = (CommunicatorProxyState) extras.getSerializable(IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE);
+                reflectCommunicatorState();
             }
-            CommunicatorState state = (CommunicatorState) extras.getSerializable(IntentFactory.INTENT_COMMUNICATOR_EXTRA_STATE);
-            if (state != null) {
-                v(TAG, "Received new communicator state, state: %s", mCommunicatorState);
-                // Intents only have state if it changed
-                mCommunicatorState = state;
-            }
-            reflectCommunicatorState();
         }
     };
 
@@ -91,7 +87,7 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     @Override
     protected void onResumeWithContext(MainActivity activity, ViewGroup rootView) {
 
-        activity.registerReceiver(mReceiver, IntentFactory.communicatorIntentFilter());
+        LocalBroadcastManager.getInstance(activity).registerReceiver(mReceiver, IntentFactory.createFilter(LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION));
         v(TAG, "Receiver registered");
 
         bindShared(activity);
@@ -132,18 +128,18 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
 
     private void bindShared(MainActivity activity) {
         SharedServicesSet servicesSet = activity.getSharedServicesSet();
+        mDialogManager = servicesSet.mDialogManager;
+        mCommunicatorState = servicesSet.mCommunicatorProxy.getState();
         mMyProfileManager = servicesSet.mMyProfileManager;
         mMyProfileManager.removeChangedCallback(mProfileChangedCallback);
         mMyProfileManager.addChangedCallback(mProfileChangedCallback);
 
-        mDialogManager = servicesSet.mDialogManager;
-        mCommunicatorState = activity.getSharedState().mCommunicatorState;
     }
 
     @Override
     protected void onPauseWithContext(MainActivity activity) {
         super.onPauseWithContext(activity);
-        activity.unregisterReceiver(mReceiver);
+        LocalBroadcastManager.getInstance(activity).unregisterReceiver(mReceiver);
         v(TAG, "Receiver unregistered");
     }
 

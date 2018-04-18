@@ -4,12 +4,17 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import io.auraapp.auraandroid.Communicator.Communicator;
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
+import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfile;
@@ -23,100 +28,88 @@ import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_LIST_UPDAT
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_LIST_UPDATED_EXTRA_PEERS;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATED_EXTRA_PEER;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE;
 
 public class CommunicatorProxy {
-
     private static final String TAG = "@aura/communicatorProxy";
 
-    private CommunicatorState mState = null;
+    private CommunicatorProxyState mState = new CommunicatorProxyState(false, null);
+    private Set<Peer> mPeers = new HashSet<>();
 
     private final Context mContext;
 
-    private final BroadcastReceiver mReceiver;
     private boolean mRegistered = false;
+    private final SharedPreferences mPrefs;
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            v(TAG, "onReceive, intent: %s", intent.getAction());
+            Bundle extras = intent.getExtras();
+            if (extras == null) {
+                w(TAG, "Received invalid intent (extras are null), ignoring it");
+                return;
+            }
 
-    @FunctionalInterface
-    public interface StateUpdatedCallback {
-        void onStateUpdated(CommunicatorState state);
-    }
+            if (INTENT_PEER_UPDATED_ACTION.equals(intent.getAction())) {
 
-    @FunctionalInterface
-    public interface PeerSetChangedCallback {
-        void onPeerSetChanged(Set<Peer> peers);
-    }
+                @SuppressWarnings("unchecked")
+                Peer peer = (Peer) extras.getSerializable(INTENT_PEER_UPDATED_EXTRA_PEER);
+                if (peer != null) {
+                    v(TAG, "Peer updated, peer: %s, slogans: %d", peer.mId, peer.mSlogans.size());
+                    mPeers.remove(peer);
+                    mPeers.add(peer);
+                } else {
+                    w(TAG, "Received invalid %s intent, peer: null", INTENT_PEER_UPDATED_ACTION);
+                }
+                // INTENT_PEER_UPDATED_ACTION is sent quite often and therefore not accompanied by
+                // communicator state. Return here to not generate warnings about the missing state
+                return;
 
-    @FunctionalInterface
-    public interface PeerChangedCallback {
-        void onPeerChanged(Peer peer);
-    }
+            } else if (INTENT_PEER_LIST_UPDATED_ACTION.equals(intent.getAction())) {
+                @SuppressWarnings("unchecked")
+                Set<Peer> peers = (Set<Peer>) extras.getSerializable(INTENT_PEER_LIST_UPDATED_EXTRA_PEERS);
 
-    public CommunicatorProxy(Context context,
-                             PeerSetChangedCallback peerSetChangedCallback,
-                             PeerChangedCallback peerChangedCallback,
-                             StateUpdatedCallback stateUpdatedCallback) {
+                if (peers != null) {
+                    v(TAG, "Peer list changed, (%d) peers: %s", peers.size(), peers);
+                    mPeers = peers;
+                } else {
+                    w(TAG, "Received invalid %s intent, peers: null, intent: %s", INTENT_PEER_LIST_UPDATED_ACTION, intent);
+                }
+
+            } else if (!INTENT_COMMUNICATOR_STATE_UPDATED_ACTION.equals(intent.getAction())) {
+                w(TAG, "Received invalid intent (unknown action \"%s\"), ignoring it", intent.getAction());
+                return;
+            }
+
+            CommunicatorState state = (CommunicatorState) extras.getSerializable(IntentFactory.INTENT_COMMUNICATOR_EXTRA_STATE);
+
+            if (state == null) {
+                w(TAG, "No state returned by communicator, intent: %s", intent);
+                return;
+            }
+
+            boolean stateChanged = !state.equals(mState.mCommunicatorState);
+
+            mState.mCommunicatorState = state;
+            if (stateChanged) {
+                i(TAG, "Communicator state changed, state: %s", state);
+                Intent stateUpdate = new Intent(LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION);
+                stateUpdate.putExtra(LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE, mState);
+                LocalBroadcastManager.getInstance(context).sendBroadcast(stateUpdate);
+            }
+        }
+    };
+
+    public CommunicatorProxy(Context context) {
         mContext = context;
 
-        mReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context $, Intent intent) {
-                v(TAG, "onReceive, intent: %s", intent.getAction());
-                Bundle extras = intent.getExtras();
-                if (extras == null) {
-                    w(TAG, "Received invalid intent (extras are null), ignoring it");
-                    return;
-                }
-
-                if (INTENT_PEER_UPDATED_ACTION.equals(intent.getAction())) {
-
-                    @SuppressWarnings("unchecked")
-                    Peer peer = (Peer) extras.getSerializable(INTENT_PEER_UPDATED_EXTRA_PEER);
-                    if (peer != null) {
-                        v(TAG, "Peer updated, peer: %s, slogans: %d", peer.mId, peer.mSlogans.size());
-                        peerChangedCallback.onPeerChanged(peer);
-                    } else {
-                        w(TAG, "Received invalid %s intent, peer: null", INTENT_PEER_UPDATED_ACTION);
-                    }
-                    // INTENT_PEER_UPDATED_ACTION is sent quite often and therefore not accompanied by
-                    // communicator state. Return here to not generate warnings about the missing state
-                    return;
-
-                } else if (INTENT_PEER_LIST_UPDATED_ACTION.equals(intent.getAction())) {
-                    @SuppressWarnings("unchecked")
-                    Set<Peer> peers = (Set<Peer>) extras.getSerializable(INTENT_PEER_LIST_UPDATED_EXTRA_PEERS);
-
-                    if (peers != null) {
-                        v(TAG, "Peer list changed, (%d) peers: %s", peers.size(), peers);
-                        peerSetChangedCallback.onPeerSetChanged(peers);
-                    } else {
-                        w(TAG, "Received invalid %s intent, peers: null, intent: %s", INTENT_PEER_LIST_UPDATED_ACTION, intent);
-                    }
-
-                } else if (!INTENT_COMMUNICATOR_STATE_UPDATED_ACTION.equals(intent.getAction())) {
-                    w(TAG, "Received invalid intent (unknown action \"%s\"), ignoring it", intent.getAction());
-                    return;
-                }
-
-                CommunicatorState state = (CommunicatorState) extras.getSerializable(IntentFactory.INTENT_COMMUNICATOR_EXTRA_STATE);
-
-
-                if (state == null) {
-                    w(TAG, "No state returned by communicator, intent: %s", intent);
-                    return;
-                }
-
-                boolean stateChanged = !state.equals(mState);
-
-                mState = state;
-                if (stateChanged) {
-                    i(TAG, "Communicator state changed, state: %s", state);
-                    stateUpdatedCallback.onStateUpdated(state);
-
-//                    Intent stateUpdate = new Intent(LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION);
-//                    stateUpdate.putExtra(LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_STATE, state);
-//                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(stateUpdate);
-                }
-            }
-        };
+        mPrefs = mContext.getSharedPreferences(Config.PREFERENCES_BUCKET, Context.MODE_PRIVATE);
+        if (mPrefs.getBoolean(mContext.getString(R.string.prefs_enabled_key), true)) {
+            enable();
+        } else {
+            i(TAG, "Aura is currently disabled");
+        }
     }
 
     public void startListening() {
@@ -144,11 +137,15 @@ public class CommunicatorProxy {
         d(TAG, "Enabling communicator");
         Intent intent = new Intent(mContext, Communicator.class);
         intent.setAction(IntentFactory.INTENT_ENABLE_ACTION);
+        mState.mEnabled = true;
+        mPrefs.edit()
+                .putBoolean(mContext.getString(R.string.prefs_enabled_key), true)
+                .apply();
         mContext.startService(intent);
     }
 
     public void updateMyProfile(MyProfile myProfile) {
-        if (mState != null && !mState.mShouldCommunicate) {
+        if (!mState.mEnabled) {
             return;
         }
 
@@ -163,11 +160,15 @@ public class CommunicatorProxy {
 
     public void disable() {
         d(TAG, "Disabling communicator");
-        if (!mState.mShouldCommunicate) {
+        if (!mState.mEnabled) {
             w(TAG, "Attempting to disable apparently already disabled communicator");
         }
+        mState.mEnabled = false;
         Intent intent = new Intent(mContext, Communicator.class);
         intent.setAction(IntentFactory.INTENT_DISABLE_ACTION);
+        mPrefs.edit()
+                .putBoolean(mContext.getString(R.string.prefs_enabled_key), false)
+                .apply();
         mContext.startService(intent);
     }
 
@@ -176,5 +177,13 @@ public class CommunicatorProxy {
         Intent intent = new Intent(mContext, Communicator.class);
         intent.setAction(IntentFactory.INTENT_REQUEST_PEERS_ACTION);
         mContext.startService(intent);
+    }
+
+    public CommunicatorProxyState getState() {
+        return mState;
+    }
+
+    public Set<Peer> getPeers() {
+        return mPeers;
     }
 }

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -17,7 +18,6 @@ import com.google.gson.GsonBuilder;
 import java.util.HashSet;
 import java.util.Set;
 
-import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
@@ -27,8 +27,9 @@ import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.common.Timer;
 import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
 import io.auraapp.auraandroid.ui.MainActivity;
-import io.auraapp.auraandroid.ui.SharedState;
+import io.auraapp.auraandroid.ui.SharedServicesSet;
 import io.auraapp.auraandroid.ui.common.ColorPicker;
+import io.auraapp.auraandroid.ui.common.CommunicatorProxyState;
 import io.auraapp.auraandroid.ui.common.ScreenFragment;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 
@@ -37,6 +38,7 @@ import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_LIST_UPDAT
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_LIST_UPDATED_EXTRA_PEERS;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATED_EXTRA_PEER;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION;
 
 public class DebugFragment extends ScreenFragment implements FragmentWithToolbarButtons {
 
@@ -47,7 +49,7 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
     private Timer.Timeout mRefreshTimeout;
     @Nullable
     private Set<Peer> mPeers;
-    private CommunicatorState mState;
+    private CommunicatorProxyState mState;
     private long mLastStateUpdateTimestamp;
     private long mLastIntentTimestamp;
 
@@ -81,14 +83,21 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
                         mPeers = peers;
                     }
                 }
-                CommunicatorState state = (CommunicatorState) extras.getSerializable(IntentFactory.INTENT_COMMUNICATOR_EXTRA_STATE);
-                if (state != null) {
-                    // Intents only have state if it changed
-                    mState = state;
-                    mLastStateUpdateTimestamp = System.currentTimeMillis();
-                }
                 reflectState(context);
             });
+        }
+    };
+
+    private BroadcastReceiver mCommunicatorProxyStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            v(TAG, "onReceive, intent: %s", intent.getAction());
+            Bundle extras = intent.getExtras();
+            if (extras != null) {
+                mState = (CommunicatorProxyState) extras.getSerializable(IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE);
+                mLastStateUpdateTimestamp = System.currentTimeMillis();
+                reflectState(context);
+            }
         }
     };
 
@@ -107,14 +116,16 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
 
     @Override
     protected void onResumeWithContext(MainActivity activity, ViewGroup rootView) {
-        MyProfileManager profileManager = activity.getSharedServicesSet().mMyProfileManager;
-
         activity.registerReceiver(mReceiver, IntentFactory.communicatorIntentFilter());
-        v(TAG, "Receiver registered");
+        LocalBroadcastManager
+                .getInstance(activity)
+                .registerReceiver(mCommunicatorProxyStateReceiver, IntentFactory.createFilter(LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION));
+        v(TAG, "Receivers registered");
 
-        SharedState state = activity.getSharedState();
-        mPeers = state.mPeers;
-        mState = state.mCommunicatorState;
+        SharedServicesSet servicesSet = activity.getSharedServicesSet();
+        MyProfileManager profileManager = servicesSet.mMyProfileManager;
+        mState = servicesSet.mCommunicatorProxy.getState();
+        mPeers = servicesSet.mCommunicatorProxy.getPeers();
         mLastStateUpdateTimestamp = System.currentTimeMillis();
 
         // TODO come up with great personas
@@ -158,7 +169,8 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
         super.onPauseWithContext(activity);
         Timer.clear(mRefreshTimeout);
         activity.unregisterReceiver(mReceiver);
-        v(TAG, "Receiver unregistered");
+        LocalBroadcastManager.getInstance(activity).unregisterReceiver(mCommunicatorProxyStateReceiver);
+        v(TAG, "Receivers unregistered");
     }
 
     private void reflectState(Context context) {

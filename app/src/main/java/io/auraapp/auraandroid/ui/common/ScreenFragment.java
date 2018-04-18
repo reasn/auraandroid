@@ -57,7 +57,7 @@ abstract public class ScreenFragment extends Fragment {
 
         // Make sure that view exists, MainActivity.onCreate finished and the callback hasn't
         // been invoked within the current lifecycle
-        if (mRootView != null && activity.getSharedState() != null) {
+        if (mRootView != null && activity.getSharedServicesSet() != null) {
             v(TAG, "Invoking onResumeWithContext, fragment: %s", getClass().getSimpleName());
             onResumeWithContext(activity, mRootView);
         }

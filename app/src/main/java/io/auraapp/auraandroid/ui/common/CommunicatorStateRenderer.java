@@ -23,7 +23,7 @@ public class CommunicatorStateRenderer {
         }
     }
 
-    public static void populateInfoBoxWithState(@Nullable CommunicatorState state,
+    public static void populateInfoBoxWithState(CommunicatorProxyState proxyState,
                                                 InfoBox infoBox,
                                                 TextView summary,
                                                 Context context) {
@@ -41,10 +41,20 @@ public class CommunicatorStateRenderer {
             infoBox.hideButton();
             infoBox.setColor(R.color.infoBoxWarning);
         };
+        Runnable showGettingReady = () -> {
+            summary.setText(EmojiHelper.replaceShortCode(context.getString(R.string.ui_common_communicator_summary_on_not_active)));
+            summary.setBackgroundColor(context.getResources().getColor(R.color.yellow));
+        };
 
-        if (state == null) {
+        @Nullable
+        CommunicatorState state = proxyState.mCommunicatorState;
+
+        if (!proxyState.mEnabled) {
             showAuraOffInfoBox.run();
             show = BOX;
+
+        } else if (state == null) {
+            showGettingReady.run();
 
         } else if (state.mBluetoothRestartRequired) {
             infoBox.setEmoji(":dizzy_face:");
@@ -84,12 +94,10 @@ public class CommunicatorStateRenderer {
             show = BOX;
         } else if (!state.mAdvertising) {
             w(TAG, "Not advertising although it is possible.");
-            summary.setText(EmojiHelper.replaceShortCode(context.getString(R.string.ui_common_communicator_summary_on_not_active)));
-            summary.setBackgroundColor(context.getResources().getColor(R.color.yellow));
+            showGettingReady.run();
         } else if (!state.mScanning) {
             w(TAG, "Not scanning although it is possible.");
-            summary.setText(EmojiHelper.replaceShortCode(context.getString(R.string.ui_common_communicator_summary_on_not_active)));
-            summary.setBackgroundColor(context.getResources().getColor(R.color.yellow));
+            showGettingReady.run();
 
         } else {
             show = NONE;
