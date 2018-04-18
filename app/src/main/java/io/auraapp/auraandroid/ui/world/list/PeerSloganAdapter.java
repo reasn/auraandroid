@@ -24,8 +24,6 @@ public class PeerSloganAdapter extends RecyclerAdapter {
 
         super(context, listView);
         mItems.addAll(sloganItems);
-        // TODO add
-//        mItems.add(new SpacerItem());
         mColorSet = colorSet;
         mOnAdoptCallback = onAdoptCallback;
     }

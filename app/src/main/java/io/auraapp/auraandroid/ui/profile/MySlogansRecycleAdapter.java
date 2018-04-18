@@ -3,6 +3,7 @@ package io.auraapp.auraandroid.ui.profile;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
@@ -15,9 +16,9 @@ import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.common.ColorHelper;
 import io.auraapp.auraandroid.ui.common.lists.ItemViewHolder;
 import io.auraapp.auraandroid.ui.common.lists.ListItem;
-import io.auraapp.auraandroid.ui.common.lists.ListSynchronizer;
 import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapter;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
+import io.auraapp.auraandroid.ui.world.list.PeersDiffCallback;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
@@ -74,19 +75,26 @@ public class MySlogansRecycleAdapter extends RecyclerAdapter {
         for (Slogan mySlogan : mySlogans) {
             newItems.add(new MySloganListItem(mySlogan));
         }
-        ListSynchronizer.syncLists(
-                mItems,
-                newItems,
-                this,
-                (item, newItem) -> item instanceof SpacerItem || item.compareIndex(newItem) > 0
-        );
+        newItems.add(new SpacerItem());
+
+        DiffUtil.DiffResult diff = DiffUtil.calculateDiff(new PeersDiffCallback(mItems, newItems));
+        mItems.clear();
+        mItems.addAll(newItems);
+        diff.dispatchUpdatesTo(this);
+
+//        ListSynchronizer.syncLists(
+//                mItems,
+//                newItems,
+//                this,
+//                (item, newItem) -> item instanceof SpacerItem || item.compareIndex(newItem) > 0
+//        );
     }
 
     @NonNull
     @Override
     public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_SPACER) {
-            return new SpacerHolder(mInflater.inflate(R.layout.profile_list_item_spacer, parent, false));
+            return new SpacerHolder(mInflater.inflate(R.layout.common_list_spacer, parent, false));
         }
         return new MySloganHolder(
                 mInflater.inflate(R.layout.profile_list_item_slogan, parent, false),

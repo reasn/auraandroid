@@ -29,7 +29,7 @@ public class PeersDiffCallback extends DiffUtil.Callback {
     @Override
     public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
         ListItem oldItem = mOldItems.get(oldItemPosition);
-        ListItem newItem = mOldItems.get(newItemPosition);
+        ListItem newItem = mNewItems.get(newItemPosition);
         if (oldItem instanceof SpacerItem && newItem instanceof SpacerItem) {
             return true;
         }

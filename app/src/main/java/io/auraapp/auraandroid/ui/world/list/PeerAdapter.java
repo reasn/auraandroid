@@ -18,6 +18,8 @@ import io.auraapp.auraandroid.common.Timer;
 import io.auraapp.auraandroid.ui.common.lists.ItemViewHolder;
 import io.auraapp.auraandroid.ui.common.lists.ListItem;
 import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapter;
+import io.auraapp.auraandroid.ui.profile.SpacerHolder;
+import io.auraapp.auraandroid.ui.profile.SpacerItem;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 
@@ -25,7 +27,8 @@ public class PeerAdapter extends RecyclerAdapter {
 
     private static final String TAG = "@aura/" + PeerAdapter.class.getSimpleName();
 
-    private final static int TYPE_PEER_SLOGAN = 144;
+    private final static int TYPE_PEER = 244;
+    private final static int TYPE_SPACER = 245;
     private final OnAdoptCallback mOnAdoptCallback;
     private Timer.Timeout mRedrawTimeout;
 
@@ -46,6 +49,7 @@ public class PeerAdapter extends RecyclerAdapter {
     public PeerAdapter(@NonNull Context context, RecyclerView listView, OnAdoptCallback onAdoptCallback) {
         super(context, listView);
         mOnAdoptCallback = onAdoptCallback;
+        mItems.add(new SpacerItem());
     }
 
     public void notifyPeersChanged(Set<Peer> peerSet) {
@@ -64,6 +68,7 @@ public class PeerAdapter extends RecyclerAdapter {
         for (Peer peer : sortedPeers) {
             newItems.add(new PeerItem(peer));
         }
+        newItems.add(new SpacerItem());
 
         d(TAG, "Updating list, peers was %d, is: %d", mItems.size(), newItems.size());
 
@@ -88,6 +93,9 @@ public class PeerAdapter extends RecyclerAdapter {
         mRedrawTimeout = timer.setSerializedInterval(() -> {
             long now = System.currentTimeMillis();
             for (ListItem item : mItems) {
+                if (item instanceof SpacerItem) {
+                    continue;
+                }
                 if (now - ((PeerItem) item).getPeer().mLastSeenTimestamp > 10000) {
                     notifyItemChanged(mItems.indexOf(item));
                 }
@@ -102,6 +110,9 @@ public class PeerAdapter extends RecyclerAdapter {
     @NonNull
     @Override
     public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (viewType == TYPE_SPACER) {
+            return new SpacerHolder(mInflater.inflate(R.layout.common_list_spacer, parent, false));
+        }
         return new PeerHolder(
                 mInflater.inflate(R.layout.world_peer, parent, false),
                 mContext,
@@ -111,7 +122,10 @@ public class PeerAdapter extends RecyclerAdapter {
 
     @Override
     public int getItemViewType(int position) {
-        return TYPE_PEER_SLOGAN;
+        if (mItems.get(position) instanceof SpacerItem) {
+            return TYPE_SPACER;
+        }
+        return TYPE_PEER;
     }
 }
 
