@@ -73,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
         mSharedServicesSet.mMyProfileManager = mMyProfileManager;
         mSharedServicesSet.mDialogManager = new DialogManager(this);
         mSharedServicesSet.mPager = findViewById(R.id.pager);
+        mCommunicatorProxy = new CommunicatorProxy(this);
+        mSharedServicesSet.mCommunicatorProxy = mCommunicatorProxy;
 
         mSharedServicesSet.mTutorialManager = new TutorialManager(this, findViewById(R.id.activity_wrapper), mSharedServicesSet.mPager);
 
@@ -115,7 +117,6 @@ public class MainActivity extends AppCompatActivity {
                     throw new RuntimeException("Unknown slogan event " + event);
             }
         });
-        mCommunicatorProxy = new CommunicatorProxy(this);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(new BroadcastReceiver() {
             @Override
@@ -136,7 +137,6 @@ public class MainActivity extends AppCompatActivity {
 //                            mHandler.postDelayed(this::reflectStatus, Config.MAIN_LOOKING_AROUND_SHOW_DURATION);
 //                        }
 
-
                 if (proxyState == null) {
                     throw new RuntimeException("Received null proxy state");
                 }
@@ -150,17 +150,12 @@ public class MainActivity extends AppCompatActivity {
                 if (proxyState.mCommunicatorState.mRecentBtTurnOnEvents >= Config.COMMUNICATOR_RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD) {
                     showBrokenBtStackAlert();
                 }
-
             }
         }, IntentFactory.createFilter(LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION));
         v(TAG, "Receiver registered");
 
-
-        mSharedServicesSet.mCommunicatorProxy = mCommunicatorProxy;
-
-        mToolbarAspect = new ToolbarAspect(this, mCommunicatorProxy, mHandler);
+        mToolbarAspect = new ToolbarAspect(this, mHandler);
         mToolbarAspect.initToolbar();
-
 //        EmojiCompat.init(new BundledEmojiCompatConfig(this));
 
         mCommunicatorProxy.updateMyProfile(mMyProfileManager.getProfile());
@@ -233,13 +228,11 @@ public class MainActivity extends AppCompatActivity {
     @ExternalInvocation
     protected void onPause() {
         super.onPause();
-
         mHandler.post(() -> {
             mCommunicatorProxy.stopListening();
             inForeground = false;
         });
     }
-
 
     public void showTutorial() {
         mSharedServicesSet.mTutorialManager.goTo(SloganAddStep.class);

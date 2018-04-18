@@ -70,12 +70,12 @@ class PeerBroadcaster {
 
     private Peer buildPeer(Device device) {
         final Peer peer = new Peer(device.mId);
+        DevicePeerProfile profile = device.buildProfile();
 
         peer.mLastSeenTimestamp = device.lastSeenTimestamp;
-        peer.mSynchronizing = device.mSynchronizing;
+        peer.mSynchronizing = device.mSynchronizing || profile == null;
         peer.mSuccessfulRetrievals = device.stats.mSuccessfulRetrievals;
         peer.mErrors = device.stats.mErrors;
-        DevicePeerProfile profile = device.buildProfile();
         if (profile != null) {
             peer.mColor = profile.getColor();
             peer.mName = profile.getName();

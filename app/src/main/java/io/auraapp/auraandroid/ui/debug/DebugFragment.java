@@ -39,6 +39,7 @@ import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_LIST_UPDAT
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATED_EXTRA_PEER;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION;
+import static io.auraapp.auraandroid.ui.common.CommunicatorProxy.replacePeer;
 
 public class DebugFragment extends ScreenFragment implements FragmentWithToolbarButtons {
 
@@ -72,8 +73,7 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
                         if (mPeers == null) {
                             mPeers = new HashSet<>();
                         }
-                        mPeers.remove(peer);
-                        mPeers.add(peer);
+                        replacePeer(mPeers, peer, false);
                     }
 
                 } else if (INTENT_PEER_LIST_UPDATED_ACTION.equals(intent.getAction())) {

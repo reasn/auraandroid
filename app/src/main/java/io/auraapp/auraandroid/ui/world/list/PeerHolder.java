@@ -4,6 +4,8 @@ import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -23,11 +25,13 @@ public class PeerHolder extends ItemViewHolder {
 
     private static final String TAG = "@aura/list/" + PeerHolder.class.getSimpleName();
     private final TextView mNameView;
+    private final LinearLayout mHeadingView;
     private final Context mContext;
     private final OnAdoptCallback mOnAdoptCallback;
     private final MonoSpaceText mTextView;
     private final TextView mStatsView;
     private final View mDetailsView;
+    private final ProgressBar mSpinner;
     private RecyclerView mSlogansListView;
 
     public PeerHolder(View itemView,
@@ -38,7 +42,9 @@ public class PeerHolder extends ItemViewHolder {
 
         mContext = context;
         mOnAdoptCallback = onAdoptCallback;
+        mSpinner = itemView.findViewById(R.id.world_peer_spinner);
         mNameView = itemView.findViewById(R.id.world_peer_name);
+        mHeadingView = itemView.findViewById(R.id.world_peer_heading);
         mDetailsView = itemView.findViewById(R.id.world_peer_details);
         mTextView = itemView.findViewById(R.id.world_peer_text);
         mStatsView = itemView.findViewById(R.id.world_peer_stats);
@@ -72,8 +78,15 @@ public class PeerHolder extends ItemViewHolder {
 
         Peer peer = item.getPeer();
 
-        mNameView.setText(peer.mName);
-        mNameView.setBackgroundColor(colorSet.mBackground);
+        mHeadingView.setBackgroundColor(colorSet.mBackground);
+
+        mSpinner.setVisibility(peer.mSynchronizing
+                ? View.VISIBLE
+                : View.GONE);
+
+        mNameView.setText(peer.mName == null
+                ? mContext.getString(R.string.world_peer_no_name)
+                : peer.mName);
         mNameView.setTextColor(colorSet.mText);
 
         mDetailsView.setVisibility(item.mExpanded

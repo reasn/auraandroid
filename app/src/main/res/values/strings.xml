@@ -45,7 +45,7 @@
     <string name="ui_profile_dialog_edit_confirm">Save</string>
     <string name="ui_profile_dialog_edit_cancel">Cancel</string>
     <!--Dialog: Edit Color -->
-    <string name="ui_profile_dialog_edit_color_title">Your Aura\'s Color</string>
+    <string name="ui_profile_dialog_edit_color_title">Color your Aura</string>
     <!--Dialog: Edit Name -->
     <string name="ui_profile_dialog_edit_name_title">Change my Name</string>
     <string name="ui_profile_dialog_edit_name_hint">Your Name</string>
@@ -183,5 +183,6 @@
     <string name="tutorial_button_close">Close</string>
     <string name="tutorial_button_back">Back</string>
     <string name="tutorial_button_next">Next</string>
+    <string name="world_peer_no_name">Somebody</string>
 
 </resources>

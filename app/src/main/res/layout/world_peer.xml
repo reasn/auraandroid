@@ -6,11 +6,28 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/world_peer_name"
+    <LinearLayout
+        android:id="@+id/world_peer_heading"
         style="@style/FlatTitle"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ProgressBar
+            android:id="@+id/world_peer_spinner"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginEnd="4dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/world_peer_name"
+            style="@style/FlatTitleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 
     <!-- This is not a TextView to make sure width and breaks are
          consistent with the corresponding edit dialog -->
@@ -26,7 +43,7 @@
             android:id="@+id/world_peer_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:minLines="5" />
+            app:minLines="1" />
 
         <TextView
             android:id="@+id/world_peer_stats"

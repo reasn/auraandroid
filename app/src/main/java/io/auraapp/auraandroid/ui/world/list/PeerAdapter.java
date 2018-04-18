@@ -52,11 +52,12 @@ public class PeerAdapter extends RecyclerAdapter {
 
         TreeSet<Peer> treeSet = new TreeSet<>(mComparator);
         // Filter out peers without a name, they look weird
-        for (Peer peer : peerSet) {
-            if (peer.mName != null) {
-                treeSet.add(peer);
-            }
-        }
+//        for (Peer peer : peerSet) {
+//            if (peer.mName != null) {
+//            treeSet.add(peer);
+//            }
+//        }
+        treeSet.addAll(peerSet);
         ArrayList<Peer> sortedPeers = new ArrayList<>(treeSet);
 
         final List<ListItem> newItems = new ArrayList<>();
@@ -102,7 +103,7 @@ public class PeerAdapter extends RecyclerAdapter {
     @Override
     public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new PeerHolder(
-                mInflater.inflate(R.layout.world_peer_item, parent, false),
+                mInflater.inflate(R.layout.world_peer, parent, false),
                 mContext,
                 mCollapseExpandHandler,
                 mOnAdoptCallback);

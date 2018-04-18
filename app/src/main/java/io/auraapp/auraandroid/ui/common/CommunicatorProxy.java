@@ -36,11 +36,31 @@ public class CommunicatorProxy {
 
     private CommunicatorProxyState mState = new CommunicatorProxyState(false, null);
     private Set<Peer> mPeers = new HashSet<>();
-
-    private final Context mContext;
-
     private boolean mRegistered = false;
+    private final Context mContext;
     private final SharedPreferences mPrefs;
+
+    public static void replacePeer(Set<Peer> mutablePeers, Peer peer, boolean requireName) {
+        for (Peer candidate : mutablePeers.toArray(new Peer[mutablePeers.size()])) {
+            if (candidate.mId == peer.mId) {
+                mutablePeers.remove(candidate);
+            }
+        }
+        if (peer.mName != null || !requireName) {
+            mutablePeers.add(peer);
+        }
+    }
+
+    public static Set<Peer> getPeersWithName(Set<Peer> peers) {
+        Set<Peer> peersWithName = new HashSet<>();
+        for (Peer peer : peers) {
+            if (peer.mName != null) {
+                peersWithName.add(peer);
+            }
+        }
+        return peersWithName;
+    }
+
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -57,8 +77,7 @@ public class CommunicatorProxy {
                 Peer peer = (Peer) extras.getSerializable(INTENT_PEER_UPDATED_EXTRA_PEER);
                 if (peer != null) {
                     v(TAG, "Peer updated, peer: %s, slogans: %d", peer.mId, peer.mSlogans.size());
-                    mPeers.remove(peer);
-                    mPeers.add(peer);
+                    replacePeer(mPeers, peer, false);
                 } else {
                     w(TAG, "Received invalid %s intent, peer: null", INTENT_PEER_UPDATED_ACTION);
                 }

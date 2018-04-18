@@ -67,6 +67,11 @@
         <item name="android:background">@color/blue</item>
     </style>
 
+    <style name="FlatTitleText">
+        <item name="android:textAppearance">?android:textAppearanceLarge</item>
+        <item name="android:gravity">center</item>
+    </style>
+
     <style name="FlatMessage" parent="FlatElement">
         <item name="android:gravity">top</item>
         <item name="android:textColor">@color/black</item>

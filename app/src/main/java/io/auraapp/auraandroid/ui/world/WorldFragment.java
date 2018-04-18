@@ -37,6 +37,7 @@ import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_LIST_UPDAT
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATED_EXTRA_PEER;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION;
+import static io.auraapp.auraandroid.ui.common.CommunicatorProxy.replacePeer;
 
 public class WorldFragment extends ScreenFragment implements FragmentWithToolbarButtons {
 
@@ -64,8 +65,7 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
                 @SuppressWarnings("unchecked")
                 Peer peer = (Peer) extras.getSerializable(INTENT_PEER_UPDATED_EXTRA_PEER);
                 if (peer != null) {
-                    mPeers.remove(peer);
-                    mPeers.add(peer);
+                    replacePeer(mPeers, peer, false);
                     if (mPeerAdapter != null) {
                         mPeerAdapter.notifyPeersChanged(mPeers);
                     }
@@ -151,6 +151,7 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
     }
 
     public void reflectState(Context context) {
+
         boolean scanning = mComProxyState.mEnabled
                 && mComProxyState.mCommunicatorState != null
                 && mComProxyState.mCommunicatorState.mScanning;

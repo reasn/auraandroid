@@ -43,9 +43,9 @@ public class ToolbarAspect {
     private SwitchCompat mEnabledSwitch;
     private Toolbar mToolbar;
 
-    public ToolbarAspect(MainActivity activity, CommunicatorProxy communicatorProxy, Handler handler) {
+    public ToolbarAspect(MainActivity activity, Handler handler) {
         this.mActivity = activity;
-        this.mCommunicatorProxy = communicatorProxy;
+        this.mCommunicatorProxy = activity.getSharedServicesSet().mCommunicatorProxy;
         this.mPrefs = activity.getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE);
         ;
         this.mHandler = handler;
