@@ -113,11 +113,13 @@ public class MySlogansRecycleAdapter extends RecyclerAdapter {
         }
 
         // Alternating colors
+        // The first slogan is colored with accent because because for white background it otherwise
+        // would be indistinguishable from my text
         int color = Color.parseColor(mMyProfileManager.getColor());
         holder.colorize(
                 position % 2 == 0
-                        ? color
-                        : ColorHelper.getAccent(color),
+                        ? ColorHelper.getAccent(color)
+                        : color,
                 ColorHelper.getTextColor(color)
         );
 

@@ -130,12 +130,6 @@ public class MainActivity extends AppCompatActivity {
                 CommunicatorProxyState proxyState = (CommunicatorProxyState) extras.getSerializable(IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE);
 
                 d(TAG, "Received communicator proxy state, state: %s", proxyState);
-//                        TODO add to world fragment
-//                        if (mState.mCommunicatorState == null || !mState.mCommunicatorState.mScanning && state.mScanning) {
-//                            // Scan just started, let's make sure we hide the "looking around" info if
-//                            // nothing is found for some time.
-//                            mHandler.postDelayed(this::reflectStatus, Config.MAIN_LOOKING_AROUND_SHOW_DURATION);
-//                        }
 
                 if (proxyState == null) {
                     throw new RuntimeException("Received null proxy state");

@@ -90,7 +90,7 @@
     </plurals>
     <string name="ui_world_no_peers_info_heading">Nobody Around</string>
     <string name="ui_world_no_peers_info_text">Make it more exciting - invite people!</string>
-    <string name="ui_world_no_peers_info_heading_cta">:fire: Invite Friends!</string>
+    <string name="world_no_peers_info_heading_cta">:fire: Invite Friends!</string>
     <string name="ui_world_no_peers_info_second_text">Should be seeing someone? Try turning Bluetooth off and on again.</string>
     <string name="ui_world_starting_heading">Looking around</string>
     <string name="ui_world_starting_text">Let\'s give it a few seconds to see if there\'s anybody around.</string>

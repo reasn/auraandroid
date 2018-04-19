@@ -37,7 +37,7 @@ abstract public class ScreenFragment extends Fragment {
     public MainActivity getMainActivity() {
         Context context = getContext();
         if (context != null && !(context instanceof MainActivity)) {
-            throw new RuntimeException("May only attached to " + MainActivity.class.getSimpleName());
+            throw new RuntimeException("Tried to attach " + getClass().getSimpleName() + " to " + context.getClass().getSimpleName() + ". May only attached to " + MainActivity.class.getSimpleName());
         }
         return (MainActivity) getContext();
     }

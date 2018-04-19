@@ -185,6 +185,11 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
 
         long scanDuration = System.currentTimeMillis() - communicatorState.mScanStartTimestamp;
         if (scanDuration < Config.MAIN_LOOKING_AROUND_SHOW_DURATION) {
+
+            // Scan just started, let's make sure we hide the "looking around" info if
+            // nothing is found for some time.
+            mHandler.postDelayed(() -> updatePeersInfoBox(context, communicatorState), Config.MAIN_LOOKING_AROUND_SHOW_DURATION);
+
             mPeersInfoBox.setHeading(R.string.ui_world_starting_heading);
             mPeersInfoBox.setText(R.string.ui_world_starting_text);
             mPeersInfoBox.setEmoji(":satellite_antenna:");
@@ -195,7 +200,7 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
             mPeersInfoBox.setText(R.string.ui_world_no_peers_info_text);
             mPeersInfoBox.setEmoji(":see_no_evil:");
             mPeersInfoBox.showButton(
-                    R.string.ui_world_no_peers_info_heading_cta,
+                    R.string.world_no_peers_info_heading_cta,
                     R.string.ui_world_no_peers_info_second_text,
                     $ -> {
                         Intent sendIntent = new Intent();

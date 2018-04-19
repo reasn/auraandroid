@@ -201,11 +201,13 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     private void updateViewsWithColor() {
         int color = Color.parseColor(mMyProfileManager.getColor());
         mColorButton.setColors(color, ColorHelper.getAccent(color));
-        // Make sure that there's an alternation i.e. background and color of last item don't match
+        // Make sure that there's an alternation i.e. background and color of last item don't match.
+        // The first slogan is colored with accent because because for white background it otherwise
+        // would be indistinguishable from my text
         getRootView().setBackgroundColor(
                 mMyProfileManager.getProfile().getSlogans().size() % 2 == 0
-                        ? color
-                        : ColorHelper.getAccent(color));
+                        ? ColorHelper.getAccent(color)
+                        : color);
     }
 
     private void showAddDialog() {
