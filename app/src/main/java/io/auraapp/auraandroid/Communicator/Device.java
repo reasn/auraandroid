@@ -87,6 +87,10 @@ class Device {
         }
         String color = "#" + packed.substring(0, 6);
         String[] parts = packed.substring(6).split(" # ");
+        if (parts.length != 2) {
+            return null;
+            // TODO test with zero-length strings
+        }
         String name = parts[0].replaceAll("\\#", "#");
         String text = parts[1].replaceAll("\\#", "#");
 

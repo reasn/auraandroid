@@ -10,9 +10,9 @@
     <!-- TODO enable allowBackup in a privacy-preserving way -->
     <application
         android:allowBackup="false"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/icon_launcher2"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher"
+        android:roundIcon="@drawable/icon_launcher2"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.Launcher">
         <activity

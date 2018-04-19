@@ -262,7 +262,7 @@ public class Communicator extends Service {
         }
 
         builder.setContentTitle(title)
-                .setSmallIcon(R.mipmap.ic_notification)
+                .setSmallIcon(R.mipmap.icon_notification)
                 .setTicker(title)
                 .setContentIntent(contentIntent);
 

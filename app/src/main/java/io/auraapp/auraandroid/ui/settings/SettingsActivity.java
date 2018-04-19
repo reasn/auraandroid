@@ -30,7 +30,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setNavigationIcon(R.mipmap.ic_launcher);
+        toolbar.setNavigationIcon(R.drawable.icon_circle);
         toolbar.setNavigationOnClickListener($ -> finish());
 
         getFragmentManager().beginTransaction().replace(R.id.preferences_placeholder, new SettingsFragment()).commit();

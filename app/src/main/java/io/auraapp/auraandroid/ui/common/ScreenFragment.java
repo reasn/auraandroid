@@ -1,5 +1,6 @@
 package io.auraapp.auraandroid.ui.common;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
@@ -34,7 +35,8 @@ abstract public class ScreenFragment extends Fragment {
     }
 
     public MainActivity getMainActivity() {
-        if (!(getContext() instanceof MainActivity)) {
+        Context context = getContext();
+        if (context != null && !(context instanceof MainActivity)) {
             throw new RuntimeException("May only attached to " + MainActivity.class.getSimpleName());
         }
         return (MainActivity) getContext();

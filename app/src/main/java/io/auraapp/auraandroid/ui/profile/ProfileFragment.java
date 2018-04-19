@@ -10,7 +10,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
@@ -42,7 +41,7 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     private InfoBox mSlogansInfoBox;
     private TextView mNameView;
     private MonoSpaceText mTextView;
-    private LinearLayout mColorWrapper;
+    private ColorButton mColorButton;
     private MySlogansRecycleAdapter mAdapter;
     private CommunicatorProxyState mCommunicatorState;
     private DialogManager mDialogManager;
@@ -92,14 +91,14 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
 
         bindShared(activity);
 
-        mColorWrapper = rootView.findViewById(R.id.profile_color_button_wrapper);
+        mColorButton = rootView.findViewById(R.id.profile_color_button_wrapper);
         mNameView = rootView.findViewById(R.id.profile_my_name);
         mTextView = rootView.findViewById(R.id.profile_my_text);
 
         mSlogansInfoBox = rootView.findViewById(R.id.profile_my_slogans_info_box);
         mSlogansRecyclerView = rootView.findViewById(R.id.profile_slogans_recycler);
 
-        mColorWrapper.setOnClickListener($ -> mDialogManager.showColorPickerDialog(
+        mColorButton.setOnClickListener($ -> mDialogManager.showColorPickerDialog(
                 mMyProfileManager.getProfile().getColor(),
                 mMyProfileManager.getProfile().getColorPickerPointX(),
                 mMyProfileManager.getProfile().getColorPickerPointY(),
@@ -201,7 +200,7 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
 
     private void updateViewsWithColor() {
         int color = Color.parseColor(mMyProfileManager.getColor());
-        mColorWrapper.getChildAt(0).setBackgroundColor(color);
+        mColorButton.setColors(color, ColorHelper.getAccent(color));
         // Make sure that there's an alternation i.e. background and color of last item don't match
         getRootView().setBackgroundColor(
                 mMyProfileManager.getProfile().getSlogans().size() % 2 == 0
