@@ -19,11 +19,11 @@ import android.support.annotation.RequiresApi;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Peer;
@@ -38,7 +38,6 @@ import static io.auraapp.auraandroid.common.FormattedLog.e;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 import static io.auraapp.auraandroid.common.FormattedLog.w;
-import static java.lang.String.format;
 
 /**
  * Runs in a separate process
@@ -229,14 +228,9 @@ public class Communicator extends Service {
                 w(TAG, "Not scanning although it is possible.");
                 title = getString(R.string.notification_on_not_active_title);
             } else {
-                title = getString(R.string.notification_on_title);
-                if (mPeerSloganCount > 0) {
-                    // TODO pluralize
-                    title += format(Locale.ENGLISH, ". %d :thought_balloon:", mPeerSloganCount);
-                }
+                title = getResources().getQuantityString(R.plurals.notification_on_title, mPeerSloganCount, mPeerSloganCount);
             }
         }
-
 
         title = replaceShortCode(title);
         text = replaceShortCode(text);
@@ -247,7 +241,6 @@ public class Communicator extends Service {
                 IntentFactory.showActivity(getApplicationContext(), MainActivity.class),
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-
         Notification.Builder builder;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -255,8 +248,13 @@ public class Communicator extends Service {
         } else {
             builder = new Notification.Builder(Communicator.this);
             if (newPeersFound) {
-                builder.setLights(getResources().getColor(R.color.purple), PEERS_CHANGED_NOTIFICATION_LIGHT_PATTERN[0], PEERS_CHANGED_NOTIFICATION_LIGHT_PATTERN[1]);
-                builder.setVibrate(Config.PEERS_CHANGED_NOTIFICATION_VIBRATION_PATTERN);
+
+                // TODO use different wording if notification_show is enabled
+
+                if (AuraPrefs.shouldVibrateOnPeerNotification(this)) {
+                    builder.setLights(getResources().getColor(R.color.purple), PEERS_CHANGED_NOTIFICATION_LIGHT_PATTERN[0], PEERS_CHANGED_NOTIFICATION_LIGHT_PATTERN[1]);
+                    builder.setVibrate(Config.PEERS_CHANGED_NOTIFICATION_VIBRATION_PATTERN);
+                }
                 builder.setNumber(++notificationIndex);
             }
         }
@@ -283,8 +281,10 @@ public class Communicator extends Service {
         NotificationChannel channel = new NotificationChannel("communicator_channel", "Aura", importance);
         channel.setImportance(importance);
         channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-        channel.setLightColor(R.color.purple);
-        channel.setVibrationPattern(Config.PEERS_CHANGED_NOTIFICATION_VIBRATION_PATTERN);
+        if (AuraPrefs.shouldVibrateOnPeerNotification(this)) {
+            channel.setLightColor(R.color.purple);
+            channel.setVibrationPattern(Config.PEERS_CHANGED_NOTIFICATION_VIBRATION_PATTERN);
+        }
         channel.setShowBadge(false);
         NotificationManager notificationManager = ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE));
         if (notificationManager == null) {

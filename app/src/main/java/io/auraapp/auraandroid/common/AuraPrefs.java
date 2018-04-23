@@ -55,10 +55,10 @@ public class AuraPrefs {
 
     }
 
-    public static void putHideBrokenBtStackAlert(Context context, boolean hide) {
+    public static void putHideBrokenBtStackAlert(Context context) {
         get(context)
                 .edit()
-                .putBoolean(context.getString(R.string.prefs_hide_broken_bt_warning_key), hide)
+                .putBoolean(context.getString(R.string.prefs_hide_broken_bt_warning_key), true)
                 .apply();
     }
 
@@ -69,6 +69,14 @@ public class AuraPrefs {
                         context.getString(R.string.prefs_retention_default)
                 )
         );
+    }
+
+    public static boolean shouldVibrateOnPeerNotification(Context context) {
+        return get(context).getBoolean(context.getString(R.string.prefs_notification_vibrate_key), true);
+    }
+
+    public static boolean shouldShowPeerNotification(Context context) {
+        return get(context).getBoolean(context.getString(R.string.prefs_notification_show_key), true);
     }
 
     private static SharedPreferences get(Context context) {
@@ -83,4 +91,5 @@ public class AuraPrefs {
             }
         });
     }
+
 }

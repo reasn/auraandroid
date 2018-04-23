@@ -155,7 +155,11 @@
     <string name="notification_advertising_not_supported_title">Your Aura is invisible</string>
     <string name="notification_advertising_not_supported_text">Your device doesn\'t support being visible :/</string>
     <string name="notification_on_not_active_title">Your Aura is getting ready</string>
-    <string name="notification_on_title">Your Aura is on</string>
+    <plurals name="notification_on_title">
+        <item quantity="zero">Your Aura is on.</item>
+        <item quantity="one">Your Aura is on - one :thought_balloon:</item>
+        <item quantity="other">Your Aura is on - %d :thought_balloon:</item>
+    </plurals>
 
     <!--Preferences-->
     <string name="toolbar_preferences">Settings</string>

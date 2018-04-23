@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
         }
         mSharedServicesSet.mDialogManager.showBtBroken(neverShowAgain -> {
             if (neverShowAgain) {
-                AuraPrefs.putHideBrokenBtStackAlert(this, true);
+                AuraPrefs.putHideBrokenBtStackAlert(this);
             } else {
                 mBrokenBtStackLastVisibleTimestamp = System.currentTimeMillis();
             }
