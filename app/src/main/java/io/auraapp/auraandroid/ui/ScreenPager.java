@@ -1,7 +1,6 @@
 package io.auraapp.auraandroid.ui;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,8 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
-import io.auraapp.auraandroid.R;
-import io.auraapp.auraandroid.common.Config;
+import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.common.PermissionHelper;
 import io.auraapp.auraandroid.common.Timer;
 import io.auraapp.auraandroid.ui.common.ScreenFragment;
@@ -115,19 +113,15 @@ public class ScreenPager extends ViewPager {
             return true;
         }
 
-        SharedPreferences prefs = activity.getSharedPreferences(Config.PREFERENCES_BUCKET, Context.MODE_PRIVATE);
-
-        if (!prefs.getBoolean(activity.getString(R.string.prefs_terms_agreed), false)) {
+        if (!AuraPrefs.hasAgreedToTerms(activity)) {
             mHandler.post(() -> {
                 getScreenAdapter().addTermsFragment();
                 goTo(TermsFragment.class, false);
             });
             return true;
         }
-        if (!prefs.getBoolean(activity.getString(R.string.prefs_tutorial_completed), false)) {
-            mHandler.post(() -> {
-                activity.getSharedServicesSet().mTutorialManager.open();
-            });
+        if (!AuraPrefs.hasCompletedTutorial(activity)) {
+            mHandler.post(() -> activity.getSharedServicesSet().mTutorialManager.open());
             return true;
         }
         return false;

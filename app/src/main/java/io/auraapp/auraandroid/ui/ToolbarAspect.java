@@ -2,7 +2,6 @@ package io.auraapp.auraandroid.ui;
 
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Handler;
@@ -16,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.ui.common.ColorHelper;
@@ -23,7 +23,6 @@ import io.auraapp.auraandroid.ui.common.CommunicatorProxy;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 import io.auraapp.auraandroid.ui.settings.SettingsActivity;
 
-import static android.content.Context.MODE_PRIVATE;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_COLOR_CHANGED;
 
@@ -31,7 +30,6 @@ public class ToolbarAspect {
 
     private static final String TAG = "@aura/ui/" + ToolbarAspect.class.getSimpleName();
     private final MainActivity mActivity;
-    private final SharedPreferences mPrefs;
     private final Handler mHandler;
 
     private final List<Long> mToolbarIconClicks = new ArrayList<>();
@@ -46,8 +44,6 @@ public class ToolbarAspect {
     public ToolbarAspect(MainActivity activity, Handler handler) {
         this.mActivity = activity;
         this.mCommunicatorProxy = activity.getSharedServicesSet().mCommunicatorProxy;
-        this.mPrefs = activity.getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE);
-        ;
         this.mHandler = handler;
     }
 
@@ -67,7 +63,7 @@ public class ToolbarAspect {
                 return true;
             }
             if (item.getItemId() == R.id.action_reset_terms) {
-                mPrefs.edit().putBoolean(mActivity.getString(R.string.prefs_terms_agreed), false).apply();
+                AuraPrefs.putHasAgreedToTerms(mActivity, false);
                 mActivity.getSharedServicesSet().mTutorialManager.close();
                 mActivity.getSharedServicesSet().mPager.redirectIfNeeded(mActivity, null);
                 return true;

@@ -3,7 +3,6 @@ package io.auraapp.auraandroid.ui;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.StringRes;
@@ -14,6 +13,7 @@ import android.view.Menu;
 import android.widget.Toast;
 
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.ExternalInvocation;
@@ -37,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
     private MyProfileManager mMyProfileManager;
     private CommunicatorProxy mCommunicatorProxy;
     private boolean inForeground = false;
-    private SharedPreferences mPrefs;
     private long mBrokenBtStackLastVisibleTimestamp;
     private final Handler mHandler = new Handler();
 
@@ -78,9 +77,6 @@ public class MainActivity extends AppCompatActivity {
 
         mPagerAdapter = new ScreenPagerAdapter(getSupportFragmentManager());
         mSharedServicesSet.mPager.setAdapter(mPagerAdapter);
-
-        // Load preferences
-        mPrefs = getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE);
 
         mSharedServicesSet.mPager.redirectIfNeeded(this, null);
 
@@ -155,12 +151,12 @@ public class MainActivity extends AppCompatActivity {
         String prefKey = getString(R.string.prefs_hide_broken_bt_warning_key);
         if (!inForeground
                 || System.currentTimeMillis() - mBrokenBtStackLastVisibleTimestamp > BROKEN_BT_STACK_ALERT_DEBOUNCE
-                || mPrefs.getBoolean(prefKey, false)) {
+                || AuraPrefs.shouldHideBrokenBtStackAlert(this)) {
             return;
         }
         mSharedServicesSet.mDialogManager.showBtBroken(neverShowAgain -> {
             if (neverShowAgain) {
-                mPrefs.edit().putBoolean(prefKey, true).apply();
+                AuraPrefs.putHideBrokenBtStackAlert(this, true);
             } else {
                 mBrokenBtStackLastVisibleTimestamp = System.currentTimeMillis();
             }

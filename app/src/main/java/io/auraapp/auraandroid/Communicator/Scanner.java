@@ -12,7 +12,6 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Handler;
 
 import java.nio.charset.Charset;
@@ -22,11 +21,11 @@ import java.util.Set;
 import java.util.UUID;
 
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.Peer;
 
 import static android.bluetooth.BluetoothProfile.STATE_CONNECTED;
-import static android.content.Context.MODE_PRIVATE;
 import static io.auraapp.auraandroid.Communicator.MetaDataUnpacker.byteArrayToString;
 import static io.auraapp.auraandroid.common.Config.DEV_FAKE_PEER_CHARACTERISTIC_RETRIEVAL_FAILURE;
 import static io.auraapp.auraandroid.common.FormattedLog.d;
@@ -69,14 +68,8 @@ class Scanner {
         mPeerBroadcaster = peerBroadcaster;
         mOnUnrecoverableBtErrorCallback = onUnrecoverableBtErrorCallback;
 
-        SharedPreferences prefs = context.getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE);
-        String key = context.getString(R.string.prefs_retention_key);
-        prefs.registerOnSharedPreferenceChangeListener(($, changedKey) -> {
-            if (key.equals(changedKey)) {
-                mPeerRetention = Long.parseLong(prefs.getString(key, R.string.prefs_retention_default + ""));
-            }
-        });
-        mPeerRetention = Long.parseLong(prefs.getString(key, R.string.prefs_retention_default + ""));
+        AuraPrefs.listen(context, R.string.prefs_retention_key, () -> mPeerRetention = AuraPrefs.getPeerRetention(context));
+        mPeerRetention = AuraPrefs.getPeerRetention(context);
     }
 
     void start() {

@@ -4,19 +4,18 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.common.ColorPicker;
 
-import static android.content.Context.MODE_PRIVATE;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
 
 public class MyProfileManager {
@@ -45,10 +44,7 @@ public class MyProfileManager {
         mProfilePrefKey = context.getString(R.string.prefs_my_profile_key);
 
         // Without a persisted value, serialization fails and the default profile is persisted.
-        @Nullable String serializedProfile = mContext
-                .getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE)
-                .getString(mProfilePrefKey, "{invalidJson}");
-
+        @Nullable String serializedProfile = AuraPrefs.getProfile(mContext);
 
         MyProfile profile;
         try {
@@ -169,10 +165,7 @@ public class MyProfileManager {
 
     private void persistProfile(int event) {
         i(TAG, "Persisting my profile, event: %s, profile: %s,", nameEvent(event), mMyProfile.toString());
-        mContext.getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE)
-                .edit()
-                .putString(mProfilePrefKey, new GsonBuilder().create().toJson(mMyProfile))
-                .apply();
+        AuraPrefs.putProfile(mContext, mMyProfile);
 
         if (event != EVENT_NONE) {
             for (MyProfileChangedCallback callback : mChangedCallbacks) {

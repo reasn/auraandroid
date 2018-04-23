@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 
@@ -13,8 +12,7 @@ import java.util.Set;
 
 import io.auraapp.auraandroid.Communicator.Communicator;
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
-import io.auraapp.auraandroid.R;
-import io.auraapp.auraandroid.common.Config;
+import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfile;
@@ -38,7 +36,6 @@ public class CommunicatorProxy {
     private Set<Peer> mPeers = new HashSet<>();
     private boolean mRegistered = false;
     private final Context mContext;
-    private final SharedPreferences mPrefs;
 
     public static void replacePeer(Set<Peer> mutablePeers, Peer peer, boolean requireName) {
         for (Peer candidate : mutablePeers.toArray(new Peer[mutablePeers.size()])) {
@@ -123,8 +120,7 @@ public class CommunicatorProxy {
     public CommunicatorProxy(Context context) {
         mContext = context;
 
-        mPrefs = mContext.getSharedPreferences(Config.PREFERENCES_BUCKET, Context.MODE_PRIVATE);
-        if (mPrefs.getBoolean(mContext.getString(R.string.prefs_enabled_key), true)) {
+        if (AuraPrefs.isEnabled(context)) {
             enable();
         } else {
             i(TAG, "Aura is currently disabled");
@@ -157,9 +153,7 @@ public class CommunicatorProxy {
         Intent intent = new Intent(mContext, Communicator.class);
         intent.setAction(IntentFactory.INTENT_ENABLE_ACTION);
         mState.mEnabled = true;
-        mPrefs.edit()
-                .putBoolean(mContext.getString(R.string.prefs_enabled_key), true)
-                .apply();
+        AuraPrefs.putEnabled(mContext, true);
         mContext.startService(intent);
     }
 
@@ -185,9 +179,7 @@ public class CommunicatorProxy {
         mState.mEnabled = false;
         Intent intent = new Intent(mContext, Communicator.class);
         intent.setAction(IntentFactory.INTENT_DISABLE_ACTION);
-        mPrefs.edit()
-                .putBoolean(mContext.getString(R.string.prefs_enabled_key), false)
-                .apply();
+        AuraPrefs.putEnabled(mContext, false);
         mContext.startService(intent);
     }
 
