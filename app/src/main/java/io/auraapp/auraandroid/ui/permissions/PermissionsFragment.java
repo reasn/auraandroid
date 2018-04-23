@@ -8,8 +8,6 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -21,9 +19,9 @@ import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.ScreenPager;
 import io.auraapp.auraandroid.ui.common.InfoBox;
 import io.auraapp.auraandroid.ui.common.ScreenFragment;
+import io.auraapp.auraandroid.ui.profile.ProfileFragment;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static io.auraapp.auraandroid.common.FormattedLog.i;
 
 public class PermissionsFragment extends ScreenFragment {
 
@@ -54,8 +52,8 @@ public class PermissionsFragment extends ScreenFragment {
                 throw new RuntimeException("Attempted to show permission dialog for Android < M");
             }
         });
-        Button showAppSettingsButton = rootView.findViewById(R.id.show_app_settings);
-        showAppSettingsButton.setText(EmojiHelper.replaceShortCode(getString(R.string.ui_permissions_appSettings)));
+        Button showAppSettingsButton = rootView.findViewById(R.id.permissions_show_app_settings);
+        showAppSettingsButton.setText(EmojiHelper.replaceShortCode(getString(R.string.permissions_appSettings)));
         showAppSettingsButton.setOnClickListener($ -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + activity.getPackageName()));
@@ -67,16 +65,16 @@ public class PermissionsFragment extends ScreenFragment {
             }
         });
 
-        ((TextView) rootView.findViewById(R.id.granted_emoji)).setText(EmojiHelper.replaceShortCode(":grinning_face:"));
-        ((TextView) rootView.findViewById(R.id.granted_text)).setText(EmojiHelper.replaceShortCode(activity.getString(R.string.ui_permissions_granted_text)));
+//        ((TextView) rootView.findViewById(R.id.granted_emoji)).setText(EmojiHelper.replaceShortCode(":grinning_face:"));
+        ((TextView) rootView.findViewById(R.id.granted_text)).setText(EmojiHelper.replaceShortCode(activity.getString(R.string.permissions_granted_text)));
 
         if (mRedirected) {
             rootView.findViewById(R.id.not_granted).setVisibility(View.GONE);
         } else {
             rootView.findViewById(R.id.not_granted).setVisibility(View.VISIBLE);
-            mPager.setLocked(true);
+            mPager.setSwipeLocked(true);
 
-            continuouslyCheckForPermissions();
+            continuouslyCheckForPermissions(activity);
         }
     }
 
@@ -86,24 +84,31 @@ public class PermissionsFragment extends ScreenFragment {
         Timer.clear(mCheckTimeout);
     }
 
-    private void continuouslyCheckForPermissions() {
+    private void continuouslyCheckForPermissions(MainActivity activity) {
         Timer.clear(mCheckTimeout);
         if (!PermissionHelper.granted(getContext())) {
-            mCheckTimeout = mTimer.setSerializedInterval(this::continuouslyCheckForPermissions, 500);
+            mCheckTimeout = mTimer.setTimeout(() -> continuouslyCheckForPermissions(activity), 500);
             return;
         }
-        mRedirected = true;
+
+        if (!mPager.redirectIfNeeded(activity, null)) {
+            // no redirect happened, let's "start"
+            mPager.goTo(ProfileFragment.class, true);
+        }
+
+//        mRedirected = true;
         // Give dialog time to hide, leads to glitches otherwise
-        mCheckTimeout = mTimer.setTimeout(() -> {
-            i(TAG, "Permissions granted");
-
-            Animation hide = AnimationUtils.loadAnimation(getContext(), R.anim.screen_permissions_hide);
-            getRootView().findViewById(R.id.not_granted).startAnimation(hide);
-
-            mTimer.setTimeout(() -> {
-                getRootView().findViewById(R.id.not_granted).setVisibility(View.GONE);
-                mPager.setLocked(false);
-            }, hide.getDuration());
-        }, 500);
+//        mPager.goTo(TermsFragment.class, true);
+//        mTimer.setTimeout(() -> {
+//            i(TAG, "Permissions granted");
+//
+//            Animation hide = AnimationUtils.loadAnimation(getContext(), R.anim.screen_permissions_hide);
+//            getRootView().findViewById(R.id.not_granted).startAnimation(hide);
+//
+//            mTimer.setTimeout(() -> {
+//                getRootView().findViewById(R.id.not_granted).setVisibility(View.GONE);
+//                mPager.setSwipeLocked(false);
+//            }, hide.getDuration());
+//        }, 500);
     }
 }

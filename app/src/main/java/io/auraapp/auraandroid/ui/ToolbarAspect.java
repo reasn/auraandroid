@@ -62,12 +62,19 @@ public class ToolbarAspect {
                 return true;
             }
             if (item.getItemId() == R.id.action_tutorial) {
-                mActivity.showTutorial();
+                mActivity.getSharedServicesSet().mTutorialManager.setCompleted(false);
+                mActivity.getSharedServicesSet().mTutorialManager.open();
                 return true;
             }
-            if (item.getItemId() == R.id.action_terms) {
+            if (item.getItemId() == R.id.action_reset_terms) {
                 mPrefs.edit().putBoolean(mActivity.getString(R.string.prefs_terms_agreed), false).apply();
-                mActivity.finish();
+                mActivity.getSharedServicesSet().mTutorialManager.close();
+                mActivity.getSharedServicesSet().mPager.redirectIfNeeded(mActivity, null);
+                return true;
+            }
+            if (item.getItemId() == R.id.action_complete_tutorial) {
+                mActivity.getSharedServicesSet().mTutorialManager.setCompleted(true);
+                mActivity.getSharedServicesSet().mTutorialManager.close();
                 return true;
             }
             return false;
@@ -107,7 +114,7 @@ public class ToolbarAspect {
         MenuItem enabledItem = menu.findItem(R.id.menu_item_enabled);
         enabledItem.setActionView(R.layout.common_toolbar_switch);
 
-        menu.findItem(R.id.action_terms).setVisible(Config.DEBUG_UI_ENABLED);
+        menu.findItem(R.id.action_reset_terms).setVisible(Config.DEBUG_UI_ENABLED);
 
         mEnabledSwitch = enabledItem.getActionView().findViewById(R.id.enabled_switch);
         boolean enabled = mCommunicatorProxy.getState().mEnabled;

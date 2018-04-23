@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-        <!--android:dialogMessage="@string/ui_prefs_retention_dialog_message"-->
+    <!--android:dialogMessage="@string/ui_prefs_retention_dialog_message"-->
     <ListPreference
         android:defaultValue="@string/prefs_retention_default"
         android:dialogTitle="@string/prefs_retention_dialog_title"
@@ -11,10 +11,31 @@
         android:summary="@string/prefs_retention_summary"
         android:title="@string/prefs_retention_title" />
 
+    <PreferenceCategory
+        android:key="@string/prefs_notification_group_key"
+        android:title="@string/prefs_notification_group_title">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/prefs_notification_show_key"
+            android:summaryOff="@string/prefs_notification_show_summary_off"
+            android:summaryOn="@string/prefs_notification_show_summary_on"
+            android:title="@string/prefs_notification_show_title" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/prefs_notification_vibrate_key"
+            android:summaryOff="@string/prefs_notification_vibrate_summary_off"
+            android:summaryOn="@string/prefs_notification_vibrate_summary_on"
+            android:title="@string/prefs_notification_vibrate_title" />
+    </PreferenceCategory>
+
     <Preference
         android:key="@string/prefs_feedback_key"
         android:summary="@string/prefs_feedback_summary"
-        android:title="@string/prefs_feedback_title" />
+        android:title="@string/prefs_feedback_title">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="@string/prefs_feedback_url" />
+    </Preference>
 
     <Preference
         android:key="@string/prefs_about_key"

@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
-import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.DialogManager;
@@ -29,7 +28,6 @@ import io.auraapp.auraandroid.ui.common.ScreenFragment;
 import io.auraapp.auraandroid.ui.permissions.FragmentCameIntoView;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 
-import static android.content.Context.MODE_PRIVATE;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION;
@@ -144,11 +142,7 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
 
     @Override
     public void cameIntoView(MainActivity activity) {
-        activity.getSharedServicesSet().mPager.getScreenAdapter().removeWelcomeFragments();
-        activity.getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE)
-                .edit()
-                .putBoolean(getString(R.string.prefs_terms_agreed), true)
-                .apply();
+        activity.getSharedServicesSet().mPager.getScreenAdapter().removeTermsFragment();
     }
 
     private void bindSlogansRecycler(Context context) {

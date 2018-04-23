@@ -204,32 +204,32 @@ public class Communicator extends Service {
         String title;
         String text = "";
         if (!mState.mHasPermission) {
-            title = getString(R.string.ui_notification_no_permission_title);
-            text = getString(R.string.ui_notification_no_permission_text);
+            title = getString(R.string.notification_no_permission_title);
+            text = getString(R.string.notification_no_permission_text);
 
         } else if (!mState.mBtEnabled) {
-            title = getString(R.string.ui_notification_bt_disabled_title);
-            text = getString(R.string.ui_notification_bt_disabled_text);
+            title = getString(R.string.notification_bt_disabled_title);
+            text = getString(R.string.notification_bt_disabled_text);
 
         } else if (!mState.mBleSupported) {
-            title = getString(R.string.ui_notification_ble_not_supported_title);
-            text = getString(R.string.ui_notification_ble_not_supported_text);
+            title = getString(R.string.notification_ble_not_supported_title);
+            text = getString(R.string.notification_ble_not_supported_text);
 
         } else if (!mState.mShouldCommunicate) {
-            title = getString(R.string.ui_notification_disabled_title);
+            title = getString(R.string.notification_disabled_title);
 
         } else {
             if (!mState.mAdvertisingSupported) {
-                title = getString(R.string.ui_notification_advertising_not_supported_title);
-                text = getString(R.string.ui_notification_advertising_not_supported_text);
+                title = getString(R.string.notification_advertising_not_supported_title);
+                text = getString(R.string.notification_advertising_not_supported_text);
             } else if (!mState.mAdvertising) {
                 w(TAG, "Not advertising although it is possible.");
-                title = getString(R.string.ui_notification_on_not_active_title);
+                title = getString(R.string.notification_on_not_active_title);
             } else if (!mState.mScanning) {
                 w(TAG, "Not scanning although it is possible.");
-                title = getString(R.string.ui_notification_on_not_active_title);
+                title = getString(R.string.notification_on_not_active_title);
             } else {
-                title = getString(R.string.ui_notification_on_title);
+                title = getString(R.string.notification_on_title);
                 if (mPeerSloganCount > 0) {
                     // TODO pluralize
                     title += format(Locale.ENGLISH, ". %d :thought_balloon:", mPeerSloganCount);

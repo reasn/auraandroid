@@ -14,6 +14,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatButton;
 import android.util.AttributeSet;
 
+
 public class ColorButton extends AppCompatButton {
 
     public ColorButton(Context context) {
@@ -83,5 +84,15 @@ public class ColorButton extends AppCompatButton {
     void setColors(@ColorInt int color, @ColorInt int accent) {
         mColorButtonDrawable.setColors(color, accent);
         invalidate();
+    }
+
+    /**
+     * Thanks http://www.gadgetsaint.com/tips/dynamic-square-rectangular-layouts-android/
+     */
+    @Override
+    public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, widthMeasureSpec);
+        int size = MeasureSpec.getSize(heightMeasureSpec);
+        setMeasuredDimension(size, size);
     }
 }

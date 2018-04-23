@@ -193,7 +193,6 @@ public class DialogManager {
 
         FullWidthDialog dialog = new DialogBuilder(mContext, mDialogState)
                 .setTitle(R.string.ui_profile_dialog_replace_title)
-                // TODO pluralize
                 .setMessage(EmojiHelper.replaceShortCode(mContext.getResources().getQuantityString(
                         R.plurals.ui_profile_dialog_replace_message,
                         Config.PROFILE_SLOGANS_MAX_SLOGANS,

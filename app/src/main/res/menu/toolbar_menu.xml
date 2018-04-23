@@ -22,9 +22,15 @@
             <menu>
 
                 <item
-                    android:id="@+id/action_terms"
+                    android:id="@+id/action_reset_terms"
                     android:icon="@android:drawable/ic_menu_agenda"
                     android:title="@string/toolbar_terms"
+                    app:showAsAction="withText" />
+
+                <item
+                    android:id="@+id/action_complete_tutorial"
+                    android:icon="@android:drawable/ic_media_ff"
+                    android:title="@string/toolbar_complete_tutorial"
                     app:showAsAction="withText" />
             </menu>
         </item>

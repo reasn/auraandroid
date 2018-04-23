@@ -3,9 +3,11 @@ package io.auraapp.auraandroid.ui.debug;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +35,7 @@ import io.auraapp.auraandroid.ui.common.CommunicatorProxyState;
 import io.auraapp.auraandroid.ui.common.ScreenFragment;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 
+import static android.content.Context.MODE_PRIVATE;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_LIST_UPDATED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_LIST_UPDATED_EXTRA_PEERS;
@@ -183,6 +186,7 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
         dump += "\nlast communicator state: " + (now - mLastStateUpdateTimestamp) / 1000 + "s ago";
         dump += "\ncommunicator: " + gson.toJson(mState);
         dump += "\npeers: " + gson.toJson(mPeers);
+        dump += createPrefsDump(context);
         TextView communicatorStateDump = getRootView().findViewById(R.id.debug_communicator_state_dump);
         communicatorStateDump.setText(dump.replaceAll("\"", "").replaceAll("\n +\\{", " {"));
 
@@ -201,5 +205,31 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
                 android.R.layout.simple_list_item_1,
                 mPeers.toArray(new Peer[mPeers.size()])
         ));
+    }
+
+    private String renderBooleanPref(SharedPreferences prefs, Context context, @StringRes int key) {
+        return prefs.contains(context.getString(key))
+                ? (
+                prefs.getBoolean(context.getString(key), false)
+                        ? "true"
+                        : "false")
+                : "not set";
+    }
+
+    private String renderStringPref(SharedPreferences prefs, Context context, @StringRes int key) {
+        return prefs.contains(context.getString(key))
+                ? prefs.getString(context.getString(key), "")
+                : "not set";
+    }
+
+    private String createPrefsDump(Context context) {
+
+        SharedPreferences prefs = context.getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE);
+
+        String dump = "\nterms agreed: " + renderBooleanPref(prefs, context, R.string.prefs_terms_agreed);
+        dump += "\ntutorial completed: " + renderBooleanPref(prefs, context, R.string.prefs_tutorial_completed);
+        dump += "\ntutorial completed: " + renderBooleanPref(prefs, context, R.string.prefs_tutorial_completed);
+        dump += "\npeer retention: " + renderStringPref(prefs, context, R.string.prefs_retention_key);
+        return dump;
     }
 }

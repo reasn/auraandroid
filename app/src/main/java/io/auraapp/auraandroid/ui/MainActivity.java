@@ -23,9 +23,7 @@ import io.auraapp.auraandroid.ui.common.CommunicatorProxy;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxyState;
 import io.auraapp.auraandroid.ui.permissions.PermissionsFragment;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
-import io.auraapp.auraandroid.ui.tutorial.SloganAddStep;
 import io.auraapp.auraandroid.ui.tutorial.TutorialManager;
-import io.auraapp.auraandroid.ui.welcome.TermsFragment;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
@@ -84,14 +82,8 @@ public class MainActivity extends AppCompatActivity {
         // Load preferences
         mPrefs = getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE);
 
-        String prefKey = getString(R.string.prefs_terms_agreed);
+        mSharedServicesSet.mPager.redirectIfNeeded(this, null);
 
-        if (!PermissionHelper.granted(this)) {
-            showPermissionMissingFragment();
-        } else if (!mPrefs.getBoolean(prefKey, false)) {
-            mSharedServicesSet.mPager.getScreenAdapter().addWelcomeFragments();
-            mSharedServicesSet.mPager.goTo(TermsFragment.class, false);
-        }
         mMyProfileManager.addChangedCallback(event -> {
             d(TAG, "My profile changed");
             mCommunicatorProxy.updateMyProfile(mMyProfileManager.getProfile());
@@ -138,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 if (!proxyState.mCommunicatorState.mHasPermission) {
-                    showPermissionMissingFragment();
+                    mSharedServicesSet.mPager.redirectIfNeeded(MainActivity.this, proxyState.mCommunicatorState);
                     return;
                 }
                 if (proxyState.mCommunicatorState.mRecentBtTurnOnEvents >= Config.COMMUNICATOR_RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD) {
@@ -205,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (!PermissionHelper.granted(this)) {
-            showPermissionMissingFragment();
+            mSharedServicesSet.mPager.redirectIfNeeded(this, null);
             return;
         }
 
@@ -227,9 +219,4 @@ public class MainActivity extends AppCompatActivity {
             inForeground = false;
         });
     }
-
-    public void showTutorial() {
-        mSharedServicesSet.mTutorialManager.goTo(SloganAddStep.class);
-    }
-
 }

@@ -16,7 +16,7 @@ public class SwipeStep extends TutorialStep {
 
     public ViewGroup enter() {
         ViewGroup screen = (ViewGroup) LayoutInflater.from(mContext).inflate(R.layout.tutorial_swipe, mRootView, false);
-        mPager.setLocked(false);
+        mPager.setSwipeLocked(false);
         return screen;
     }
 

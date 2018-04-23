@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.ui.ScreenPager;
 
 import static io.auraapp.auraandroid.common.FormattedLog.i;
@@ -31,10 +32,22 @@ public class TutorialManager {
 
     // TODO invert tutorial colors if aura is dark
 
+    public void setCompleted(boolean completed) {
+        mContext.getSharedPreferences(Config.PREFERENCES_BUCKET, Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(mContext.getString(R.string.prefs_tutorial_completed), completed)
+                .apply();
+    }
+
     public void goTo(Class<? extends TutorialStep> step) {
 
         close();
         if (step == null) {
+            mContext.getSharedPreferences(Config.PREFERENCES_BUCKET, Context.MODE_PRIVATE)
+                    .edit()
+                    .putBoolean(mContext.getString(R.string.prefs_tutorial_completed), true)
+                    .apply();
+
             return;
         }
         if (step.equals(EnabledStep.class)) {
@@ -69,7 +82,7 @@ public class TutorialManager {
         mRootView.addView(mCurrentScreen);
     }
 
-    private void close() {
+    public void close() {
         if (mCurrentStep != null) {
             i(TAG, "Removing current tutorial screen");
             ((ViewGroup) mCurrentScreen.getParent()).removeView(mCurrentScreen);
@@ -77,5 +90,9 @@ public class TutorialManager {
             mCurrentScreen = null;
             mCurrentStep = null;
         }
+    }
+
+    public void open() {
+        goTo(EnabledStep.class);
     }
 }

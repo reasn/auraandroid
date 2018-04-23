@@ -15,12 +15,12 @@
     <string name="ui_toolbar_refresh">Refresh</string>
 
     <!-- Permissions Missing -->
-    <string name="ui_permissions_heading">Welcome!</string>
-    <string name="ui_permissions_text">Aura can only work with some basic permissions.\n\nDon\'t worry, no data will be transmitted via the internet. \nYou are safe.</string>
-    <string name="ui_permissions_request">Allow my Aura</string>
-    <string name="ui_permissions_second_text">If clicking the button above doesn\'t work, you have to manually grant Aura the necessary permissions.\nPlease click the button below, then "Permissions" and grant Aura access to your location.</string>
-    <string name="ui_permissions_appSettings">Open App Settings</string>
-    <string name="ui_permissions_granted_text">Great, you\'re all set!\nSwipe to start.</string>
+    <string name="permissions_heading">Welcome!</string>
+    <string name="permissions_text">Aura can only work with some basic permissions.\n\nDon\'t worry, no data will be transmitted via the internet. \nYou are safe.</string>
+    <string name="permissions_request">Allow my Aura</string>
+    <string name="permissions_second_text">If clicking the button above doesn\'t work, you have to manually grant Aura the necessary permissions.\nPlease click the button below, then "Permissions" and grant Aura access to your location.</string>
+    <string name="permissions_appSettings">Open App Settings</string>
+    <string name="permissions_granted_text">Great, you\'re all set!\nSwipe to start.</string>
 
     <!-- Privacy -->
     <string name="terms_heading">Welcome!</string>
@@ -29,6 +29,7 @@
         \n\n3. We don\'t collect any data.
         \n\n4. Aura is and stays free
         \n\n5. Aura believes in humanism, freedom of speech, respect and equality of all people. If you don\'t, please uninstall it and read a wide variety of books.
+        \n\n
     </string>
     <string name="terms_disagree">Disagree</string>
     <string name="terms_agree">Agree</string>
@@ -144,20 +145,31 @@
     <string name="ui_dialog_bt_broken_never_show_again">Don\'t show this message again</string>
 
     <!--Notifications-->
-    <string name="ui_notification_no_permission_title">Your Aura is off</string>
-    <string name="ui_notification_no_permission_text">Aura needs permissions to run</string>
-    <string name="ui_notification_bt_disabled_title">Your Aura is off</string>
-    <string name="ui_notification_bt_disabled_text">Please activate Bluetooth for Aura to work</string>
-    <string name="ui_notification_ble_not_supported_title">Your Aura is off</string>
-    <string name="ui_notification_ble_not_supported_text">Your device doesn\'t support Bluetooth LE</string>
-    <string name="ui_notification_disabled_title">Your Aura is off</string>
-    <string name="ui_notification_advertising_not_supported_title">Your Aura is invisible</string>
-    <string name="ui_notification_advertising_not_supported_text">Your device doesn\'t support being visible :/</string>
-    <string name="ui_notification_on_not_active_title">Your Aura is getting ready</string>
-    <string name="ui_notification_on_title">Your Aura is on</string>
+    <string name="notification_no_permission_title">Your Aura is off</string>
+    <string name="notification_no_permission_text">Aura needs permissions to run</string>
+    <string name="notification_bt_disabled_title">Your Aura is off</string>
+    <string name="notification_bt_disabled_text">Please activate Bluetooth for Aura to work</string>
+    <string name="notification_ble_not_supported_title">Your Aura is off</string>
+    <string name="notification_ble_not_supported_text">Your device doesn\'t support Bluetooth LE</string>
+    <string name="notification_disabled_title">Your Aura is off</string>
+    <string name="notification_advertising_not_supported_title">Your Aura is invisible</string>
+    <string name="notification_advertising_not_supported_text">Your device doesn\'t support being visible :/</string>
+    <string name="notification_on_not_active_title">Your Aura is getting ready</string>
+    <string name="notification_on_title">Your Aura is on</string>
 
     <!--Preferences-->
     <string name="toolbar_preferences">Settings</string>
+    <string name="prefs_notification_group_key">notifications</string>
+    <string name="prefs_notification_group_title">Notifications</string>
+    <string name="prefs_notification_show_key">notification_show</string>
+    <string name="prefs_notification_show_title">Show Notificatiton</string>
+    <string name="prefs_notification_show_summary_on">No notification shows up if you encounter another Aura</string>
+    <string name="prefs_notification_show_summary_off">A notification shows up if you encounter another Aura</string>
+    <string name="prefs_notification_vibrate_key">notification_vibrate</string>
+    <string name="prefs_notification_vibrate_title">Vibration</string>
+    <string name="prefs_notification_vibrate_summary_on">Your phone will briefly vibrate if you encounter another Aura</string>
+    <string name="prefs_notification_vibrate_summary_off">Your phone will not vibrate if you encounter another Aura</string>
+    <string name="prefs_tutorial_completed">tutorial_completed</string>
     <string name="prefs_terms_agreed">terms_agreed</string>
     <string name="prefs_hide_broken_bt_warning_key">hide_broken_bt_stack_warning</string>
     <string name="prefs_enabled_key">enabled</string>
@@ -171,6 +183,7 @@
     <string name="prefs_feedback_key">feedback</string>
     <string name="prefs_feedback_title">Feedback</string>
     <string name="prefs_feedback_summary">It would be great if you took a few minutes to help make Aura better!</string>
+    <string name="prefs_feedback_url">http://www.getaura.io/survey</string>
     <string name="prefs_about_title">About</string>
     <string name="prefs_about_summary">Find </string>
     <string name="prefs_about_key">about</string>
@@ -184,5 +197,6 @@
     <string name="tutorial_button_back">Back</string>
     <string name="tutorial_button_next">Next</string>
     <string name="world_peer_no_name">Somebody</string>
+    <string name="toolbar_complete_tutorial">Complete Tutorial</string>
 
 </resources>

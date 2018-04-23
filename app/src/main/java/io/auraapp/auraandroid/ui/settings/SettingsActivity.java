@@ -2,8 +2,6 @@ package io.auraapp.auraandroid.ui.settings;
 
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.support.v7.app.AppCompatActivity;
@@ -69,13 +67,6 @@ public class SettingsActivity extends AppCompatActivity {
                 dialog.show();
                 dialog.getConfirmButton().setText(R.string.prefs_about_dialog_confirm);
 
-                return true;
-            });
-            findPreference(mContext.getString(R.string.prefs_feedback_key)).setOnPreferenceClickListener(preference -> {
-                String url = "http://www.getaura.io/survey";
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse(url));
-                startActivity(intent);
                 return true;
             });
         }

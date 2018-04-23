@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.ui.ScreenPager;
+import io.auraapp.auraandroid.ui.profile.ProfileFragment;
 
 public class EnabledStep extends TutorialStep {
 
@@ -21,7 +22,8 @@ public class EnabledStep extends TutorialStep {
         ((ViewGroup.MarginLayoutParams) overlay.getLayoutParams())
                 .setMargins(0, mRootView.findViewById(R.id.toolbar).getMeasuredHeight(), 0, 0);
 
-        mPager.setLocked(true);
+        mPager.setSwipeLocked(true);
+        mPager.goTo(ProfileFragment.class, false);
 
         return screen;
     }

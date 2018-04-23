@@ -13,12 +13,10 @@ import io.auraapp.auraandroid.ui.debug.DebugFragment;
 import io.auraapp.auraandroid.ui.permissions.PermissionsFragment;
 import io.auraapp.auraandroid.ui.profile.ProfileFragment;
 import io.auraapp.auraandroid.ui.welcome.TermsFragment;
-import io.auraapp.auraandroid.ui.welcome.WelcomeFragment;
 import io.auraapp.auraandroid.ui.world.WorldFragment;
 
 public class ScreenPagerAdapter extends FragmentStatePagerAdapter {
     public static final String SCREEN_PRIVACY = "privacy";
-    public static final String SCREEN_WELCOME = "welcome";
     private static final String SCREEN_WORLD = "world";
     private static final String SCREEN_PROFILE = "profile";
     private final List<Fragment> mFragments;
@@ -39,15 +37,16 @@ public class ScreenPagerAdapter extends FragmentStatePagerAdapter {
         return false;
     }
 
+    public boolean debugVisible() {
+        return has(DebugFragment.class);
+    }
+
     public Class getClassForHandle(String handle) {
         if (handle.equals(SCREEN_PROFILE)) {
             return ProfileFragment.class;
         }
         if (handle.equals(SCREEN_WORLD)) {
             return WorldFragment.class;
-        }
-        if (handle.equals(SCREEN_WELCOME)) {
-            return WelcomeFragment.class;
         }
         return TermsFragment.class;
     }
@@ -58,9 +57,6 @@ public class ScreenPagerAdapter extends FragmentStatePagerAdapter {
         }
         if (fragment.equals(WorldFragment.class)) {
             return SCREEN_WORLD;
-        }
-        if (fragment.equals(TermsFragment.class)) {
-            return SCREEN_WELCOME;
         }
         return SCREEN_PRIVACY;
     }
@@ -79,26 +75,21 @@ public class ScreenPagerAdapter extends FragmentStatePagerAdapter {
         }
     }
 
-    public void addWelcomeFragments() {
+    public void addTermsFragment() {
         boolean added = false;
-        if (!has(WelcomeFragment.class)) {
-            mFragments.add(0, new WelcomeFragment());
-            added = true;
-        }
         if (!has(TermsFragment.class)) {
-            mFragments.add(new TermsFragment());
+            mFragments.add(0, new TermsFragment());
             added = true;
         }
-
         if (added) {
             notifyDataSetChanged();
         }
     }
 
-    public void removeWelcomeFragments() {
+    public void removeTermsFragment() {
         boolean removed = false;
         for (Fragment fragment : mFragments.toArray(new Fragment[mFragments.size()])) {
-            if (fragment instanceof WelcomeFragment || fragment instanceof TermsFragment) {
+            if (fragment instanceof TermsFragment) {
                 mFragments.remove(fragment);
                 removed = true;
             }

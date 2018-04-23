@@ -13,14 +13,20 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/granted_emoji"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:paddingBottom="20dp"
-            android:textColor="@color/black"
-            android:textSize="120dp" />
+        <ImageView
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:contentDescription="Aura Logo"
+            android:src="@drawable/icon_circle" />
+
+        <!--<TextView-->
+        <!--android:id="@+id/granted_emoji"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="center_horizontal"-->
+        <!--android:paddingBottom="20dp"-->
+        <!--android:textColor="@color/black"-->
+        <!--android:textSize="120dp" />-->
 
         <TextView
             android:id="@+id/granted_text"
@@ -29,7 +35,7 @@
             android:layout_gravity="center_horizontal"
             android:paddingBottom="40dp"
             android:textColor="@color/black"
-            android:textSize="30dp" />
+            android:textSize="30sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -44,15 +50,18 @@
             android:id="@+id/info_box"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:button_caption="@string/ui_permissions_request"
+            app:button_caption="@string/permissions_request"
             app:emoji=":sun_behind_small_cloud:"
-            app:heading="@string/ui_permissions_heading"
-            app:second_text="@string/ui_permissions_second_text"
-            app:text="@string/ui_permissions_text" />
+            app:heading="@string/permissions_heading"
+            app:second_text="@string/permissions_second_text"
+            app:text="@string/permissions_text" />
 
         <Button
-            android:id="@+id/show_app_settings"
-            style="@style/Button" />
+            android:id="@+id/permissions_show_app_settings"
+            style="@style/FlatButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/blue" />
     </LinearLayout>
 
 </FrameLayout>

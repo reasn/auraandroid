@@ -29,13 +29,13 @@ abstract class ProfileStatusHidingStep extends TutorialStep {
         summary.getLayoutParams().height = 0;
 
         mPager.goTo(ProfileFragment.class, true);
-        mPager.setLocked(true);
+        mPager.setSwipeLocked(true);
     }
 
     void doLeave() {
         mRootView.findViewById(R.id.profile_status_info_box).getLayoutParams().height = mInfoBoxHeight;
         mRootView.findViewById(R.id.profile_status_summary).getLayoutParams().height = mSummaryHeight;
 
-        mPager.setLocked(false);
+        mPager.setSwipeLocked(false);
     }
 }

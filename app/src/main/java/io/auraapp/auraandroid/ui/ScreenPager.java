@@ -1,6 +1,7 @@
 package io.auraapp.auraandroid.ui;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,9 +13,15 @@ import android.view.MotionEvent;
 import java.util.HashSet;
 import java.util.Set;
 
+import io.auraapp.auraandroid.Communicator.CommunicatorState;
+import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.Config;
+import io.auraapp.auraandroid.common.PermissionHelper;
 import io.auraapp.auraandroid.common.Timer;
 import io.auraapp.auraandroid.ui.common.ScreenFragment;
 import io.auraapp.auraandroid.ui.permissions.FragmentCameIntoView;
+import io.auraapp.auraandroid.ui.permissions.PermissionsFragment;
+import io.auraapp.auraandroid.ui.welcome.TermsFragment;
 
 import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
@@ -98,11 +105,40 @@ public class ScreenPager extends ViewPager {
         }
     }
 
+    public boolean redirectIfNeeded(MainActivity activity, @Nullable CommunicatorState state) {
+        if ((state != null && !state.mHasPermission)
+                || !PermissionHelper.granted(activity)) {
+            mHandler.post(() -> {
+                getScreenAdapter().addPermissionsFragment();
+                goTo(PermissionsFragment.class, false);
+            });
+            return true;
+        }
+
+        SharedPreferences prefs = activity.getSharedPreferences(Config.PREFERENCES_BUCKET, Context.MODE_PRIVATE);
+
+        if (!prefs.getBoolean(activity.getString(R.string.prefs_terms_agreed), false)) {
+            mHandler.post(() -> {
+                getScreenAdapter().addTermsFragment();
+                goTo(TermsFragment.class, false);
+            });
+            return true;
+        }
+        if (!prefs.getBoolean(activity.getString(R.string.prefs_tutorial_completed), false)) {
+            mHandler.post(() -> {
+                activity.getSharedServicesSet().mTutorialManager.open();
+            });
+            return true;
+        }
+        return false;
+    }
+
     private void propagateScreenChange(int position) {
         ScreenFragment fragment = (ScreenFragment) getScreenAdapter().getItem(position);
         if (fragment instanceof FragmentCameIntoView) {
-            if (getContext() != null) {
-                ((FragmentCameIntoView) fragment).cameIntoView(fragment.getMainActivity());
+            MainActivity activity = fragment.getMainActivity();
+            if (activity != null) {
+                ((FragmentCameIntoView) fragment).cameIntoView(activity);
             }
         }
         v(TAG, "setCurrentItem. Invoking change callbacks for %s at %d", fragment, position);
@@ -123,7 +159,11 @@ public class ScreenPager extends ViewPager {
         super.setCurrentItem(position, smoothScroll);
     }
 
-    public void setLocked(boolean locked) {
+    public void setSwipeLocked(boolean locked) {
+        if (locked && getScreenAdapter().debugVisible()) {
+            // Cannot log when debug view is enabled
+            this.mLocked = false;
+        }
         this.mLocked = locked;
     }
 
