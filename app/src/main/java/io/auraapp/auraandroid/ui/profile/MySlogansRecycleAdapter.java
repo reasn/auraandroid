@@ -8,15 +8,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.TreeSet;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.common.ColorHelper;
-import io.auraapp.auraandroid.ui.common.lists.LegacyItemViewHolder;
-import io.auraapp.auraandroid.ui.common.lists.LegacyRecyclerAdapter;
-import io.auraapp.auraandroid.ui.common.lists.ListItem;
+import io.auraapp.auraandroid.ui.common.lists.ExpandableRecyclerAdapter;
+import io.auraapp.auraandroid.ui.common.lists.ExpandableViewHolder;
+import io.auraapp.auraandroid.ui.common.lists.SpacerHolder;
+import io.auraapp.auraandroid.ui.common.lists.SpacerItem;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 import io.auraapp.auraandroid.ui.world.list.PeersDiffCallback;
 
@@ -27,9 +27,8 @@ import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EV
 import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_DROPPED;
 import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_REPLACED;
 
-public class MySlogansRecycleAdapter extends LegacyRecyclerAdapter {
+public class MySlogansRecycleAdapter extends ExpandableRecyclerAdapter {
 
-    private final MyProfileManager mMyProfileManager;
 
     @FunctionalInterface
     public interface OnMySloganActionCallback {
@@ -43,6 +42,8 @@ public class MySlogansRecycleAdapter extends LegacyRecyclerAdapter {
 
     private final static int TYPE_SPACER = 197;
     private final static int TYPE_MY_SLOGAN = 198;
+    private final MyProfileManager mMyProfileManager;
+    private final Context mContext;
     private final OnMySloganActionCallback mOnMySloganActionCallback;
 
     public MySlogansRecycleAdapter(@NonNull Context context,
@@ -50,6 +51,7 @@ public class MySlogansRecycleAdapter extends LegacyRecyclerAdapter {
                                    OnMySloganActionCallback onMySloganActionCallback,
                                    MyProfileManager myProfileManager) {
         super(context, listView);
+        mContext = context;
         mOnMySloganActionCallback = onMySloganActionCallback;
         mMyProfileManager = myProfileManager;
         mItems.add(new SpacerItem());
@@ -63,66 +65,51 @@ public class MySlogansRecycleAdapter extends LegacyRecyclerAdapter {
                     || event == EVENT_DROPPED
                     || event == EVENT_REPLACED) {
                 i(TAG, "Slogans changes (%s), synchronizing view", MyProfileManager.nameEvent(event));
-                notifyMySlogansChanged(mMyProfileManager.getProfile().getSlogans());
+                notifyMySlogansListChanged(mMyProfileManager.getProfile().getSlogans());
             }
         });
     }
 
-    public void notifyMySlogansChanged(TreeSet<Slogan> mySlogans) {
+    public void notifyMySlogansListChanged(TreeSet<Slogan> mySlogans) {
         d(TAG, "Updating list, mySlogans: %d", mySlogans.size());
-
-        final List<ListItem> newItems = new ArrayList<>();
-        for (Slogan mySlogan : mySlogans) {
-            newItems.add(new MySloganListItem(mySlogan));
-        }
-        newItems.add(new SpacerItem());
-
-        DiffUtil.DiffResult diff = DiffUtil.calculateDiff(new PeersDiffCallback(mItems, newItems));
+        DiffUtil.DiffResult diff = DiffUtil.calculateDiff(new PeersDiffCallback(mItems, new ArrayList<>(mySlogans)));
         mItems.clear();
-        mItems.addAll(newItems);
+        mItems.addAll(mySlogans);
+        mItems.add(new SpacerItem());
         diff.dispatchUpdatesTo(this);
-
-//        ListSynchronizer.syncLists(
-//                mItems,
-//                newItems,
-//                this,
-//                (item, newItem) -> item instanceof SpacerItem || item.compareIndex(newItem) > 0
-//        );
     }
 
     @NonNull
     @Override
-    public LegacyItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ExpandableViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_SPACER) {
-            return new LegacySpacerHolder(mInflater.inflate(R.layout.common_list_spacer, parent, false));
+            return new SpacerHolder(mInflater.inflate(R.layout.common_list_spacer, parent, false));
         }
         return new MySloganHolder(
                 mInflater.inflate(R.layout.profile_list_item_slogan, parent, false),
                 mContext,
-                mOnMySloganActionCallback,
-                this.mCollapseExpandHandler
+                mOnMySloganActionCallback
         );
     }
 
     @Override
-    public void onBindViewHolder(@NonNull LegacyItemViewHolder holder, int position) {
-        super.onBindViewHolder(holder, position);
-
-        if (holder instanceof LegacySpacerHolder) {
+    public void onBindViewHolder(@NonNull ExpandableViewHolder holder, int position) {
+        if (holder instanceof SpacerHolder) {
             return;
         }
 
         // Alternating colors
         // The first slogan is colored with accent because because for white background it otherwise
         // would be indistinguishable from my text
-        int color = Color.parseColor(mMyProfileManager.getColor());
-        holder.colorize(
-                position % 2 == 0
-                        ? ColorHelper.getAccent(color)
-                        : color,
-                ColorHelper.getTextColor(color)
-        );
+        final int color = position % 2 == 0
+                ? ColorHelper.getAccent(Color.parseColor(mMyProfileManager.getColor()))
+                : Color.parseColor(mMyProfileManager.getColor());
 
+        MySloganHolder castHolder = ((MySloganHolder) holder);
+        castHolder.mBackgroundColor = color;
+        castHolder.mTextColor = ColorHelper.getTextColor(color);
+
+        super.onBindViewHolder(holder, position);
     }
 
     @Override

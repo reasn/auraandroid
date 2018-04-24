@@ -8,11 +8,11 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 
 import io.auraapp.auraandroid.R;
-import io.auraapp.auraandroid.ui.common.lists.LegacyItemViewHolder;
-import io.auraapp.auraandroid.ui.common.lists.LegacyRecyclerAdapter;
-import io.auraapp.auraandroid.ui.profile.LegacySpacerHolder;
+import io.auraapp.auraandroid.common.Slogan;
+import io.auraapp.auraandroid.ui.common.lists.ExpandableRecyclerAdapter;
+import io.auraapp.auraandroid.ui.common.lists.ExpandableViewHolder;
 
-public class PeerSloganAdapter extends LegacyRecyclerAdapter {
+public class PeerSloganAdapter extends ExpandableRecyclerAdapter {
     private final ColorSet mColorSet;
     private final OnAdoptCallback mOnAdoptCallback;
 
@@ -20,36 +20,35 @@ public class PeerSloganAdapter extends LegacyRecyclerAdapter {
                              RecyclerView listView,
                              ColorSet colorSet,
                              OnAdoptCallback onAdoptCallback,
-                             ArrayList<PeerSloganItem> sloganItems) {
+                             ArrayList<Slogan> slogans) {
 
         super(context, listView);
-        mItems.addAll(sloganItems);
+        mItems.addAll(slogans);
         mColorSet = colorSet;
         mOnAdoptCallback = onAdoptCallback;
     }
 
+
     @Override
-    public void onBindViewHolder(@NonNull LegacyItemViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ExpandableViewHolder holder, int position) {
+
+        PeerSloganHolder castHolder = ((PeerSloganHolder) holder);
+        if (position % 2 == 0) {
+            castHolder.mBackgroundColor = mColorSet.mAccentBackground;
+            castHolder.mTextColor = mColorSet.mAccentText;
+        } else {
+            castHolder.mBackgroundColor = mColorSet.mBackground;
+            castHolder.mTextColor = mColorSet.mText;
+        }
         super.onBindViewHolder(holder, position);
 
-        if (holder instanceof LegacySpacerHolder) {
-            return;
-        }
-        if (position % 2 == 0) {
-            holder.colorize(mColorSet.mAccentBackground, mColorSet.mAccentText);
-        } else {
-            holder.colorize(mColorSet.mBackground, mColorSet.mText);
-        }
     }
-
 
     @NonNull
     @Override
-    public LegacyItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ExpandableViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new PeerSloganHolder(
                 mInflater.inflate(R.layout.world_peer_slogan, parent, false),
-                mContext,
-                mCollapseExpandHandler,
                 mOnAdoptCallback);
     }
 }

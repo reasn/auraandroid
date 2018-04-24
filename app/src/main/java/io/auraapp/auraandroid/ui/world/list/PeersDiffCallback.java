@@ -4,7 +4,8 @@ import android.support.v7.util.DiffUtil;
 
 import java.util.List;
 
-import io.auraapp.auraandroid.ui.profile.SpacerItem;
+import io.auraapp.auraandroid.common.Peer;
+import io.auraapp.auraandroid.ui.common.lists.SpacerItem;
 
 public class PeersDiffCallback extends DiffUtil.Callback {
     private List<?> mNewItems;
@@ -32,8 +33,8 @@ public class PeersDiffCallback extends DiffUtil.Callback {
         if (oldItem instanceof SpacerItem && newItem instanceof SpacerItem) {
             return true;
         }
-        if (oldItem instanceof PeerItem && newItem instanceof PeerItem) {
-            return ((PeerItem) oldItem).getPeer().mId == ((PeerItem) newItem).getPeer().mId;
+        if (oldItem instanceof Peer && newItem instanceof Peer) {
+            return ((Peer) oldItem).mId == ((Peer) newItem).mId;
         }
         return false;
     }

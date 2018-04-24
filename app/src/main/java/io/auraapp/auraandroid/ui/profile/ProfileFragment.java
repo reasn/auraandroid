@@ -134,7 +134,7 @@ public class ProfileFragment extends ContextViewFragment implements FragmentWith
         mSlogansRecyclerView.setLayoutManager(new LinearLayoutManager(context));
         mSlogansRecyclerView.setNestedScrollingEnabled(false);
         mSlogansRecyclerView.setAdapter(mAdapter);
-        mAdapter.notifyMySlogansChanged(mMyProfileManager.getProfile().getSlogans());
+        mAdapter.notifyMySlogansListChanged(mMyProfileManager.getProfile().getSlogans());
     }
 
     private void updateNameAndTextViews() {

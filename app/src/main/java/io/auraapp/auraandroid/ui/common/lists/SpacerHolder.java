@@ -1,8 +1,6 @@
-package io.auraapp.auraandroid.ui.profile;
+package io.auraapp.auraandroid.ui.common.lists;
 
 import android.view.View;
-
-import io.auraapp.auraandroid.ui.common.lists.ExpandableViewHolder;
 
 public class SpacerHolder extends ExpandableViewHolder {
 

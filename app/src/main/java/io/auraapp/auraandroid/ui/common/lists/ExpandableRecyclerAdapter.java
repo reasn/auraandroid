@@ -1,7 +1,9 @@
 package io.auraapp.auraandroid.ui.common.lists;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -10,11 +12,13 @@ import java.util.List;
 
 abstract public class ExpandableRecyclerAdapter extends RecyclerView.Adapter<ExpandableViewHolder> {
 
+    protected final LayoutInflater mInflater;
     private RecyclerView mRecyclerView;
 
-    public ExpandableRecyclerAdapter(RecyclerView recyclerView) {
+    public ExpandableRecyclerAdapter(Context context, RecyclerView recyclerView) {
         super();
         mRecyclerView = recyclerView;
+        mInflater = LayoutInflater.from(context);
     }
 
     private int mExpandedIndex = -1;

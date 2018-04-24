@@ -8,11 +8,8 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Peer;
-import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.common.MonoSpaceText;
 import io.auraapp.auraandroid.ui.common.lists.ExpandableViewHolder;
 
@@ -55,7 +52,7 @@ public class PeerHolder extends ExpandableViewHolder {
         v(TAG, "Binding list item view");
 
         if (item == null) {
-            e(TAG, "Trying to bind %s to null ListItem", PeerHolder.class.getSimpleName());
+            e(TAG, "Trying to bind %s to null item", PeerHolder.class.getSimpleName());
             return;
         }
         if (!(item instanceof Peer)) {
@@ -103,17 +100,13 @@ public class PeerHolder extends ExpandableViewHolder {
 
         // TODO avoid recreation on each change, e.g. cache stuff on Peer
 
-        ArrayList<PeerSloganItem> items = new ArrayList<>();
-        for (Slogan slogan : peer.mSlogans) {
-            items.add(new PeerSloganItem(slogan.getText(), slogan));
-        }
 
         PeerSloganAdapter adapter = new PeerSloganAdapter(
                 mContext,
                 mSlogansListView,
                 colorSet,
                 mOnAdoptCallback,
-                items
+                peer.mSlogans
         );
 
         mSlogansListView.setBackgroundColor(colorSet.mAccentBackground);

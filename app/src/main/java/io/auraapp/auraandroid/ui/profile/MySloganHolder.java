@@ -1,60 +1,61 @@
 package io.auraapp.auraandroid.ui.profile;
 
 import android.content.Context;
+import android.support.annotation.ColorInt;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.EmojiHelper;
+import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.common.MonoSpaceText;
-import io.auraapp.auraandroid.ui.common.lists.LegacyItemViewHolder;
-import io.auraapp.auraandroid.ui.common.lists.LegacyRecyclerAdapter;
-import io.auraapp.auraandroid.ui.common.lists.ListItem;
+import io.auraapp.auraandroid.ui.common.lists.ExpandableViewHolder;
 
-public class MySloganHolder extends LegacyItemViewHolder {
+public class MySloganHolder extends ExpandableViewHolder {
 
     private final MonoSpaceText mSloganTextView;
     private final LinearLayout mExpandedWrapper;
     private final Button mEditButtonView;
     private final Button mDropButtonView;
     private final MySlogansRecycleAdapter.OnMySloganActionCallback mOnMySloganActionCallback;
-    private final LegacyRecyclerAdapter.CollapseExpandHandler mCollapseExpandHandler;
-    private Context mContext;
+    @ColorInt
+    int mBackgroundColor;
+    @ColorInt
+    int mTextColor;
 
     public MySloganHolder(View itemView,
                           Context context,
-                          MySlogansRecycleAdapter.OnMySloganActionCallback onMySloganActionCallback,
-                          LegacyRecyclerAdapter.CollapseExpandHandler collapseExpandHandler) {
+                          MySlogansRecycleAdapter.OnMySloganActionCallback onMySloganActionCallback) {
         super(itemView);
-        mContext = context;
         mOnMySloganActionCallback = onMySloganActionCallback;
         mSloganTextView = itemView.findViewById(R.id.slogan_text);
         mExpandedWrapper = itemView.findViewById(R.id.expanded_wrapper);
         mEditButtonView = itemView.findViewById(R.id.edit_button);
         mDropButtonView = itemView.findViewById(R.id.drop_button);
-        mCollapseExpandHandler = collapseExpandHandler;
 
-        itemView.setOnClickListener($ -> collapseExpandHandler.flip(getLastBoundItem()));
-        mSloganTextView.setOnClickListener($ -> collapseExpandHandler.flip(getLastBoundItem()));
-
-        mEditButtonView.setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_profile_list_item_edit)));
-        mDropButtonView.setText(EmojiHelper.replaceShortCode(mContext.getString(R.string.ui_profile_list_item_drop)));
+        mEditButtonView.setText(EmojiHelper.replaceShortCode(context.getString(R.string.ui_profile_list_item_edit)));
+        mDropButtonView.setText(EmojiHelper.replaceShortCode(context.getString(R.string.ui_profile_list_item_drop)));
     }
 
+
     @Override
-    public void bind(ListItem item, View itemView) {
-        if (!(item instanceof MySloganListItem)) {
-            throw new RuntimeException("Expecting " + MySloganListItem.class.getSimpleName());
+    public void bind(Object item, boolean expanded, View.OnClickListener collapseExpandHandler) {
+
+        if (!(item instanceof Slogan)) {
+            throw new RuntimeException("Expecting " + Slogan.class.getSimpleName());
         }
 
-        mItemView.setBackgroundColor(mBackgroundColor);
+        itemView.setBackgroundColor(mBackgroundColor);
+        itemView.setOnClickListener(collapseExpandHandler);
 
-        MySloganListItem castItem = (MySloganListItem) item;
+        Slogan slogan = (Slogan) item;
 
         mSloganTextView.setTextColor(mTextColor);
-        mSloganTextView.setText(castItem.getSlogan().getText());
-        if (!castItem.mExpanded) {
+        mSloganTextView.setText(slogan.getText());
+        mSloganTextView.setOnClickListener(collapseExpandHandler);
+
+        if (!expanded) {
             if (mExpandedWrapper.getVisibility() == View.VISIBLE) {
                 mExpandedWrapper.setVisibility(View.GONE);
             }
@@ -62,17 +63,13 @@ public class MySloganHolder extends LegacyItemViewHolder {
         }
         mExpandedWrapper.setVisibility(View.VISIBLE);
 
-        mEditButtonView.setOnClickListener(
-                $ -> {
-                    mOnMySloganActionCallback.onActionTaken(castItem.getSlogan(), MySlogansRecycleAdapter.OnMySloganActionCallback.ACTION_EDIT);
-                    mCollapseExpandHandler.flip(item);
-                }
-        );
-        mDropButtonView.setOnClickListener(
-                $ -> {
-                    mOnMySloganActionCallback.onActionTaken(castItem.getSlogan(), MySlogansRecycleAdapter.OnMySloganActionCallback.ACTION_DROP);
-                    mCollapseExpandHandler.flip(item);
-                }
-        );
+        mEditButtonView.setOnClickListener($ -> {
+            mOnMySloganActionCallback.onActionTaken(slogan, MySlogansRecycleAdapter.OnMySloganActionCallback.ACTION_EDIT);
+            collapseExpandHandler.onClick(itemView);
+        });
+        mDropButtonView.setOnClickListener($ -> {
+            mOnMySloganActionCallback.onActionTaken(slogan, MySlogansRecycleAdapter.OnMySloganActionCallback.ACTION_DROP);
+            collapseExpandHandler.onClick(itemView);
+        });
     }
 }

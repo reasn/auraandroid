@@ -14,21 +14,4 @@
         android:layout_marginTop="15dp"
         app:alignCenter="true" />
 
-    <LinearLayout
-        android:id="@+id/world_peer_slogan_expanded_wrapper"
-        android:visibility="gone"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <Button
-            android:id="@+id/world_peer_slogan_adopt_button"
-            style="@style/FlatButton"
-            android:text="@string/world_peer_slogan_adopt"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:background="@color/green" />
-    </LinearLayout>
-
 </LinearLayout>

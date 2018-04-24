@@ -1,54 +1,44 @@
 package io.auraapp.auraandroid.ui.world.list;
 
-import android.content.Context;
+import android.support.annotation.ColorInt;
 import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
 
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.common.MonoSpaceText;
-import io.auraapp.auraandroid.ui.common.lists.LegacyItemViewHolder;
-import io.auraapp.auraandroid.ui.common.lists.LegacyRecyclerAdapter;
-import io.auraapp.auraandroid.ui.common.lists.ListItem;
+import io.auraapp.auraandroid.ui.common.lists.ExpandableViewHolder;
 
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
-public class PeerSloganHolder extends LegacyItemViewHolder {
+public class PeerSloganHolder extends ExpandableViewHolder {
 
     private static final String TAG = "aura/list/" + PeerSloganHolder.class.getSimpleName();
-    private final Context mContext;
     private final OnAdoptCallback mOnAdoptCallback;
     private final MonoSpaceText mTextView;
-    private final Button mAdoptButton;
-    private final LinearLayout mExpandedWrapper;
-    private final LegacyRecyclerAdapter.CollapseExpandHandler mCollapseExpandHandler;
 
-    public PeerSloganHolder(View itemView,
-                            Context context,
-                            LegacyRecyclerAdapter.CollapseExpandHandler collapseExpandHandler,
-                            OnAdoptCallback onAdoptCallback) {
+    @ColorInt
+    public int mTextColor;
+    @ColorInt
+    public int mBackgroundColor;
+
+    public PeerSloganHolder(View itemView, OnAdoptCallback onAdoptCallback) {
         super(itemView);
-        mContext = context;
         mOnAdoptCallback = onAdoptCallback;
-
         mTextView = itemView.findViewById(R.id.world_peer_slogan_text);
-        mExpandedWrapper = itemView.findViewById(R.id.world_peer_slogan_expanded_wrapper);
-        mAdoptButton = itemView.findViewById(R.id.world_peer_slogan_adopt_button);
-        mCollapseExpandHandler = collapseExpandHandler;
     }
 
     @Override
-    public void bind(ListItem item, View itemView) {
-        v(TAG, "Binding peer slogan item view, expanded: %s", item.mExpanded);
-        PeerSloganItem castItem = (PeerSloganItem) item;
-        mTextView.setText(castItem.getSlogan().getText());
-        mTextView.setOnClickListener($ -> mCollapseExpandHandler.flip(item));
+    public void bind(Object item, boolean expanded, View.OnClickListener collapseExpandHandler) {
+        v(TAG, "Binding peer slogan item view, expanded: %s", expanded);
+        Slogan slogan = (Slogan) item;
+        mTextView.setText(slogan.getText());
+        mTextView.setOnClickListener(collapseExpandHandler);
+        itemView.setBackgroundColor(mBackgroundColor);
+        mTextView.setTextColor(mTextColor);
 
-        if (!item.mExpanded) {
-            mExpandedWrapper.setVisibility(View.GONE);
-            return;
-        }
-        mExpandedWrapper.setVisibility(View.VISIBLE);
-        mAdoptButton.setOnClickListener($ -> mOnAdoptCallback.onAdoptIntended(castItem.getSlogan()));
+        itemView.setOnLongClickListener($ -> {
+            mOnAdoptCallback.onAdoptIntended(slogan);
+            return true;
+        });
     }
 }

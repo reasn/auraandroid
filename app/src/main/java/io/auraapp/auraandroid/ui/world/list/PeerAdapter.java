@@ -5,7 +5,6 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
@@ -18,8 +17,8 @@ import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.Timer;
 import io.auraapp.auraandroid.ui.common.lists.ExpandableRecyclerAdapter;
 import io.auraapp.auraandroid.ui.common.lists.ExpandableViewHolder;
-import io.auraapp.auraandroid.ui.profile.SpacerHolder;
-import io.auraapp.auraandroid.ui.profile.SpacerItem;
+import io.auraapp.auraandroid.ui.common.lists.SpacerHolder;
+import io.auraapp.auraandroid.ui.common.lists.SpacerItem;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 
@@ -30,7 +29,6 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
     private final static int TYPE_PEER = 244;
     private final static int TYPE_SPACER = 245;
     private final OnAdoptCallback mOnAdoptCallback;
-    private final LayoutInflater mInflater;
     private final Context mContext;
     private Timer.Timeout mRedrawTimeout;
     private Timer mTimer = new Timer(new Handler());
@@ -50,11 +48,10 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
     };
 
     public PeerAdapter(Context context, RecyclerView recyclerView, OnAdoptCallback onAdoptCallback) {
-        super(recyclerView);
+        super(context, recyclerView);
         mContext = context;
         mOnAdoptCallback = onAdoptCallback;
         mItems.add(new SpacerItem());
-        mInflater = LayoutInflater.from(context);
     }
 
     public void notifyPeerListChanged(Set<Peer> peerSet) {
