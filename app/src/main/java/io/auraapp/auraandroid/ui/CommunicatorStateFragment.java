@@ -1,5 +1,6 @@
 package io.auraapp.auraandroid.ui;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -17,15 +18,16 @@ import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxyState;
 import io.auraapp.auraandroid.ui.common.InfoBox;
-import io.auraapp.auraandroid.ui.common.ScreenFragment;
+import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
 
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 import static io.auraapp.auraandroid.common.FormattedLog.w;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION;
 
-public class CommunicatorStateFragment extends ScreenFragment {
+public class CommunicatorStateFragment extends ContextViewFragment {
 
     private static final String TAG = "@aura/ui/" + CommunicatorStateFragment.class.getSimpleName();
+    public static final int BLUETOOTH_ENABLE_REQUEST_ID = 6543;
     private CommunicatorProxyState mCommunicatorProxyState;
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -46,7 +48,7 @@ public class CommunicatorStateFragment extends ScreenFragment {
     }
 
     @Override
-    protected void onResumeWithContext(MainActivity activity, ViewGroup rootView) {
+    protected void onResumeWithContextAndView(MainActivity activity, ViewGroup rootView) {
         LocalBroadcastManager.getInstance(activity).registerReceiver(mReceiver, IntentFactory.createFilter(LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION));
         v(TAG, "Receiver registered");
         mCommunicatorProxyState = activity.getSharedServicesSet().mCommunicatorProxy.getState();
@@ -93,6 +95,7 @@ public class CommunicatorStateFragment extends ScreenFragment {
 
         @Nullable
         CommunicatorState state = mCommunicatorProxyState.mCommunicatorState;
+        infoBox.setOnClickListener(null);
 
         if (!mCommunicatorProxyState.mEnabled) {
             showAuraOffInfoBox.run();
@@ -119,6 +122,9 @@ public class CommunicatorStateFragment extends ScreenFragment {
             infoBox.setText(R.string.ui_common_communicator_bt_disabled_text);
             infoBox.hideButton();
             infoBox.setColor(R.color.infoBoxWarning);
+            infoBox.setOnClickListener($ -> startActivityForResult(
+                    new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE),
+                    BLUETOOTH_ENABLE_REQUEST_ID));
             show = BOX;
         } else if (!state.mBleSupported) {
             infoBox.setEmoji(":dizzy_face:");

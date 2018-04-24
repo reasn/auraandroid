@@ -14,8 +14,8 @@
 
         <TextView
             android:id="@+id/emoji"
-            android:layout_width="50sp"
-            android:layout_height="50sp"
+            android:layout_width="60sp"
+            android:layout_height="60sp"
             android:textAlignment="center"
             android:textColor="@color/black"
             android:textSize="40sp" />

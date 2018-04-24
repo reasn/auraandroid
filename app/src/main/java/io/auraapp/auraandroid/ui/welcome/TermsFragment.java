@@ -6,11 +6,11 @@ import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.ScreenPager;
-import io.auraapp.auraandroid.ui.common.ScreenFragment;
+import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
 import io.auraapp.auraandroid.ui.permissions.FragmentCameIntoView;
 import io.auraapp.auraandroid.ui.profile.ProfileFragment;
 
-public class TermsFragment extends ScreenFragment implements FragmentCameIntoView {
+public class TermsFragment extends ContextViewFragment implements FragmentCameIntoView {
 
     private static final String TAG = "@aura/ui/welcome/" + TermsFragment.class.getSimpleName();
 
@@ -20,7 +20,7 @@ public class TermsFragment extends ScreenFragment implements FragmentCameIntoVie
     }
 
     @Override
-    protected void onResumeWithContext(MainActivity activity, ViewGroup rootView) {
+    protected void onResumeWithContextAndView(MainActivity activity, ViewGroup rootView) {
         rootView.findViewById(R.id.terms_agree).setOnClickListener(
                 $ -> {
                     ScreenPager pager = activity.getSharedServicesSet().mPager;

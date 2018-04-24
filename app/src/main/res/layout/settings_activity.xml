@@ -8,13 +8,12 @@
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
-        style="@style/Toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
         android:background="@color/purple"
-        app:title=" "
-        app:titleTextColor="@color/white">
-
-
-    </android.support.v7.widget.Toolbar>
+        android:elevation="0dp"
+        app:title="@string/settings_title"
+        app:titleTextColor="@color/white" />
 
     <LinearLayout
         android:id="@+id/preferences_placeholder"

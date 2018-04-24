@@ -18,12 +18,12 @@ import io.auraapp.auraandroid.common.Timer;
 import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.ScreenPager;
 import io.auraapp.auraandroid.ui.common.InfoBox;
-import io.auraapp.auraandroid.ui.common.ScreenFragment;
+import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
 import io.auraapp.auraandroid.ui.profile.ProfileFragment;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
-public class PermissionsFragment extends ScreenFragment {
+public class PermissionsFragment extends ContextViewFragment {
 
     private static final String TAG = "@aura/ui/permissions/" + PermissionsFragment.class.getSimpleName();
     private static final int REQUEST_CODE_LOCATION_REQUEST = 149;
@@ -40,7 +40,7 @@ public class PermissionsFragment extends ScreenFragment {
     }
 
     @Override
-    protected void onResumeWithContext(MainActivity activity, ViewGroup rootView) {
+    protected void onResumeWithContextAndView(MainActivity activity, ViewGroup rootView) {
 
         mPager = activity.getSharedServicesSet().mPager;
 

@@ -16,7 +16,7 @@ import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.common.PermissionHelper;
 import io.auraapp.auraandroid.common.Timer;
-import io.auraapp.auraandroid.ui.common.ScreenFragment;
+import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
 import io.auraapp.auraandroid.ui.permissions.FragmentCameIntoView;
 import io.auraapp.auraandroid.ui.permissions.PermissionsFragment;
 import io.auraapp.auraandroid.ui.welcome.TermsFragment;
@@ -128,7 +128,7 @@ public class ScreenPager extends ViewPager {
     }
 
     private void propagateScreenChange(int position) {
-        ScreenFragment fragment = (ScreenFragment) getScreenAdapter().getItem(position);
+        ContextViewFragment fragment = (ContextViewFragment) getScreenAdapter().getItem(position);
         if (fragment instanceof FragmentCameIntoView) {
             MainActivity activity = fragment.getMainActivity();
             if (activity != null) {

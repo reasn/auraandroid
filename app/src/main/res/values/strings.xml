@@ -121,7 +121,7 @@
     \nIf that doesn\'t solve the issue, try restarting your device.
     \nThis problem is not caused by Aura. Sorry about this!</string>
     <string name="ui_common_communicator_bt_disabled_heading">Bluetooth Off</string>
-    <string name="ui_common_communicator_bt_disabled_text">Please enable Bluetooth to turn your Aura on.</string>
+    <string name="ui_common_communicator_bt_disabled_text">Enable Bluetooth for Aura to work.</string>
     <string name="ui_common_communicator_summary_bt_turning_on">:hourglass: Bluetooth is starting.</string>
     <string name="ui_common_communicator_summary_on_not_active">:hourglass: Aura is getting ready.</string>
     <string name="ui_common_communicator_ble_not_supported_heading">Device Unsupported</string>
@@ -205,5 +205,6 @@
     <string name="profile_no_slogans">Click the button below\nto add your first idea.</string>
     <string name="world_not_scanning">Nearby Auras are shown here\nas soon as your Aura is on.</string>
     <string name="toolbar_finish">Exit</string>
+    <string name="settings_title">Aura Settings</string>
 
 </resources>

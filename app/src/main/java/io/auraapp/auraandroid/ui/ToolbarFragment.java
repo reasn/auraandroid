@@ -1,14 +1,18 @@
 package io.auraapp.auraandroid.ui;
 
-
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -20,61 +24,68 @@ import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.ui.common.ColorHelper;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxy;
+import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 import io.auraapp.auraandroid.ui.settings.SettingsActivity;
 
 import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_COLOR_CHANGED;
 
-public class ToolbarAspect {
-
-    private static final String TAG = "@aura/ui/" + ToolbarAspect.class.getSimpleName();
-    private final MainActivity mActivity;
-    private final Handler mHandler;
-
-    private final List<Long> mToolbarIconClicks = new ArrayList<>();
-    private final CommunicatorProxy mCommunicatorProxy;
-
-    private boolean mAuraEnabled;
-    private boolean mDebugFragmentEnabled = false;
-
-    private SwitchCompat mEnabledSwitch;
+public class ToolbarFragment extends ContextViewFragment {
+    private static final String TAG = "@aura/ui/" + ToolbarFragment.class.getSimpleName();
     private Toolbar mToolbar;
+    private CommunicatorProxy mCommunicatorProxy;
+    private SwitchCompat mEnabledSwitch;
+    private Handler mHandler = new Handler();
+    private boolean mDebugFragmentEnabled;
+    private final List<Long> mToolbarIconClicks = new ArrayList<>();
+    private ScreenPager mPager;
+    private MyProfileManager mMyProfileManager;
 
-    public ToolbarAspect(MainActivity activity, Handler handler) {
-        this.mActivity = activity;
-        this.mCommunicatorProxy = activity.getSharedServicesSet().mCommunicatorProxy;
-        this.mHandler = handler;
+    @Override
+    protected int getLayoutResource() {
+        return R.layout.main_toolbar_fragment;
     }
 
-    public void initToolbar() {
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
+        super.onCreate(savedInstanceState);
+    }
 
-        mToolbar = mActivity.findViewById(R.id.toolbar);
-        mActivity.setSupportActionBar(mToolbar);
+    @Override
+    protected void onResumeWithContextAndView(MainActivity activity, ViewGroup rootView) {
+
+        mCommunicatorProxy = activity.getSharedServicesSet().mCommunicatorProxy;
+        mMyProfileManager = activity.getSharedServicesSet().mMyProfileManager;
+        mPager = activity.getSharedServicesSet().mPager;
+
+        mToolbar = (Toolbar) rootView;
+        activity.setSupportActionBar(mToolbar);
 
         mToolbar.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.action_settings) {
-                mActivity.startActivity(new Intent(mActivity, SettingsActivity.class));
+                activity.startActivity(new Intent(activity, SettingsActivity.class));
                 return true;
             }
             if (item.getItemId() == R.id.action_tutorial) {
-                mActivity.getSharedServicesSet().mTutorialManager.setCompleted(false);
-                mActivity.getSharedServicesSet().mTutorialManager.open();
+                activity.getSharedServicesSet().mTutorialManager.setCompleted(false);
+                activity.getSharedServicesSet().mTutorialManager.open();
                 return true;
             }
             if (item.getItemId() == R.id.action_reset_terms) {
-                AuraPrefs.putHasAgreedToTerms(mActivity, false);
-                mActivity.getSharedServicesSet().mTutorialManager.close();
-                mActivity.getSharedServicesSet().mPager.redirectIfNeeded(mActivity, null);
+                AuraPrefs.putHasAgreedToTerms(activity, false);
+                activity.getSharedServicesSet().mTutorialManager.close();
+                activity.getSharedServicesSet().mPager.redirectIfNeeded(activity, null);
                 return true;
             }
             if (item.getItemId() == R.id.action_complete_tutorial) {
-                mActivity.getSharedServicesSet().mTutorialManager.setCompleted(true);
-                mActivity.getSharedServicesSet().mTutorialManager.close();
+                activity.getSharedServicesSet().mTutorialManager.setCompleted(true);
+                activity.getSharedServicesSet().mTutorialManager.close();
                 return true;
             }
             if (item.getItemId() == R.id.action_finish) {
-                mActivity.finish();
+                activity.finish();
                 return true;
             }
             return false;
@@ -99,17 +110,23 @@ public class ToolbarAspect {
                 mToolbarIconClicks.clear();
                 mDebugFragmentEnabled = true;
                 Toast.makeText(
-                        mActivity,
-                        EmojiHelper.replaceShortCode(mActivity.getString(R.string.ui_main_toast_debug_view_enabled)),
+                        activity,
+                        EmojiHelper.replaceShortCode(activity.getString(R.string.ui_main_toast_debug_view_enabled)),
                         Toast.LENGTH_SHORT
                 ).show();
-                mActivity.getSharedServicesSet().mPager.getScreenAdapter().addDebugFragment();
+                activity.getSharedServicesSet().mPager.getScreenAdapter().addDebugFragment();
             }
         }));
     }
 
-    public void createOptionsMenu(Menu menu) {
-        mActivity.getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.toolbar_menu, menu);
+
+        Context context = getContext();
+        if (context == null) {
+            return;
+        }
 
         MenuItem enabledItem = menu.findItem(R.id.menu_item_enabled);
         enabledItem.setActionView(R.layout.common_toolbar_switch);
@@ -120,13 +137,10 @@ public class ToolbarAspect {
         boolean enabled = mCommunicatorProxy.getState().mEnabled;
         mEnabledSwitch.setChecked(enabled);
 
-        ScreenPager pager = mActivity.getSharedServicesSet().mPager;
-        MyProfileManager myProfileManager = mActivity.getSharedServicesSet().mMyProfileManager;
-
         // Now that mEnabledSwitch is set we can start coloring toolbar and switch text
-        myProfileManager.addAndTriggerChangedCallback(new int[]{EVENT_COLOR_CHANGED}, event -> {
+        mMyProfileManager.addAndTriggerChangedCallback(new int[]{EVENT_COLOR_CHANGED}, event -> {
             if (event == EVENT_COLOR_CHANGED) {
-                String color = myProfileManager.getColor();
+                String color = mMyProfileManager.getColor();
                 i(TAG, "Color set to %s", color);
                 mToolbar.setBackgroundColor(Color.parseColor(color));
                 mEnabledSwitch.setTextColor(ColorHelper.getTextColor(Color.parseColor(color)));
@@ -135,20 +149,15 @@ public class ToolbarAspect {
 
         MainActivity.ToolbarButtonVisibilityUpdater visibilityUpdater = fragment -> {
             // TODO animate / make smoother, first trial didn't work, null pointers and animation wasn't visible
-
-            if (fragment instanceof FragmentWithToolbarButtons) {
-                enabledItem.setVisible(true);
-            } else {
-                enabledItem.setVisible(false);
-            }
+            enabledItem.setVisible(fragment instanceof FragmentWithToolbarButtons);
         };
 
-        pager.removeChangeListener(visibilityUpdater::update);
-        pager.addChangeListener(visibilityUpdater::update);
-        visibilityUpdater.update(pager.getScreenAdapter().getItem(pager.getCurrentItem()));
+        mPager.removeChangeListener(visibilityUpdater::update);
+        mPager.addChangeListener(visibilityUpdater::update);
+        visibilityUpdater.update(mPager.getScreenAdapter().getItem(mPager.getCurrentItem()));
 
         // Managed programmatically because offText XML attribute has no effect for SwitchCompat in menu item
-        mEnabledSwitch.setText(mActivity.getString(enabled
+        mEnabledSwitch.setText(context.getString(enabled
                 ? R.string.ui_toolbar_enable_on
                 : R.string.ui_toolbar_enable_off));
 
@@ -156,17 +165,17 @@ public class ToolbarAspect {
 
             if (isChecked) {
                 mCommunicatorProxy.enable();
-                mCommunicatorProxy.updateMyProfile(myProfileManager.getProfile());
+                mCommunicatorProxy.updateMyProfile(mMyProfileManager.getProfile());
                 mCommunicatorProxy.askForPeersUpdate();
-                mEnabledSwitch.setText(mActivity.getString(R.string.ui_toolbar_enable_on));
-                mEnabledSwitch.getThumbDrawable().setColorFilter(mActivity.getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
-                mEnabledSwitch.getTrackDrawable().setColorFilter(mActivity.getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
+                mEnabledSwitch.setText(context.getString(R.string.ui_toolbar_enable_on));
+                mEnabledSwitch.getThumbDrawable().setColorFilter(context.getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
+                mEnabledSwitch.getTrackDrawable().setColorFilter(context.getResources().getColor(R.color.green), PorterDuff.Mode.MULTIPLY);
 
             } else {
-                mEnabledSwitch.setText(mActivity.getString(R.string.ui_toolbar_enable_off));
+                mEnabledSwitch.setText(context.getString(R.string.ui_toolbar_enable_off));
                 mCommunicatorProxy.disable();
-                mEnabledSwitch.getThumbDrawable().setColorFilter(mActivity.getResources().getColor(R.color.red), PorterDuff.Mode.MULTIPLY);
-                mEnabledSwitch.getTrackDrawable().setColorFilter(mActivity.getResources().getColor(R.color.red), PorterDuff.Mode.MULTIPLY);
+                mEnabledSwitch.getThumbDrawable().setColorFilter(context.getResources().getColor(R.color.red), PorterDuff.Mode.MULTIPLY);
+                mEnabledSwitch.getTrackDrawable().setColorFilter(context.getResources().getColor(R.color.red), PorterDuff.Mode.MULTIPLY);
             }
         });
     }

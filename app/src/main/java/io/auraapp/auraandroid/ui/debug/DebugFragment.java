@@ -32,7 +32,7 @@ import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.SharedServicesSet;
 import io.auraapp.auraandroid.ui.common.ColorPicker;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxyState;
-import io.auraapp.auraandroid.ui.common.ScreenFragment;
+import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -44,7 +44,7 @@ import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATED_EX
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION;
 import static io.auraapp.auraandroid.ui.common.CommunicatorProxy.replacePeer;
 
-public class DebugFragment extends ScreenFragment implements FragmentWithToolbarButtons {
+public class DebugFragment extends ContextViewFragment implements FragmentWithToolbarButtons {
 
     private static final String TAG = "@aura/ui/permissions/" + DebugFragment.class.getSimpleName();
     private static final String characters = "📜📡💚😇abcdefghijklmnopqrstuvwxyz1234567890 ,.-öä#ü+!\"§$%&/()=?`";
@@ -118,7 +118,7 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
     }
 
     @Override
-    protected void onResumeWithContext(MainActivity activity, ViewGroup rootView) {
+    protected void onResumeWithContextAndView(MainActivity activity, ViewGroup rootView) {
         activity.registerReceiver(mReceiver, IntentFactory.communicatorIntentFilter());
         LocalBroadcastManager
                 .getInstance(activity)

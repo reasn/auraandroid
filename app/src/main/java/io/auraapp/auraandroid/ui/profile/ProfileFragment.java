@@ -17,13 +17,13 @@ import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.SharedServicesSet;
 import io.auraapp.auraandroid.ui.common.ColorHelper;
 import io.auraapp.auraandroid.ui.common.MonoSpaceText;
-import io.auraapp.auraandroid.ui.common.ScreenFragment;
+import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
 import io.auraapp.auraandroid.ui.permissions.FragmentCameIntoView;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 
 import static io.auraapp.auraandroid.common.FormattedLog.i;
 
-public class ProfileFragment extends ScreenFragment implements FragmentWithToolbarButtons, FragmentCameIntoView {
+public class ProfileFragment extends ContextViewFragment implements FragmentWithToolbarButtons, FragmentCameIntoView {
 
     private static final String TAG = "@aura/ui/profile/fragment";
     private RecyclerView mSlogansRecyclerView;
@@ -61,7 +61,7 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     }
 
     @Override
-    protected void onResumeWithContext(MainActivity activity, ViewGroup rootView) {
+    protected void onResumeWithContextAndView(MainActivity activity, ViewGroup rootView) {
 
         bindShared(activity);
 

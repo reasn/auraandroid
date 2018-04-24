@@ -27,7 +27,7 @@ import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.SharedServicesSet;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxyState;
 import io.auraapp.auraandroid.ui.common.InfoBox;
-import io.auraapp.auraandroid.ui.common.ScreenFragment;
+import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
 import io.auraapp.auraandroid.ui.world.list.PeerAdapter;
 
 import static io.auraapp.auraandroid.common.FormattedLog.v;
@@ -38,7 +38,7 @@ import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATED_EX
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION;
 import static io.auraapp.auraandroid.ui.common.CommunicatorProxy.replacePeer;
 
-public class WorldFragment extends ScreenFragment implements FragmentWithToolbarButtons {
+public class WorldFragment extends ContextViewFragment implements FragmentWithToolbarButtons {
 
     private static final String TAG = "@aura/ui/world/fragment";
     private Handler mHandler = new Handler();
@@ -100,7 +100,7 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
     }
 
     @Override
-    protected void onResumeWithContext(MainActivity activity, ViewGroup rootView) {
+    protected void onResumeWithContextAndView(MainActivity activity, ViewGroup rootView) {
 
         activity.registerReceiver(mReceiver, IntentFactory.communicatorIntentFilter());
         LocalBroadcastManager.getInstance(activity).registerReceiver(mCommunicatorProxyStateReceiver, IntentFactory.createFilter(LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION));

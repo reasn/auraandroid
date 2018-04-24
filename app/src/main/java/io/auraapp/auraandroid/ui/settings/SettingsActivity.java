@@ -24,7 +24,7 @@ public class SettingsActivity extends AppCompatActivity {
         setTheme(R.style.Theme_AppCompat_Light_NoActionBar);
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_settings);
+        setContentView(R.layout.settings_activity);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

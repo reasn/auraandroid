@@ -1,15 +1,8 @@
-package io.auraapp.auraandroid.ui.common;
+package io.auraapp.auraandroid.ui.common.fragments;
 
 import android.content.Context;
-import android.os.Bundle;
-import android.support.annotation.LayoutRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import io.auraapp.auraandroid.common.EmojiHelper;
@@ -17,21 +10,13 @@ import io.auraapp.auraandroid.ui.MainActivity;
 
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
-abstract public class ScreenFragment extends Fragment {
+abstract public class ContextFragment extends Fragment {
 
-    private static final String TAG = "@aura/ui/common/" + ScreenFragment.class.getSimpleName();
-    private ViewGroup mRootView;
+    private static final String TAG = "@aura/ui/common/" + ContextFragment.class.getSimpleName();
 
-    @LayoutRes
-    abstract protected int getLayoutResource();
-
-    abstract protected void onResumeWithContext(MainActivity activity, ViewGroup rootView);
+    abstract protected void onResumeWithContext(MainActivity activity);
 
     protected void onPauseWithContext(MainActivity activity) {
-    }
-
-    protected ViewGroup getRootView() {
-        return mRootView;
     }
 
     public MainActivity getMainActivity() {
@@ -42,15 +27,6 @@ abstract public class ScreenFragment extends Fragment {
         return (MainActivity) getContext();
     }
 
-    @Nullable
-    @Override
-    final public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        v(TAG, "onCreateView, fragment: %s", getClass().getSimpleName());
-        mRootView = (ViewGroup) inflater.inflate(getLayoutResource(), container, false);
-        return mRootView;
-    }
-
-
     @Override
     public void onResume() {
         super.onResume();
@@ -59,9 +35,9 @@ abstract public class ScreenFragment extends Fragment {
 
         // Make sure that view exists, MainActivity.onCreate finished and the callback hasn't
         // been invoked within the current lifecycle
-        if (mRootView != null && activity.getSharedServicesSet() != null) {
+        if (activity.getSharedServicesSet() != null) {
             v(TAG, "Invoking onResumeWithContext, fragment: %s", getClass().getSimpleName());
-            onResumeWithContext(activity, mRootView);
+            onResumeWithContext(activity);
         }
     }
 
