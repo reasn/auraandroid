@@ -13,13 +13,13 @@
 
         <fragment
             android:id="@+id/toolbar_fragment"
-            android:name="io.auraapp.auraandroid.ui.ToolbarFragment"
+            android:name="io.auraapp.auraandroid.ui.main.ToolbarFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <fragment
             android:id="@+id/communicator_state_fragment"
-            android:name="io.auraapp.auraandroid.ui.CommunicatorStateFragment"
+            android:name="io.auraapp.auraandroid.ui.main.CommunicatorStateFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 

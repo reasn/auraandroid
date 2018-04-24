@@ -16,4 +16,12 @@ public class CommunicatorProxyState implements Serializable {
         mCommunicatorState = state;
         mEnabled = enabled;
     }
+
+    @Override
+    public String toString() {
+        return "CommunicatorProxyState{" +
+                "mEnabled=" + mEnabled +
+                ", mCommunicatorState=" + mCommunicatorState +
+                '}';
+    }
 }

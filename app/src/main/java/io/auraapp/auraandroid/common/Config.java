@@ -1,6 +1,6 @@
 package io.auraapp.auraandroid.common;
 
-import io.auraapp.auraandroid.ui.MainActivity;
+import io.auraapp.auraandroid.ui.main.BrokenBtStackAlertFragment;
 
 public class Config {
 
@@ -49,7 +49,7 @@ public class Config {
      * I.e. If set to 2 minutes, and within that timeframe the user clicks more
      * than COMMUNICATOR_RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD times, an alert is shown in MainActivity
      *
-     * @see MainActivity#showBrokenBtStackAlert
+     * @see BrokenBtStackAlertFragment
      */
     public static final int COMMUNICATOR_RECENT_BT_TURNING_ON_EVENTS_RECENT_TIMEFRAME = 1000 * 60;
     public static final int COMMUNICATOR_RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD = 2;

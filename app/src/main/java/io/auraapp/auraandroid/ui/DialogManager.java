@@ -56,8 +56,8 @@ public class DialogManager {
     }
 
     @FunctionalInterface
-    interface BtBrokenDismissHandler {
-        void onDismiss(boolean neverShowAgain);
+    public interface BtBrokenDismissHandler {
+        public void onDismiss(boolean neverShowAgain);
     }
 
     public interface OnSloganEditConfirm {
@@ -303,7 +303,7 @@ public class DialogManager {
         return sb.toString();
     }
 
-    void showBtBroken(BtBrokenDismissHandler btBrokenDismissHandler) {
+    public void showBtBroken(BtBrokenDismissHandler btBrokenDismissHandler) {
 
         View dialogView = View.inflate(mContext, R.layout.common_dialog_bt_stack_broken, null);
         CheckBox checkBox = dialogView.findViewById(R.id.dont_show_again);

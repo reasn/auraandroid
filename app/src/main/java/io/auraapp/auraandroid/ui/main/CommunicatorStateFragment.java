@@ -1,4 +1,4 @@
-package io.auraapp.auraandroid.ui;
+package io.auraapp.auraandroid.ui.main;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -16,6 +16,7 @@ import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.IntentFactory;
+import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxyState;
 import io.auraapp.auraandroid.ui.common.InfoBox;
 import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
@@ -41,6 +42,12 @@ public class CommunicatorStateFragment extends ContextViewFragment {
             }
         }
     };
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
 
     @Override
     protected int getLayoutResource() {

@@ -139,8 +139,8 @@
     <string name="common_dialog_cancel">Cancel</string>
 
     <!--Dialog: BT Stack broken -->
-    <string name="ui_dialog_bt_broken_title">Problem with Bluetooth</string>
-    <string name="ui_dialog_bt_broken_text">It looks like your Bluetooth has been disabled and enabled multiple times\nOnly recently have phone manufacturers started to put high quality Bluetooth chips into their phones.\nIf you experience problems with Bluetooth, restarting your phone might help.</string>
+    <string name="ui_dialog_bt_broken_title">Problems with Bluetooth?</string>
+    <string name="ui_dialog_bt_broken_text">Bluetooth has been dis-/enabled multiple times\nMany older phones have crappy Bluetooth that tend to crash or not work. Restarting your phone might help.</string>
     <string name="ui_dialog_bt_broken_confirm">Okay</string>
     <string name="ui_dialog_bt_broken_never_show_again">Don\'t show this message again</string>
 

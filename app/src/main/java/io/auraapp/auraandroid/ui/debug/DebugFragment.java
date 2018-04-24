@@ -237,7 +237,7 @@ public class DebugFragment extends ContextViewFragment implements FragmentWithTo
 
         String dump = "\nterms agreed: " + renderBooleanPref(prefs, context, R.string.prefs_terms_agreed);
         dump += "\ntutorial completed: " + renderBooleanPref(prefs, context, R.string.prefs_tutorial_completed);
-        dump += "\ntutorial completed: " + renderBooleanPref(prefs, context, R.string.prefs_tutorial_completed);
+        dump += "\nhide BT stack broken: " + renderBooleanPref(prefs, context, R.string.prefs_hide_broken_bt_warning_key);
         dump += "\npeer retention: " + renderStringPref(prefs, context, R.string.prefs_retention_key);
         return dump;
     }

@@ -1,4 +1,4 @@
-package io.auraapp.auraandroid.ui;
+package io.auraapp.auraandroid.ui.main;
 
 import android.content.Context;
 import android.content.Intent;
@@ -22,6 +22,9 @@ import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
+import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
+import io.auraapp.auraandroid.ui.MainActivity;
+import io.auraapp.auraandroid.ui.ScreenPager;
 import io.auraapp.auraandroid.ui.common.ColorHelper;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxy;
 import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
@@ -32,6 +35,7 @@ import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_COLOR_CHANGED;
 
 public class ToolbarFragment extends ContextViewFragment {
+
     private static final String TAG = "@aura/ui/" + ToolbarFragment.class.getSimpleName();
     private Toolbar mToolbar;
     private CommunicatorProxy mCommunicatorProxy;
@@ -147,14 +151,13 @@ public class ToolbarFragment extends ContextViewFragment {
             }
         });
 
-        MainActivity.ToolbarButtonVisibilityUpdater visibilityUpdater = fragment -> {
-            // TODO animate / make smoother, first trial didn't work, null pointers and animation wasn't visible
-            enabledItem.setVisible(fragment instanceof FragmentWithToolbarButtons);
-        };
+        // TODO animate / make smoother, first trial didn't work, null pointers and animation wasn't visible
+        ScreenPager.ChangeCallback visibilityUpdater = fragment ->
+                enabledItem.setVisible(fragment instanceof FragmentWithToolbarButtons);
 
-        mPager.removeChangeListener(visibilityUpdater::update);
-        mPager.addChangeListener(visibilityUpdater::update);
-        visibilityUpdater.update(mPager.getScreenAdapter().getItem(mPager.getCurrentItem()));
+        mPager.removeChangeListener(visibilityUpdater);
+        mPager.addChangeListener(visibilityUpdater);
+        visibilityUpdater.onChange(mPager.getScreenAdapter().getItem(mPager.getCurrentItem()));
 
         // Managed programmatically because offText XML attribute has no effect for SwitchCompat in menu item
         mEnabledSwitch.setText(context.getString(enabled
