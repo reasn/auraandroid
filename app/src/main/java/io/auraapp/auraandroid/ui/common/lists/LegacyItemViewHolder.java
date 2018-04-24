@@ -4,13 +4,13 @@ import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-public abstract class ItemViewHolder extends RecyclerView.ViewHolder {
+public abstract class LegacyItemViewHolder extends RecyclerView.ViewHolder {
     protected final View mItemView;
     private ListItem mItem;
     protected int mTextColor = Color.BLACK;
     protected int mBackgroundColor = Color.WHITE;
 
-    public ItemViewHolder(View itemView) {
+    public LegacyItemViewHolder(View itemView) {
         super(itemView);
         mItemView = itemView;
     }

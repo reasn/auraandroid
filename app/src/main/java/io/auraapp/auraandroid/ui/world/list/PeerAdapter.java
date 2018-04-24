@@ -1,36 +1,39 @@
 package io.auraapp.auraandroid.ui.world.list;
 
 import android.content.Context;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.Timer;
-import io.auraapp.auraandroid.ui.common.lists.ItemViewHolder;
-import io.auraapp.auraandroid.ui.common.lists.ListItem;
-import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapter;
+import io.auraapp.auraandroid.ui.common.lists.ExpandableRecyclerAdapter;
+import io.auraapp.auraandroid.ui.common.lists.ExpandableViewHolder;
 import io.auraapp.auraandroid.ui.profile.SpacerHolder;
 import io.auraapp.auraandroid.ui.profile.SpacerItem;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 
-public class PeerAdapter extends RecyclerAdapter {
+public class PeerAdapter extends ExpandableRecyclerAdapter {
 
     private static final String TAG = "@aura/" + PeerAdapter.class.getSimpleName();
 
     private final static int TYPE_PEER = 244;
     private final static int TYPE_SPACER = 245;
     private final OnAdoptCallback mOnAdoptCallback;
+    private final LayoutInflater mInflater;
+    private final Context mContext;
     private Timer.Timeout mRedrawTimeout;
+    private Timer mTimer = new Timer(new Handler());
 
     private final Comparator<Peer> mComparator = (a, b) -> {
         if (a.mId == b.mId) {
@@ -46,43 +49,40 @@ public class PeerAdapter extends RecyclerAdapter {
         return (int) (a.mLastSeenTimestamp - b.mLastSeenTimestamp);
     };
 
-    public PeerAdapter(@NonNull Context context, RecyclerView listView, OnAdoptCallback onAdoptCallback) {
-        super(context, listView);
+    public PeerAdapter(Context context, RecyclerView recyclerView, OnAdoptCallback onAdoptCallback) {
+        super(recyclerView);
+        mContext = context;
         mOnAdoptCallback = onAdoptCallback;
         mItems.add(new SpacerItem());
+        mInflater = LayoutInflater.from(context);
     }
 
-    public void notifyPeersChanged(Set<Peer> peerSet) {
+    public void notifyPeerListChanged(Set<Peer> peerSet) {
 
         TreeSet<Peer> treeSet = new TreeSet<>(mComparator);
-        // Filter out peers without a name, they look weird
-//        for (Peer peer : peerSet) {
-//            if (peer.mName != null) {
-//            treeSet.add(peer);
-//            }
-//        }
         treeSet.addAll(peerSet);
         ArrayList<Peer> sortedPeers = new ArrayList<>(treeSet);
+        d(TAG, "Updating list, peers was %d, is: %d", mItems.size(), sortedPeers.size());
 
-        final List<ListItem> newItems = new ArrayList<>();
-        for (Peer peer : sortedPeers) {
-            newItems.add(new PeerItem(peer));
-        }
-        newItems.add(new SpacerItem());
-
-        d(TAG, "Updating list, peers was %d, is: %d", mItems.size(), newItems.size());
-
-        DiffUtil.DiffResult diff = DiffUtil.calculateDiff(new PeersDiffCallback(mItems, newItems));
+        DiffUtil.DiffResult diff = DiffUtil.calculateDiff(new PeersDiffCallback(mItems, sortedPeers));
         mItems.clear();
-        mItems.addAll(newItems);
+        mItems.addAll(sortedPeers);
+        mItems.add(new SpacerItem());
         diff.dispatchUpdatesTo(this);
+    }
 
-//        ListSynchronizer.syncLists(
-//                mItems,
-//                newItems,
-//                this,
-//                (item, newItem) -> ((PeerItem) item).getPeer().mLastSeenTimestamp > ((PeerItem) newItem).getPeer().mLastSeenTimestamp
-//        );
+    public void notifyPeerChanged(Peer peer) {
+        d(TAG, "Updating peer %s", peer);
+        int position = -1;
+        for (int i = 0; i < mItems.size(); i++) {
+            if (mItems.get(i) instanceof Peer && ((Peer) mItems.get(i)).mId == peer.mId) {
+                position = i;
+                break;
+            }
+        }
+        mItems.remove(position);
+        mItems.add(position, peer);
+        notifyItemChanged(position);
     }
 
     /**
@@ -90,13 +90,13 @@ public class PeerAdapter extends RecyclerAdapter {
      */
     public void onResume() {
         Timer.clear(mRedrawTimeout);
-        mRedrawTimeout = timer.setSerializedInterval(() -> {
+        mRedrawTimeout = mTimer.setSerializedInterval(() -> {
             long now = System.currentTimeMillis();
-            for (ListItem item : mItems) {
+            for (Object item : mItems) {
                 if (item instanceof SpacerItem) {
                     continue;
                 }
-                if (now - ((PeerItem) item).getPeer().mLastSeenTimestamp > 10000) {
+                if (now - ((Peer) item).mLastSeenTimestamp > 10000) {
                     notifyItemChanged(mItems.indexOf(item));
                 }
             }
@@ -109,14 +109,13 @@ public class PeerAdapter extends RecyclerAdapter {
 
     @NonNull
     @Override
-    public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ExpandableViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_SPACER) {
             return new SpacerHolder(mInflater.inflate(R.layout.common_list_spacer, parent, false));
         }
         return new PeerHolder(
                 mInflater.inflate(R.layout.world_peer, parent, false),
                 mContext,
-                mCollapseExpandHandler,
                 mOnAdoptCallback);
     }
 

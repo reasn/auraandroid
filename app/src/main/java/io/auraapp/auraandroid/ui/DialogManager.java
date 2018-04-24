@@ -308,12 +308,13 @@ public class DialogManager {
         View dialogView = View.inflate(mContext, R.layout.common_dialog_bt_stack_broken, null);
         CheckBox checkBox = dialogView.findViewById(R.id.dont_show_again);
 
-        new DialogBuilder(mContext, mDialogState)
+        FullWidthDialog dialog = new DialogBuilder(mContext, mDialogState)
                 .setTitle(R.string.ui_dialog_bt_broken_title)
                 .setMessage(R.string.ui_dialog_bt_broken_text)
                 .setView(dialogView)
                 .setOnConfirm(() -> btBrokenDismissHandler.onDismiss(checkBox.isChecked()))
-                .build()
-                .show();
+                .build();
+        dialog.getCancelButton().setVisibility(View.GONE);
+        dialog.show();
     }
 }

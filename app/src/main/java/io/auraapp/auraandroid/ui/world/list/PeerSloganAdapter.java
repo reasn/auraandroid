@@ -8,11 +8,11 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 
 import io.auraapp.auraandroid.R;
-import io.auraapp.auraandroid.ui.common.lists.ItemViewHolder;
-import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapter;
-import io.auraapp.auraandroid.ui.profile.SpacerHolder;
+import io.auraapp.auraandroid.ui.common.lists.LegacyItemViewHolder;
+import io.auraapp.auraandroid.ui.common.lists.LegacyRecyclerAdapter;
+import io.auraapp.auraandroid.ui.profile.LegacySpacerHolder;
 
-public class PeerSloganAdapter extends RecyclerAdapter {
+public class PeerSloganAdapter extends LegacyRecyclerAdapter {
     private final ColorSet mColorSet;
     private final OnAdoptCallback mOnAdoptCallback;
 
@@ -29,10 +29,10 @@ public class PeerSloganAdapter extends RecyclerAdapter {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull LegacyItemViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
 
-        if (holder instanceof SpacerHolder) {
+        if (holder instanceof LegacySpacerHolder) {
             return;
         }
         if (position % 2 == 0) {
@@ -45,7 +45,7 @@ public class PeerSloganAdapter extends RecyclerAdapter {
 
     @NonNull
     @Override
-    public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public LegacyItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new PeerSloganHolder(
                 mInflater.inflate(R.layout.world_peer_slogan, parent, false),
                 mContext,

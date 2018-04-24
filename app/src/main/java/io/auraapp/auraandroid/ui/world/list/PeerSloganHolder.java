@@ -7,13 +7,13 @@ import android.widget.LinearLayout;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.ui.common.MonoSpaceText;
-import io.auraapp.auraandroid.ui.common.lists.ItemViewHolder;
+import io.auraapp.auraandroid.ui.common.lists.LegacyItemViewHolder;
+import io.auraapp.auraandroid.ui.common.lists.LegacyRecyclerAdapter;
 import io.auraapp.auraandroid.ui.common.lists.ListItem;
-import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapter;
 
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
-public class PeerSloganHolder extends ItemViewHolder {
+public class PeerSloganHolder extends LegacyItemViewHolder {
 
     private static final String TAG = "aura/list/" + PeerSloganHolder.class.getSimpleName();
     private final Context mContext;
@@ -21,11 +21,11 @@ public class PeerSloganHolder extends ItemViewHolder {
     private final MonoSpaceText mTextView;
     private final Button mAdoptButton;
     private final LinearLayout mExpandedWrapper;
-    private final RecyclerAdapter.CollapseExpandHandler mCollapseExpandHandler;
+    private final LegacyRecyclerAdapter.CollapseExpandHandler mCollapseExpandHandler;
 
     public PeerSloganHolder(View itemView,
                             Context context,
-                            RecyclerAdapter.CollapseExpandHandler collapseExpandHandler,
+                            LegacyRecyclerAdapter.CollapseExpandHandler collapseExpandHandler,
                             OnAdoptCallback onAdoptCallback) {
         super(itemView);
         mContext = context;

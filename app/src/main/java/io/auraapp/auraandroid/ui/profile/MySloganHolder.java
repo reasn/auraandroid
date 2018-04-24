@@ -8,24 +8,24 @@ import android.widget.LinearLayout;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.ui.common.MonoSpaceText;
-import io.auraapp.auraandroid.ui.common.lists.ItemViewHolder;
+import io.auraapp.auraandroid.ui.common.lists.LegacyItemViewHolder;
+import io.auraapp.auraandroid.ui.common.lists.LegacyRecyclerAdapter;
 import io.auraapp.auraandroid.ui.common.lists.ListItem;
-import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapter;
 
-public class MySloganHolder extends ItemViewHolder {
+public class MySloganHolder extends LegacyItemViewHolder {
 
     private final MonoSpaceText mSloganTextView;
     private final LinearLayout mExpandedWrapper;
     private final Button mEditButtonView;
     private final Button mDropButtonView;
     private final MySlogansRecycleAdapter.OnMySloganActionCallback mOnMySloganActionCallback;
-    private final RecyclerAdapter.CollapseExpandHandler mCollapseExpandHandler;
+    private final LegacyRecyclerAdapter.CollapseExpandHandler mCollapseExpandHandler;
     private Context mContext;
 
     public MySloganHolder(View itemView,
                           Context context,
                           MySlogansRecycleAdapter.OnMySloganActionCallback onMySloganActionCallback,
-                          RecyclerAdapter.CollapseExpandHandler collapseExpandHandler) {
+                          LegacyRecyclerAdapter.CollapseExpandHandler collapseExpandHandler) {
         super(itemView);
         mContext = context;
         mOnMySloganActionCallback = onMySloganActionCallback;

@@ -14,14 +14,12 @@ import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.common.MonoSpaceText;
-import io.auraapp.auraandroid.ui.common.lists.ItemViewHolder;
-import io.auraapp.auraandroid.ui.common.lists.ListItem;
-import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapter;
+import io.auraapp.auraandroid.ui.common.lists.ExpandableViewHolder;
 
 import static io.auraapp.auraandroid.common.FormattedLog.e;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
-public class PeerHolder extends ItemViewHolder {
+public class PeerHolder extends ExpandableViewHolder {
 
     private static final String TAG = "@aura/list/" + PeerHolder.class.getSimpleName();
     private final TextView mNameView;
@@ -36,7 +34,6 @@ public class PeerHolder extends ItemViewHolder {
 
     public PeerHolder(View itemView,
                       Context context,
-                      RecyclerAdapter.CollapseExpandHandler collapseExpandHandler,
                       OnAdoptCallback onAdoptCallback) {
         super(itemView);
 
@@ -50,33 +47,35 @@ public class PeerHolder extends ItemViewHolder {
         mStatsView = itemView.findViewById(R.id.world_peer_stats);
         mSlogansListView = itemView.findViewById(R.id.world_peer_slogans_list);
         mSlogansListView.setNestedScrollingEnabled(false);
-        itemView.setOnClickListener($ -> collapseExpandHandler.flip(getLastBoundItem()));
     }
 
     @Override
-    public void bind(ListItem item, View itemView) {
+    public void bind(Object item, boolean expanded, View.OnClickListener collapseExpandHandler) {
+
         v(TAG, "Binding list item view");
+
         if (item == null) {
             e(TAG, "Trying to bind %s to null ListItem", PeerHolder.class.getSimpleName());
             return;
         }
-        if (!(item instanceof PeerItem)) {
+        if (!(item instanceof Peer)) {
             e(TAG, "Trying to bind %s with %s", PeerHolder.class.getSimpleName(), item.getClass().getSimpleName());
             return;
         }
 
-        PeerItem castItem = (PeerItem) item;
-        Peer peer = castItem.getPeer();
+        itemView.setActivated(expanded);
+        itemView.setOnClickListener(collapseExpandHandler);
+
+
+        Peer peer = (Peer) item;
 
         ColorSet colorSet = ColorSet.create(peer.mColor != null ? peer.mColor : "#ffffff");
-        bindProfile(castItem, colorSet);
+        bindProfile(peer, colorSet, expanded);
         bindSlogans(peer, colorSet);
         bindStats(peer, colorSet);
     }
 
-    private void bindProfile(PeerItem item, ColorSet colorSet) {
-
-        Peer peer = item.getPeer();
+    private void bindProfile(Peer peer, ColorSet colorSet, boolean expanded) {
 
         mHeadingView.setBackgroundColor(colorSet.mBackground);
 
@@ -89,7 +88,7 @@ public class PeerHolder extends ItemViewHolder {
                 : peer.mName);
         mNameView.setTextColor(colorSet.mText);
 
-        mDetailsView.setVisibility(item.mExpanded
+        mDetailsView.setVisibility(expanded
                 ? View.VISIBLE
                 : View.GONE);
 
@@ -148,4 +147,5 @@ public class PeerHolder extends ItemViewHolder {
         mStatsView.setBackgroundColor(colorSet.mBackground);
         mStatsView.setTextColor(colorSet.mText);
     }
+
 }

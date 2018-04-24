@@ -11,9 +11,7 @@ import java.util.List;
 
 import io.auraapp.auraandroid.common.Timer;
 
-import static io.auraapp.auraandroid.common.FormattedLog.v;
-
-public abstract class RecyclerAdapter extends RecyclerView.Adapter<ItemViewHolder> {
+public abstract class RecyclerAdapter extends RecyclerView.Adapter<ExpandableViewHolder> {
 
     @FunctionalInterface
     public interface CollapseExpandHandler {
@@ -26,33 +24,33 @@ public abstract class RecyclerAdapter extends RecyclerView.Adapter<ItemViewHolde
     protected final Timer timer = new Timer(new Handler());
     protected final Context mContext;
 
-    protected final List<ListItem> mItems = new ArrayList<>();
+    protected final List<Object> mItems = new ArrayList<>();
     private final RecyclerView mListView;
-
-    protected final CollapseExpandHandler mCollapseExpandHandler = item -> {
-        if (item == null) {
-            return;
-        }
-
-        for (int i = 0; i < mItems.size(); i++) {
-            ListItem candidate = mItems.get(i);
-            if (candidate.mExpanded && !candidate.equals(item)) {
-                v(TAG, "Collapsing other item at index %d", i);
-                candidate.mExpanded = false;
-                notifyItemChanged(i);
-            }
-        }
-
-        int position = mItems.indexOf(item);
-        if (item.mExpanded) {
-            v(TAG, "Collapsing item at index %d", position);
-        } else {
-            v(TAG, "Expanding item at index %d", position);
-        }
-        item.mExpanded = !item.mExpanded;
-        notifyItemChanged(position);
-//            mListView.smoothScrollToPosition(mItems.indexOf(item));
-    };
+//
+//    protected final CollapseExpandHandler mCollapseExpandHandler = item -> {
+//        if (item == null) {
+//            return;
+//        }
+//
+//        for (int i = 0; i < mItems.size(); i++) {
+//            ItemType candidate = mItems.get(i);
+//            if (candidate.mExpanded && !candidate.equals(item)) {
+//                v(TAG, "Collapsing other item at index %d", i);
+//                candidate.mExpanded = false;
+//                notifyItemChanged(i);
+//            }
+//        }
+//
+//        int position = mItems.indexOf(item);
+//        if (item.mExpanded) {
+//            v(TAG, "Collapsing item at index %d", position);
+//        } else {
+//            v(TAG, "Expanding item at index %d", position);
+//        }
+//        item.mExpanded = !item.mExpanded;
+//        notifyItemChanged(position);
+////            mListView.smoothScrollToPosition(mItems.indexOf(item));
+//    };
 
     public RecyclerAdapter(@NonNull Context context, RecyclerView listView) {
         super();
@@ -65,8 +63,8 @@ public abstract class RecyclerAdapter extends RecyclerView.Adapter<ItemViewHolde
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
-        holder.setItem(mItems.get(position));
+    public void onBindViewHolder(@NonNull ExpandableViewHolder holder, int position) {
+//        holder.update(mItems.get(position));
     }
 
     @Override

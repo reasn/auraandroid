@@ -4,14 +4,13 @@ import android.support.v7.util.DiffUtil;
 
 import java.util.List;
 
-import io.auraapp.auraandroid.ui.common.lists.ListItem;
 import io.auraapp.auraandroid.ui.profile.SpacerItem;
 
 public class PeersDiffCallback extends DiffUtil.Callback {
-    private List<ListItem> mNewItems;
-    private List<ListItem> mOldItems;
+    private List<?> mNewItems;
+    private List<?> mOldItems;
 
-    public PeersDiffCallback(List<ListItem> oldItems, List<ListItem> newItems) {
+    public PeersDiffCallback(List<?> oldItems, List<?> newItems) {
         mNewItems = newItems;
         mOldItems = oldItems;
     }
@@ -28,8 +27,8 @@ public class PeersDiffCallback extends DiffUtil.Callback {
 
     @Override
     public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-        ListItem oldItem = mOldItems.get(oldItemPosition);
-        ListItem newItem = mNewItems.get(newItemPosition);
+        Object oldItem = mOldItems.get(oldItemPosition);
+        Object newItem = mNewItems.get(newItemPosition);
         if (oldItem instanceof SpacerItem && newItem instanceof SpacerItem) {
             return true;
         }

@@ -49,6 +49,7 @@ public class WorldFragment extends ContextViewFragment implements FragmentWithTo
     private Set<Peer> mPeers = new HashSet<>();
     private RecyclerView mPeersRecycler;
     private InfoBox mPeersInfoBox;
+    private TextView mNotScanningMessage;
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -64,7 +65,7 @@ public class WorldFragment extends ContextViewFragment implements FragmentWithTo
                 if (peer != null) {
                     replacePeer(mPeers, peer, false);
                     if (mPeerAdapter != null) {
-                        mPeerAdapter.notifyPeersChanged(mPeers);
+                        mPeerAdapter.notifyPeerChanged(peer);
                     }
                 }
 
@@ -74,7 +75,7 @@ public class WorldFragment extends ContextViewFragment implements FragmentWithTo
                 if (peers != null) {
                     mPeers = peers;
                     if (mPeerAdapter != null) {
-                        mPeerAdapter.notifyPeersChanged(mPeers);
+                        mPeerAdapter.notifyPeerListChanged(mPeers);
                     }
                 }
             }
@@ -92,7 +93,6 @@ public class WorldFragment extends ContextViewFragment implements FragmentWithTo
             }
         }
     };
-    private TextView mNotScanningMessage;
 
     @Override
     protected int getLayoutResource() {

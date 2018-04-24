@@ -2,17 +2,16 @@ package io.auraapp.auraandroid.ui.profile;
 
 import android.view.View;
 
-import io.auraapp.auraandroid.ui.common.lists.ItemViewHolder;
-import io.auraapp.auraandroid.ui.common.lists.ListItem;
+import io.auraapp.auraandroid.ui.common.lists.ExpandableViewHolder;
 
-public class SpacerHolder extends ItemViewHolder {
+public class SpacerHolder extends ExpandableViewHolder {
 
     public SpacerHolder(View itemView) {
         super(itemView);
     }
 
     @Override
-    public void bind(ListItem item, View itemView) {
+    public void bind(Object item, boolean expanded, View.OnClickListener collapseExpandHandler) {
 
     }
 }

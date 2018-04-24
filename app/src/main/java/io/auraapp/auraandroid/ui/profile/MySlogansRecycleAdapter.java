@@ -14,9 +14,9 @@ import java.util.TreeSet;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.common.ColorHelper;
-import io.auraapp.auraandroid.ui.common.lists.ItemViewHolder;
+import io.auraapp.auraandroid.ui.common.lists.LegacyItemViewHolder;
+import io.auraapp.auraandroid.ui.common.lists.LegacyRecyclerAdapter;
 import io.auraapp.auraandroid.ui.common.lists.ListItem;
-import io.auraapp.auraandroid.ui.common.lists.RecyclerAdapter;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 import io.auraapp.auraandroid.ui.world.list.PeersDiffCallback;
 
@@ -27,7 +27,7 @@ import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EV
 import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_DROPPED;
 import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_REPLACED;
 
-public class MySlogansRecycleAdapter extends RecyclerAdapter {
+public class MySlogansRecycleAdapter extends LegacyRecyclerAdapter {
 
     private final MyProfileManager mMyProfileManager;
 
@@ -92,9 +92,9 @@ public class MySlogansRecycleAdapter extends RecyclerAdapter {
 
     @NonNull
     @Override
-    public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public LegacyItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_SPACER) {
-            return new SpacerHolder(mInflater.inflate(R.layout.common_list_spacer, parent, false));
+            return new LegacySpacerHolder(mInflater.inflate(R.layout.common_list_spacer, parent, false));
         }
         return new MySloganHolder(
                 mInflater.inflate(R.layout.profile_list_item_slogan, parent, false),
@@ -105,10 +105,10 @@ public class MySlogansRecycleAdapter extends RecyclerAdapter {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull LegacyItemViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
 
-        if (holder instanceof SpacerHolder) {
+        if (holder instanceof LegacySpacerHolder) {
             return;
         }
 
