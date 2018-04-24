@@ -26,7 +26,6 @@ import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
 import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.SharedServicesSet;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxyState;
-import io.auraapp.auraandroid.ui.common.CommunicatorStateRenderer;
 import io.auraapp.auraandroid.ui.common.InfoBox;
 import io.auraapp.auraandroid.ui.common.ScreenFragment;
 import io.auraapp.auraandroid.ui.world.list.PeerAdapter;
@@ -42,8 +41,6 @@ import static io.auraapp.auraandroid.ui.common.CommunicatorProxy.replacePeer;
 public class WorldFragment extends ScreenFragment implements FragmentWithToolbarButtons {
 
     private static final String TAG = "@aura/ui/world/fragment";
-    private InfoBox mCommunicatorStateInfoBox;
-    private TextView mStatusSummary;
     private Handler mHandler = new Handler();
     private PeerAdapter mPeerAdapter;
     private FakeSwipeRefreshLayout mSwipeRefresh;
@@ -95,6 +92,7 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
             }
         }
     };
+    private TextView mNotScanningMessage;
 
     @Override
     protected int getLayoutResource() {
@@ -112,8 +110,7 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
         mPeers = servicesSet.mCommunicatorProxy.getPeers();
         mComProxyState = servicesSet.mCommunicatorProxy.getState();
 
-        mStatusSummary = rootView.findViewById(R.id.profile_status_summary);
-        mCommunicatorStateInfoBox = rootView.findViewById(R.id.profile_status_info_box);
+        mNotScanningMessage = rootView.findViewById(R.id.world_not_scanning);
         mPeersInfoBox = rootView.findViewById(R.id.peer_slogans_info_box);
         mSwipeRefresh = rootView.findViewById(R.id.fake_swipe_to_refresh);
         mSwipeRefresh.setEnabled(false);
@@ -150,45 +147,47 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
         mPeerAdapter.onPause();
     }
 
-    public void reflectState(Context context) {
-
-        boolean scanning = mComProxyState.mEnabled
+    private boolean isScanning() {
+        return mComProxyState.mEnabled
                 && mComProxyState.mCommunicatorState != null
                 && mComProxyState.mCommunicatorState.mScanning;
+    }
 
-        mSwipeRefresh.setEnabled(scanning
+    public void reflectState(Context context) {
+
+        mSwipeRefresh.setEnabled(isScanning()
                 && mPeers != null
                 && mPeers.size() > 0);
         mSwipeRefresh.setPeerCount(mPeers != null ? mPeers.size() : 0);
 
-        CommunicatorStateRenderer.populateInfoBoxWithState(
-                mComProxyState,
-                mCommunicatorStateInfoBox,
-                mStatusSummary,
-                getContext());
-        mPeersRecycler.setVisibility(scanning
+        mPeersRecycler.setVisibility(isScanning()
                 ? View.VISIBLE
                 : View.GONE
         );
-//        updatePeersHeading();
 
-        CommunicatorState communicatorState = mComProxyState.mCommunicatorState;
-        if (communicatorState == null || mPeers.size() > 0) {
-            // Show mPeersInfoBox only if there's no communicator state info box visible and there's no peers
-            mPeersInfoBox.setVisibility(View.GONE);
-        } else {
-            updatePeersInfoBox(context, communicatorState);
-        }
+        mNotScanningMessage.setVisibility(isScanning()
+                ? View.GONE
+                : View.VISIBLE);
+
+        updatePeersInfoBox(context);
     }
 
-    private void updatePeersInfoBox(Context context, CommunicatorState communicatorState) {
+    private void updatePeersInfoBox(Context context) {
+
+        CommunicatorState communicatorState = mComProxyState.mCommunicatorState;
+
+        if (!isScanning() || mPeers.size() > 0) {
+            // Show mPeersInfoBox only if there's no communicator state info box visible and there's no peers
+            mPeersInfoBox.setVisibility(View.GONE);
+            return;
+        }
 
         long scanDuration = System.currentTimeMillis() - communicatorState.mScanStartTimestamp;
         if (scanDuration < Config.MAIN_LOOKING_AROUND_SHOW_DURATION) {
 
             // Scan just started, let's make sure we hide the "looking around" info if
             // nothing is found for some time.
-            mHandler.postDelayed(() -> updatePeersInfoBox(context, communicatorState), Config.MAIN_LOOKING_AROUND_SHOW_DURATION);
+            mHandler.postDelayed(() -> updatePeersInfoBox(context), Config.MAIN_LOOKING_AROUND_SHOW_DURATION);
 
             mPeersInfoBox.setHeading(R.string.ui_world_starting_heading);
             mPeersInfoBox.setText(R.string.ui_world_starting_text);
@@ -217,36 +216,4 @@ public class WorldFragment extends ScreenFragment implements FragmentWithToolbar
         mPeersInfoBox.setBackgroundColor(context.getResources().getColor(R.color.infoBoxWarning));
         mPeersInfoBox.setVisibility(View.VISIBLE);
     }
-
-
-//    private void updatePeersHeading() {
-//
-//        View heading = mRootView.findViewById(R.id.peer_slogans_heading_wrapper);
-//
-//        // Don't show heading if any info boxes are visible
-//        if (mCommunicatorStateInfoBox.getVisibility() == View.VISIBLE
-//                || mPeersInfoBox.getVisibility() == View.VISIBLE) {
-//            heading.setVisibility(View.GONE);
-//            return;
-//
-//        }
-//        String headerText = getContext().getResources().getQuantityString(R.plurals.ui_world_peers_heading_slogans, mLastPeerSloganMap.size(), mLastPeerSloganMap.size());
-//
-//        boolean synchronizing = false;
-//        for (Peer peer : mPeers) {
-//            if (peer.mSynchronizing) {
-//                synchronizing = true;
-//                break;
-//            }
-//        }
-//        mRootView.findViewById(R.id.peer_slogans_heading_progress_bar).setVisibility(
-//                synchronizing
-//                        ? View.VISIBLE
-//                        : View.GONE
-//        );
-//
-//        ((TextView) mRootView.findViewById(R.id.peer_slogans_heading_text)).setText(EmojiHelper.replaceShortCode(headerText));
-//
-//        heading.setVisibility(View.VISIBLE);
-//    }
 }

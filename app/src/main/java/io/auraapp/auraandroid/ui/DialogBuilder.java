@@ -23,8 +23,8 @@ public class DialogBuilder {
     public DialogBuilder(Context context, DialogManager.DialogState dialogState) {
         mContext = context;
         mDialogState = dialogState;
-        mCancelText = context.getString(R.string.ui_common_dialog_cancel);
-        mConfirmText = context.getString(R.string.ui_common_dialog_confirm);
+        mCancelText = context.getString(R.string.common_dialog_cancel);
+        mConfirmText = context.getString(R.string.common_dialog_confirm);
     }
 
     public DialogBuilder setTitle(@StringRes int title) {

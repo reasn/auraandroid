@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity_wrapper"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/yellow"
-    android:id="@+id/activity_wrapper"
     android:orientation="vertical">
 
     <LinearLayout
@@ -17,6 +17,12 @@
             style="@style/Toolbar"
             app:title=" "
             app:titleTextColor="@color/white" />
+
+        <fragment
+            android:id="@+id/communicator_state_fragment"
+            android:name="io.auraapp.auraandroid.ui.CommunicatorStateFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
         <io.auraapp.auraandroid.ui.ScreenPager xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/pager"

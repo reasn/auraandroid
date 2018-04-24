@@ -1,47 +1,36 @@
 package io.auraapp.auraandroid.ui.profile;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
-import android.os.Bundle;
 import android.support.annotation.LayoutRes;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
-import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.DialogManager;
 import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
 import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.SharedServicesSet;
 import io.auraapp.auraandroid.ui.common.ColorHelper;
-import io.auraapp.auraandroid.ui.common.CommunicatorProxyState;
-import io.auraapp.auraandroid.ui.common.CommunicatorStateRenderer;
-import io.auraapp.auraandroid.ui.common.InfoBox;
 import io.auraapp.auraandroid.ui.common.MonoSpaceText;
 import io.auraapp.auraandroid.ui.common.ScreenFragment;
 import io.auraapp.auraandroid.ui.permissions.FragmentCameIntoView;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 
 import static io.auraapp.auraandroid.common.FormattedLog.i;
-import static io.auraapp.auraandroid.common.FormattedLog.v;
-import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION;
 
 public class ProfileFragment extends ScreenFragment implements FragmentWithToolbarButtons, FragmentCameIntoView {
 
     private static final String TAG = "@aura/ui/profile/fragment";
     private RecyclerView mSlogansRecyclerView;
-    private InfoBox mSlogansInfoBox;
     private TextView mNameView;
     private MonoSpaceText mTextView;
     private ColorButton mColorButton;
     private MySlogansRecycleAdapter mAdapter;
-    private CommunicatorProxyState mCommunicatorState;
     private DialogManager mDialogManager;
     private MyProfileManager mMyProfileManager;
     private final MyProfileManager.MyProfileChangedCallback mProfileChangedCallback = event -> {
@@ -60,18 +49,8 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
                 // If the numbers of slogans changes, the background has to be adapted
                 // to maintain color alternation
                 updateViewsWithColor();
+                reflectSloganCount();
                 break;
-        }
-    };
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context $, Intent intent) {
-            v(TAG, "onReceive, intent: %s", intent.getAction());
-            Bundle extras = intent.getExtras();
-            if (extras != null) {
-                mCommunicatorState = (CommunicatorProxyState) extras.getSerializable(IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE);
-                reflectCommunicatorState();
-            }
         }
     };
 
@@ -84,16 +63,12 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     @Override
     protected void onResumeWithContext(MainActivity activity, ViewGroup rootView) {
 
-        LocalBroadcastManager.getInstance(activity).registerReceiver(mReceiver, IntentFactory.createFilter(LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION));
-        v(TAG, "Receiver registered");
-
         bindShared(activity);
 
         mColorButton = rootView.findViewById(R.id.profile_color_button_wrapper);
         mNameView = rootView.findViewById(R.id.profile_my_name);
         mTextView = rootView.findViewById(R.id.profile_my_text);
 
-        mSlogansInfoBox = rootView.findViewById(R.id.profile_my_slogans_info_box);
         mSlogansRecyclerView = rootView.findViewById(R.id.profile_slogans_recycler);
 
         mColorButton.setOnClickListener($ -> mDialogManager.showColorPickerDialog(
@@ -117,16 +92,14 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
 
         updateNameAndTextViews();
         updateViewsWithColor();
+        reflectSloganCount();
 
-        bindSlogansRecycler(activity);
-
-        reflectCommunicatorState();
+        bindSlogansRecycler(activity, rootView);
     }
 
     private void bindShared(MainActivity activity) {
         SharedServicesSet servicesSet = activity.getSharedServicesSet();
         mDialogManager = servicesSet.mDialogManager;
-        mCommunicatorState = servicesSet.mCommunicatorProxy.getState();
         mMyProfileManager = servicesSet.mMyProfileManager;
         mMyProfileManager.removeChangedCallback(mProfileChangedCallback);
         mMyProfileManager.addChangedCallback(mProfileChangedCallback);
@@ -134,18 +107,11 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
     }
 
     @Override
-    protected void onPauseWithContext(MainActivity activity) {
-        super.onPauseWithContext(activity);
-        LocalBroadcastManager.getInstance(activity).unregisterReceiver(mReceiver);
-        v(TAG, "Receiver unregistered");
-    }
-
-    @Override
     public void cameIntoView(MainActivity activity) {
         activity.getSharedServicesSet().mPager.getScreenAdapter().removeTermsFragment();
     }
 
-    private void bindSlogansRecycler(Context context) {
+    private void bindSlogansRecycler(Context context, ViewGroup rootView) {
         if (mAdapter == null) {
             mAdapter = new MySlogansRecycleAdapter(
                     context,
@@ -171,16 +137,6 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
         mAdapter.notifyMySlogansChanged(mMyProfileManager.getProfile().getSlogans());
     }
 
-    private void reflectCommunicatorState() {
-        // getContext() was observed to be null after long inactivity of the app
-        if (getRootView() != null && getContext() != null) {
-            CommunicatorStateRenderer.populateInfoBoxWithState(mCommunicatorState,
-                    getRootView().findViewById(R.id.profile_status_info_box),
-                    getRootView().findViewById(R.id.profile_status_summary),
-                    getContext());
-        }
-    }
-
     private void updateNameAndTextViews() {
         String name = mMyProfileManager.getProfile().getName();
         String text = mMyProfileManager.getProfile().getText();
@@ -192,16 +148,25 @@ public class ProfileFragment extends ScreenFragment implements FragmentWithToolb
         mTextView.setText(text);
     }
 
+    private void reflectSloganCount() {
+        getRootView().findViewById(R.id.profile_no_slogans).setVisibility(
+                mMyProfileManager.getProfile().getSlogans().size() == 0
+                        ? View.VISIBLE
+                        : View.GONE);
+    }
+
     private void updateViewsWithColor() {
         int color = Color.parseColor(mMyProfileManager.getColor());
-        mColorButton.setColors(color, ColorHelper.getAccent(color));
+        int accent = ColorHelper.getAccent(color);
+        mColorButton.setColors(color, accent);
         // Make sure that there's an alternation i.e. background and color of last item don't match.
         // The first slogan is colored with accent because because for white background it otherwise
         // would be indistinguishable from my text
         getRootView().setBackgroundColor(
                 mMyProfileManager.getProfile().getSlogans().size() % 2 == 0
-                        ? ColorHelper.getAccent(color)
+                        ? accent
                         : color);
+        ((TextView) getRootView().findViewById(R.id.profile_no_slogans)).setTextColor(ColorHelper.getTextColor(color));
     }
 
     private void showAddDialog() {

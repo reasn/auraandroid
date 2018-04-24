@@ -21,8 +21,8 @@ abstract class ProfileStatusHidingStep extends TutorialStep {
 
     void doEnter() {
         // Hacky way of hiding stuff. But allows to keep the fragment agnostic of tutorial logic
-        View summary = mRootView.findViewById(R.id.profile_status_summary);
-        View infoBox = mRootView.findViewById(R.id.profile_status_info_box);
+        View summary = mRootView.findViewById(R.id.communicator_state_summary);
+        View infoBox = mRootView.findViewById(R.id.communicator_state_info_box);
         mInfoBoxHeight = infoBox.getLayoutParams().height;
         mSummaryHeight = summary.getLayoutParams().height;
         infoBox.getLayoutParams().height = 0;
@@ -33,8 +33,8 @@ abstract class ProfileStatusHidingStep extends TutorialStep {
     }
 
     void doLeave() {
-        mRootView.findViewById(R.id.profile_status_info_box).getLayoutParams().height = mInfoBoxHeight;
-        mRootView.findViewById(R.id.profile_status_summary).getLayoutParams().height = mSummaryHeight;
+        mRootView.findViewById(R.id.communicator_state_summary).getLayoutParams().height = mSummaryHeight;
+        mRootView.findViewById(R.id.communicator_state_info_box).getLayoutParams().height = mInfoBoxHeight;
 
         mPager.setSwipeLocked(false);
     }

@@ -1,8 +1,11 @@
-package io.auraapp.auraandroid.ui.common;
+package io.auraapp.auraandroid.ui;
 
-
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -11,22 +14,64 @@ import android.widget.TextView;
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.EmojiHelper;
+import io.auraapp.auraandroid.common.IntentFactory;
+import io.auraapp.auraandroid.ui.common.CommunicatorProxyState;
+import io.auraapp.auraandroid.ui.common.InfoBox;
+import io.auraapp.auraandroid.ui.common.ScreenFragment;
 
+import static io.auraapp.auraandroid.common.FormattedLog.v;
 import static io.auraapp.auraandroid.common.FormattedLog.w;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION;
 
-public class CommunicatorStateRenderer {
-    private static final String TAG = "@aura/ui/common/" + CommunicatorStateRenderer.class.getSimpleName();
+public class CommunicatorStateFragment extends ScreenFragment {
 
-    public static class InconsistentStateException extends Exception {
-        public InconsistentStateException() {
-            super("Not scanning or advertising although state indicates that it's possible");
+    private static final String TAG = "@aura/ui/" + CommunicatorStateFragment.class.getSimpleName();
+    private CommunicatorProxyState mCommunicatorProxyState;
+
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context $, Intent intent) {
+            v(TAG, "onReceive, intent: %s", intent.getAction());
+            Bundle extras = intent.getExtras();
+            if (extras != null) {
+                mCommunicatorProxyState = (CommunicatorProxyState) extras.getSerializable(IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE);
+                reflectCommunicatorState();
+            }
+        }
+    };
+
+    @Override
+    protected int getLayoutResource() {
+        return R.layout.main_communicator_state_fragment;
+    }
+
+    @Override
+    protected void onResumeWithContext(MainActivity activity, ViewGroup rootView) {
+        LocalBroadcastManager.getInstance(activity).registerReceiver(mReceiver, IntentFactory.createFilter(LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION));
+        v(TAG, "Receiver registered");
+        mCommunicatorProxyState = activity.getSharedServicesSet().mCommunicatorProxy.getState();
+        reflectCommunicatorState();
+    }
+
+    private void reflectCommunicatorState() {
+        // getContext() was observed to be null after long inactivity of the app
+        if (getRootView() != null && getContext() != null) {
+            populateInfoBoxWithState(getRootView().findViewById(R.id.communicator_state_info_box),
+                    getRootView().findViewById(R.id.communicator_state_summary),
+                    getContext());
         }
     }
 
-    public static void populateInfoBoxWithState(CommunicatorProxyState proxyState,
-                                                InfoBox infoBox,
-                                                TextView summary,
-                                                Context context) {
+    @Override
+    protected void onPauseWithContext(MainActivity activity) {
+        super.onPauseWithContext(activity);
+        LocalBroadcastManager.getInstance(activity).unregisterReceiver(mReceiver);
+        v(TAG, "Receiver unregistered");
+    }
+
+    private void populateInfoBoxWithState(InfoBox infoBox,
+                                          TextView summary,
+                                          Context context) {
         final int NONE = 0;
         final int BOX = 1;
         final int MESSAGE = 2;
@@ -47,9 +92,9 @@ public class CommunicatorStateRenderer {
         };
 
         @Nullable
-        CommunicatorState state = proxyState.mCommunicatorState;
+        CommunicatorState state = mCommunicatorProxyState.mCommunicatorState;
 
-        if (!proxyState.mEnabled) {
+        if (!mCommunicatorProxyState.mEnabled) {
             showAuraOffInfoBox.run();
             show = BOX;
 

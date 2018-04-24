@@ -44,7 +44,7 @@ public class PermissionsFragment extends ScreenFragment {
 
         mPager = activity.getSharedServicesSet().mPager;
 
-        InfoBox infoBox = rootView.findViewById(R.id.info_box);
+        InfoBox infoBox = rootView.findViewById(R.id.communicator_state_info_box);
         infoBox.setButtonClickListener($ -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION}, REQUEST_CODE_LOCATION_REQUEST);

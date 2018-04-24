@@ -73,6 +73,10 @@ public class ToolbarAspect {
                 mActivity.getSharedServicesSet().mTutorialManager.close();
                 return true;
             }
+            if (item.getItemId() == R.id.action_finish) {
+                mActivity.finish();
+                return true;
+            }
             return false;
         });
 

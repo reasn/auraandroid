@@ -128,15 +128,15 @@
     <string name="ui_common_communicator_ble_not_supported_text">Your device doesn\'t properly support Bluetooth LE.
         \nWe\'re really sorry, you can\'t use Aura.
         \nThis is a hardware issue and won\'t change in the future.</string>
-    <string name="ui_common_communicator_disabled_heading">Your Aura is off</string>
-    <string name="ui_common_communicator_disabled_text">You\'re invisible and receive no updates.</string>
-    <string name="ui_common_communicator_advertising_not_supported_heading">You\'re invisible.</string>
-    <string name="ui_common_communicator_advertising_not_supported_text">Your device supports seeing others but not showing your Aura.
+    <string name="common_communicator_disabled_heading">Your Aura is off</string>
+    <string name="common_communicator_disabled_text">Turn it on to be visible and see others.</string>
+    <string name="common_communicator_advertising_not_supported_heading">You\'re invisible.</string>
+    <string name="common_communicator_advertising_not_supported_text">Your device supports seeing others but not showing your Aura.
         \nThis is a hardware issue and won\'t change in the future.</string>
 
     <!--Dialog: Common-->
-    <string name="ui_common_dialog_confirm">Okay</string>
-    <string name="ui_common_dialog_cancel">Cancel</string>
+    <string name="common_dialog_confirm">Okay</string>
+    <string name="common_dialog_cancel">Cancel</string>
 
     <!--Dialog: BT Stack broken -->
     <string name="ui_dialog_bt_broken_title">Problem with Bluetooth</string>
@@ -202,5 +202,8 @@
     <string name="tutorial_button_next">Next</string>
     <string name="world_peer_no_name">Somebody</string>
     <string name="toolbar_complete_tutorial">Complete Tutorial</string>
+    <string name="profile_no_slogans">Click the button below\nto add your first idea.</string>
+    <string name="world_not_scanning">Nearby Auras are shown here\nas soon as your Aura is on.</string>
+    <string name="toolbar_finish">Exit</string>
 
 </resources>

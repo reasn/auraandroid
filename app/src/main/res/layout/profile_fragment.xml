@@ -6,7 +6,6 @@
     android:background="@color/white"
     android:orientation="vertical">
 
-
     <ScrollView
         android:id="@+id/profile_scroll_view"
         android:layout_width="match_parent"
@@ -18,17 +17,6 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/profile_status_summary"
-                style="@style/StatusItemSummary"
-                android:visibility="gone" />
-
-            <io.auraapp.auraandroid.ui.common.InfoBox
-                android:id="@+id/profile_status_info_box"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -72,25 +60,11 @@
                     app:minLines="5" />
 
             </LinearLayout>
-            <!--<LinearLayout-->
-            <!--style="@style/HeadingItem"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:gravity="left">-->
 
-            <!--<TextView-->
-            <!--android:id="@+id/my_slogans_heading"-->
-            <!--style="@style/HeadingItemText"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content" />-->
-
-            <!--</LinearLayout>-->
-
-            <io.auraapp.auraandroid.ui.common.InfoBox
-                android:id="@+id/profile_my_slogans_info_box"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone" />
+            <TextView
+                android:id="@+id/profile_no_slogans"
+                style="@style/SmallCenteredMessage"
+                android:text="@string/profile_no_slogans" />
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/profile_slogans_recycler"

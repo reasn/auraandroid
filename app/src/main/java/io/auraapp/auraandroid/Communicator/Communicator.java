@@ -217,19 +217,17 @@ public class Communicator extends Service {
         } else if (!mState.mShouldCommunicate) {
             title = getString(R.string.notification_disabled_title);
 
+        } else if (!mState.mAdvertisingSupported) {
+            title = getString(R.string.notification_advertising_not_supported_title);
+            text = getString(R.string.notification_advertising_not_supported_text);
+        } else if (!mState.mAdvertising) {
+            w(TAG, "Not advertising although it is possible.");
+            title = getString(R.string.notification_on_not_active_title);
+        } else if (!mState.mScanning) {
+            w(TAG, "Not scanning although it is possible.");
+            title = getString(R.string.notification_on_not_active_title);
         } else {
-            if (!mState.mAdvertisingSupported) {
-                title = getString(R.string.notification_advertising_not_supported_title);
-                text = getString(R.string.notification_advertising_not_supported_text);
-            } else if (!mState.mAdvertising) {
-                w(TAG, "Not advertising although it is possible.");
-                title = getString(R.string.notification_on_not_active_title);
-            } else if (!mState.mScanning) {
-                w(TAG, "Not scanning although it is possible.");
-                title = getString(R.string.notification_on_not_active_title);
-            } else {
-                title = getResources().getQuantityString(R.plurals.notification_on_title, mPeerSloganCount, mPeerSloganCount);
-            }
+            title = getResources().getQuantityString(R.plurals.notification_on_title, mPeerSloganCount, mPeerSloganCount);
         }
 
         title = replaceShortCode(title);

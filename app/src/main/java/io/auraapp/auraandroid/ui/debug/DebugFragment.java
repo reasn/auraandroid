@@ -147,14 +147,23 @@ public class DebugFragment extends ScreenFragment implements FragmentWithToolbar
                 profileManager.adopt(Slogan.create(createRandomStringOfLength(Config.PROFILE_SLOGANS_MAX_LENGTH)));
             }
         }));
-        rootView.findViewById(R.id.demo_1).setOnClickListener($ -> mHandler.post(() -> {
+        rootView.findViewById(R.id.demo_0).setOnClickListener($ -> mHandler.post(() -> {
             profileManager.setName("Anonymous");
             profileManager.setText(EmojiHelper.replaceShortCode(":fire::fire::fire:\nDemocracy prevails. Let your kindness be a symbol for humanism and a better future"));
             profileManager.setColor(new ColorPicker.SelectedColor("#000000", 0, 0));
             profileManager.dropAllSlogans();
             profileManager.adopt(Slogan.create("Death to the dictator!"));
         }));
+
         rootView.findViewById(R.id.demo_1).setOnClickListener($ -> mHandler.post(() -> {
+            profileManager.setName("Jen Benson");
+            profileManager.setText(EmojiHelper.replaceShortCode("TODO random linkedin bio mix"));
+            profileManager.setColor(new ColorPicker.SelectedColor("#ffffff", 0, 0));
+            profileManager.dropAllSlogans();
+            profileManager.adopt(Slogan.create("Hello Moto"));
+        }));
+
+        rootView.findViewById(R.id.demo_2).setOnClickListener($ -> mHandler.post(() -> {
             profileManager.setName("Clara");
             profileManager.setText(EmojiHelper.replaceShortCode("My brother wants to collect"));
             profileManager.setColor(new ColorPicker.SelectedColor("#00ff00", 0, 0));

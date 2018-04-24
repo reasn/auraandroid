@@ -32,6 +32,11 @@
                     android:icon="@android:drawable/ic_media_ff"
                     android:title="@string/toolbar_complete_tutorial"
                     app:showAsAction="withText" />
+                <item
+                    android:id="@+id/action_finish"
+                    android:icon="@android:drawable/ic_menu_close_clear_cancel"
+                    android:title="@string/toolbar_finish"
+                    app:showAsAction="withText" />
             </menu>
         </item>
     </group>

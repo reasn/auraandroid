@@ -47,7 +47,7 @@
         android:orientation="vertical">
 
         <io.auraapp.auraandroid.ui.common.InfoBox
-            android:id="@+id/info_box"
+            android:id="@+id/communicator_state_info_box"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:button_caption="@string/permissions_request"
