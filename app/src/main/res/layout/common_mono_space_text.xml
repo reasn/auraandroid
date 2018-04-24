@@ -9,7 +9,7 @@
     <!-- This is not a TextView to make sure width and breaks are
          consistent with the corresponding edit dialog -->
     <EditText
-        android:id="@+id/common_mono_space_text_texst"
+        android:id="@+id/common_mono_space_text_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

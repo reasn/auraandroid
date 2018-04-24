@@ -6,12 +6,19 @@
     android:gravity="center_vertical"
     android:orientation="vertical">
 
+    <!--<TextView-->
+        <!--android:id="@+id/world_peer_slogan_text"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginBottom="15dp"-->
+        <!--android:layout_marginTop="15dp" />-->
+
     <io.auraapp.auraandroid.ui.common.MonoSpaceText
-        android:id="@+id/world_peer_slogan_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="15dp"
-        android:layout_marginTop="15dp"
-        app:alignCenter="true" />
+    android:id="@+id/world_peer_slogan_text"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="15dp"
+    android:layout_marginTop="15dp"
+    app:alignCenter="true" />
 
 </LinearLayout>

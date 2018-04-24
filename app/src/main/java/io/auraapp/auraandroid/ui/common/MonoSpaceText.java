@@ -76,8 +76,12 @@ public class MonoSpaceText extends LinearLayout {
 
     @Override
     public void setOnClickListener(@Nullable OnClickListener l) {
-        super.setOnClickListener(l);
         mTextView.setOnClickListener(l);
+    }
+
+    @Override
+    public void setOnTouchListener(OnTouchListener l) {
+        mTextView.setOnTouchListener(l);
     }
 
     public void setText(String text) {
@@ -87,7 +91,7 @@ public class MonoSpaceText extends LinearLayout {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        mTextView = this.findViewById(R.id.common_mono_space_text_texst);
+        mTextView = this.findViewById(R.id.common_mono_space_text_text);
         for (Runnable r : mAttributeSetters) {
             r.run();
         }

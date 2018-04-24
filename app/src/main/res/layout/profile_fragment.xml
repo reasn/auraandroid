@@ -6,6 +6,35 @@
     android:background="@color/white"
     android:orientation="vertical">
 
+    <LinearLayout
+        android:id="@+id/profile_color_and_name_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <io.auraapp.auraandroid.ui.profile.ColorButton
+            android:id="@+id/profile_color_button_wrapper"
+            android:layout_width="60dp"
+            android:layout_height="60dp" />
+
+        <TextView
+            android:id="@+id/profile_my_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:padding="16dp"
+            android:paddingEnd="16dp"
+            android:paddingStart="0dp"
+            android:textColor="@color/black"
+
+            android:textSize="24sp" />
+    </LinearLayout>
+
     <ScrollView
         android:id="@+id/profile_scroll_view"
         android:layout_width="match_parent"
@@ -23,34 +52,6 @@
                 android:layout_height="wrap_content"
                 android:background="@color/white"
                 android:orientation="vertical">
-
-                <LinearLayout
-                    android:id="@+id/profile_color_and_name_wrapper"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <io.auraapp.auraandroid.ui.profile.ColorButton
-                        android:id="@+id/profile_color_button_wrapper"
-                        android:layout_width="60dp"
-                        android:layout_height="60dp" />
-
-                    <TextView
-                        android:id="@+id/profile_my_name"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_weight="1"
-                        android:ellipsize="end"
-                        android:maxLines="1"
-                        android:padding="16dp"
-                        android:paddingEnd="16dp"
-                        android:paddingStart="0dp"
-                        android:textColor="@color/black"
-
-                        android:textSize="24sp" />
-                </LinearLayout>
 
                 <io.auraapp.auraandroid.ui.common.MonoSpaceText
                     android:id="@+id/profile_my_text"

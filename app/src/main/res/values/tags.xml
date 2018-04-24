@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="id" name="world_peer_slogan_tag_animator" />
+    <item type="id" name="world_peer_slogan_tag_slogan" />
+</resources>
