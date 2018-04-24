@@ -63,7 +63,6 @@ public class PeerHolder extends ExpandableViewHolder {
         itemView.setActivated(expanded);
         itemView.setOnClickListener(collapseExpandHandler);
 
-
         Peer peer = (Peer) item;
 
         ColorSet colorSet = ColorSet.create(peer.mColor != null ? peer.mColor : "#ffffff");
