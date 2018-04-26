@@ -33,8 +33,9 @@ abstract public class ExpandableRecyclerAdapter extends RecyclerView.Adapter<Exp
     @Override
     public void onBindViewHolder(@NonNull ExpandableViewHolder holder, int position) {
         // Always expand if there's one item and one spacer item
+        Object item = mItems.get(position);
         holder.bind(
-                mItems.get(position),
+                item,
                 mItems.size() == mItemCountToExpandEverything || mExpandedIndex == position,
                 createCollapseExpandHandler(holder));
     }

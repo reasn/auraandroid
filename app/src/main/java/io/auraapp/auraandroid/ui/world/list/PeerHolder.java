@@ -1,12 +1,15 @@
 package io.auraapp.auraandroid.ui.world.list;
 
 import android.content.Context;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import java.util.List;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Peer;
@@ -47,6 +50,14 @@ public class PeerHolder extends ExpandableViewHolder {
         mStatsView = itemView.findViewById(R.id.world_peer_stats);
         mSlogansListView = itemView.findViewById(R.id.world_peer_slogans_list);
         mSlogansListView.setNestedScrollingEnabled(false);
+        // TODO is that the case? untested!
+        // Supresses scrolling on dataset changes
+        // Thanks https://stackoverflow.com/questions/31860185/nested-recyclerview-scrolls-to-the-first-item-on-notifyitemchanged
+        mSlogansListView.setItemAnimator(null);
+    }
+
+    public void setPool(RecyclerView.RecycledViewPool pool) {
+        mSlogansListView.setRecycledViewPool(pool);
     }
 
     @Override
@@ -100,8 +111,32 @@ public class PeerHolder extends ExpandableViewHolder {
 
     private void bindSlogans(Peer peer, ColorSet colorSet) {
 
-        // TODO avoid recreation on each change, e.g. cache stuff on Peer
+        mSlogansListView.setBackgroundColor(colorSet.mAccentBackground);
 
+        if (mSlogansListView.getAdapter() != null) {
+
+            PeerSloganAdapter adapter = (PeerSloganAdapter) mSlogansListView.getAdapter();
+
+            List<Object> existingSlogans = adapter.getItems();
+
+            if (!colorSet.equals(adapter.mColorSet)) {
+                adapter.mColorSet = colorSet;
+                adapter.notifyDataSetChanged();
+            } else if (peer.mSlogans.size() != existingSlogans.size()) {
+                // Alternating colors require that all items be redrawn
+                existingSlogans.clear();
+                existingSlogans.addAll(peer.mSlogans);
+                adapter.notifyDataSetChanged();
+
+            } else {
+
+                DiffUtil.DiffResult diff = DiffUtil.calculateDiff(new SlogansDiffCallback(existingSlogans, peer.mSlogans));
+                existingSlogans.clear();
+                existingSlogans.addAll(peer.mSlogans);
+                diff.dispatchUpdatesTo(mSlogansListView.getAdapter());
+            }
+            return;
+        }
 
         PeerSloganAdapter adapter = new PeerSloganAdapter(
                 mContext,
@@ -112,7 +147,6 @@ public class PeerHolder extends ExpandableViewHolder {
                 mWhatsMyColorCallback
         );
 
-        mSlogansListView.setBackgroundColor(colorSet.mAccentBackground);
         mSlogansListView.setAdapter(adapter);
         mSlogansListView.setLayoutManager(new LinearLayoutManager(mContext));
     }

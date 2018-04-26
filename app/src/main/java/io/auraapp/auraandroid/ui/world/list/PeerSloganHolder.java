@@ -3,15 +3,14 @@ package io.auraapp.auraandroid.ui.world.list;
 import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
-import android.content.Context;
 import android.support.annotation.ColorInt;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.common.lists.ExpandableViewHolder;
 
@@ -20,7 +19,6 @@ import static io.auraapp.auraandroid.common.FormattedLog.v;
 public class PeerSloganHolder extends ExpandableViewHolder {
 
     private final WhatsMyColorCallback mWhatsMyColorCallback;
-    private Context mContext;
 
     public static interface WhatsMyColorCallback {
         @ColorInt
@@ -37,9 +35,8 @@ public class PeerSloganHolder extends ExpandableViewHolder {
     public int mBackgroundColor;
 
 
-    public PeerSloganHolder(View itemView, Context context, OnAdoptCallback onAdoptCallback, WhatsMyColorCallback whatsMyColorCallback) {
+    public PeerSloganHolder(View itemView, OnAdoptCallback onAdoptCallback, WhatsMyColorCallback whatsMyColorCallback) {
         super(itemView);
-        mContext = context;
         mOnAdoptCallback = onAdoptCallback;
         mWhatsMyColorCallback = whatsMyColorCallback;
         mTextView = itemView.findViewById(R.id.world_peer_slogan_text);
@@ -61,16 +58,10 @@ public class PeerSloganHolder extends ExpandableViewHolder {
         v(TAG, "Binding peer slogan item view, expanded: %s", expanded);
         Slogan slogan = (Slogan) item;
         mTextView.setText(slogan.getText());
-//        mTextView.setOnClickListener(collapseExpandHandler);
         itemView.setBackgroundColor(mBackgroundColor);
         mTextView.setTextColor(mTextColor);
 
         itemView.setTag(R.id.world_peer_slogan_tag_slogan, slogan);
-
-//        itemView.setOnLongClickListener($ -> {
-//            mOnAdoptCallback.onAdoptIntended(slogan);
-//            return true;
-//        });
     }
 
     /**
@@ -90,10 +81,8 @@ public class PeerSloganHolder extends ExpandableViewHolder {
             return;
         }
 
-        Toast.makeText(mContext, R.string.world_peer_slogan_adopt_toast, Toast.LENGTH_SHORT).show();
-
         ValueAnimator animator = ValueAnimator.ofObject(new ArgbEvaluator(), mBackgroundColor, mWhatsMyColorCallback.getColor());
-        animator.setDuration(2000); // milliseconds
+        animator.setDuration(Config.WORLD_SLOGAN_ADOPT_PRESS_DURATION);
         // Not animating/changing text color because for brightnesses around 128 there will be flips
         animator.addUpdateListener(colorAnimator -> item.setBackgroundColor((int) colorAnimator.getAnimatedValue()));
         animator.start();

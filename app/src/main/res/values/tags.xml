@@ -2,4 +2,5 @@
 <resources>
     <item type="id" name="world_peer_slogan_tag_animator" />
     <item type="id" name="world_peer_slogan_tag_slogan" />
+    <item type="id" name="world_peer_tag_slogan_adapter" />
 </resources>

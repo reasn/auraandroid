@@ -72,6 +72,7 @@ public class MySlogansRecycleAdapter extends ExpandableRecyclerAdapter {
 
     public void notifyMySlogansListChanged(TreeSet<Slogan> mySlogans) {
         d(TAG, "Updating list, mySlogans: %d", mySlogans.size());
+
         DiffUtil.DiffResult diff = DiffUtil.calculateDiff(new PeersDiffCallback(mItems, new ArrayList<>(mySlogans)));
         mItems.clear();
         mItems.addAll(mySlogans);

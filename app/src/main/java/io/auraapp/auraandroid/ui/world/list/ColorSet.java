@@ -37,4 +37,33 @@ class ColorSet {
                 accentBackground
         );
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ColorSet colorSet = (ColorSet) o;
+
+        if (mBackground != colorSet.mBackground) return false;
+        if (mText != colorSet.mText) return false;
+        return mAccentBackground == colorSet.mAccentBackground;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mBackground;
+        result = 31 * result + mText;
+        result = 31 * result + mAccentBackground;
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "ColorSet{" +
+                "mBackground=" + Integer.toHexString(mBackground) +
+                ", mText=" + Integer.toHexString(mText) +
+                ", mAccentBackground=" + Integer.toHexString(mAccentBackground) +
+                '}';
+    }
 }

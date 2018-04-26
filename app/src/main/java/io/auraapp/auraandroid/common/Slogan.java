@@ -13,6 +13,12 @@ public class Slogan implements Serializable, Comparable {
         return slogan;
     }
 
+    // This exists only to not miss the equality check in SlogansDiffCallback if slogans contain more
+    // props than just the text and contentTheSame is no longer the same as equals
+    public boolean isTheSameAs(Slogan newItem) {
+        return mText.equals(newItem.getText());
+    }
+
     public String getText() {
         return mText;
     }
@@ -47,4 +53,5 @@ public class Slogan implements Serializable, Comparable {
     public String toString() {
         return "Slogan{mText='" + mText + "'}";
     }
+
 }

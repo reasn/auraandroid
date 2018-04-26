@@ -30,6 +30,11 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
     private final static int TYPE_SPACER = 245;
     private final OnAdoptCallback mOnAdoptCallback;
     private final Context mContext;
+    /**
+     * All slogan recyclers share one view pool to reduce inflations.
+     * Thanks https://medium.com/@mgn524/optimizing-nested-recyclerview-a9b7830a4ba7
+     */
+    private final RecyclerView.RecycledViewPool mSloganRecyclerViewPool;
     private Timer.Timeout mRedrawTimeout;
     private Timer mTimer = new Timer(new Handler());
 
@@ -56,6 +61,7 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
         mItems.add(new SpacerItem());
         // Expand single peer (=2 because of spacer item)
         mItemCountToExpandEverything = 2;
+        mSloganRecyclerViewPool = new RecyclerView.RecycledViewPool();
     }
 
     public void notifyPeerListChanged(Set<Peer> peerSet) {
@@ -114,11 +120,14 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
         if (viewType == TYPE_SPACER) {
             return new SpacerHolder(mInflater.inflate(R.layout.common_list_spacer, parent, false));
         }
-        return new PeerHolder(
+        PeerHolder holder = new PeerHolder(
                 mInflater.inflate(R.layout.world_peer, parent, false),
                 mContext,
                 mOnAdoptCallback,
                 mWhatsMyColorCallback);
+
+        holder.setPool(mSloganRecyclerViewPool);
+        return holder;
     }
 
     @Override
