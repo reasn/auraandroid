@@ -46,12 +46,16 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
         }
         return (int) (a.mLastSeenTimestamp - b.mLastSeenTimestamp);
     };
+    private PeerSloganHolder.WhatsMyColorCallback mWhatsMyColorCallback;
 
-    public PeerAdapter(Context context, RecyclerView recyclerView, OnAdoptCallback onAdoptCallback) {
+    public PeerAdapter(Context context, RecyclerView recyclerView, PeerSloganHolder.WhatsMyColorCallback whatsMyColorCallback, OnAdoptCallback onAdoptCallback) {
         super(context, recyclerView);
         mContext = context;
         mOnAdoptCallback = onAdoptCallback;
+        mWhatsMyColorCallback = whatsMyColorCallback;
         mItems.add(new SpacerItem());
+        // Expand single peer (=2 because of spacer item)
+        mItemCountToExpandEverything = 2;
     }
 
     public void notifyPeerListChanged(Set<Peer> peerSet) {
@@ -113,7 +117,8 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
         return new PeerHolder(
                 mInflater.inflate(R.layout.world_peer, parent, false),
                 mContext,
-                mOnAdoptCallback);
+                mOnAdoptCallback,
+                mWhatsMyColorCallback);
     }
 
     @Override

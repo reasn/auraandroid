@@ -3,6 +3,7 @@ package io.auraapp.auraandroid.ui.world;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
@@ -28,6 +29,7 @@ import io.auraapp.auraandroid.ui.SharedServicesSet;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxyState;
 import io.auraapp.auraandroid.ui.common.InfoBox;
 import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
+import io.auraapp.auraandroid.ui.profile.profileModel.MyProfile;
 import io.auraapp.auraandroid.ui.world.list.PeerAdapter;
 
 import static io.auraapp.auraandroid.common.FormattedLog.v;
@@ -36,6 +38,9 @@ import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_LIST_UPDAT
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATED_EXTRA_PEER;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_EXTRA_PROFILE;
 import static io.auraapp.auraandroid.ui.common.CommunicatorProxy.replacePeer;
 
 public class WorldFragment extends ContextViewFragment implements FragmentWithToolbarButtons {
@@ -50,6 +55,7 @@ public class WorldFragment extends ContextViewFragment implements FragmentWithTo
     private RecyclerView mPeersRecycler;
     private InfoBox mPeersInfoBox;
     private TextView mNotScanningMessage;
+    private String mMyColor;
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -82,14 +88,18 @@ public class WorldFragment extends ContextViewFragment implements FragmentWithTo
             reflectState(context);
         }
     };
-    private BroadcastReceiver mCommunicatorProxyStateReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             v(TAG, "onReceive, intent: %s", intent.getAction());
             Bundle extras = intent.getExtras();
             if (extras != null) {
-                mComProxyState = (CommunicatorProxyState) extras.getSerializable(IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE);
-                reflectState(context);
+                if (LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION.equals(intent.getAction())) {
+                    mComProxyState = (CommunicatorProxyState) extras.getSerializable(LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE);
+                    reflectState(context);
+                } else if (LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION.equals(intent.getAction())) {
+                    mMyColor = ((MyProfile) extras.getSerializable(LOCAL_MY_PROFILE_EXTRA_PROFILE)).getColor();
+                }
             }
         }
     };
@@ -103,12 +113,18 @@ public class WorldFragment extends ContextViewFragment implements FragmentWithTo
     protected void onResumeWithContextAndView(MainActivity activity, ViewGroup rootView) {
 
         activity.registerReceiver(mReceiver, IntentFactory.communicatorIntentFilter());
-        LocalBroadcastManager.getInstance(activity).registerReceiver(mCommunicatorProxyStateReceiver, IntentFactory.createFilter(LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION));
+        LocalBroadcastManager.getInstance(activity).registerReceiver(mLocalReceiver,
+                IntentFactory.createFilter(
+                        LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION,
+                        LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION
+                ));
         v(TAG, "Receivers registered");
+
 
         SharedServicesSet servicesSet = activity.getSharedServicesSet();
         mPeers = servicesSet.mCommunicatorProxy.getPeers();
         mComProxyState = servicesSet.mCommunicatorProxy.getState();
+        mMyColor = servicesSet.mMyProfileManager.getColor();
 
         mNotScanningMessage = rootView.findViewById(R.id.world_not_scanning);
         mPeersInfoBox = rootView.findViewById(R.id.peer_slogans_info_box);
@@ -116,18 +132,20 @@ public class WorldFragment extends ContextViewFragment implements FragmentWithTo
         mSwipeRefresh.setEnabled(false);
         mPeersRecycler = rootView.findViewById(R.id.profile_slogans_recycler);
 
-        mPeerAdapter = new PeerAdapter(activity, mPeersRecycler, slogan -> {
-            if (servicesSet.mMyProfileManager.getProfile().getSlogans().contains(slogan)) {
-                toast(R.string.ui_world_toast_slogan_already_adopted);
-            } else if (servicesSet.mMyProfileManager.spaceAvailable()) {
-                servicesSet.mMyProfileManager.adopt(slogan);
-            } else {
-                servicesSet.mDialogManager.showReplace(
-                        servicesSet.mMyProfileManager.getProfile().getSlogans(),
-                        sloganToReplace -> servicesSet.mMyProfileManager.replace(sloganToReplace, slogan)
-                );
-            }
-        });
+        mPeerAdapter = new PeerAdapter(activity, mPeersRecycler,
+                () -> Color.parseColor(mMyColor),
+                slogan -> {
+                    if (servicesSet.mMyProfileManager.getProfile().getSlogans().contains(slogan)) {
+                        toast(R.string.ui_world_toast_slogan_already_adopted);
+                    } else if (servicesSet.mMyProfileManager.spaceAvailable()) {
+                        servicesSet.mMyProfileManager.adopt(slogan);
+                    } else {
+                        servicesSet.mDialogManager.showReplace(
+                                servicesSet.mMyProfileManager.getProfile().getSlogans(),
+                                sloganToReplace -> servicesSet.mMyProfileManager.replace(sloganToReplace, slogan)
+                        );
+                    }
+                });
         mPeersRecycler.setAdapter(mPeerAdapter);
         mPeersRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         mPeersRecycler.setNestedScrollingEnabled(false);
@@ -142,7 +160,7 @@ public class WorldFragment extends ContextViewFragment implements FragmentWithTo
     protected void onPauseWithContext(MainActivity activity) {
         super.onPauseWithContext(activity);
         activity.unregisterReceiver(mReceiver);
-        LocalBroadcastManager.getInstance(activity).unregisterReceiver(mCommunicatorProxyStateReceiver);
+        LocalBroadcastManager.getInstance(activity).unregisterReceiver(mLocalReceiver);
         v(TAG, "Receivers unregistered");
         mPeerAdapter.onPause();
     }

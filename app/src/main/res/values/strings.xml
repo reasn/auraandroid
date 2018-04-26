@@ -206,5 +206,6 @@
     <string name="world_not_scanning">Nearby Auras are shown here\nas soon as your Aura is on.</string>
     <string name="toolbar_finish">Exit</string>
     <string name="settings_title">Aura Settings</string>
+    <string name="world_peer_slogan_adopt_toast">Keep finger down to adopt idea</string>
 
 </resources>

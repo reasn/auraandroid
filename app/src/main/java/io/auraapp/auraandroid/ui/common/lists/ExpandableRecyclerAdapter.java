@@ -12,6 +12,7 @@ import java.util.List;
 
 abstract public class ExpandableRecyclerAdapter extends RecyclerView.Adapter<ExpandableViewHolder> {
 
+    protected int mItemCountToExpandEverything = -1;
     protected final LayoutInflater mInflater;
     private RecyclerView mRecyclerView;
 
@@ -24,7 +25,6 @@ abstract public class ExpandableRecyclerAdapter extends RecyclerView.Adapter<Exp
     private int mExpandedIndex = -1;
     protected final List<Object> mItems = new ArrayList<>();
 
-
     @Override
     public int getItemCount() {
         return mItems.size();
@@ -32,7 +32,11 @@ abstract public class ExpandableRecyclerAdapter extends RecyclerView.Adapter<Exp
 
     @Override
     public void onBindViewHolder(@NonNull ExpandableViewHolder holder, int position) {
-        holder.bind(mItems.get(position), mExpandedIndex == position, createCollapseExpandHandler(holder));
+        // Always expand if there's one item and one spacer item
+        holder.bind(
+                mItems.get(position),
+                mItems.size() == mItemCountToExpandEverything || mExpandedIndex == position,
+                createCollapseExpandHandler(holder));
     }
 
     private View.OnClickListener createCollapseExpandHandler(ExpandableViewHolder holder) {

@@ -28,14 +28,17 @@ public class PeerHolder extends ExpandableViewHolder {
     private final View mDetailsView;
     private final ProgressBar mSpinner;
     private RecyclerView mSlogansListView;
+    private PeerSloganHolder.WhatsMyColorCallback mWhatsMyColorCallback;
 
     public PeerHolder(View itemView,
                       Context context,
-                      OnAdoptCallback onAdoptCallback) {
+                      OnAdoptCallback onAdoptCallback,
+                      PeerSloganHolder.WhatsMyColorCallback whatsMyColorCallback) {
         super(itemView);
 
         mContext = context;
         mOnAdoptCallback = onAdoptCallback;
+        mWhatsMyColorCallback = whatsMyColorCallback;
         mSpinner = itemView.findViewById(R.id.world_peer_spinner);
         mNameView = itemView.findViewById(R.id.world_peer_name);
         mHeadingView = itemView.findViewById(R.id.world_peer_heading);
@@ -105,7 +108,8 @@ public class PeerHolder extends ExpandableViewHolder {
                 mSlogansListView,
                 colorSet,
                 mOnAdoptCallback,
-                peer.mSlogans
+                peer.mSlogans,
+                mWhatsMyColorCallback
         );
 
         mSlogansListView.setBackgroundColor(colorSet.mAccentBackground);

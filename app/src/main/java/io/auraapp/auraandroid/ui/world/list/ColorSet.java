@@ -13,25 +13,28 @@ class ColorSet {
     int mText;
     @ColorInt
     int mAccentBackground;
-    @ColorInt
-    int mAccentText;
 
-    private ColorSet(int background, int text, int accentBackground, int accentText) {
-        mBackground = background;
+    private ColorSet(int text, int background, int accentBackground) {
         mText = text;
+        mBackground = background;
         mAccentBackground = accentBackground;
-        mAccentText = accentText;
     }
 
     static ColorSet create(@NonNull String color) {
         int background = Color.parseColor(color);
         int accentBackground = ColorHelper.getAccent(background);
+        int text;
+        if (Math.abs(128 - ColorHelper.getBrightness(background)) > Math.abs(128 - ColorHelper.getBrightness(accentBackground))) {
+            // background is further away from average brightness than accentBackground
+            text = ColorHelper.getTextColor(background);
+        } else {
+            text = ColorHelper.getTextColor(accentBackground);
+        }
 
         return new ColorSet(
+                text,
                 background,
-                ColorHelper.getTextColor(background),
-                accentBackground,
-                ColorHelper.getTextColor(accentBackground)
+                accentBackground
         );
     }
 }

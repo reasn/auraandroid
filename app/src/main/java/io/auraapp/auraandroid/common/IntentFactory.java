@@ -36,6 +36,14 @@ public class IntentFactory {
     public static final String LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION = prefix + "local.communicatorState";
     public static final String LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE = prefix + "local.extraProxyState";
 
+    public final static String LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION = prefix + "local.myProfile.colorChanged";
+    public final static String LOCAL_MY_PROFILE_NAME_CHANGED_ACTION = prefix + "local.myProfile.nameChanged";
+    public final static String LOCAL_MY_PROFILE_TEXT_CHANGED_ACTION = prefix + "local.myProfile.textChanged";
+    public final static String LOCAL_MY_PROFILE_DROPPED_ACTION = prefix + "local.myProfile.sloganDropped";
+    public final static String LOCAL_MY_PROFILE_ADOPTED_ACTION = prefix + "local.myProfile.sloganAdopted";
+    public final static String LOCAL_MY_PROFILE_REPLACED_ACTION = prefix + "local.myProfile.sloganReplaced";
+    public final static String LOCAL_MY_PROFILE_EXTRA_PROFILE = prefix + "local.myProfile.extraProfile";
+
     public static IntentFilter communicatorIntentFilter() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(INTENT_COMMUNICATOR_STATE_UPDATED_ACTION);

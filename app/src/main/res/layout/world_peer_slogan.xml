@@ -1,24 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:orientation="vertical">
 
-    <!--<TextView-->
-        <!--android:id="@+id/world_peer_slogan_text"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginBottom="15dp"-->
-        <!--android:layout_marginTop="15dp" />-->
-
-    <io.auraapp.auraandroid.ui.common.MonoSpaceText
-    android:id="@+id/world_peer_slogan_text"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="15dp"
-    android:layout_marginTop="15dp"
-    app:alignCenter="true" />
+    <TextView
+        android:id="@+id/world_peer_slogan_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:layout_marginTop="15dp"
+        android:textAlignment="center"
+        android:textAppearance="?android:textAppearanceMedium" />
 
 </LinearLayout>

@@ -15,17 +15,22 @@ import io.auraapp.auraandroid.ui.common.lists.ExpandableViewHolder;
 public class PeerSloganAdapter extends ExpandableRecyclerAdapter {
     private final ColorSet mColorSet;
     private final OnAdoptCallback mOnAdoptCallback;
+    private final Context mContext;
+    private final PeerSloganHolder.WhatsMyColorCallback mWhatsMyColorCallback;
 
     public PeerSloganAdapter(@NonNull Context context,
                              RecyclerView listView,
                              ColorSet colorSet,
                              OnAdoptCallback onAdoptCallback,
-                             ArrayList<Slogan> slogans) {
+                             ArrayList<Slogan> slogans,
+                             PeerSloganHolder.WhatsMyColorCallback whatsMyColorCallback) {
 
         super(context, listView);
+        mContext = context;
         mItems.addAll(slogans);
         mColorSet = colorSet;
         mOnAdoptCallback = onAdoptCallback;
+        mWhatsMyColorCallback = whatsMyColorCallback;
     }
 
 
@@ -33,13 +38,12 @@ public class PeerSloganAdapter extends ExpandableRecyclerAdapter {
     public void onBindViewHolder(@NonNull ExpandableViewHolder holder, int position) {
 
         PeerSloganHolder castHolder = ((PeerSloganHolder) holder);
-        if (position % 2 == 0) {
-            castHolder.mBackgroundColor = mColorSet.mAccentBackground;
-            castHolder.mTextColor = mColorSet.mAccentText;
-        } else {
-            castHolder.mBackgroundColor = mColorSet.mBackground;
-            castHolder.mTextColor = mColorSet.mText;
-        }
+
+        castHolder.mTextColor = mColorSet.mText;
+        castHolder.mBackgroundColor = position % 2 == 0
+                ? mColorSet.mAccentBackground
+                : mColorSet.mBackground;
+
         super.onBindViewHolder(holder, position);
 
     }
@@ -49,6 +53,8 @@ public class PeerSloganAdapter extends ExpandableRecyclerAdapter {
     public ExpandableViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new PeerSloganHolder(
                 mInflater.inflate(R.layout.world_peer_slogan, parent, false),
-                mOnAdoptCallback);
+                mContext,
+                mOnAdoptCallback,
+                mWhatsMyColorCallback);
     }
 }

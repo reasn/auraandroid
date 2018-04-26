@@ -1,7 +1,9 @@
 package io.auraapp.auraandroid.ui.profile.profileModel;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -13,10 +15,12 @@ import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
+import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.common.ColorPicker;
 
 import static io.auraapp.auraandroid.common.FormattedLog.i;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_EXTRA_PROFILE;
 
 public class MyProfileManager {
 
@@ -57,14 +61,14 @@ public class MyProfileManager {
             i(TAG, "No valid profile persisted, creating default");
             profile = createDefaultProfile();
             mMyProfile = profile;
-            persistProfile(EVENT_NONE);
+            persistProfile(EVENT_NONE, null);
             return;
         }
 
         if (!(profile instanceof MyProfile)) {
             // In case rubbish has been persisted, observed e.g. "null"
             profile = createDefaultProfile();
-            persistProfile(EVENT_NONE);
+            persistProfile(EVENT_NONE, null);
         }
         mMyProfile = profile;
     }
@@ -108,14 +112,14 @@ public class MyProfileManager {
     public void setName(String name) {
         if (!mMyProfile.mName.equals(name)) {
             mMyProfile.mName = name;
-            persistProfile(EVENT_NAME_CHANGED);
+            persistProfile(EVENT_NAME_CHANGED, IntentFactory.LOCAL_MY_PROFILE_NAME_CHANGED_ACTION);
         }
     }
 
     public void setText(String text) {
         if (!mMyProfile.mText.equals(text)) {
             mMyProfile.mText = text;
-            persistProfile(EVENT_TEXT_CHANGED);
+            persistProfile(EVENT_TEXT_CHANGED, IntentFactory.LOCAL_MY_PROFILE_TEXT_CHANGED_ACTION);
         }
     }
 
@@ -124,7 +128,7 @@ public class MyProfileManager {
             mMyProfile.mColor = selectedColor.getColor();
             mMyProfile.mColorPickerPointX = selectedColor.getPointX();
             mMyProfile.mColorPickerPointY = selectedColor.getPointY();
-            persistProfile(EVENT_COLOR_CHANGED);
+            persistProfile(EVENT_COLOR_CHANGED, IntentFactory.LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION);
         }
     }
 
@@ -140,7 +144,7 @@ public class MyProfileManager {
             return;
         }
         mMyProfile.mSlogans.add(slogan);
-        persistProfile(EVENT_ADOPTED);
+        persistProfile(EVENT_ADOPTED, IntentFactory.LOCAL_MY_PROFILE_ADOPTED_ACTION);
     }
 
     public void replace(Slogan oldSlogan, Slogan newSlogan) {
@@ -148,13 +152,13 @@ public class MyProfileManager {
             mMyProfile.mSlogans.remove(oldSlogan);
         }
         mMyProfile.mSlogans.add(newSlogan);
-        persistProfile(EVENT_REPLACED);
+        persistProfile(EVENT_REPLACED, IntentFactory.LOCAL_MY_PROFILE_REPLACED_ACTION);
     }
 
     public void dropSlogan(Slogan slogan) {
         mMyProfile.mSlogans.remove(slogan);
 
-        persistProfile(EVENT_DROPPED);
+        persistProfile(EVENT_DROPPED, IntentFactory.LOCAL_MY_PROFILE_DROPPED_ACTION);
     }
 
     public void dropAllSlogans() {
@@ -163,9 +167,15 @@ public class MyProfileManager {
         }
     }
 
-    private void persistProfile(int event) {
+    private void persistProfile(int event, @Nullable String intentAction) {
         i(TAG, "Persisting my profile, event: %s, profile: %s,", nameEvent(event), mMyProfile.toString());
         AuraPrefs.putProfile(mContext, mMyProfile);
+
+        if (intentAction != null) {
+            Intent intent = new Intent(intentAction);
+            intent.putExtra(LOCAL_MY_PROFILE_EXTRA_PROFILE, mMyProfile);
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+        }
 
         if (event != EVENT_NONE) {
             for (MyProfileChangedCallback callback : mChangedCallbacks) {
