@@ -16,6 +16,7 @@ import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.IntentFactory;
+import io.auraapp.auraandroid.common.PermissionHelper;
 import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxyState;
 import io.auraapp.auraandroid.ui.common.InfoBox;
@@ -104,10 +105,13 @@ public class CommunicatorStateFragment extends ContextViewFragment {
         CommunicatorState state = mCommunicatorProxyState.mCommunicatorState;
         infoBox.setOnClickListener(null);
 
-        if (!mCommunicatorProxyState.mEnabled) {
+        if (!PermissionHelper.granted(context)) {
+            // In this case user is in PermissionFragment and needs no additional summary/box
+            show = NONE;
+
+        } else if (!mCommunicatorProxyState.mEnabled) {
             showAuraOffInfoBox.run();
             show = BOX;
-
         } else if (state == null) {
             showGettingReady.run();
 

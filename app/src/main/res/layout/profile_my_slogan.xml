@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
-
-    <io.auraapp.auraandroid.ui.common.MonoSpaceText
-        android:id="@+id/slogan_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="15dp"
-        android:layout_marginTop="15dp"
-        app:alignCenter="true" />
+        <TextView
+            style="@style/SloganText"
+            android:id="@+id/slogan_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
     <LinearLayout
         android:id="@+id/expanded_wrapper"

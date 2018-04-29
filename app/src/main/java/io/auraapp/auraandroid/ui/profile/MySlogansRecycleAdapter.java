@@ -87,7 +87,7 @@ public class MySlogansRecycleAdapter extends ExpandableRecyclerAdapter {
             return new SpacerHolder(mInflater.inflate(R.layout.common_list_spacer, parent, false));
         }
         return new MySloganHolder(
-                mInflater.inflate(R.layout.profile_list_item_slogan, parent, false),
+                mInflater.inflate(R.layout.profile_my_slogan, parent, false),
                 mContext,
                 mOnMySloganActionCallback
         );

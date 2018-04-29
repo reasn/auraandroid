@@ -6,6 +6,8 @@
         <!-- Used by switch -->
         <!--<item name="colorAccent">@color/purple</item>-->
         <!--<item name="colorPrimary">@color/purple</item>-->
+        <item name="android:fontFamily">@font/hind_siliguri_regular
+        </item>
     </style>
 
     <style name="FullWidthDialog">
@@ -239,6 +241,23 @@
         <item name="android:layout_marginTop">50dp</item>
         <item name="android:textAlignment">center</item>
         <item name="android:textAppearance">?android:textAppearanceSmall</item>
+    </style>
+
+    <style name="ProfileAttributeText">
+        <item name="android:textSize">18sp</item>
+        <item name="android:layout_margin">15dp</item>
+    </style>
+
+    <style name="ProfileText" parent="ProfileAttributeText">
+        <item name="android:textAlignment">textStart</item>
+        <item name="android:maxLines">20</item>
+        <item name="android:scrollbars">vertical</item>
+        <item name="android:minHeight">100dp</item>
+    </style>
+
+    <style name="SloganText" parent="ProfileAttributeText">
+        <item name="android:fontFamily">@font/coming_soon_regular</item>
+        <item name="android:textAlignment">center</item>
     </style>
 
 </resources>

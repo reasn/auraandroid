@@ -6,12 +6,9 @@
     android:orientation="vertical">
 
     <TextView
+        style="@style/SloganText"
         android:id="@+id/world_peer_slogan_text"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="15dp"
-        android:layout_marginTop="15dp"
-        android:textAlignment="center"
-        android:textAppearance="?android:textAppearanceMedium" />
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

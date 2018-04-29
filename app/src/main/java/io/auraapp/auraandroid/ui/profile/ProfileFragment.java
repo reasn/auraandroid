@@ -16,7 +16,6 @@ import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
 import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.SharedServicesSet;
 import io.auraapp.auraandroid.ui.common.ColorHelper;
-import io.auraapp.auraandroid.ui.common.MonoSpaceText;
 import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
 import io.auraapp.auraandroid.ui.permissions.FragmentCameIntoView;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
@@ -28,7 +27,7 @@ public class ProfileFragment extends ContextViewFragment implements FragmentWith
     private static final String TAG = "@aura/ui/profile/fragment";
     private RecyclerView mSlogansRecyclerView;
     private TextView mNameView;
-    private MonoSpaceText mTextView;
+    private TextView mTextView;
     private ColorButton mColorButton;
     private MySlogansRecycleAdapter mAdapter;
     private DialogManager mDialogManager;

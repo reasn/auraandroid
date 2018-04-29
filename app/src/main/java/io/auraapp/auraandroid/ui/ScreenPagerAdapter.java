@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
+import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,12 +77,8 @@ public class ScreenPagerAdapter extends FragmentStatePagerAdapter {
     }
 
     public void addTermsFragment() {
-        boolean added = false;
         if (!has(TermsFragment.class)) {
             mFragments.add(0, new TermsFragment());
-            added = true;
-        }
-        if (added) {
             notifyDataSetChanged();
         }
     }
@@ -100,20 +97,28 @@ public class ScreenPagerAdapter extends FragmentStatePagerAdapter {
     }
 
     @Override
+    public void setPrimaryItem(ViewGroup container, int position, Object object) {
+        super.setPrimaryItem(container, position, object);
+        // Send broadcast here instead of using hacky counting in adapter!
+    }
+
+    @Override
     public int getItemPosition(@NonNull Object object) {
         if (!(object instanceof Fragment)) {
             throw new RuntimeException("Tried to getItemPosition of non-Fragment");
         }
-//        return PagerAdapter.POSITION_NONE;
-        // Didn't work:
-        int index = mFragments.indexOf(object);
-        return index >= 0
-                ? index
-                : PagerAdapter.POSITION_NONE;
+        return PagerAdapter.POSITION_NONE;
+        // TODO don't always return POSITION_NONE. Problem seems to come from changing item positions
+        // Didn't work, sometimes fragments where added twice, app crashed after agreeing to terms
+//        int index = mFragments.indexOf(object);
+//        return index >= 0
+//                ? index
+//                : PagerAdapter.POSITION_NONE;
         // The current solution might have performance implications but none were observed.
         // Would affect swipes only and all screens' views are inflated continuously anyway
         // Thanks https://stackoverflow.com/questions/10849552/update-viewpager-dynamically
     }
+
 
     public int getPosition(Class fragmentClass) {
         for (int i = 0; i < mFragments.size(); i++) {

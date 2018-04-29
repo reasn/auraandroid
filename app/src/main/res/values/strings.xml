@@ -16,10 +16,10 @@
 
     <!-- Permissions Missing -->
     <string name="permissions_heading">Welcome!</string>
-    <string name="permissions_text">Aura can only work with some basic permissions.\n\nDon\'t worry, no data will be transmitted via the internet. \nYou are safe.</string>
-    <string name="permissions_request">Allow my Aura</string>
-    <string name="permissions_second_text">If clicking the button above doesn\'t work, you have to manually grant Aura the necessary permissions.\nPlease click the button below, then "Permissions" and grant Aura access to your location.</string>
-    <string name="permissions_appSettings">Open App Settings</string>
+    <string name="permissions_text">Aura can only work with some basic permissions.\n\nDon\'t worry, no data will be transmitted via the internet. You're safe.</string>
+    <string name="permissions_request">Grant Permission</string>
+    <string name="permissions_second_text">If clicking the button above doesn\'t work, grant the permissions manually.\nClick the button below, then "Permissions" and grant Aura the "Location" permission.</string>
+    <string name="permissions_appSettings">Show Settings</string>
     <string name="permissions_granted_text">Great, you\'re all set!\nSwipe to start.</string>
 
     <!-- Privacy -->
@@ -101,13 +101,13 @@
         <item quantity="other">Others shared %d idea</item>
     </plurals>
     <string name="world_peer_slogan_adopt">:fire:</string>
-    <string name="world_peer_last_seen_lt_10s">User is nearby</string>
-    <string name="world_peer_last_seen_lt_1min">User was nearby less than a minute ago</string>
-    <string name="world_peer_last_seen_lt_10min">User was nearby less than ##elapsed_minutes##" min ago</string>
-    <string name="world_peer_last_seen_lt_30min">User was nearby less than 30min ago</string>
-    <string name="world_peer_last_seen_lt_45min">User was nearby less than 45min ago</string>
-    <string name="world_peer_last_seen_lte_1h">User was nearby less than an hour ago</string>
-    <string name="world_peer_last_seen_gt_1h">User was nearby less than an hour ago</string>
+    <string name="world_peer_last_seen_lt_10s">is nearby</string>
+    <string name="world_peer_last_seen_lt_1min">was nearby less than a minute ago</string>
+    <string name="world_peer_last_seen_lt_10min">was nearby less than ##elapsed_minutes##" min ago</string>
+    <string name="world_peer_last_seen_lt_30min">was nearby less than 30min ago</string>
+    <string name="world_peer_last_seen_lt_45min">was nearby less than 45min ago</string>
+    <string name="world_peer_last_seen_lte_1h">was nearby less than an hour ago</string>
+    <string name="world_peer_last_seen_gt_1h">was nearby less than an hour ago</string>
 
     <!--Main Activity-->
     <string name="ui_main_toast_debug_view_enabled">Debug view enabled</string>
@@ -122,8 +122,8 @@
     \nThis problem is not caused by Aura. Sorry about this!</string>
     <string name="ui_common_communicator_bt_disabled_heading">Bluetooth Off</string>
     <string name="ui_common_communicator_bt_disabled_text">Enable Bluetooth for Aura to work.</string>
-    <string name="ui_common_communicator_summary_bt_turning_on">:hourglass: Bluetooth is starting.</string>
-    <string name="ui_common_communicator_summary_on_not_active">:hourglass: Aura is getting ready.</string>
+    <string name="ui_common_communicator_summary_bt_turning_on">Bluetooth is starting…</string>
+    <string name="ui_common_communicator_summary_on_not_active">Aura is getting ready…</string>
     <string name="ui_common_communicator_ble_not_supported_heading">Device Unsupported</string>
     <string name="ui_common_communicator_ble_not_supported_text">Your device doesn\'t properly support Bluetooth LE.
         \nWe\'re really sorry, you can\'t use Aura.

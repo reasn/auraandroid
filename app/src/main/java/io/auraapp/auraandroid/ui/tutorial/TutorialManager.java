@@ -36,6 +36,11 @@ public class TutorialManager {
         AuraPrefs.putHasCompletedTutorial(mContext, completed);
     }
 
+    public void complete() {
+        setCompleted(true);
+        close();
+    }
+
     public void goTo(Class<? extends TutorialStep> step) {
 
         close();
@@ -86,6 +91,7 @@ public class TutorialManager {
     }
 
     public void open() {
+        i(TAG, "Opening tutorial");
         goTo(EnabledStep.class);
     }
 }

@@ -6,23 +6,24 @@
     android:gravity="center"
     android:orientation="vertical">
 
+    <!--android:ems="14"-->
     <!-- This is not a TextView to make sure width and breaks are
          consistent with the corresponding edit dialog -->
     <EditText
         android:id="@+id/common_mono_space_text_text"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="6dp"
-        android:layout_marginTop="6dp"
+        android:fontFamily="@font/coming_soon_regular"
+        android:textSize="18sp"
+        android:layout_marginBottom="15dp"
+        android:layout_marginTop="15dp"
+        android:layout_margin="15dp"
         android:background="@color/transparent"
-        android:ems="14"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:fontFamily="@font/noto_mono_regular"
-        android:gravity="top"
         android:inputType="textMultiLine"
         android:scrollbars="vertical"
+        android:gravity="start"
         android:textColor="@color/black"
         tools:ignore="LabelFor,TextFields" />
 </LinearLayout>

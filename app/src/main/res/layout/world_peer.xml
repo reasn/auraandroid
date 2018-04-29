@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/world_peer_wrapper"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
@@ -12,46 +11,54 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <ProgressBar
-            android:id="@+id/world_peer_spinner"
-            style="?android:attr/progressBarStyleSmall"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginEnd="4dp"
-            android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/world_peer_name"
-            style="@style/FlatTitleText"
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
-
-    <!-- This is not a TextView to make sure width and breaks are
-         consistent with the corresponding edit dialog -->
-    <LinearLayout
-        android:id="@+id/world_peer_details"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <io.auraapp.auraandroid.ui.common.MonoSpaceText
-            android:id="@+id/world_peer_text"
-            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:minLines="1" />
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ProgressBar
+                android:id="@+id/world_peer_spinner"
+                style="?android:attr/progressBarStyleSmallTitle"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginEnd="4dp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/world_peer_name"
+                style="@style/FlatTitleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/world_peer_stats"
-            style="@style/FlatMessage"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAlignment="textEnd" />
+            android:includeFontPadding="false"
+            android:textSize="12sp" />
     </LinearLayout>
+
+    <!-- This is not a TextView to make sure width and breaks are
+         consistent with the corresponding edit dialog --><LinearLayout
+    android:id="@+id/world_peer_details"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:visibility="gone">
+
+    <TextView
+        android:id="@+id/world_peer_text"
+        style="@style/ProfileText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>
 
     <android.support.v7.widget.RecyclerView
 

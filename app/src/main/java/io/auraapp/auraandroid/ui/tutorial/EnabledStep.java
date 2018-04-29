@@ -2,6 +2,7 @@ package io.auraapp.auraandroid.ui.tutorial;
 
 
 import android.content.Context;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -19,8 +20,14 @@ public class EnabledStep extends TutorialStep {
         ViewGroup screen = (ViewGroup) LayoutInflater.from(mContext).inflate(R.layout.tutorial_enabled, mRootView, false);
 
         ViewGroup overlay = screen.findViewById(R.id.tutorial_overlay);
+
+        // TODO measure somehow, this didn't work in onResume:
+//        ((ViewGroup.MarginLayoutParams) overlay.getLayoutParams())
+//                .setMargins(0, mRootView.findViewById(R.id.toolbar_fragment).getMeasuredHeight(), 0, 0);
+        int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 55, mContext.getResources().getDisplayMetrics());
+
         ((ViewGroup.MarginLayoutParams) overlay.getLayoutParams())
-                .setMargins(0, mRootView.findViewById(R.id.toolbar_fragment).getMeasuredHeight(), 0, 0);
+                .setMargins(0, px, 0, 0);
 
         mPager.setSwipeLocked(true);
         mPager.goTo(ProfileFragment.class, false);

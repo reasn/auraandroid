@@ -29,7 +29,8 @@ public class PermissionsFragment extends ContextViewFragment {
     private static final int REQUEST_CODE_LOCATION_REQUEST = 149;
     private static final int REQUEST_CODE_APP_SETTINGS = 144;
 
-    private final Timer mTimer = new Timer(new Handler());
+    private final Handler mHandler = new Handler();
+    private final Timer mTimer = new Timer(mHandler);
     private Timer.Timeout mCheckTimeout;
     private ScreenPager mPager;
     private boolean mRedirected = false;
@@ -74,7 +75,7 @@ public class PermissionsFragment extends ContextViewFragment {
             rootView.findViewById(R.id.not_granted).setVisibility(View.VISIBLE);
             mPager.setSwipeLocked(true);
 
-            continuouslyCheckForPermissions(activity);
+            mHandler.post(() -> continuouslyCheckForPermissions(activity));
         }
     }
 
@@ -90,7 +91,7 @@ public class PermissionsFragment extends ContextViewFragment {
             mCheckTimeout = mTimer.setTimeout(() -> continuouslyCheckForPermissions(activity), 500);
             return;
         }
-
+        mPager.setSwipeLocked(false);
         if (!mPager.redirectIfNeeded(activity, null)) {
             // no redirect happened, let's "start"
             mPager.goTo(ProfileFragment.class, true);

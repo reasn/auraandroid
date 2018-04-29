@@ -5,16 +5,16 @@ import android.support.annotation.ColorInt;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.Slogan;
-import io.auraapp.auraandroid.ui.common.MonoSpaceText;
 import io.auraapp.auraandroid.ui.common.lists.ExpandableViewHolder;
 
 public class MySloganHolder extends ExpandableViewHolder {
 
-    private final MonoSpaceText mSloganTextView;
+    private final TextView mSloganTextView;
     private final LinearLayout mExpandedWrapper;
     private final Button mEditButtonView;
     private final Button mDropButtonView;
@@ -53,7 +53,7 @@ public class MySloganHolder extends ExpandableViewHolder {
 
         mSloganTextView.setTextColor(mTextColor);
         mSloganTextView.setText(slogan.getText());
-        mSloganTextView.setOnClickListener(collapseExpandHandler);
+//        mSloganTextView.setOnClickListener(collapseExpandHandler);
 
         if (!expanded) {
             if (mExpandedWrapper.getVisibility() == View.VISIBLE) {

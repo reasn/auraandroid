@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.HashSet;
@@ -54,6 +55,7 @@ public class WorldFragment extends ContextViewFragment implements FragmentWithTo
     private Set<Peer> mPeers = new HashSet<>();
     private RecyclerView mPeersRecycler;
     private InfoBox mPeersInfoBox;
+    private ProgressBar mSpinner;
     private TextView mNotScanningMessage;
     private String mMyColor;
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -128,6 +130,7 @@ public class WorldFragment extends ContextViewFragment implements FragmentWithTo
 
         mNotScanningMessage = rootView.findViewById(R.id.world_not_scanning);
         mPeersInfoBox = rootView.findViewById(R.id.peer_slogans_info_box);
+        mSpinner = rootView.findViewById(R.id.world_spinner);
         mSwipeRefresh = rootView.findViewById(R.id.fake_swipe_to_refresh);
         mSwipeRefresh.setEnabled(false);
         mPeersRecycler = rootView.findViewById(R.id.profile_slogans_recycler);
@@ -195,8 +198,11 @@ public class WorldFragment extends ContextViewFragment implements FragmentWithTo
         if (!isScanning() || mPeers.size() > 0) {
             // Show mPeersInfoBox only if there's no communicator state info box visible and there's no peers
             mPeersInfoBox.setVisibility(View.GONE);
+            mSpinner.setVisibility(View.GONE);
             return;
         }
+
+        mSpinner.setVisibility(View.VISIBLE);
 
         long scanDuration = System.currentTimeMillis() - communicatorState.mScanStartTimestamp;
         if (scanDuration < Config.MAIN_LOOKING_AROUND_SHOW_DURATION) {

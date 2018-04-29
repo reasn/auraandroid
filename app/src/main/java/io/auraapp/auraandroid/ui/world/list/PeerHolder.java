@@ -13,7 +13,7 @@ import java.util.List;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Peer;
-import io.auraapp.auraandroid.ui.common.MonoSpaceText;
+import io.auraapp.auraandroid.ui.common.ColorHelper;
 import io.auraapp.auraandroid.ui.common.lists.ExpandableViewHolder;
 
 import static io.auraapp.auraandroid.common.FormattedLog.e;
@@ -26,7 +26,7 @@ public class PeerHolder extends ExpandableViewHolder {
     private final LinearLayout mHeadingView;
     private final Context mContext;
     private final OnAdoptCallback mOnAdoptCallback;
-    private final MonoSpaceText mTextView;
+    private final TextView mTextView;
     private final TextView mStatsView;
     private final View mDetailsView;
     private final ProgressBar mSpinner;
@@ -175,7 +175,7 @@ public class PeerHolder extends ExpandableViewHolder {
 
         mStatsView.setText(text);
         mStatsView.setBackgroundColor(colorSet.mBackground);
-        mStatsView.setTextColor(colorSet.mText);
+        mStatsView.setTextColor(ColorHelper.getAccent(colorSet.mText));
     }
 
 }

@@ -19,6 +19,7 @@ import io.auraapp.auraandroid.common.Timer;
 import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
 import io.auraapp.auraandroid.ui.permissions.FragmentCameIntoView;
 import io.auraapp.auraandroid.ui.permissions.PermissionsFragment;
+import io.auraapp.auraandroid.ui.tutorial.TutorialManager;
 import io.auraapp.auraandroid.ui.welcome.TermsFragment;
 
 import static io.auraapp.auraandroid.common.FormattedLog.i;
@@ -110,20 +111,25 @@ public class ScreenPager extends ViewPager {
                 getScreenAdapter().addPermissionsFragment();
                 goTo(PermissionsFragment.class, false);
             });
+            v(TAG, "Scheduled redirect to " + PermissionsFragment.class.getSimpleName());
             return true;
         }
 
         if (!AuraPrefs.hasAgreedToTerms(activity)) {
-            mHandler.post(() -> {
-                getScreenAdapter().addTermsFragment();
-                goTo(TermsFragment.class, false);
-            });
+//            getScreenAdapter().startUpdate(this);
+            getScreenAdapter().addTermsFragment();
+//            getScreenAdapter().finishUpdate(this);
+            goTo(TermsFragment.class, false);
+            v(TAG, "Scheduled redirect to " + TermsFragment.class.getSimpleName());
             return true;
         }
         if (!AuraPrefs.hasCompletedTutorial(activity)) {
             mHandler.post(() -> activity.getSharedServicesSet().mTutorialManager.open());
+            v(TAG, "Scheduled opening " + TutorialManager.class.getSimpleName());
             return true;
         }
+
+        v(TAG, "No redirects required");
         return false;
     }
 

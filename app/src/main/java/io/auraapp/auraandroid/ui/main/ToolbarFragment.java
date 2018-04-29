@@ -79,13 +79,12 @@ public class ToolbarFragment extends ContextViewFragment {
             }
             if (item.getItemId() == R.id.action_reset_terms) {
                 AuraPrefs.putHasAgreedToTerms(activity, false);
-                activity.getSharedServicesSet().mTutorialManager.close();
+                activity.getSharedServicesSet().mTutorialManager.complete();
                 activity.getSharedServicesSet().mPager.redirectIfNeeded(activity, null);
                 return true;
             }
             if (item.getItemId() == R.id.action_complete_tutorial) {
-                activity.getSharedServicesSet().mTutorialManager.setCompleted(true);
-                activity.getSharedServicesSet().mTutorialManager.close();
+                activity.getSharedServicesSet().mTutorialManager.complete();
                 return true;
             }
             if (item.getItemId() == R.id.action_finish) {
