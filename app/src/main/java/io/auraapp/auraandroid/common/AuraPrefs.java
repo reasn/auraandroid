@@ -47,7 +47,7 @@ public class AuraPrefs {
     }
 
     public static void putHasCompletedTutorial(Context context, boolean completed) {
-        get(context).edit().putBoolean(context.getString(R.string.prefs_terms_agreed), completed).apply();
+        get(context).edit().putBoolean(context.getString(R.string.prefs_tutorial_completed), completed).apply();
     }
 
     public static boolean shouldHideBrokenBtStackAlert(Context context) {

@@ -87,9 +87,11 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
                 break;
             }
         }
-        mItems.remove(position);
-        mItems.add(position, peer);
-        notifyItemChanged(position);
+        if (position != -1) {
+            mItems.remove(position);
+            mItems.add(position, peer);
+            notifyItemChanged(position);
+        }
     }
 
     /**

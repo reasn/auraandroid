@@ -71,6 +71,11 @@ public class ProfileFragment extends ContextViewFragment implements FragmentWith
 
         mSlogansRecyclerView = rootView.findViewById(R.id.profile_slogans_recycler);
 
+        // TODO is that the case? untested!
+        // Supresses scrolling on dataset changes
+        // Thanks https://stackoverflow.com/questions/31860185/nested-recyclerview-scrolls-to-the-first-item-on-notifyitemchanged
+        mSlogansRecyclerView.setItemAnimator(null);
+
         mColorButton.setOnClickListener($ -> mDialogManager.showColorPickerDialog(
                 mMyProfileManager.getProfile().getColor(),
                 mMyProfileManager.getProfile().getColorPickerPointX(),

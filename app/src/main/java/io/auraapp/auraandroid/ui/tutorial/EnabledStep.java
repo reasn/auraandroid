@@ -20,7 +20,7 @@ public class EnabledStep extends TutorialStep {
 
         ViewGroup overlay = screen.findViewById(R.id.tutorial_overlay);
         ((ViewGroup.MarginLayoutParams) overlay.getLayoutParams())
-                .setMargins(0, mRootView.findViewById(R.id.toolbar).getMeasuredHeight(), 0, 0);
+                .setMargins(0, mRootView.findViewById(R.id.toolbar_fragment).getMeasuredHeight(), 0, 0);
 
         mPager.setSwipeLocked(true);
         mPager.goTo(ProfileFragment.class, false);

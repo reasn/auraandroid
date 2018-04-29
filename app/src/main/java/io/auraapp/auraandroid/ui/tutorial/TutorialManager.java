@@ -40,7 +40,7 @@ public class TutorialManager {
 
         close();
         if (step == null) {
-            AuraPrefs.putHasCompletedTutorial(mContext, true);
+            setCompleted(true);
             return;
         }
         if (step.equals(EnabledStep.class)) {

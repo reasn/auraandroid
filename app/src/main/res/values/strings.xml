@@ -27,7 +27,7 @@
     <string name="terms_text">1. Data you enter is visible to nearby people.
         \n\n2. Nothing is sent over the internet.
         \n\n3. We don\'t collect any data.
-        \n\n4. Aura is and stays free
+        \n\n4. Aura is and stays free.
         \n\n5. Aura believes in humanism, freedom of speech, respect and equality of all people. If you don\'t, please uninstall it and read a wide variety of books.
         \n\n
     </string>
@@ -68,10 +68,10 @@
     <!--Dialog: Replace Slogan-->
     <string name="ui_profile_dialog_replace_title">Adopt Idea</string>
     <plurals name="ui_profile_dialog_replace_message">
-        <item quantity="zero">You can\'t have any ideas</item>
-        <item quantity="one">You can have only one idea. Please choose one of your idea to replace.</item>
-        <item quantity="two">You can have only two ideas. Please choose one of your idea to replace.</item>
-        <item quantity="other">You can have up to %d ideas. Please choose one of your idea to replace.</item>
+        <item quantity="zero">Your Aura can contain cannot have any ideas</item>
+        <item quantity="one">Your Aura can contain one idea. Please choose one of your idea to replace.</item>
+        <item quantity="two">Your Aura can contain two ideas. Please choose one of your idea to replace.</item>
+        <item quantity="other">Your Aura can contain up to %d ideas. Please choose one of your idea to replace.</item>
     </plurals>
     <string name="ui_profile_dialog_replace_confirm">Replace</string>
     <string name="ui_profile_dialog_replace_cancel">Cancel</string>
@@ -84,8 +84,8 @@
     <!-- World -->
     <string name="ui_world_toast_slogan_already_adopted">This idea is already in your Aura</string>
     <string name="ui_world_toast_cannot_add_no_space_available">Please delete on of your ideas before adding a new one</string>
-    <string name="ui_world_toast_refresh_no_peers">Refreshing …</string>
     <plurals name="ui_world_toast_refresh">
+        <item quantity="zero">Looking for nearby Auras…</item>
         <item quantity="one">Refreshing nearby ideas …</item>
         <item quantity="other">Refreshing nearby ideas …</item>
     </plurals>
@@ -101,13 +101,13 @@
         <item quantity="other">Others shared %d idea</item>
     </plurals>
     <string name="world_peer_slogan_adopt">:fire:</string>
-    <string name="world_peer_last_seen_lt_10s">Nearby</string>
-    <string name="world_peer_last_seen_lt_1min">Less than a minute ago</string>
-    <string name="world_peer_last_seen_lt_10min">Less than ##elapsed_minutes##" min ago</string>
-    <string name="world_peer_last_seen_lt_30min">Less than 30min ago</string>
-    <string name="world_peer_last_seen_lt_45min">Less than 45min ago</string>
-    <string name="world_peer_last_seen_lte_1h">Less than an hour ago</string>
-    <string name="world_peer_last_seen_gt_1h">More than an hour ago</string>
+    <string name="world_peer_last_seen_lt_10s">User is nearby</string>
+    <string name="world_peer_last_seen_lt_1min">User was nearby less than a minute ago</string>
+    <string name="world_peer_last_seen_lt_10min">User was nearby less than ##elapsed_minutes##" min ago</string>
+    <string name="world_peer_last_seen_lt_30min">User was nearby less than 30min ago</string>
+    <string name="world_peer_last_seen_lt_45min">User was nearby less than 45min ago</string>
+    <string name="world_peer_last_seen_lte_1h">User was nearby less than an hour ago</string>
+    <string name="world_peer_last_seen_gt_1h">User was nearby less than an hour ago</string>
 
     <!--Main Activity-->
     <string name="ui_main_toast_debug_view_enabled">Debug view enabled</string>
@@ -167,8 +167,8 @@
     <string name="prefs_notification_group_title">Notifications</string>
     <string name="prefs_notification_show_key">notification_show</string>
     <string name="prefs_notification_show_title">Show Notificatiton</string>
-    <string name="prefs_notification_show_summary_on">No notification shows up if you encounter another Aura</string>
-    <string name="prefs_notification_show_summary_off">A notification shows up if you encounter another Aura</string>
+    <string name="prefs_notification_show_summary_on">A notification shows up if you encounter another Aura</string>
+    <string name="prefs_notification_show_summary_off">No notification shows up if you encounter another Aura</string>
     <string name="prefs_notification_vibrate_key">notification_vibrate</string>
     <string name="prefs_notification_vibrate_title">Vibration</string>
     <string name="prefs_notification_vibrate_summary_on">Your phone will briefly vibrate if you encounter another Aura</string>
@@ -186,10 +186,10 @@
     <string name="prefs_retention_default">300000</string>
     <string name="prefs_feedback_key">feedback</string>
     <string name="prefs_feedback_title">Feedback</string>
-    <string name="prefs_feedback_summary">It would be great if you took a few minutes to help make Aura better!</string>
+    <string name="prefs_feedback_summary">Please take a few minutes to help make Aura better!</string>
     <string name="prefs_feedback_url">http://www.getaura.io/survey</string>
     <string name="prefs_about_title">About</string>
-    <string name="prefs_about_summary">Find </string>
+    <string name="prefs_about_summary">Copyright and version</string>
     <string name="prefs_about_key">about</string>
     <string name="prefs_about_dialog_title">About Aura</string>
     <string name="prefs_about_dialog_message">\nCopyright 2018\nVersion VERSION_NAME (build VERSION_CODE).\n</string>

@@ -13,8 +13,6 @@ import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.common.lists.ExpandableRecyclerAdapter;
 import io.auraapp.auraandroid.ui.common.lists.ExpandableViewHolder;
 
-import static io.auraapp.auraandroid.common.FormattedLog.quickDump;
-
 public class PeerSloganAdapter extends ExpandableRecyclerAdapter {
     ColorSet mColorSet;
     private final OnAdoptCallback mOnAdoptCallback;
@@ -39,7 +37,6 @@ public class PeerSloganAdapter extends ExpandableRecyclerAdapter {
     public void onBindViewHolder(@NonNull ExpandableViewHolder holder, int position) {
 
         PeerSloganHolder castHolder = ((PeerSloganHolder) holder);
-        quickDump("bind " + mColorSet + " - " + position + " / " + mItems.size());
         castHolder.mTextColor = mColorSet.mText;
         castHolder.mBackgroundColor = position % 2 == 0
                 ? mColorSet.mAccentBackground

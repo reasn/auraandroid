@@ -37,7 +37,7 @@
             style="@style/TutorialMessage.Bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Bla Bla Bla Lorem Ipsum  is simply galley of type and scrambled it to make a type specimen book " />
+            android:text="Bla Bla Bla Lorem Ipsum  is simply galley of type and scrambled it to make" />
 
         <LinearLayout
             style="@style/TutorialButtonWrapper"

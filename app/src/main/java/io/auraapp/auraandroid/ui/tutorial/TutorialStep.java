@@ -33,7 +33,6 @@ public abstract class TutorialStep {
         this.mPager = mPager;
     }
 
-
     int getRelativeTop(View view) {
         if (view.getParent() == mRootView)
             return view.getTop();

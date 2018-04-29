@@ -173,9 +173,7 @@ public class WorldFragment extends ContextViewFragment implements FragmentWithTo
 
     public void reflectState(Context context) {
 
-        mSwipeRefresh.setEnabled(isScanning()
-                && mPeers != null
-                && mPeers.size() > 0);
+        mSwipeRefresh.setEnabled(isScanning());
         mSwipeRefresh.setPeerCount(mPeers != null ? mPeers.size() : 0);
 
         mPeersRecycler.setVisibility(isScanning()

@@ -21,6 +21,11 @@ public class TextStep extends ProfileStatusHidingStep {
 
         ViewGroup overlay = screen.findViewById(R.id.tutorial_overlay);
 
+        mRootView.findViewById(R.id.profile_scroll_view).scrollTo(0, 0);
+        // Disables scrolling
+        // Thanks https://stackoverflow.com/questions/18652692/how-to-disable-scrollview-scrolling
+        mRootView.findViewById(R.id.profile_scroll_view).setOnTouchListener((v, event) -> true);
+
         ((ViewGroup.MarginLayoutParams) overlay.getLayoutParams())
                 .setMargins(0, getRelativeTop(R.id.profile_slogans_recycler), 0, 0);
 
@@ -29,6 +34,7 @@ public class TextStep extends ProfileStatusHidingStep {
 
     public void leave() {
         doLeave();
+        mRootView.findViewById(R.id.profile_scroll_view).setOnTouchListener(null);
     }
 
     @Override
