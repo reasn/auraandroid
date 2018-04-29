@@ -31,13 +31,14 @@
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
                 android:ellipsize="end"
+
                 android:maxLines="1"
                 android:padding="16dp"
                 android:paddingEnd="16dp"
                 android:paddingStart="0dp"
                 android:textColor="@color/black"
 
-                android:textSize="28sp" />
+                android:textSize="24sp" />
         </LinearLayout>
 
         <ScrollView
@@ -92,7 +93,7 @@
         android:layout_height="60dp"
         android:layout_gravity="end|bottom"
         android:layout_margin="26dp"
-        android:background="@drawable/icon_circle"
+        android:background="@mipmap/ic_launcher"
         android:padding="0dp"
         app:layout_anchor="@id/profile_scroll_view"
         app:layout_anchorGravity="bottom|end" />

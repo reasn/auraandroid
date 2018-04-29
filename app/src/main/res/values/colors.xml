@@ -22,7 +22,7 @@
     <color name="dark_blue">#3996d1</color>
     <color name="transparent">#00000000</color>
 
-    <color name="black_overlay">#cc000000</color>
+    <color name="black_overlay">#d5000000</color>
 
 
     <color name="world_peer_slogan_default">@color/black</color>

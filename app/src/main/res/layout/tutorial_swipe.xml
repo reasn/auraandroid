@@ -16,7 +16,7 @@
             style="@style/TutorialHeadlineText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Swipe left and right" />
+            android:text="◀︎ Swipe left and right ▶︎" />
 
         <TextView
             style="@style/TutorialMessage.Bottom"
