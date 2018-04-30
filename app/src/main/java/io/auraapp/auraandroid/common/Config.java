@@ -19,7 +19,7 @@ public class Config {
     public static final float PROFILE_DEFAULT_COLOR_X = 0.515278f;
     public static final float PROFILE_DEFAULT_COLOR_Y = 0.998737f;
 
-    public static final int PROFILE_NAME_MAX_LENGTH = 40;
+    public static final int PROFILE_NAME_MAX_LENGTH = 30;
 
     public static final int PROFILE_TEXT_MAX_LENGTH = 400;
     public static final int PROFILE_TEXT_MAX_LINE_BREAKS = 5;
