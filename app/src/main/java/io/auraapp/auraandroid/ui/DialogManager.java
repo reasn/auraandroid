@@ -229,7 +229,7 @@ public class DialogManager {
                 .build()
                 .show();
 
-        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.PROFILE_NAME_MAX_LENGTH)});
+        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.PROFILE_SLOGANS_MAX_LENGTH)});
         editText.requestFocus();
 
         // Some phones have problems with filtering newline characters using an InputFilter.
