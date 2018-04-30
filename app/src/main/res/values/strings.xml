@@ -5,7 +5,7 @@
     <string name="profile_default_name">:ghost: Anonymous</string>
     <string name="profile_default_text">I am an Aura user</string>
 
-    <string name="ui_main_share_text">Hey check out Aura, I promise you haven\'t seen any app like it :fire: https://www.getaura.io</string>
+    <string name="ui_main_share_text">Hi, check out Aura, I promise you haven\'t seen any app like it :fire: https://www.getaura.io</string>
 
     <!-- Toolbar -->
     <string name="ui_toolbar_enable_on">On\u00A0\u00A0</string>
@@ -201,7 +201,7 @@
     <string name="world_peer_no_name">Somebody</string>
     <string name="toolbar_complete_tutorial">Complete Tutorial</string>
     <string name="profile_no_slogans">Click the button below\nto add your first idea.</string>
-    <string name="world_not_scanning">Nearby Auras are shown here\nas soon as your Aura is on.</string>
+    <string name="world_not_scanning">Nearby Auras are shown here\when your Aura is on.</string>
     <string name="toolbar_finish">Exit</string>
     <string name="settings_title">Aura Settings</string>
     <string name="world_peer_slogan_adopt_toast">Keep finger down to adopt idea</string>

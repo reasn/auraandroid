@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/wraaaa"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_gravity="end"
     android:background="@color/white"
+    android:foregroundGravity="bottom"
     android:orientation="vertical">
 
     <LinearLayout
@@ -63,13 +65,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 
-                    <!--<io.auraapp.auraandroid.ui.common.MonoSpaceText-->
-                    <!--android:id="@+id/profile_my_text"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_marginBottom="10dp"-->
-                    <!--app:minLines="5" />-->
-
                 </LinearLayout>
 
                 <TextView
@@ -92,9 +87,9 @@
         android:layout_gravity="end|bottom"
         android:layout_margin="26dp"
         android:background="@mipmap/ic_launcher"
-        android:padding="0dp"
-        app:layout_anchor="@id/profile_scroll_view"
-        app:layout_anchorGravity="bottom|end" />
+        android:padding="0dp" />
+    <!--app:layout_anchor="@id/wraaaa"-->
+    <!--app:layout_anchorGravity="bottom|end" />-->
 
-</android.support.design.widget.CoordinatorLayout>
+</FrameLayout>
 
