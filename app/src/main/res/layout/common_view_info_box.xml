@@ -48,10 +48,7 @@
     <Button
         android:id="@+id/button"
         style="@style/FlatButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:background="@color/green"
-        android:shadowRadius="0"
         android:visibility="gone" />
 
     <TextView

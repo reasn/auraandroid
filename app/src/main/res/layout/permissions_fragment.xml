@@ -1,67 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical">
 
     <LinearLayout
-        android:id="@+id/granted"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:background="@color/green"
-        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <ImageView
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:contentDescription="Aura Logo"
-            android:src="@drawable/icon_circle" />
 
-        <!--<TextView-->
-        <!--android:id="@+id/granted_emoji"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_gravity="center_horizontal"-->
-        <!--android:paddingBottom="20dp"-->
-        <!--android:textColor="@color/black"-->
-        <!--android:textSize="120dp" />-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/yellow"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_marginBottom="30dp"
+                android:layout_marginTop="30dp"
+                android:contentDescription="@string/permissions_logo_description"
+                android:src="@mipmap/ic_launcher" />
+
+        </LinearLayout>
 
         <TextView
-            android:id="@+id/granted_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:paddingBottom="40dp"
-            android:textColor="@color/black"
-            android:textSize="30sp" />
-    </LinearLayout>
+            style="@style/FlatTitle"
+            android:text="@string/permissions_heading" />
 
-    <LinearLayout
-        android:id="@+id/not_granted"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:background="@color/yellow"
-        android:gravity="center_horizontal"
-        android:orientation="vertical">
-
-        <io.auraapp.auraandroid.ui.common.InfoBox
-            android:id="@+id/communicator_state_info_box"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:button_caption="@string/permissions_request"
-            app:emoji=":sun_behind_small_cloud:"
-            app:heading="@string/permissions_heading"
-            app:second_text="@string/permissions_second_text"
-            app:text="@string/permissions_text" />
+            android:orientation="vertical"
+            android:paddingBottom="15dp"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp">
 
-        <Button
-            android:id="@+id/permissions_show_app_settings"
-            style="@style/FlatButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/blue" />
+            <TextView
+                style="@style/FlatMessage.NoHorizontalMargin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:text="@string/permissions_text" />
+
+
+            <LinearLayout style="@style/FlatButton.Wrapper">
+
+                <Button
+                    android:id="@+id/permissions_grant_permission"
+                    style="@style/FlatButton"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@color/green"
+                    android:text="@string/permissions_request" />
+            </LinearLayout>
+
+            <TextView
+                style="@style/FlatMessage.NoHorizontalMargin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:text="@string/permissions_second_text" />
+
+            <LinearLayout style="@style/FlatButton.Wrapper">
+
+                <Button
+                    android:id="@+id/permissions_show_app_settings"
+                    style="@style/FlatButton"
+                    android:layout_weight="1"
+                    android:background="@color/blue"
+                    android:text="@string/permissions_appSettings" />
+            </LinearLayout>
+        </LinearLayout>
+
     </LinearLayout>
-
-</FrameLayout>
+</ScrollView>

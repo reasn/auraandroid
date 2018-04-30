@@ -57,11 +57,13 @@ public class ToolbarFragment extends ContextViewFragment {
             String newFragmentClass = intent.getStringExtra(IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_EXTRA_NEW);
             if (newFragmentClass.equals(TermsFragment.class.toString())
                     || newFragmentClass.equals(PermissionsFragment.class.toString())) {
-                mEnabledSwitch.setVisibility(View.GONE);
-                mToolbar.getMenu().findItem(R.id.action_tutorial).setVisible(false);
+                mToolbar.setVisibility(View.GONE);
+//                mEnabledSwitch.setVisibility(View.GONE);
+//                mToolbar.getMenu().findItem(R.id.action_tutorial).setVisible(false);
             } else {
-                mEnabledSwitch.setVisibility(View.VISIBLE);
-                mToolbar.getMenu().findItem(R.id.action_tutorial).setVisible(true);
+                mToolbar.setVisibility(View.VISIBLE);
+//                mEnabledSwitch.setVisibility(View.VISIBLE);
+//                mToolbar.getMenu().findItem(R.id.action_tutorial).setVisible(true);
             }
         }
     };

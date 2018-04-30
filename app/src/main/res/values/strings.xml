@@ -15,11 +15,11 @@
     <string name="ui_toolbar_refresh">Refresh</string>
 
     <!-- Permissions Missing -->
-    <string name="permissions_heading">Welcome!</string>
-    <string name="permissions_text">Aura can only work with some basic permissions.\n\nDon\'t worry, no data will be transmitted via the internet. You're safe.</string>
+    <string name="permissions_heading">Welcome to Aura!</string>
+    <string name="permissions_text">Aura needs your permission to work.\nNo worries, no data is sent over the internet.</string>
     <string name="permissions_request">Grant Permission</string>
-    <string name="permissions_second_text">If clicking the button above doesn\'t work, grant the permissions manually.\nClick the button below, then "Permissions" and grant Aura the "Location" permission.</string>
-    <string name="permissions_appSettings">Show Settings</string>
+    <string name="permissions_second_text">To manually grant the permission, click the button below, then "Permissions" and grant Aura the "Location" permission.</string>
+    <string name="permissions_appSettings">App Settings</string>
     <string name="permissions_granted_text">Great, you\'re all set!\nSwipe to start.</string>
 
     <!-- Privacy -->
@@ -207,5 +207,6 @@
     <string name="toolbar_finish">Exit</string>
     <string name="settings_title">Aura Settings</string>
     <string name="world_peer_slogan_adopt_toast">Keep finger down to adopt idea</string>
+    <string name="permissions_logo_description">Aura Logo</string>
 
 </resources>
