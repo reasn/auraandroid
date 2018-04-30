@@ -12,7 +12,9 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.util.HashSet;
@@ -27,7 +29,6 @@ import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.SharedServicesSet;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxyState;
-import io.auraapp.auraandroid.ui.common.InfoBox;
 import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfile;
 import io.auraapp.auraandroid.ui.world.list.PeerAdapter;
@@ -54,8 +55,10 @@ public class WorldFragment extends ContextViewFragment {
     private CommunicatorProxyState mComProxyState = null;
     private Set<Peer> mPeers = new HashSet<>();
     private RecyclerView mPeersRecycler;
-    private InfoBox mPeersInfoBox;
-    private ProgressBar mSpinner;
+    private LinearLayout mStartingWrapper;
+    private View mNoPeersWrapper;
+    private Button mInviteButton;
+    private ScrollView mScrollView;
     private TextView mNotScanningMessage;
     private String mMyColor;
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -122,15 +125,16 @@ public class WorldFragment extends ContextViewFragment {
                 ));
         v(TAG, "Receivers registered");
 
-
         SharedServicesSet servicesSet = activity.getSharedServicesSet();
         mPeers = servicesSet.mCommunicatorProxy.getPeers();
         mComProxyState = servicesSet.mCommunicatorProxy.getState();
         mMyColor = servicesSet.mMyProfileManager.getColor();
 
+        mScrollView = rootView.findViewById(R.id.profile_scroll_view);
         mNotScanningMessage = rootView.findViewById(R.id.world_not_scanning);
-        mPeersInfoBox = rootView.findViewById(R.id.peer_slogans_info_box);
-        mSpinner = rootView.findViewById(R.id.world_spinner);
+        mStartingWrapper = rootView.findViewById(R.id.world_starting_wrapper);
+        mNoPeersWrapper = rootView.findViewById(R.id.world_no_peers_wrapper);
+        mInviteButton = rootView.findViewById(R.id.world_invite);
         mSwipeRefresh = rootView.findViewById(R.id.fake_swipe_to_refresh);
         mSwipeRefresh.setEnabled(false);
         mPeersRecycler = rootView.findViewById(R.id.profile_slogans_recycler);
@@ -168,74 +172,51 @@ public class WorldFragment extends ContextViewFragment {
         mPeerAdapter.onPause();
     }
 
-    private boolean isScanning() {
-        return mComProxyState.mEnabled
-                && mComProxyState.mCommunicatorState != null
-                && mComProxyState.mCommunicatorState.mScanning;
-    }
-
     public void reflectState(Context context) {
 
-        mSwipeRefresh.setEnabled(isScanning());
+        boolean scanning = mComProxyState.mEnabled
+                && mComProxyState.mCommunicatorState != null
+                && mComProxyState.mCommunicatorState.mScanning;
+
+        mScrollView.setBackgroundColor(context.getResources().getColor(
+                mPeers.size() > 0
+                        ? R.color.yellow
+                        : R.color.white));
+        mPeersRecycler.setVisibility(scanning ? View.VISIBLE : View.GONE);
+        mNotScanningMessage.setVisibility(scanning ? View.GONE : View.VISIBLE);
+        mSwipeRefresh.setEnabled(scanning);
         mSwipeRefresh.setPeerCount(mPeers != null ? mPeers.size() : 0);
 
-        mPeersRecycler.setVisibility(isScanning()
-                ? View.VISIBLE
-                : View.GONE
-        );
 
-        mNotScanningMessage.setVisibility(isScanning()
-                ? View.GONE
-                : View.VISIBLE);
-
-        updatePeersInfoBox(context);
-    }
-
-    private void updatePeersInfoBox(Context context) {
-
-        CommunicatorState communicatorState = mComProxyState.mCommunicatorState;
-
-        if (!isScanning() || mPeers.size() > 0) {
-            // Show mPeersInfoBox only if there's no communicator state info box visible and there's no peers
-            mPeersInfoBox.setVisibility(View.GONE);
-            mSpinner.setVisibility(View.GONE);
+        if (!scanning || mPeers.size() > 0) {
+            mStartingWrapper.setVisibility(View.GONE);
+            mNoPeersWrapper.setVisibility(View.GONE);
             return;
         }
 
-        mSpinner.setVisibility(View.VISIBLE);
-
+        CommunicatorState communicatorState = mComProxyState.mCommunicatorState;
         long scanDuration = System.currentTimeMillis() - communicatorState.mScanStartTimestamp;
-        if (scanDuration < Config.MAIN_LOOKING_AROUND_SHOW_DURATION) {
 
+        if (scanDuration < Config.MAIN_LOOKING_AROUND_SHOW_DURATION) {
             // Scan just started, let's make sure we hide the "looking around" info if
             // nothing is found for some time.
-            mHandler.postDelayed(() -> updatePeersInfoBox(context), Config.MAIN_LOOKING_AROUND_SHOW_DURATION);
-
-            mPeersInfoBox.setHeading(R.string.ui_world_starting_heading);
-            mPeersInfoBox.setText(R.string.ui_world_starting_text);
-            mPeersInfoBox.setEmoji(":satellite_antenna:");
-            mPeersInfoBox.hideButton();
-
-        } else {
-            mPeersInfoBox.setHeading(R.string.ui_world_no_peers_info_heading);
-            mPeersInfoBox.setText(R.string.ui_world_no_peers_info_text);
-            mPeersInfoBox.setEmoji(":see_no_evil:");
-            mPeersInfoBox.showButton(
-                    R.string.world_no_peers_info_heading_cta,
-                    R.string.ui_world_no_peers_info_second_text,
-                    $ -> {
-                        Intent sendIntent = new Intent();
-                        sendIntent.setAction(Intent.ACTION_SEND);
-                        sendIntent.putExtra(
-                                Intent.EXTRA_TEXT,
-                                EmojiHelper.replaceShortCode(context.getString(R.string.ui_main_share_text))
-                        );
-                        sendIntent.setType("text/plain");
-                        context.startActivity(sendIntent);
-                    });
+            mHandler.postDelayed(() -> reflectState(context), Config.MAIN_LOOKING_AROUND_SHOW_DURATION);
+            mStartingWrapper.setVisibility(View.VISIBLE);
+            mNoPeersWrapper.setVisibility(View.GONE);
+            return;
         }
 
-        mPeersInfoBox.setBackgroundColor(context.getResources().getColor(R.color.infoBoxWarning));
-        mPeersInfoBox.setVisibility(View.VISIBLE);
+        mStartingWrapper.setVisibility(View.GONE);
+        mNoPeersWrapper.setVisibility(View.VISIBLE);
+        mInviteButton.setOnClickListener($ -> {
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.putExtra(
+                    Intent.EXTRA_TEXT,
+                    EmojiHelper.replaceShortCode(context.getString(R.string.ui_main_share_text))
+            );
+            sendIntent.setType("text/plain");
+            context.startActivity(sendIntent);
+        });
     }
 }

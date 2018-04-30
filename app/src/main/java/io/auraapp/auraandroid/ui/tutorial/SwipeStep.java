@@ -22,12 +22,12 @@ public class SwipeStep extends TutorialStep {
 
     @Override
     public Class<? extends TutorialStep> getPrevious() {
-        return EnabledStep.class;
+        return SloganEditStep.class;
     }
 
     @Override
     public Class<? extends TutorialStep> getNextStep() {
-        return ColorStep.class;
+        return null;
     }
 
 }

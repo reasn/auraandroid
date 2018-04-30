@@ -10,7 +10,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -33,20 +32,14 @@
             android:text="@string/permissions_heading" />
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="15dp"
-            android:paddingLeft="15dp"
-            android:paddingRight="15dp">
+            style="@style/FlatContentWrapper"
+            android:paddingBottom="15dp">
 
             <TextView
                 style="@style/FlatMessage.NoHorizontalMargin"
-                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/white"
                 android:text="@string/permissions_text" />
-
 
             <LinearLayout style="@style/FlatButton.Wrapper">
 
@@ -61,7 +54,6 @@
 
             <TextView
                 style="@style/FlatMessage.NoHorizontalMargin"
-                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/white"
                 android:text="@string/permissions_second_text" />

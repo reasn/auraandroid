@@ -90,12 +90,12 @@
         <item quantity="one">Refreshing nearby ideas …</item>
         <item quantity="other">Refreshing nearby ideas …</item>
     </plurals>
-    <string name="ui_world_no_peers_info_heading">Nobody Around</string>
+    <string name="world_no_peers_heading">Nobody Around</string>
     <string name="ui_world_no_peers_info_text">Make it more exciting - invite people!</string>
-    <string name="world_no_peers_info_heading_cta">:fire: Invite Friends!</string>
+    <string name="world_no_peers_invite">Invite Friends!</string>
     <string name="ui_world_no_peers_info_second_text">Should be seeing someone? Try turning Bluetooth off and on again.</string>
-    <string name="ui_world_starting_heading">Looking around</string>
-    <string name="ui_world_starting_text">Let\'s give it a few seconds to see if there\'s anybody around.</string>
+    <string name="world_starting_heading">Looking for Auras</string>
+    <string name="world_starting_text">Let\'s give it a few seconds to see if there\'s anybody around.</string>
     <plurals name="ui_world_peers_heading_slogans">
         <item quantity="zero">No ideas nearby</item>
         <item quantity="one">Others shared one idea</item>

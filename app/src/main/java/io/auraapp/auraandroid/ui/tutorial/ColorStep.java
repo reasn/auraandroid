@@ -32,7 +32,7 @@ public class ColorStep extends ProfileStatusHidingStep {
 
     @Override
     public Class<? extends TutorialStep> getPrevious() {
-        return SwipeStep.class;
+        return EnabledStep.class;
     }
 
     @Override

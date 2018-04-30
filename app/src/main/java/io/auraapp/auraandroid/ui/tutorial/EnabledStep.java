@@ -46,6 +46,6 @@ public class EnabledStep extends TutorialStep {
 
     @Override
     public Class<? extends TutorialStep> getNextStep() {
-        return SwipeStep.class;
+        return ColorStep.class;
     }
 }
