@@ -44,6 +44,11 @@ public class IntentFactory {
     public final static String LOCAL_MY_PROFILE_REPLACED_ACTION = prefix + "local.myProfile.sloganReplaced";
     public final static String LOCAL_MY_PROFILE_EXTRA_PROFILE = prefix + "local.myProfile.extraProfile";
 
+
+    public static final String LOCAL_SCREEN_PAGER_CHANGED_ACTION = prefix + "local.screenPagerChanged";
+    public static final String LOCAL_SCREEN_PAGER_CHANGED_EXTRA_PREVIOUS = prefix + "local.screenPagerChanges.extraPrevious";
+    public static final String LOCAL_SCREEN_PAGER_CHANGED_EXTRA_NEW = prefix + "local.screenPagerChanges.extraNew";
+
     public static IntentFilter communicatorIntentFilter() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(INTENT_COMMUNICATOR_STATE_UPDATED_ACTION);

@@ -1,5 +1,6 @@
 package io.auraapp.auraandroid.ui.main;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -7,11 +8,13 @@ import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -22,14 +25,16 @@ import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
-import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
+import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.ScreenPager;
 import io.auraapp.auraandroid.ui.common.ColorHelper;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxy;
 import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
+import io.auraapp.auraandroid.ui.permissions.PermissionsFragment;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 import io.auraapp.auraandroid.ui.settings.SettingsActivity;
+import io.auraapp.auraandroid.ui.welcome.TermsFragment;
 
 import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_COLOR_CHANGED;
@@ -45,6 +50,21 @@ public class ToolbarFragment extends ContextViewFragment {
     private final List<Long> mToolbarIconClicks = new ArrayList<>();
     private ScreenPager mPager;
     private MyProfileManager mMyProfileManager;
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // TODO animate / make smoother, first trial didn't work, null pointers and animation wasn't visible
+            String newFragmentClass = intent.getStringExtra(IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_EXTRA_NEW);
+            if (newFragmentClass.equals(TermsFragment.class.toString())
+                    || newFragmentClass.equals(PermissionsFragment.class.toString())) {
+                mEnabledSwitch.setVisibility(View.GONE);
+                mToolbar.getMenu().findItem(R.id.action_tutorial).setVisible(false);
+            } else {
+                mEnabledSwitch.setVisibility(View.VISIBLE);
+                mToolbar.getMenu().findItem(R.id.action_tutorial).setVisible(true);
+            }
+        }
+    };
 
     @Override
     protected int getLayoutResource() {
@@ -63,6 +83,11 @@ public class ToolbarFragment extends ContextViewFragment {
         mCommunicatorProxy = activity.getSharedServicesSet().mCommunicatorProxy;
         mMyProfileManager = activity.getSharedServicesSet().mMyProfileManager;
         mPager = activity.getSharedServicesSet().mPager;
+
+        LocalBroadcastManager.getInstance(activity).registerReceiver(
+                mReceiver,
+                IntentFactory.createFilter(IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_ACTION)
+        );
 
         mToolbar = (Toolbar) rootView;
         activity.setSupportActionBar(mToolbar);
@@ -123,6 +148,12 @@ public class ToolbarFragment extends ContextViewFragment {
     }
 
     @Override
+    protected void onPauseWithContext(MainActivity activity) {
+        super.onPauseWithContext(activity);
+        LocalBroadcastManager.getInstance(activity).unregisterReceiver(mReceiver);
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.toolbar_menu, menu);
 
@@ -149,14 +180,6 @@ public class ToolbarFragment extends ContextViewFragment {
                 mEnabledSwitch.setTextColor(ColorHelper.getTextColor(Color.parseColor(color)));
             }
         });
-
-        // TODO animate / make smoother, first trial didn't work, null pointers and animation wasn't visible
-        ScreenPager.ChangeCallback visibilityUpdater = fragment ->
-                enabledItem.setVisible(fragment instanceof FragmentWithToolbarButtons);
-
-        mPager.removeChangeListener(visibilityUpdater);
-        mPager.addChangeListener(visibilityUpdater);
-        visibilityUpdater.onChange(mPager.getScreenAdapter().getItem(mPager.getCurrentItem()));
 
         // Managed programmatically because offText XML attribute has no effect for SwitchCompat in menu item
         mEnabledSwitch.setText(context.getString(enabled

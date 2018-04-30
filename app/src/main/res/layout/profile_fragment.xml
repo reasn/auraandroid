@@ -31,13 +31,11 @@
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
                 android:ellipsize="end"
-
                 android:maxLines="1"
                 android:padding="16dp"
                 android:paddingEnd="16dp"
                 android:paddingStart="0dp"
                 android:textColor="@color/black"
-
                 android:textSize="24sp" />
         </LinearLayout>
 
@@ -63,7 +61,7 @@
                         android:id="@+id/profile_my_text"
                         style="@style/ProfileText"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content" />
 
                     <!--<io.auraapp.auraandroid.ui.common.MonoSpaceText-->
                     <!--android:id="@+id/profile_my_text"-->

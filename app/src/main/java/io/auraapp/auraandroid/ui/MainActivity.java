@@ -3,6 +3,7 @@ package io.auraapp.auraandroid.ui;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.StringRes;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
@@ -57,7 +58,10 @@ public class MainActivity extends AppCompatActivity {
         mSharedServicesSet.mPager = findViewById(R.id.pager);
 
         mSharedServicesSet.mTutorialManager = new TutorialManager(this, findViewById(R.id.activity_wrapper), mSharedServicesSet.mPager);
-        mSharedServicesSet.mPager.setAdapter(new ScreenPagerAdapter(getSupportFragmentManager()));
+        mSharedServicesSet.mPager.setAdapter(new ScreenPagerAdapter(
+                getSupportFragmentManager(),
+                LocalBroadcastManager.getInstance(this)
+        ));
         mSharedServicesSet.mPager.redirectIfNeeded(this, null);
 
         mMyProfileManager.addChangedCallback(event -> {

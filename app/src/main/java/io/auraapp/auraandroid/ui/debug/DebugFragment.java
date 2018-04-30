@@ -27,7 +27,6 @@ import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.common.Timer;
-import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
 import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.SharedServicesSet;
 import io.auraapp.auraandroid.ui.common.ColorPicker;
@@ -44,10 +43,11 @@ import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATED_EX
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION;
 import static io.auraapp.auraandroid.ui.common.CommunicatorProxy.replacePeer;
 
-public class DebugFragment extends ContextViewFragment implements FragmentWithToolbarButtons {
+public class DebugFragment extends ContextViewFragment {
 
     private static final String TAG = "@aura/ui/permissions/" + DebugFragment.class.getSimpleName();
     private static final String characters = "📜📡💚😇abcdefghijklmnopqrstuvwxyz1234567890 ,.-öä#ü+!\"§$%&/()=?`";
+    public static final long FRAGMENT_ID = 5036;
     private final Handler mHandler = new Handler();
     private final Timer mTimer = new Timer(mHandler);
     private Timer.Timeout mRefreshTimeout;

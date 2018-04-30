@@ -12,19 +12,18 @@ import android.widget.TextView;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.DialogManager;
-import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
 import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.SharedServicesSet;
 import io.auraapp.auraandroid.ui.common.ColorHelper;
 import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
-import io.auraapp.auraandroid.ui.permissions.FragmentCameIntoView;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 
 import static io.auraapp.auraandroid.common.FormattedLog.i;
 
-public class ProfileFragment extends ContextViewFragment implements FragmentWithToolbarButtons, FragmentCameIntoView {
+public class ProfileFragment extends ContextViewFragment {
 
     private static final String TAG = "@aura/ui/profile/fragment";
+    public static final long FRAGMENT_ID = 5034;
     private RecyclerView mSlogansRecyclerView;
     private TextView mNameView;
     private TextView mTextView;
@@ -108,11 +107,6 @@ public class ProfileFragment extends ContextViewFragment implements FragmentWith
         mMyProfileManager.removeChangedCallback(mProfileChangedCallback);
         mMyProfileManager.addChangedCallback(mProfileChangedCallback);
 
-    }
-
-    @Override
-    public void cameIntoView(MainActivity activity) {
-        activity.getSharedServicesSet().mPager.getScreenAdapter().removeTermsFragment();
     }
 
     private void bindSlogansRecycler(Context context, ViewGroup rootView) {

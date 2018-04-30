@@ -24,7 +24,6 @@ import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Peer;
-import io.auraapp.auraandroid.ui.FragmentWithToolbarButtons;
 import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.SharedServicesSet;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxyState;
@@ -44,9 +43,10 @@ import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_COLOR
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_EXTRA_PROFILE;
 import static io.auraapp.auraandroid.ui.common.CommunicatorProxy.replacePeer;
 
-public class WorldFragment extends ContextViewFragment implements FragmentWithToolbarButtons {
+public class WorldFragment extends ContextViewFragment {
 
     private static final String TAG = "@aura/ui/world/fragment";
+    public static final long FRAGMENT_ID = 5035;
     private Handler mHandler = new Handler();
     private PeerAdapter mPeerAdapter;
     private FakeSwipeRefreshLayout mSwipeRefresh;

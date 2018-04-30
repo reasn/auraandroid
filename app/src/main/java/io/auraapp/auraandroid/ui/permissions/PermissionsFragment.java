@@ -1,11 +1,14 @@
 package io.auraapp.auraandroid.ui.permissions;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.provider.Settings;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -13,6 +16,7 @@ import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.EmojiHelper;
+import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.PermissionHelper;
 import io.auraapp.auraandroid.common.Timer;
 import io.auraapp.auraandroid.ui.MainActivity;
@@ -22,18 +26,36 @@ import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
 import io.auraapp.auraandroid.ui.profile.ProfileFragment;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static io.auraapp.auraandroid.common.FormattedLog.quickDump;
 
 public class PermissionsFragment extends ContextViewFragment {
 
     private static final String TAG = "@aura/ui/permissions/" + PermissionsFragment.class.getSimpleName();
     private static final int REQUEST_CODE_LOCATION_REQUEST = 149;
     private static final int REQUEST_CODE_APP_SETTINGS = 144;
+    public static final long FRAGMENT_ID = 5032;
 
     private final Handler mHandler = new Handler();
     private final Timer mTimer = new Timer(mHandler);
     private Timer.Timeout mCheckTimeout;
     private ScreenPager mPager;
     private boolean mRedirected = false;
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            quickDump(intent);
+            String newFragmentClass = intent.getStringExtra(IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_EXTRA_NEW);
+            if (PermissionsFragment.class.toString().equals(newFragmentClass)) {
+                mPager.setSwipeLocked(true);
+            }
+
+            String previousFragmentClass = intent.getStringExtra(IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_EXTRA_PREVIOUS);
+            if (mPager != null && PermissionsFragment.class.toString().equals(previousFragmentClass)) {
+                mPager.getScreenAdapter().remove(PermissionsFragment.class);
+            }
+        }
+    };
 
     @Override
     protected int getLayoutResource() {
@@ -44,6 +66,10 @@ public class PermissionsFragment extends ContextViewFragment {
     protected void onResumeWithContextAndView(MainActivity activity, ViewGroup rootView) {
 
         mPager = activity.getSharedServicesSet().mPager;
+        LocalBroadcastManager.getInstance(activity).registerReceiver(
+                mReceiver,
+                IntentFactory.createFilter(IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_ACTION)
+        );
 
         InfoBox infoBox = rootView.findViewById(R.id.communicator_state_info_box);
         infoBox.setButtonClickListener($ -> {
@@ -80,8 +106,9 @@ public class PermissionsFragment extends ContextViewFragment {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
+    protected void onPauseWithContext(MainActivity activity) {
+        super.onPauseWithContext(activity);
+        LocalBroadcastManager.getInstance(activity).unregisterReceiver(mReceiver);
         Timer.clear(mCheckTimeout);
     }
 
