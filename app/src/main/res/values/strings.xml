@@ -23,13 +23,14 @@
     <string name="permissions_granted_text">Great, you\'re all set!\nSwipe to start.</string>
 
     <!-- Privacy -->
-    <string name="terms_heading">Welcome!</string>
-    <string name="terms_text">1. Data you enter is visible to nearby people.
-        \n\n2. Nothing is sent over the internet.
-        \n\n3. We don\'t collect any data.
-        \n\n4. Aura is and stays free.
-        \n\n5. Aura believes in humanism, freedom of speech, respect and equality of all people. If you don\'t, please uninstall it and read a wide variety of books.
-        \n\n
+    <string name="terms_heading">Terms of Aura</string>
+    <string name="terms_text"><![CDATA[
+    <p>1. Data you enter is visible to nearby people.</p>
+        <p>2. Nothing is sent over the internet.</p>
+        <p>3. We don\'t collect any data.</p>
+        <p>4. Aura is and stays free.</p>
+        <p>5. Aura believes in humanism, freedom of speech, respect and equality of all people. If you don\'t, please uninstall it and read a wide variety of books.</p>
+         ]]>
     </string>
     <string name="terms_disagree">Disagree</string>
     <string name="terms_agree">Agree</string>

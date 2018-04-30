@@ -4,7 +4,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.Html;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.AuraPrefs;
@@ -61,6 +63,9 @@ public class TermsFragment extends ContextViewFragment {
         LocalBroadcastManager.getInstance(activity).registerReceiver(
                 mReceiver,
                 IntentFactory.createFilter(IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_ACTION)
+        );
+        ((TextView) rootView.findViewById(R.id.terms_text)).setText(
+                Html.fromHtml(activity.getString(R.string.terms_text))
         );
     }
 

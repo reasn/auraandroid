@@ -23,6 +23,7 @@
                 android:text="@string/terms_heading" />
 
             <TextView
+                android:id="@+id/terms_text"
                 style="@style/FlatMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
