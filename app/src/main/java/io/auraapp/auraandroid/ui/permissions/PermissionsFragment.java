@@ -60,7 +60,10 @@ public class PermissionsFragment extends ContextViewFragment {
                 mReceiver,
                 IntentFactory.createFilter(IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_ACTION)
         );
-        mPager.setSwipeLocked(true);
+        // If app starts with this fragment, the receiver will never fire so we check here
+        if (mPager.getScreenAdapter().getCurrentItem() == this) {
+            mPager.setSwipeLocked(true);
+        }
         mHandler.post(() -> continuouslyCheckForPermissions(activity));
 
         rootView.findViewById(R.id.permissions_grant_permission).setOnClickListener($ -> {

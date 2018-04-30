@@ -13,7 +13,7 @@
     <TextView
         android:id="@+id/common_dialog_message"
         style="@style/FlatMessage"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone" />
 

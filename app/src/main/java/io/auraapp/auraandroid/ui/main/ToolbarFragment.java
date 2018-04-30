@@ -8,6 +8,7 @@ import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
@@ -53,18 +54,9 @@ public class ToolbarFragment extends ContextViewFragment {
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            // TODO animate / make smoother, first trial didn't work, null pointers and animation wasn't visible
-            String newFragmentClass = intent.getStringExtra(IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_EXTRA_NEW);
-            if (newFragmentClass.equals(TermsFragment.class.toString())
-                    || newFragmentClass.equals(PermissionsFragment.class.toString())) {
-                mToolbar.setVisibility(View.GONE);
-//                mEnabledSwitch.setVisibility(View.GONE);
-//                mToolbar.getMenu().findItem(R.id.action_tutorial).setVisible(false);
-            } else {
-                mToolbar.setVisibility(View.VISIBLE);
-//                mEnabledSwitch.setVisibility(View.VISIBLE);
-//                mToolbar.getMenu().findItem(R.id.action_tutorial).setVisible(true);
-            }
+            updateVisibilityAccordingToCurrentlyVisibleScreen(
+                    intent.getStringExtra(IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_EXTRA_NEW)
+            );
         }
     };
 
@@ -77,6 +69,16 @@ public class ToolbarFragment extends ContextViewFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
+    }
+
+    private void updateVisibilityAccordingToCurrentlyVisibleScreen(String currentFragmentClass) {
+        // TODO animate / make smoother, first trial didn't work, null pointers and animation wasn't visible
+        if (TermsFragment.class.toString().equals(currentFragmentClass)
+                || PermissionsFragment.class.toString().equals(currentFragmentClass)) {
+            mToolbar.setVisibility(View.GONE);
+        } else {
+            mToolbar.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -93,6 +95,13 @@ public class ToolbarFragment extends ContextViewFragment {
 
         mToolbar = (Toolbar) rootView;
         activity.setSupportActionBar(mToolbar);
+
+        // If app starts with this fragment, the receiver will never fire so we check here
+        @Nullable
+        Fragment currentItem = mPager.getScreenAdapter().getCurrentItem();
+        updateVisibilityAccordingToCurrentlyVisibleScreen(currentItem != null
+                ? currentItem.getClass().toString()
+                : "null");
 
         mToolbar.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.action_settings) {

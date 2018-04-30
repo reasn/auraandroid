@@ -16,8 +16,6 @@ import io.auraapp.auraandroid.ui.ScreenPager;
 import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
 import io.auraapp.auraandroid.ui.profile.ProfileFragment;
 
-import static io.auraapp.auraandroid.common.FormattedLog.quickDump;
-
 public class TermsFragment extends ContextViewFragment {
 
     private static final String TAG = "@aura/ui/welcome/" + TermsFragment.class.getSimpleName();
@@ -27,18 +25,16 @@ public class TermsFragment extends ContextViewFragment {
         @Override
         public void onReceive(Context context, Intent intent) {
 
-            quickDump(intent);
             String newFragmentClass = intent.getStringExtra(IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_EXTRA_NEW);
             if (TermsFragment.class.toString().equals(newFragmentClass)) {
                 mPager.setSwipeLocked(true);
             }
 
             String previousFragmentClass = intent.getStringExtra(IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_EXTRA_PREVIOUS);
-            if (mPager != null && TermsFragment.class.toString().equals(previousFragmentClass)) {
+            if (mPager != null
+                    && TermsFragment.class.toString().equals(previousFragmentClass)) {
                 mPager.getScreenAdapter().remove(TermsFragment.class);
             }
-            quickDump(previousFragmentClass);
-            quickDump(newFragmentClass);
         }
     };
 
@@ -50,6 +46,15 @@ public class TermsFragment extends ContextViewFragment {
     @Override
     protected void onResumeWithContextAndView(MainActivity activity, ViewGroup rootView) {
         mPager = activity.getSharedServicesSet().mPager;
+        LocalBroadcastManager.getInstance(activity).registerReceiver(
+                mReceiver,
+                IntentFactory.createFilter(IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_ACTION)
+        );
+        // If app starts with this fragment, the receiver will never fire so we check here
+        if (mPager.getScreenAdapter().getCurrentItem() == this) {
+            mPager.setSwipeLocked(true);
+        }
+
         rootView.findViewById(R.id.terms_agree).setOnClickListener(
                 $ -> {
                     ScreenPager pager = activity.getSharedServicesSet().mPager;
@@ -60,10 +65,6 @@ public class TermsFragment extends ContextViewFragment {
                     }
                 });
         rootView.findViewById(R.id.terms_disagree).setOnClickListener($ -> activity.finish());
-        LocalBroadcastManager.getInstance(activity).registerReceiver(
-                mReceiver,
-                IntentFactory.createFilter(IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_ACTION)
-        );
         ((TextView) rootView.findViewById(R.id.terms_text)).setText(
                 Html.fromHtml(activity.getString(R.string.terms_text))
         );

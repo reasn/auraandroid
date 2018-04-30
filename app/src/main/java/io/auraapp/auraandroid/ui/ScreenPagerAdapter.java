@@ -2,6 +2,7 @@ package io.auraapp.auraandroid.ui;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -18,7 +19,7 @@ import io.auraapp.auraandroid.ui.profile.ProfileFragment;
 import io.auraapp.auraandroid.ui.welcome.TermsFragment;
 import io.auraapp.auraandroid.ui.world.WorldFragment;
 
-import static io.auraapp.auraandroid.common.FormattedLog.quickDump;
+import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_EXTRA_NEW;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_EXTRA_PREVIOUS;
@@ -27,6 +28,7 @@ public class ScreenPagerAdapter extends FragmentPagerAdapter {
     public static final String SCREEN_PRIVACY = "privacy";
     private static final String SCREEN_WORLD = "world";
     private static final String SCREEN_PROFILE = "profile";
+    private static final String TAG = "@aura/ui/" + ScreenPagerAdapter.class.getSimpleName();
     private final List<Fragment> mFragments = new ArrayList<>();
     private final LocalBroadcastManager mLocalBroadcastManager;
 
@@ -112,23 +114,31 @@ public class ScreenPagerAdapter extends FragmentPagerAdapter {
 
     private Fragment mPrimaryItem = null;
 
+    @Nullable
+    public Fragment getCurrentItem() {
+        return mPrimaryItem;
+    }
+
     @Override
     public void setPrimaryItem(ViewGroup container, int position, Object object) {
         super.setPrimaryItem(container, position, object);
+        sendChangeBroadcast((Fragment) object);
+    }
 
-        if (object == mPrimaryItem) {
+    public void sendChangeBroadcast(Fragment fragment) {
+        if (mPrimaryItem != null && fragment.getClass().equals(mPrimaryItem.getClass())) {
             return;
         }
-
-        Intent intent = new Intent(LOCAL_SCREEN_PAGER_CHANGED_ACTION);
-        intent.putExtra(LOCAL_SCREEN_PAGER_CHANGED_EXTRA_NEW, object.getClass().toString());
-        intent.putExtra(LOCAL_SCREEN_PAGER_CHANGED_EXTRA_PREVIOUS, mPrimaryItem == null
+        String previous = mPrimaryItem == null
                 ? "null"
-                : mPrimaryItem.getClass().toString());
-        quickDump("Sending broadcast " + object.getClass().toString());
+                : mPrimaryItem.getClass().toString();
+        i(TAG, "Broadcasting new primary fragment %s, was: %s", fragment.getClass().getSimpleName(), previous);
+        Intent intent = new Intent(LOCAL_SCREEN_PAGER_CHANGED_ACTION);
+        intent.putExtra(LOCAL_SCREEN_PAGER_CHANGED_EXTRA_NEW, fragment.getClass().toString());
+        intent.putExtra(LOCAL_SCREEN_PAGER_CHANGED_EXTRA_PREVIOUS, previous);
         mLocalBroadcastManager.sendBroadcast(intent);
 
-        mPrimaryItem = (Fragment) object;
+        mPrimaryItem = fragment;
     }
 
     @Override
@@ -164,7 +174,6 @@ public class ScreenPagerAdapter extends FragmentPagerAdapter {
         // TODO don't always return POSITION_NONE. Problem seems to come from changing item positions
         // Didn't work, sometimes fragments where added twice, app crashed after agreeing to terms
         int index = mFragments.indexOf(object);
-        quickDump(object.getClass().getSimpleName() + ": " + index);
         return index >= 0
                 ? index
                 : PagerAdapter.POSITION_NONE;

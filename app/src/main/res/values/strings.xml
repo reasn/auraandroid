@@ -116,23 +116,20 @@
 
     <!-- Common > Communicator State -->
     <string name="ui_common_communicator_bt_restart_required_heading">Bluetooth Crashed</string>
-    <string name="ui_common_communicator_bt_restart_required_text">Error: ##error##
-        \nMany devices (including yours) have issues with Bluetooth crashing.
-    \nPlease disable Bluetooth and activate it again.
-    \nIf that doesn\'t solve the issue, try restarting your device.
-    \nThis problem is not caused by Aura. Sorry about this!</string>
+    <string name="ui_common_communicator_bt_restart_required_text">Please disable Bluetooth and activate it again.
+    \nIf that doesn\'t help, try restarting your phone. This is not caused by Aura. Sorry about it!</string>
     <string name="ui_common_communicator_bt_disabled_heading">Bluetooth Off</string>
     <string name="ui_common_communicator_bt_disabled_text">Enable Bluetooth for Aura to work.</string>
     <string name="ui_common_communicator_summary_bt_turning_on">Bluetooth is starting…</string>
     <string name="ui_common_communicator_summary_on_not_active">Aura is getting ready…</string>
-    <string name="ui_common_communicator_ble_not_supported_heading">Device Unsupported</string>
-    <string name="ui_common_communicator_ble_not_supported_text">Your device doesn\'t properly support Bluetooth LE.
+    <string name="ui_common_communicator_ble_not_supported_heading">Phone Unsupported</string>
+    <string name="ui_common_communicator_ble_not_supported_text">Your phone doesn\'t properly support Bluetooth LE.
         \nWe\'re really sorry, you can\'t use Aura.
         \nThis is a hardware issue and won\'t change in the future.</string>
     <string name="common_communicator_disabled_heading">Your Aura is off</string>
     <string name="common_communicator_disabled_text">Turn it on to be visible and see others.</string>
     <string name="common_communicator_advertising_not_supported_heading">You\'re invisible.</string>
-    <string name="common_communicator_advertising_not_supported_text">Your device supports seeing others but not showing your Aura.
+    <string name="common_communicator_advertising_not_supported_text">Your phone supports seeing others but not showing your Aura.
         \nThis is a hardware issue and won\'t change in the future.</string>
 
     <!--Dialog: Common-->
@@ -151,10 +148,10 @@
     <string name="notification_bt_disabled_title">Your Aura is off</string>
     <string name="notification_bt_disabled_text">Please activate Bluetooth for Aura to work</string>
     <string name="notification_ble_not_supported_title">Your Aura is off</string>
-    <string name="notification_ble_not_supported_text">Your device doesn\'t support Bluetooth LE</string>
+    <string name="notification_ble_not_supported_text">Your phone doesn\'t support Bluetooth LE</string>
     <string name="notification_disabled_title">Your Aura is off</string>
     <string name="notification_advertising_not_supported_title">Your Aura is invisible</string>
-    <string name="notification_advertising_not_supported_text">Your device doesn\'t support being visible :/</string>
+    <string name="notification_advertising_not_supported_text">Your phone doesn\'t support being visible :/</string>
     <string name="notification_on_not_active_title">Your Aura is getting ready</string>
     <plurals name="notification_on_title">
         <item quantity="zero">Your Aura is on.</item>
@@ -167,13 +164,13 @@
     <string name="prefs_notification_group_key">notifications</string>
     <string name="prefs_notification_group_title">Notifications</string>
     <string name="prefs_notification_show_key">notification_show</string>
-    <string name="prefs_notification_show_title">Show Notificatiton</string>
+    <string name="prefs_notification_show_title">Show Notification</string>
     <string name="prefs_notification_show_summary_on">A notification shows up if you encounter another Aura</string>
     <string name="prefs_notification_show_summary_off">No notification shows up if you encounter another Aura</string>
     <string name="prefs_notification_vibrate_key">notification_vibrate</string>
     <string name="prefs_notification_vibrate_title">Vibration</string>
-    <string name="prefs_notification_vibrate_summary_on">Your phone will briefly vibrate if you encounter another Aura</string>
-    <string name="prefs_notification_vibrate_summary_off">Your phone will not vibrate if you encounter another Aura</string>
+    <string name="prefs_notification_vibrate_summary_on">Your phone briefly vibrates if you encounter another Aura</string>
+    <string name="prefs_notification_vibrate_summary_off">Your phone doesn\'t vibrate if you encounter another Aura</string>
     <string name="prefs_tutorial_completed">tutorial_completed</string>
     <string name="prefs_terms_agreed">terms_agreed</string>
     <string name="prefs_hide_broken_bt_warning_key">hide_broken_bt_stack_warning</string>

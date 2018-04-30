@@ -9,14 +9,10 @@ import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.common.PermissionHelper;
 import io.auraapp.auraandroid.common.Timer;
-import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
 import io.auraapp.auraandroid.ui.permissions.PermissionsFragment;
 import io.auraapp.auraandroid.ui.tutorial.TutorialManager;
 import io.auraapp.auraandroid.ui.welcome.TermsFragment;
@@ -28,20 +24,20 @@ public class ScreenPager extends ViewPager {
 
     private static final String TAG = "@aura/ui/" + ScreenPager.class.getSimpleName();
 
-    private final Set<ChangeCallback> changeCallbacks = new HashSet<>();
+//    private final Set<ChangeCallback> changeCallbacks = new HashSet<>();
 
     private final Handler mHandler = new Handler();
     private final Timer mTimer = new Timer(mHandler);
 
-    @FunctionalInterface
-    public interface ChangeCallback {
-        public void onChange(Fragment fragment);
-    }
+//    @FunctionalInterface
+//    public interface ChangeCallback {
+//        public void onChange(Fragment fragment);
+//    }
 
-    private Timer.Timeout mItemWatchTimeout;
+    //    private Timer.Timeout mItemWatchTimeout;
     private boolean mLocked;
-    private int mCurrentItem = -1;
-    private int mWatchRuns = 0;
+//    private int mCurrentItem = -1;
+//    private int mWatchRuns = 0;
 
     public ScreenPager(@NonNull Context context) {
         super(context);
@@ -51,13 +47,13 @@ public class ScreenPager extends ViewPager {
         super(context, attrs);
     }
 
-    public void addChangeListener(ChangeCallback callback) {
-        changeCallbacks.add(callback);
-    }
+//    public void addChangeListener(ChangeCallback callback) {
+//        changeCallbacks.add(callback);
+//    }
 
-    public void removeChangeListener(ChangeCallback callback) {
-        changeCallbacks.remove(callback);
-    }
+//    public void removeChangeListener(ChangeCallback callback) {
+//        changeCallbacks.remove(callback);
+//    }
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
@@ -67,16 +63,16 @@ public class ScreenPager extends ViewPager {
         return super.onInterceptTouchEvent(event);
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            startWatching();
-        }
-        if (mLocked) {
-            return false;
-        }
-        return super.onTouchEvent(event);
-    }
+//    @Override
+//    public boolean onTouchEvent(MotionEvent event) {
+//        if (event.getAction() == MotionEvent.ACTION_UP) {
+//            startWatching();
+//        }
+//        if (mLocked) {
+//            return false;
+//        }
+//        return super.onTouchEvent(event);
+//    }
 
     /**
      * The standard way of detecting fragment changes is addOnPageChangeListener().
@@ -84,25 +80,23 @@ public class ScreenPager extends ViewPager {
      * This is a dirty workaround as it polls the current state after the user finished
      * swiping or setCurrentItem() has been called programmatically.
      */
-    private void startWatching() {
-        mHandler.post(() -> {
-            Timer.clear(mItemWatchTimeout);
-            mWatchRuns = 10;
-            keepWatching();
-        });
-    }
-
-    private void keepWatching() {
-        int newCurrentItem = getCurrentItem();
-        if (mCurrentItem != newCurrentItem) {
-            mCurrentItem = newCurrentItem;
-            propagateScreenChange(mCurrentItem);
-        } else if (--mWatchRuns > 0) {
-            Timer.clear(mItemWatchTimeout);
-            mItemWatchTimeout = mTimer.setTimeout(this::keepWatching, 200);
-        }
-    }
-
+//    private void startWatching() {
+//        mHandler.post(() -> {
+//            Timer.clear(mItemWatchTimeout);
+//            mWatchRuns = 10;
+//            keepWatching();
+//        });
+//    }
+//    private void keepWatching() {
+//        int newCurrentItem = getCurrentItem();
+//        if (mCurrentItem != newCurrentItem) {
+//            mCurrentItem = newCurrentItem;
+//            propagateScreenChange(mCurrentItem);
+//        } else if (--mWatchRuns > 0) {
+//            Timer.clear(mItemWatchTimeout);
+//            mItemWatchTimeout = mTimer.setTimeout(this::keepWatching, 200);
+//        }
+//    }
     public boolean redirectIfNeeded(MainActivity activity, @Nullable CommunicatorState state) {
         if ((state != null && !state.mHasPermission)
                 || !PermissionHelper.granted(activity)) {
@@ -132,13 +126,13 @@ public class ScreenPager extends ViewPager {
         return false;
     }
 
-    private void propagateScreenChange(int position) {
-        ContextViewFragment fragment = (ContextViewFragment) getScreenAdapter().getItem(position);
-        v(TAG, "setCurrentItem. Invoking change callbacks for %s at %d", fragment, position);
-        for (ChangeCallback changeCallback : changeCallbacks) {
-            changeCallback.onChange(fragment);
-        }
-    }
+//    private void propagateScreenChange(int position) {
+//        ContextViewFragment fragment = (ContextViewFragment) getScreenAdapter().getItem(position);
+//        v(TAG, "setCurrentItem. Invoking change callbacks for %s at %d", fragment, position);
+//        for (ChangeCallback changeCallback : changeCallbacks) {
+//            changeCallback.onChange(fragment);
+//        }
+//    }
 
     @Override
     public void setCurrentItem(int position) {
@@ -148,7 +142,7 @@ public class ScreenPager extends ViewPager {
     @Override
     public void setCurrentItem(int position, boolean smoothScroll) {
         v(TAG, "setCurrentItem %d", position);
-        startWatching();
+        getScreenAdapter().sendChangeBroadcast(getScreenAdapter().getItem(position));
         super.setCurrentItem(position, smoothScroll);
     }
 

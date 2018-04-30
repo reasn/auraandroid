@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.PermissionHelper;
@@ -25,6 +26,7 @@ import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 import static io.auraapp.auraandroid.common.FormattedLog.w;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_ACTION;
 
 public class CommunicatorStateFragment extends ContextViewFragment {
 
@@ -37,10 +39,12 @@ public class CommunicatorStateFragment extends ContextViewFragment {
         public void onReceive(Context $, Intent intent) {
             v(TAG, "onReceive, intent: %s", intent.getAction());
             Bundle extras = intent.getExtras();
-            if (extras != null) {
+
+            if (extras != null && LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION.equals(intent.getAction())) {
                 mCommunicatorProxyState = (CommunicatorProxyState) extras.getSerializable(IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE);
-                reflectCommunicatorState();
             }
+            //Reflect state for all registered actions (communicator state & screen pager)
+            reflectCommunicatorState();
         }
     };
 
@@ -57,7 +61,10 @@ public class CommunicatorStateFragment extends ContextViewFragment {
 
     @Override
     protected void onResumeWithContextAndView(MainActivity activity, ViewGroup rootView) {
-        LocalBroadcastManager.getInstance(activity).registerReceiver(mReceiver, IntentFactory.createFilter(LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION));
+        LocalBroadcastManager.getInstance(activity).registerReceiver(mReceiver, IntentFactory.createFilter(
+                LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION,
+                LOCAL_SCREEN_PAGER_CHANGED_ACTION
+        ));
         v(TAG, "Receiver registered");
         mCommunicatorProxyState = activity.getSharedServicesSet().mCommunicatorProxy.getState();
         reflectCommunicatorState();
@@ -105,7 +112,7 @@ public class CommunicatorStateFragment extends ContextViewFragment {
         CommunicatorState state = mCommunicatorProxyState.mCommunicatorState;
         infoBox.setOnClickListener(null);
 
-        if (!PermissionHelper.granted(context)) {
+        if (!PermissionHelper.granted(context) || !AuraPrefs.hasAgreedToTerms(context)) {
             // In this case user is in PermissionFragment and needs no additional summary/box
             show = NONE;
 

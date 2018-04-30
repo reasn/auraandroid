@@ -29,7 +29,7 @@ public class FullWidthDialog extends Dialog {
                                          DialogManager.DialogState dialogState,
                                          Runnable onConfirm) {
 
-        LinearLayout rootView = (LinearLayout) View.inflate(context, R.layout.common_dialog, null);
+        LinearLayout rootView = (LinearLayout) View.inflate(context, R.layout.common_full_width_dialog, null);
 
         return new FullWidthDialog(context, rootView, title, keyboard, dialogState, onConfirm);
     }
