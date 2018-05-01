@@ -192,7 +192,7 @@
     <string name="prefs_about_dialog_title">About Aura</string>
     <string name="prefs_about_dialog_message">\nCopyright 2018\nVersion VERSION_NAME (build VERSION_CODE).\n</string>
     <string name="prefs_about_dialog_confirm">Close</string>
-    <string name="toolbar_tutorial">Tutorial</string>
+    <string name="toolbar_tutorial">Show Tutorial</string>
     <string name="toolbar_terms">Reset Terms agreement</string>
 
     <string name="tutorial_button_close">Close</string>

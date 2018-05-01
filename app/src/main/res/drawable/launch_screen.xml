@@ -3,15 +3,11 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android"
     android:opacity="opaque">
 
-    <!-- The background color, preferably the same as your normal theme -->
     <item android:drawable="@color/purple" />
-
     <item>
-
-        <!--<bitmap-->
-            <!--android:gravity="center"-->
-            <!--android:src="@drawable/product_logo_144dp" />-->
-
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/icon_200dp" />
     </item>
 
 </layer-list>

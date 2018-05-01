@@ -256,7 +256,9 @@ public class Communicator extends Service {
                 builder.setNumber(++notificationIndex);
             }
         }
-
+        // According to https://developer.android.com/guide/practices/ui_guidelines/icon_design_status_bar
+        // status bar / notification icons should be transparent white PNGs.
+        // When using drawables, the icon is not automatically color adjusted :/
         builder.setContentTitle(title)
                 .setSmallIcon(R.mipmap.ic_notification)
                 .setTicker(title)

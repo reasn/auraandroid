@@ -47,7 +47,7 @@ public class ToolbarFragment extends ContextViewFragment {
     private CommunicatorProxy mCommunicatorProxy;
     private SwitchCompat mEnabledSwitch;
     private Handler mHandler = new Handler();
-    private boolean mDebugFragmentEnabled;
+    private boolean mDebugUiEnabled;
     private final List<Long> mToolbarIconClicks = new ArrayList<>();
     private ScreenPager mPager;
     private MyProfileManager mMyProfileManager;
@@ -131,7 +131,7 @@ public class ToolbarFragment extends ContextViewFragment {
         });
 
         mToolbar.setOnClickListener($ -> mHandler.post(() -> {
-            if (!Config.DEBUG_UI_ENABLED || mDebugFragmentEnabled) {
+            if (!Config.DEBUG_UI_ENABLED || mDebugUiEnabled) {
                 return;
             }
             long now = System.currentTimeMillis();
@@ -147,13 +147,14 @@ public class ToolbarFragment extends ContextViewFragment {
             }
             if (eligibleClicks >= Config.MAIN_DEBUG_VIEW_SWITCH_CLICKS) {
                 mToolbarIconClicks.clear();
-                mDebugFragmentEnabled = true;
+                mDebugUiEnabled = true;
                 Toast.makeText(
                         activity,
                         EmojiHelper.replaceShortCode(activity.getString(R.string.ui_main_toast_debug_view_enabled)),
                         Toast.LENGTH_SHORT
                 ).show();
                 activity.getSharedServicesSet().mPager.getScreenAdapter().addDebugFragment();
+                mToolbar.getMenu().findItem(R.id.menu_debug_group).setVisible(true);
             }
         }));
     }

@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <!-- TODO enable allowBackup in a privacy-preserving way -->
+    <!-- Icon must be PNG because because different flavors of android (G5 vs. Xcover3) scale icon but not the stroke -.- -->
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"

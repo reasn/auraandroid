@@ -21,7 +21,7 @@
 
     <style name="AppTheme.Launcher">
         <!-- TODO add launch screen -->
-        <item name="android:windowBackground">@color/purple</item>
+        <item name="android:windowBackground">@drawable/launch_screen</item>
         <!-- Optional, on Android 5+ you can modify the colorPrimaryDark color to match the windowBackground color for further branding-->
         <item name="colorPrimaryDark">@color/purple</item>
     </style>
