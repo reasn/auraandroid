@@ -6,9 +6,10 @@
     android:orientation="vertical">
 
     <TextView
-        style="@style/SloganText"
         android:id="@+id/world_peer_slogan_text"
+        style="@style/SloganText"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:autoLink="all" />
 
 </LinearLayout>

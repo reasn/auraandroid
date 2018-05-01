@@ -168,11 +168,11 @@ public class DialogManager {
 
     public void showDrop(Slogan slogan, DropCallback dropCallback) {
         new DialogBuilder(mContext, mDialogState)
-                .setTitle(EmojiHelper.replaceShortCode(getString(R.string.ui_profile_dialog_drop_title)))
-                .setMessage(getString(R.string.ui_profile_dialog_drop_message))
+                .setTitle(EmojiHelper.replaceShortCode(getString(R.string.profile_dialog_drop_title)))
+                .setMessage(getString(R.string.profile_dialog_drop_message))
                 .setOnConfirm(() -> dropCallback.onDropSlogan(slogan))
-                .setConfirmText(R.string.ui_profile_dialog_drop_confirm)
-                .setCancelText(R.string.ui_profile_dialog_drop_cancel)
+                .setConfirmText(R.string.profile_dialog_drop_confirm)
+                .setCancelText(R.string.profile_dialog_drop_cancel)
                 .build()
                 .show();
     }
@@ -192,21 +192,25 @@ public class DialogManager {
         }
 
         FullWidthDialog dialog = new DialogBuilder(mContext, mDialogState)
-                .setTitle(R.string.ui_profile_dialog_replace_title)
+                .setTitle(R.string.profile_dialog_replace_title)
                 .setMessage(EmojiHelper.replaceShortCode(mContext.getResources().getQuantityString(
-                        R.plurals.ui_profile_dialog_replace_message,
+                        R.plurals.profile_dialog_replace_message,
                         Config.PROFILE_SLOGANS_MAX_SLOGANS,
                         Config.PROFILE_SLOGANS_MAX_SLOGANS
                 )))
-                .setConfirmText(R.string.ui_profile_dialog_replace_confirm)
-                .setCancelText(R.string.ui_profile_dialog_replace_cancel)
+                .setConfirmText(R.string.profile_dialog_replace_confirm)
+                .setCancelText(R.string.profile_dialog_replace_cancel)
                 .setView(radioGroup)
                 .setOnConfirm(() -> adoptCallback.onAdoptSlogan(map.get(radioGroup.getCheckedRadioButtonId())))
                 .build();
 
-        radioGroup.setOnCheckedChangeListener(($, $$) -> dialog.getConfirmButton().setEnabled(true));
+        radioGroup.setOnCheckedChangeListener(($, $$) -> {
+            dialog.getConfirmButton().setBackgroundColor(mContext.getResources().getColor(R.color.green));
+            dialog.getConfirmButton().setEnabled(true);
+        });
 
         dialog.getConfirmButton().setEnabled(false);
+        dialog.getConfirmButton().setBackgroundColor(mContext.getResources().getColor(R.color.gray));
         dialog.show();
     }
 
