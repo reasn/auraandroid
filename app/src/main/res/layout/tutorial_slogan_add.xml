@@ -15,8 +15,8 @@
             android:id="@+id/tutorial_heading"
             style="@style/TutorialHeadlineWithArrow.Top"
             android:layout_width="match_parent"
-            app:layout_constraintBottom_toBottomOf="@id/tutorial_overlay"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@id/tutorial_overlay">
 
             <ImageView
                 style="@style/TutorialHeadlineWithArrowArrow.Top"
@@ -34,12 +34,12 @@
         </LinearLayout>
 
         <TextView
-            style="@style/TutorialMessage.Top"
             android:id="@+id/tutorial_message"
+            style="@style/TutorialMessage.Top"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toTopOf="@id/tutorial_heading"
-            android:text="Bla Bla Bla Lorem Ipsum  is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book " />
+            android:text="Ideas are short sentences worth sharing with Aura users around you.\n\nAura about spreading ideas without centralized infrastructure (servers, telecom providers). It can\'t be censored by controlling the internet."
+            app:layout_constraintBottom_toTopOf="@id/tutorial_heading" />
 
         <LinearLayout
             style="@style/TutorialButtonWrapper.Top"

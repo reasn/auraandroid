@@ -39,7 +39,13 @@ public abstract class TutorialStep {
         else
             return view.getTop() + getRelativeTop((View) view.getParent());
     }
+
     int getRelativeTop(@IdRes int viewId) {
         return getRelativeTop(mRootView.findViewById(viewId));
+    }
+
+    int getRelativeBottom(@IdRes int viewId) {
+        View view = mRootView.findViewById(viewId);
+        return getRelativeTop(view) + view.getMeasuredHeight();
     }
 }

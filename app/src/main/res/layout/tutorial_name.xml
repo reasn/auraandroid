@@ -20,14 +20,14 @@
                 style="@style/TutorialHeadlineWithArrowArrow.Left"
                 android:layout_width="40dp"
                 android:layout_marginLeft="40dp"
-                android:layout_marginRight="10dp"
+                android:layout_marginRight="15dp"
                 android:layout_height="70dp" />
 
             <TextView
                 style="@style/TutorialHeadlineWithArrowText.Bottom"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Pick a Name" />
+                android:text="Choose a Name" />
 
         </LinearLayout>
 
@@ -35,7 +35,7 @@
             style="@style/TutorialMessage.Bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Bla Bla Bla Lorem Ipsum  is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book " />
+            android:text="Click to enter a nickname, a pseudonym or your real name.\n\nLike the rest of your Aura this will be visible to Aura users around you. You can change it any time." />
 
         <LinearLayout
             style="@style/TutorialButtonWrapper"

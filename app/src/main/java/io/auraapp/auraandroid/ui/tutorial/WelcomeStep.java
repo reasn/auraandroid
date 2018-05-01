@@ -8,35 +8,32 @@ import android.view.ViewGroup;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.ui.ScreenPager;
 
-public class SloganEditStep extends ProfileStatusHidingStep {
+public class WelcomeStep extends TutorialStep {
 
-    public SloganEditStep(ViewGroup mRootView, Context mContext, ScreenPager mPager) {
+    public WelcomeStep(ViewGroup mRootView, Context mContext, ScreenPager mPager) {
         super(mRootView, mContext, mPager);
     }
 
     public ViewGroup enter() {
-        doEnter();
-
-        ViewGroup screen = (ViewGroup) LayoutInflater.from(mContext).inflate(R.layout.tutorial_slogan_edit, mRootView, false);
-
-        screen.findViewById(R.id.tutorial_overlay).getLayoutParams().height = getRelativeBottom(R.id.profile_my_text);
+        ViewGroup screen = (ViewGroup) LayoutInflater.from(mContext).inflate(R.layout.tutorial_welcome, mRootView, false);
+        ViewGroup overlay = screen.findViewById(R.id.tutorial_overlay);
+        ((ViewGroup.MarginLayoutParams) overlay.getLayoutParams()).setMargins(0, 0, 0, 0);
+        mPager.setSwipeLocked(true);
 
         return screen;
     }
 
+    @Override
     public void leave() {
-        doLeave();
     }
 
     @Override
     public Class<? extends TutorialStep> getPrevious() {
-        return SloganAddStep.class;
+        return null;
     }
 
     @Override
     public Class<? extends TutorialStep> getNextStep() {
-        return SwipeStep.class;
+        return EnabledStep.class;
     }
-
-
 }

@@ -169,7 +169,7 @@ public class ProfileFragment extends ContextViewFragment {
 
     private void showAddDialog() {
         if (!mMyProfileManager.spaceAvailable()) {
-            toast(R.string.ui_world_toast_cannot_add_no_space_available);
+            toast(R.string.world_toast_cannot_add_no_space_available);
             return;
         }
         mDialogManager.showParametrizedSloganEdit(R.string.ui_profile_dialog_add_slogan_title,

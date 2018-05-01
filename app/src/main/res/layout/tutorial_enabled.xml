@@ -27,7 +27,7 @@
                 style="@style/TutorialHeadlineWithArrowText.Bottom"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Turn Aura on &amp; off" />
+                android:text="Turn Aura on/off" />
 
         </LinearLayout>
 
@@ -35,12 +35,19 @@
             style="@style/TutorialMessage.Bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Bla Bla Bla Lorem Ipsum  is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book " />
+            android:text="You\'re always in control of your Aura's visibility.\n\nNaturally Aura is only fun if it stays on.\n\nAura doesn\'t use the internet. That means privacy protection and no impact (0.1% per day) on your battery." />
 
         <LinearLayout
             style="@style/TutorialButtonWrapper"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/tutorial_back"
+                style="@style/TutorialButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/tutorial_button_back" />
 
             <Button
                 android:id="@+id/tutorial_next"

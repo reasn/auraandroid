@@ -12,43 +12,29 @@
 
         <LinearLayout
             android:id="@+id/tutorial_heading"
-            style="@style/TutorialHeadlineWithArrow.Left"
+            style="@style/TutorialHeadlineWithArrow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <ImageView
-                style="@style/TutorialHeadlineWithArrowArrow.Left"
-                android:layout_width="40dp"
-                android:layout_height="70dp"
-                android:layout_marginLeft="0dp"
-                android:layout_marginRight="15dp" />
 
             <TextView
-                style="@style/TutorialHeadlineWithArrowText.Bottom"
-                android:layout_width="wrap_content"
+                style="@style/TutorialHeadlineText"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Color your Aura" />
+                android:text="Welcome to Aura" />
 
         </LinearLayout>
 
-        <!--TODO pluralize-->
         <TextView
             style="@style/TutorialMessage.Bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Your Aura consists of your name, text and up to three ideas that you care for.\n\nClick the colored square to pick the color in which others will see your Aura." />
+            android:text="This is a beta version, please expect a few bumps in the road :)\n\nAura doesn\'t use your internet connection. It works on phones without SIM card and Wifi. It only requires Bluetooth to be enabled (which you can do in flight mode).\nBecause of that it works on factory-reset phones, on planes and on Mars.\n\nThe following tutorial will show you how things work." />
 
         <LinearLayout
             style="@style/TutorialButtonWrapper"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
-            <Button
-                android:id="@+id/tutorial_back"
-                style="@style/TutorialButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/tutorial_button_back" />
 
             <Button
                 android:id="@+id/tutorial_next"

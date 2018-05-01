@@ -140,7 +140,7 @@ public class WorldFragment extends ContextViewFragment {
                 () -> Color.parseColor(mMyColor),
                 slogan -> {
                     if (servicesSet.mMyProfileManager.getProfile().getSlogans().contains(slogan)) {
-                        toast(R.string.ui_world_toast_slogan_already_adopted);
+                        toast(R.string.world_toast_slogan_already_adopted);
                     } else if (servicesSet.mMyProfileManager.spaceAvailable()) {
                         servicesSet.mMyProfileManager.adopt(slogan);
                     } else {

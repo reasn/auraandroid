@@ -22,7 +22,7 @@
                 android:layout_width="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_height="wrap_content"
-                android:text="Add a Text" />
+                android:text="Add your Text" />
 
             <ImageView
                 style="@style/TutorialHeadlineWithArrowArrow"
@@ -37,7 +37,7 @@
             style="@style/TutorialMessage.Bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Bla Bla Bla Lorem Ipsum  is simply galley of type and scrambled it to make" />
+            android:text="Share information about yourself or something you care for.\nYou can add links to social media and websites." />
 
         <LinearLayout
             style="@style/TutorialButtonWrapper"

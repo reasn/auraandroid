@@ -48,7 +48,9 @@ public class TutorialManager {
             setCompleted(true);
             return;
         }
-        if (step.equals(EnabledStep.class)) {
+        if (step.equals(WelcomeStep.class)) {
+            mCurrentStep = new WelcomeStep(mRootView, mContext, mPager);
+        } else if (step.equals(EnabledStep.class)) {
             mCurrentStep = new EnabledStep(mRootView, mContext, mPager);
         } else if (step.equals(SwipeStep.class)) {
             mCurrentStep = new SwipeStep(mRootView, mContext, mPager);
@@ -62,6 +64,8 @@ public class TutorialManager {
             mCurrentStep = new SloganAddStep(mRootView, mContext, mPager);
         } else if (step.equals(SloganEditStep.class)) {
             mCurrentStep = new SloganEditStep(mRootView, mContext, mPager);
+        } else if (step.equals(AdoptStep.class)) {
+            mCurrentStep = new AdoptStep(mRootView, mContext, mPager);
         }
         mCurrentScreen = mCurrentStep.enter();
 
@@ -92,6 +96,6 @@ public class TutorialManager {
 
     public void open() {
         i(TAG, "Opening tutorial");
-        goTo(EnabledStep.class);
+        goTo(WelcomeStep.class);
     }
 }

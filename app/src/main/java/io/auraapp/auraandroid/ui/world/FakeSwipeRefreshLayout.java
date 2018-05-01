@@ -42,7 +42,7 @@ public class FakeSwipeRefreshLayout extends SwipeRefreshLayout {
      */
     void refresh() {
         i(TAG, "Showing swipe to refresh indicator to transport sense of immediacy");
-        String text = getResources().getQuantityString(R.plurals.ui_world_toast_refresh, mPeerCount, mPeerCount);
+        String text = getResources().getQuantityString(R.plurals.world_toast_refresh, mPeerCount, mPeerCount);
 
         Toast.makeText(getContext(), EmojiHelper.replaceShortCode(text), Toast.LENGTH_SHORT).show();
 

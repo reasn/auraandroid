@@ -41,7 +41,7 @@ public class EnabledStep extends TutorialStep {
 
     @Override
     public Class<? extends TutorialStep> getPrevious() {
-        return null;
+        return WelcomeStep.class;
     }
 
     @Override

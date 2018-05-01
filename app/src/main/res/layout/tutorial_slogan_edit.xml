@@ -39,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toTopOf="@id/tutorial_heading"
-            android:text="Bla Bla Bla Lorem Ipsum  is simply dummy text of the printing and" />
+            android:text="This is a list of your ideas.\nClick each to delete or edit it." />
 
         <LinearLayout
             style="@style/TutorialButtonWrapper.Top"

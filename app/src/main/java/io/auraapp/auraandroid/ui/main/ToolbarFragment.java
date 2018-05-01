@@ -150,7 +150,7 @@ public class ToolbarFragment extends ContextViewFragment {
                 mDebugUiEnabled = true;
                 Toast.makeText(
                         activity,
-                        EmojiHelper.replaceShortCode(activity.getString(R.string.ui_main_toast_debug_view_enabled)),
+                        EmojiHelper.replaceShortCode(activity.getString(R.string.main_toast_debug_mode_enabled)),
                         Toast.LENGTH_SHORT
                 ).show();
                 activity.getSharedServicesSet().mPager.getScreenAdapter().addDebugFragment();

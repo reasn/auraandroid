@@ -2,41 +2,27 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/TutorialWrapper"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:gravity="bottom">
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/tutorial_overlay"
         style="@style/TutorialOverlay"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
-        <LinearLayout
+        <TextView
             android:id="@+id/tutorial_heading"
-            style="@style/TutorialHeadlineWithArrow.Left"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            style="@style/TutorialHeadlineText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Adopt Other Ideas︎" />
 
-            <ImageView
-                style="@style/TutorialHeadlineWithArrowArrow.Left"
-                android:layout_width="40dp"
-                android:layout_height="70dp"
-                android:layout_marginLeft="0dp"
-                android:layout_marginRight="15dp" />
-
-            <TextView
-                style="@style/TutorialHeadlineWithArrowText.Bottom"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Color your Aura" />
-
-        </LinearLayout>
-
-        <!--TODO pluralize-->
         <TextView
             style="@style/TutorialMessage.Bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Your Aura consists of your name, text and up to three ideas that you care for.\n\nClick the colored square to pick the color in which others will see your Aura." />
+            android:text="This step is not yet finished. Also you survived the tutorial!\nClick 'Close' to start." />
 
         <LinearLayout
             style="@style/TutorialButtonWrapper"
@@ -55,7 +41,7 @@
                 style="@style/TutorialButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/tutorial_button_next" />
+                android:text="@string/tutorial_button_close" />
         </LinearLayout>
-    </RelativeLayout>
+    </LinearLayout>
 </LinearLayout>

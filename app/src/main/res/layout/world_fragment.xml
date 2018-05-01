@@ -74,7 +74,7 @@
                         style="@style/FlatMessage.NoHorizontalMargin"
                         android:layout_height="wrap_content"
                         android:background="@color/white"
-                        android:text="@string/ui_world_no_peers_info_text" />
+                        android:text="@string/world_no_peers_info_text" />
 
                     <LinearLayout style="@style/FlatButton.Wrapper">
 
@@ -90,7 +90,7 @@
                         style="@style/FlatMessage.NoHorizontalMargin"
                         android:layout_height="wrap_content"
                         android:background="@color/white"
-                        android:text="@string/ui_world_no_peers_info_second_text" />
+                        android:text="@string/world_no_peers_info_second_text" />
                 </LinearLayout>
             </LinearLayout>
 

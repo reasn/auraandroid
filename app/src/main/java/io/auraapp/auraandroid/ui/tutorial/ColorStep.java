@@ -21,7 +21,7 @@ public class ColorStep extends ProfileStatusHidingStep {
 
         ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) screen.findViewById(R.id.tutorial_overlay).getLayoutParams();
 
-        layoutParams.setMargins(0, getRelativeTop(R.id.profile_my_text), 0, 0);
+        layoutParams.setMargins(0, getRelativeBottom(R.id.profile_color_and_name_wrapper), 0, 0);
 
         return screen;
     }
