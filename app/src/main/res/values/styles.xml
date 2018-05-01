@@ -280,6 +280,8 @@
     <style name="ProfileText" parent="ProfileAttributeText">
         <item name="android:textAlignment">textStart</item>
         <item name="android:maxLines">20</item>
+        <item name="android:lineSpacingExtra">0dp</item>
+        <item name="android:lineSpacingMultiplier">0.8</item>
         <item name="android:scrollbars">vertical</item>
         <item name="android:minHeight">100dp</item>
     </style>

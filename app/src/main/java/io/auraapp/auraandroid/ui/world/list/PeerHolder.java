@@ -106,6 +106,7 @@ public class PeerHolder extends ExpandableViewHolder {
         mTextView.setText(peer.mText);
         mTextView.setBackgroundColor(colorSet.mBackground);
         mTextView.setTextColor(colorSet.mText);
+        mTextView.setLinkTextColor(colorSet.mText);
         mDetailsView.setBackgroundColor(colorSet.mBackground);
     }
 

@@ -10,6 +10,6 @@
         android:layout_height="wrap_content"
         app:editable="true"
         app:hint="@string/ui_profile_dialog_edit_text_hint"
-        app:maxLines="8" />
+        app:maxLines="7" />
 
 </LinearLayout>

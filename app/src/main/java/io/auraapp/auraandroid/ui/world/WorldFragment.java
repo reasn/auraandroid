@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.util.HashSet;
@@ -58,7 +57,6 @@ public class WorldFragment extends ContextViewFragment {
     private LinearLayout mStartingWrapper;
     private View mNoPeersWrapper;
     private Button mInviteButton;
-    private ScrollView mScrollView;
     private TextView mNotScanningMessage;
     private String mMyColor;
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -130,7 +128,6 @@ public class WorldFragment extends ContextViewFragment {
         mComProxyState = servicesSet.mCommunicatorProxy.getState();
         mMyColor = servicesSet.mMyProfileManager.getColor();
 
-        mScrollView = rootView.findViewById(R.id.profile_scroll_view);
         mNotScanningMessage = rootView.findViewById(R.id.world_not_scanning);
         mStartingWrapper = rootView.findViewById(R.id.world_starting_wrapper);
         mNoPeersWrapper = rootView.findViewById(R.id.world_no_peers_wrapper);
@@ -178,10 +175,6 @@ public class WorldFragment extends ContextViewFragment {
                 && mComProxyState.mCommunicatorState != null
                 && mComProxyState.mCommunicatorState.mScanning;
 
-        mScrollView.setBackgroundColor(context.getResources().getColor(
-                mPeers.size() > 0
-                        ? R.color.yellow
-                        : R.color.white));
         mPeersRecycler.setVisibility(scanning ? View.VISIBLE : View.GONE);
         mNotScanningMessage.setVisibility(scanning ? View.GONE : View.VISIBLE);
         mSwipeRefresh.setEnabled(scanning);

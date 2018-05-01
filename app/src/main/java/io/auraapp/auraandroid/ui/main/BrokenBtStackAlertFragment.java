@@ -23,7 +23,7 @@ public class BrokenBtStackAlertFragment extends ContextFragment {
     private static final String TAG = "@aura/ui/main/" + BrokenBtStackAlertFragment.class.getSimpleName();
     private static final int BROKEN_BT_STACK_ALERT_DEBOUNCE = 1000 * 60;
     private boolean mInForeground;
-    private long mBrokenBtStackLastVisibleTimestamp = 0;
+    private long mLastVisibleTimestamp = 0;
 
     @Override
     protected void onResumeWithContext(MainActivity activity) {
@@ -53,8 +53,8 @@ public class BrokenBtStackAlertFragment extends ContextFragment {
                 if (proxyState.mCommunicatorState.mRecentBtTurnOnEvents < Config.COMMUNICATOR_RECENT_BT_TURNING_ON_EVENTS_ALERT_THRESHOLD) {
                     return;
                 }
-                if (mBrokenBtStackLastVisibleTimestamp > 0
-                        && System.currentTimeMillis() - mBrokenBtStackLastVisibleTimestamp > BROKEN_BT_STACK_ALERT_DEBOUNCE) {
+                if (mLastVisibleTimestamp > 0
+                        && System.currentTimeMillis() - mLastVisibleTimestamp <= BROKEN_BT_STACK_ALERT_DEBOUNCE) {
                     return;
                 }
                 if (AuraPrefs.shouldHideBrokenBtStackAlert(activity)) {
@@ -66,7 +66,7 @@ public class BrokenBtStackAlertFragment extends ContextFragment {
                     if (neverShowAgain) {
                         AuraPrefs.putHideBrokenBtStackAlert(activity);
                     } else {
-                        mBrokenBtStackLastVisibleTimestamp = System.currentTimeMillis();
+                        mLastVisibleTimestamp = System.currentTimeMillis();
                     }
                 });
             }
