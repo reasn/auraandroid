@@ -53,24 +53,45 @@
                 android:orientation="horizontal">
 
                 <Button
-                    android:id="@+id/demo_0"
+                    android:id="@+id/demo_edge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Edge"
                     tools:ignore="HardcodedText" />
 
                 <Button
-                    android:id="@+id/demo_1"
+                    android:id="@+id/demo_anonymous"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Anon"
                     tools:ignore="HardcodedText" />
 
                 <Button
-                    android:id="@+id/demo_2"
+                    android:id="@+id/demo_jen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Jen"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/demo_clara"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Clara"
+                    tools:ignore="HardcodedText" />
+
+                <Button
+                    android:id="@+id/demo_alex"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Alex"
                     tools:ignore="HardcodedText" />
             </LinearLayout>
 

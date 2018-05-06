@@ -43,6 +43,16 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
             // Avoids duplicates when the name changes
             return 0;
         }
+        if (a.mName != b.mName) {
+            // They're not both null
+            if (a.mName == null) {
+                // a is less than
+                return -1;
+            }
+            if (b.mName == null) {
+                return 1;
+            }
+        }
         if (Math.abs(a.mLastSeenTimestamp - b.mLastSeenTimestamp) < 60000) {
             if (a.mName == null || b.mName == null) {
                 return a.mId - b.mId;

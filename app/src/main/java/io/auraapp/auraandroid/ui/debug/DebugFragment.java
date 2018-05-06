@@ -133,42 +133,61 @@ public class DebugFragment extends ContextViewFragment {
 
         // TODO come up with great personas
 
-        rootView.findViewById(R.id.demo_0).setOnClickListener($ -> mHandler.post(() -> {
+        rootView.findViewById(R.id.demo_edge).setOnClickListener($ -> mHandler.post(() -> {
             profileManager.setName(createRandomStringOfLength(Config.PROFILE_NAME_MAX_LENGTH));
 
             StringBuilder text = new StringBuilder();
+            profileManager.setColor(new ColorPicker.SelectedColor("#ff00ff", 0, 0));
             for (int i = 0; i < Config.PROFILE_TEXT_MAX_LINE_BREAKS; i++) {
                 text.append(createRandomStringOfLength(Config.PROFILE_TEXT_MAX_LENGTH / Config.PROFILE_TEXT_MAX_LINE_BREAKS)).append("\n");
             }
             profileManager.setText(text.toString());
-            profileManager.setColor(new ColorPicker.SelectedColor("#ff00ff", 0, 0));
             profileManager.dropAllSlogans();
             for (int i = 0; i < Config.PROFILE_SLOGANS_MAX_SLOGANS; i++) {
                 profileManager.adopt(Slogan.create(createRandomStringOfLength(Config.PROFILE_SLOGANS_MAX_LENGTH)));
             }
         }));
-        rootView.findViewById(R.id.demo_0).setOnClickListener($ -> mHandler.post(() -> {
+        rootView.findViewById(R.id.demo_anonymous).setOnClickListener($ -> mHandler.post(() -> {
+            profileManager.setColor(new ColorPicker.SelectedColor("#000000", 0, 0));
             profileManager.setName("Anonymous");
             profileManager.setText(EmojiHelper.replaceShortCode(":fire::fire::fire:\nDemocracy prevails. Let your kindness be a symbol for humanism and a better future"));
-            profileManager.setColor(new ColorPicker.SelectedColor("#000000", 0, 0));
             profileManager.dropAllSlogans();
-            profileManager.adopt(Slogan.create("Death to the dictator!"));
+            profileManager.adopt(Slogan.create("🕯 Free proxies: 96.12.58.120 and 96.12.82.10."));
+            profileManager.adopt(Slogan.create("😷😭 Teargas! Bring water and masks"));
+            profileManager.adopt(Slogan.create("Democracy Now!"));
         }));
 
-        rootView.findViewById(R.id.demo_1).setOnClickListener($ -> mHandler.post(() -> {
-            profileManager.setName("Jen Benson");
-            profileManager.setText(EmojiHelper.replaceShortCode("TODO random linkedin bio mix"));
+        rootView.findViewById(R.id.demo_jen).setOnClickListener($ -> mHandler.post(() -> {
             profileManager.setColor(new ColorPicker.SelectedColor("#ffffff", 0, 0));
+            profileManager.setName("Jen Bendson");
+            profileManager.setText("I'm giving a talk on Friday, 2pm:"
+                    + "\n\"Positive effects of health and happiness\""
+                    + "\n\nFind me!"
+                    + "\n@jen.benson"
+                    + "\nLinkedIn.com/in/jenbenson");
             profileManager.dropAllSlogans();
-            profileManager.adopt(Slogan.create("Hello Moto"));
+            profileManager.adopt(Slogan.create("#SugarKills"));
+            profileManager.adopt(Slogan.create("4pm: Q&A @ speakers corner"));
         }));
 
-        rootView.findViewById(R.id.demo_2).setOnClickListener($ -> mHandler.post(() -> {
+        rootView.findViewById(R.id.demo_clara).setOnClickListener($ -> mHandler.post(() -> {
+            profileManager.setColor(new ColorPicker.SelectedColor("#00ff00", 0, 0));
             profileManager.setName("Clara");
             profileManager.setText(EmojiHelper.replaceShortCode("My brother wants to collect"));
-            profileManager.setColor(new ColorPicker.SelectedColor("#00ff00", 0, 0));
             profileManager.dropAllSlogans();
             profileManager.adopt(Slogan.create("Hello Moto"));
+        }));
+
+        rootView.findViewById(R.id.demo_alex).setOnClickListener($ -> mHandler.post(() -> {
+            profileManager.setColor(new ColorPicker.SelectedColor("#ff5f08", 0, 0));
+            profileManager.setName("Alexander");
+            profileManager.setText("Hey early adopting super hero 🤖"
+                    + "\n\nI created Aura and need you!"
+                    + "\nPlease help at getaura.io/feedback"
+                    + "\n\n@alexanderthiel"
+                    + "\nLinkedIn.com/in/reasn");
+            profileManager.dropAllSlogans();
+            profileManager.adopt(Slogan.create("Aura goes IoT!\nHelp at getaura.io/iot"));
         }));
 
         Timer.clear(mRefreshTimeout);

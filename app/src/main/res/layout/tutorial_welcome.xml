@@ -29,7 +29,7 @@
             style="@style/TutorialMessage.Bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="This is a beta version, please expect a few bumps in the road :)\n\nAura doesn\'t use your internet connection. It works on phones without SIM card and Wifi. It only requires Bluetooth to be enabled (which you can do in flight mode).\nBecause of that it works on factory-reset phones, on planes and on Mars.\n\nThe following tutorial will show you how things work." />
+            android:text="This is a beta version, please expect a few bumps on the road :)\n\nAura doesn\'t use your internet connection. It doesn't require a SIM card or Wifi. It only requires Bluetooth to be enabled (which you can do in flight mode).\nBecause of that it works on factory-reset phones, on planes and on Mars.\n\nThe following tutorial will show you how things work." />
 
         <LinearLayout
             style="@style/TutorialButtonWrapper"
