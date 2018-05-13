@@ -3,7 +3,11 @@ package io.auraapp.auraandroid.ui.world.list;
 import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.ColorInt;
+import android.util.Patterns;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -19,6 +23,42 @@ import static io.auraapp.auraandroid.common.FormattedLog.v;
 public class PeerSloganHolder extends ExpandableViewHolder {
 
     private final WhatsMyColorCallback mWhatsMyColorCallback;
+    private Context mContext;
+    private TextViewClickMovement.LinkTouchListener mLinkTouchListener = new TextViewClickMovement.LinkTouchListener() {
+
+        @Override
+        public void onLinkClicked(String linkText) {
+
+            if (Patterns.IP_ADDRESS.matcher(linkText).matches()) {
+                return;
+
+            } else if (Patterns.PHONE.matcher(linkText).matches()) {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:" + linkText));
+                mContext.startActivity(intent);
+
+            } else if (Patterns.WEB_URL.matcher(linkText).matches()) {
+                if (!linkText.startsWith("https://") && !linkText.startsWith("http://")) {
+                    linkText = "http://" + linkText;
+                }
+                mContext.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(linkText)));
+
+            } else if (Patterns.EMAIL_ADDRESS.matcher(linkText).matches()) {
+                Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:" + linkText));
+                mContext.startActivity(intent);
+            }
+        }
+
+        @Override
+        public void onDown(TextView textView) {
+            startOrContinue((LinearLayout) textView.getParent());
+        }
+
+        @Override
+        public void onUp(TextView textView) {
+            stop((LinearLayout) textView.getParent());
+        }
+    };
 
     public static interface WhatsMyColorCallback {
         @ColorInt
@@ -35,8 +75,9 @@ public class PeerSloganHolder extends ExpandableViewHolder {
     public int mBackgroundColor;
 
 
-    public PeerSloganHolder(View itemView, OnAdoptCallback onAdoptCallback, WhatsMyColorCallback whatsMyColorCallback) {
+    public PeerSloganHolder(View itemView, Context context, OnAdoptCallback onAdoptCallback, WhatsMyColorCallback whatsMyColorCallback) {
         super(itemView);
+        mContext = context;
         mOnAdoptCallback = onAdoptCallback;
         mWhatsMyColorCallback = whatsMyColorCallback;
         mTextView = itemView.findViewById(R.id.world_peer_slogan_text);
@@ -58,6 +99,8 @@ public class PeerSloganHolder extends ExpandableViewHolder {
         v(TAG, "Binding peer slogan item view, expanded: %s", expanded);
         Slogan slogan = (Slogan) item;
         mTextView.setText(slogan.getText());
+        mTextView.setMovementMethod(new TextViewClickMovement(mLinkTouchListener, mContext));
+
         itemView.setBackgroundColor(mBackgroundColor);
         mTextView.setTextColor(mTextColor);
 

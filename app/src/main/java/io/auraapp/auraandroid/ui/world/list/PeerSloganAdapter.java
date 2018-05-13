@@ -17,6 +17,7 @@ public class PeerSloganAdapter extends ExpandableRecyclerAdapter {
     ColorSet mColorSet;
     private final OnAdoptCallback mOnAdoptCallback;
     private final PeerSloganHolder.WhatsMyColorCallback mWhatsMyColorCallback;
+    private Context mContext;
 
     public PeerSloganAdapter(@NonNull Context context,
                              RecyclerView listView,
@@ -28,6 +29,7 @@ public class PeerSloganAdapter extends ExpandableRecyclerAdapter {
         super(context, listView);
         mItems.addAll(slogans);
         mColorSet = colorSet;
+        mContext = context;
         mOnAdoptCallback = onAdoptCallback;
         mWhatsMyColorCallback = whatsMyColorCallback;
     }
@@ -50,6 +52,7 @@ public class PeerSloganAdapter extends ExpandableRecyclerAdapter {
     public ExpandableViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new PeerSloganHolder(
                 mInflater.inflate(R.layout.world_peer_slogan, parent, false),
+                mContext,
                 mOnAdoptCallback,
                 mWhatsMyColorCallback);
     }
