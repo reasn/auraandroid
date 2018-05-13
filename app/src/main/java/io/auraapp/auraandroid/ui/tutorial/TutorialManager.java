@@ -1,6 +1,8 @@
 package io.auraapp.auraandroid.ui.tutorial;
 
 import android.content.Context;
+import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -11,6 +13,8 @@ import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.ui.ScreenPager;
 
 import static io.auraapp.auraandroid.common.FormattedLog.i;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_COMPLETE_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_OPEN_ACTION;
 
 public class TutorialManager {
 
@@ -21,6 +25,7 @@ public class TutorialManager {
     private final ScreenPager mPager;
     private View mCurrentScreen;
     private TutorialStep mCurrentStep = null;
+    private boolean mOpen;
 
     public TutorialManager(Context context,
                            RelativeLayout rootView,
@@ -41,11 +46,36 @@ public class TutorialManager {
         close();
     }
 
-    public void goTo(Class<? extends TutorialStep> step) {
+    public void open() {
+        i(TAG, "Opening tutorial and sending intent %s", LOCAL_TUTORIAL_OPEN_ACTION);
+        mOpen = true;
+        goTo(SwipeStep.class);
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(LOCAL_TUTORIAL_OPEN_ACTION));
+    }
+
+    public void close() {
+        i(TAG, "Closing tutorial");
+        if (mCurrentStep != null) {
+            i(TAG, "Removing current tutorial screen");
+            ((ViewGroup) mCurrentScreen.getParent()).removeView(mCurrentScreen);
+            mCurrentStep.leave();
+            mCurrentScreen = null;
+            mCurrentStep = null;
+        }
+    }
+
+    public boolean isOpen() {
+        return mOpen;
+    }
+
+    private void goTo(Class<? extends TutorialStep> step) {
 
         close();
         if (step == null) {
+            mOpen = false;
             setCompleted(true);
+            i(TAG, "Completed tutorial, sending intent %s", LOCAL_TUTORIAL_COMPLETE_ACTION);
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(LOCAL_TUTORIAL_COMPLETE_ACTION));
             return;
         }
         if (step.equals(WelcomeStep.class)) {
@@ -82,20 +112,5 @@ public class TutorialManager {
             // Just catch clicks so that they don't bubble to the background
         });
         mRootView.addView(mCurrentScreen);
-    }
-
-    public void close() {
-        if (mCurrentStep != null) {
-            i(TAG, "Removing current tutorial screen");
-            ((ViewGroup) mCurrentScreen.getParent()).removeView(mCurrentScreen);
-            mCurrentStep.leave();
-            mCurrentScreen = null;
-            mCurrentStep = null;
-        }
-    }
-
-    public void open() {
-        i(TAG, "Opening tutorial");
-        goTo(WelcomeStep.class);
     }
 }

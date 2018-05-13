@@ -32,6 +32,7 @@ import io.auraapp.auraandroid.ui.SharedServicesSet;
 import io.auraapp.auraandroid.ui.common.ColorPicker;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxyState;
 import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
+import io.auraapp.auraandroid.ui.profile.profileModel.MyProfile;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -54,7 +55,9 @@ public class DebugFragment extends ContextViewFragment {
     @Nullable
     private Set<Peer> mPeers;
     private CommunicatorProxyState mState;
+    private MyProfile mProfile;
     private long mLastStateUpdateTimestamp;
+
     private long mLastIntentTimestamp;
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -90,7 +93,6 @@ public class DebugFragment extends ContextViewFragment {
             });
         }
     };
-
     private BroadcastReceiver mCommunicatorProxyStateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -129,6 +131,7 @@ public class DebugFragment extends ContextViewFragment {
         MyProfileManager profileManager = servicesSet.mMyProfileManager;
         mState = servicesSet.mCommunicatorProxy.getState();
         mPeers = servicesSet.mCommunicatorProxy.getPeers();
+        mProfile = servicesSet.mMyProfileManager.getProfile();
         mLastStateUpdateTimestamp = System.currentTimeMillis();
 
         // TODO come up with great personas
@@ -212,6 +215,7 @@ public class DebugFragment extends ContextViewFragment {
                         ? (now - mLastIntentTimestamp) / 1000 + "s ago"
                         : "never");
         dump += "\nlast communicator state: " + (now - mLastStateUpdateTimestamp) / 1000 + "s ago";
+        dump += "\nprofile: " + gson.toJson(mProfile);
         dump += "\ncommunicator: " + gson.toJson(mState);
         dump += "\npeers: " + gson.toJson(mPeers);
         dump += createPrefsDump(context);

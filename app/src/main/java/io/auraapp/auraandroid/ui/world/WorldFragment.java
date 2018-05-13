@@ -28,6 +28,7 @@ import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.SharedServicesSet;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxyState;
+import io.auraapp.auraandroid.ui.common.ProductionStubFactory;
 import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfile;
 import io.auraapp.auraandroid.ui.world.list.PeerAdapter;
@@ -41,6 +42,8 @@ import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STA
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_EXTRA_PROFILE;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_COMPLETE_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_OPEN_ACTION;
 import static io.auraapp.auraandroid.ui.common.CommunicatorProxy.replacePeer;
 
 public class WorldFragment extends ContextViewFragment {
@@ -59,6 +62,7 @@ public class WorldFragment extends ContextViewFragment {
     private Button mInviteButton;
     private TextView mNotScanningMessage;
     private String mMyColor;
+    private Set<Peer> mTutorialPeers;
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -68,6 +72,9 @@ public class WorldFragment extends ContextViewFragment {
                 return;
             }
 
+            if (mTutorialPeers != null) {
+                return;
+            }
             if (INTENT_PEER_UPDATED_ACTION.equals(intent.getAction())) {
                 @SuppressWarnings("unchecked")
                 Peer peer = (Peer) extras.getSerializable(INTENT_PEER_UPDATED_EXTRA_PEER);
@@ -95,14 +102,33 @@ public class WorldFragment extends ContextViewFragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             v(TAG, "onReceive, intent: %s", intent.getAction());
-            Bundle extras = intent.getExtras();
-            if (extras != null) {
-                if (LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION.equals(intent.getAction())) {
-                    mComProxyState = (CommunicatorProxyState) extras.getSerializable(LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE);
+
+            if (LOCAL_TUTORIAL_OPEN_ACTION.equals(intent.getAction())) {
+                mTutorialPeers = ProductionStubFactory.createFakePeers();
+                if (mPeerAdapter != null) {
+                    mPeerAdapter.notifyPeerListChanged(mTutorialPeers);
                     reflectState(context);
-                } else if (LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION.equals(intent.getAction())) {
-                    mMyColor = ((MyProfile) extras.getSerializable(LOCAL_MY_PROFILE_EXTRA_PROFILE)).getColor();
                 }
+                return;
+            }
+            if (LOCAL_TUTORIAL_COMPLETE_ACTION.equals(intent.getAction())) {
+                mTutorialPeers = null;
+                if (mPeerAdapter != null) {
+                    mPeerAdapter.notifyPeerListChanged(mPeers);
+                    reflectState(context);
+                }
+                return;
+            }
+
+            Bundle extras = intent.getExtras();
+            if (extras == null) {
+                return;
+            }
+            if (LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION.equals(intent.getAction())) {
+                mComProxyState = (CommunicatorProxyState) extras.getSerializable(LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE);
+                reflectState(context);
+            } else if (LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION.equals(intent.getAction())) {
+                mMyColor = ((MyProfile) extras.getSerializable(LOCAL_MY_PROFILE_EXTRA_PROFILE)).getColor();
             }
         }
     };
@@ -119,7 +145,9 @@ public class WorldFragment extends ContextViewFragment {
         LocalBroadcastManager.getInstance(activity).registerReceiver(mLocalReceiver,
                 IntentFactory.createFilter(
                         LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION,
-                        LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION
+                        LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION,
+                        LOCAL_TUTORIAL_OPEN_ACTION,
+                        LOCAL_TUTORIAL_COMPLETE_ACTION
                 ));
         v(TAG, "Receivers registered");
 
@@ -127,6 +155,10 @@ public class WorldFragment extends ContextViewFragment {
         mPeers = servicesSet.mCommunicatorProxy.getPeers();
         mComProxyState = servicesSet.mCommunicatorProxy.getState();
         mMyColor = servicesSet.mMyProfileManager.getColor();
+        v(TAG, "%s fake peers for tutorial", servicesSet.mTutorialManager.isOpen() ? "Showing" : "Not showing");
+        if (servicesSet.mTutorialManager.isOpen()) {
+            mTutorialPeers = ProductionStubFactory.createFakePeers();
+        }
 
         mNotScanningMessage = rootView.findViewById(R.id.world_not_scanning);
         mStartingWrapper = rootView.findViewById(R.id.world_starting_wrapper);
@@ -175,13 +207,16 @@ public class WorldFragment extends ContextViewFragment {
                 && mComProxyState.mCommunicatorState != null
                 && mComProxyState.mCommunicatorState.mScanning;
 
+        int peersCount = mTutorialPeers != null
+                ? mTutorialPeers.size()
+                : mPeers != null ? mPeers.size() : 0;
+
         mPeersRecycler.setVisibility(scanning ? View.VISIBLE : View.GONE);
         mNotScanningMessage.setVisibility(scanning ? View.GONE : View.VISIBLE);
         mSwipeRefresh.setEnabled(scanning);
-        mSwipeRefresh.setPeerCount(mPeers != null ? mPeers.size() : 0);
+        mSwipeRefresh.setPeerCount(peersCount);
 
-
-        if (!scanning || mPeers.size() > 0) {
+        if (!scanning || peersCount > 0) {
             mStartingWrapper.setVisibility(View.GONE);
             mNoPeersWrapper.setVisibility(View.GONE);
             return;
