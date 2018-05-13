@@ -39,8 +39,10 @@
                 android:textColor="@color/black"
                 android:textSize="24sp" />
         </LinearLayout>
-
-        <ScrollView
+        <!--ScrollView cuts items off RecyclerView
+        Thanks https://stackoverflow.com/questions/45998522/recyclerview-does-not-show-all-items-inside-fragment#comment83015525_45999832
+        -->
+        <android.support.v4.widget.NestedScrollView
             android:id="@+id/profile_scroll_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -74,9 +76,9 @@
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/profile_slogans_recycler"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="wrap_content" />
             </LinearLayout>
-        </ScrollView>
+        </android.support.v4.widget.NestedScrollView>
     </LinearLayout>
 
     <Button
@@ -87,8 +89,6 @@
         android:layout_margin="26dp"
         android:background="@mipmap/ic_launcher"
         android:padding="0dp" />
-    <!--app:layout_anchor="@id/wraaaa"-->
-    <!--app:layout_anchorGravity="bottom|end" />-->
 
 </FrameLayout>
 
