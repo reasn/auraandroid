@@ -1,6 +1,7 @@
 package io.auraapp.auraandroid.common;
 
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -71,6 +72,15 @@ public class AuraPrefs {
         );
     }
 
+    public static boolean shouldPanicSwipe(Context context) {
+        return get(context).getBoolean(context.getString(R.string.prefs_panic_swipe_key), false);
+    }
+
+    public static boolean shouldPanicUninstall(Context context) {
+        return get(context).getBoolean(context.getString(R.string.prefs_panic_uninstall_key), false);
+    }
+
+
     public static boolean shouldVibrateOnPeerNotification(Context context) {
         return get(context).getBoolean(context.getString(R.string.prefs_notification_vibrate_key), true);
     }
@@ -92,4 +102,8 @@ public class AuraPrefs {
         });
     }
 
+    @SuppressLint("ApplySharedPref")
+    public static void swipe(Context context) {
+        get(context).edit().clear().commit();
+    }
 }

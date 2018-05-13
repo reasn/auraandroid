@@ -171,6 +171,19 @@
     <string name="prefs_notification_vibrate_title">Vibration</string>
     <string name="prefs_notification_vibrate_summary_on">Your phone briefly vibrates if you encounter another Aura</string>
     <string name="prefs_notification_vibrate_summary_off">Your phone doesn\'t vibrate if you encounter another Aura</string>
+
+    <string name="prefs_panic_group_key">panic</string>
+    <string name="prefs_panic_group_title">How to React to Panic Button (e.g. Ripple)?</string>
+    <string name="prefs_panic_group_summary">Apps like Ripple and PanicButton allow swiftly swiping data of multiple apps in a panic situation.</string>
+    <string name="prefs_panic_swipe_key">panic_swipe</string>
+    <string name="prefs_panic_swipe_title">Delete user data</string>
+    <string name="prefs_panic_swipe_off">Activating the panic button does not delete your profile and ideas</string>
+    <string name="prefs_panic_swipe_on">Activating the panic button permanently deletes your profile and ideas</string>
+    <string name="prefs_panic_uninstall_key">panic_uninstall</string>
+    <string name="prefs_panic_uninstall_title">Try uninstalling Aura</string>
+    <string name="prefs_panic_uninstall_off">Activating the panic button does not try to uninstall Aura</string>
+    <string name="prefs_panic_uninstall_on">Activating the panic button tries to uninstall Aura</string>
+
     <string name="prefs_tutorial_completed">tutorial_completed</string>
     <string name="prefs_terms_agreed">terms_agreed</string>
     <string name="prefs_hide_broken_bt_warning_key">hide_broken_bt_stack_warning</string>
@@ -182,11 +195,13 @@
     <string name="prefs_retention_dialog_title">Keep Others\' Ideas</string>
     <!--<string name="ui_prefs_retention_dialog_message">If you pass by another Aura, its ideas remain visible afterwards. After what time should they disappear to make space?</string>-->
     <string name="prefs_retention_default">300000</string>
+    <string name="prefs_other_group_key">meta</string>
+    <string name="prefs_other_group_title">Other</string>
     <string name="prefs_feedback_key">feedback</string>
     <string name="prefs_feedback_title">Feedback</string>
     <string name="prefs_feedback_summary">Please take a few minutes to help make Aura better!</string>
     <string name="prefs_feedback_url">http://www.getaura.io/survey</string>
-    <string name="prefs_about_title">About</string>
+    <string name="prefs_about_title">About Aura</string>
     <string name="prefs_about_summary">Copyright and version</string>
     <string name="prefs_about_key">about</string>
     <string name="prefs_about_dialog_title">About Aura</string>

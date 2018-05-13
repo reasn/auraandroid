@@ -32,6 +32,8 @@ public class ScreenPagerAdapter extends FragmentPagerAdapter {
     private final List<Fragment> mFragments = new ArrayList<>();
     private final LocalBroadcastManager mLocalBroadcastManager;
 
+    private Fragment mPrimaryItem = null;
+
     public ScreenPagerAdapter(FragmentManager fm, LocalBroadcastManager localBroadcastManager) {
         super(fm);
         mLocalBroadcastManager = localBroadcastManager;
@@ -106,13 +108,6 @@ public class ScreenPagerAdapter extends FragmentPagerAdapter {
             }
         }
     }
-
-    @Override
-    public void destroyItem(ViewGroup container, int position, Object object) {
-        super.destroyItem(container, position, object);
-    }
-
-    private Fragment mPrimaryItem = null;
 
     @Nullable
     public Fragment getCurrentItem() {

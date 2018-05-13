@@ -9,7 +9,6 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -38,6 +37,7 @@ import static io.auraapp.auraandroid.common.FormattedLog.e;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 import static io.auraapp.auraandroid.common.FormattedLog.w;
+import static io.auraapp.auraandroid.ui.panic.PanicResponderActivity.PANIC_TRIGGER_ACTION;
 
 /**
  * Runs in a separate process
@@ -110,15 +110,11 @@ public class Communicator extends Service {
                     actOnState(true);
                 },
                 exception -> {
-                    // Thanks https://stackoverflow.com/questions/5883635/how-to-remove-all-callbacks-from-a-handler
-                    mHandler.removeCallbacks(null);
-
                     e(TAG, "Corrupted state, stopping service, error: %s", exception == null ? "null" : exception.getMessage());
-                    stopForeground(true);
-                    mIsRunningInForeground = false;
-                    stopSelf();
+                    stop();
                 }
         );
+
 
         PeerBroadcaster broadcaster = new PeerBroadcaster(
                 peers -> mHandler.post(() -> {
@@ -161,17 +157,35 @@ public class Communicator extends Service {
                     actOnState(true);
                 });
 
-        registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context $, Intent intent) {
-                d(TAG, "onReceive, intent: %s", intent);
-                mHandler.post(() -> handleIntent(intent));
-            }
-        }, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+
+        registerReceiver(mReceiver, IntentFactory.createFilter(BluetoothAdapter.ACTION_STATE_CHANGED, PANIC_TRIGGER_ACTION));
+
         d(TAG, "Started listening to %s events", BluetoothAdapter.ACTION_STATE_CHANGED);
 
         updateBtState();
         actOnStateWhileWaitingForPermissions();
+    }
+
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context $, Intent intent) {
+            d(TAG, "onReceive, intent: %s", intent);
+            mHandler.post(() -> handleIntent(intent));
+        }
+    };
+
+    private void stop() {
+        i(TAG, "Stopping communicator");
+        // Thanks https://stackoverflow.com/questions/5883635/how-to-remove-all-callbacks-from-a-handler
+        try {
+            unregisterReceiver(mReceiver);
+        } catch (IllegalArgumentException e) {
+            // Can be ignored, we exit anyway
+        }
+        mHandler.removeCallbacks(null);
+        stopForeground(true);
+        mIsRunningInForeground = false;
+        stopSelf();
     }
 
     private void showPeerNotification() {
@@ -347,8 +361,7 @@ public class Communicator extends Service {
                 mIsRunningInForeground = true;
 
             } else if (!mState.mShouldCommunicate && mIsRunningInForeground) {
-                stopForeground(true);
-                mIsRunningInForeground = false;
+                stop();
             }
 
             if (stateChanged || forceSend) {
@@ -415,6 +428,12 @@ public class Communicator extends Service {
         final String action = intent.getAction();
 
         d(TAG, "handleIntent, action: %s", action);
+
+        if (PANIC_TRIGGER_ACTION.equals(action)) {
+            stop();
+            return;
+        }
+
 
         if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
             final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);

@@ -28,17 +28,38 @@
             android:title="@string/prefs_notification_vibrate_title" />
     </PreferenceCategory>
 
-    <Preference
-        android:key="@string/prefs_feedback_key"
-        android:summary="@string/prefs_feedback_summary"
-        android:title="@string/prefs_feedback_title">
-        <intent
-            android:action="android.intent.action.VIEW"
-            android:data="@string/prefs_feedback_url" />
-    </Preference>
+    <PreferenceCategory
+        android:key="@string/prefs_panic_group_key"
+        android:title="@string/prefs_panic_group_title">
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="@string/prefs_panic_swipe_key"
+            android:summaryOff="@string/prefs_panic_swipe_off"
+            android:summaryOn="@string/prefs_panic_swipe_on"
+            android:title="@string/prefs_panic_swipe_title" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="@string/prefs_panic_uninstall_key"
+            android:summaryOff="@string/prefs_panic_uninstall_off"
+            android:summaryOn="@string/prefs_panic_uninstall_on"
+            android:title="@string/prefs_panic_uninstall_title" />
+    </PreferenceCategory>
 
-    <Preference
-        android:key="@string/prefs_about_key"
-        android:summary="@string/prefs_about_summary"
-        android:title="@string/prefs_about_title" />
+    <PreferenceCategory
+        android:key="@string/prefs_other_group_key"
+        android:title="@string/prefs_other_group_title">
+        <Preference
+            android:key="@string/prefs_feedback_key"
+            android:summary="@string/prefs_feedback_summary"
+            android:title="@string/prefs_feedback_title">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="@string/prefs_feedback_url" />
+        </Preference>
+
+        <Preference
+            android:key="@string/prefs_about_key"
+            android:summary="@string/prefs_about_summary"
+            android:title="@string/prefs_about_title" />
+    </PreferenceCategory>
 </PreferenceScreen>
