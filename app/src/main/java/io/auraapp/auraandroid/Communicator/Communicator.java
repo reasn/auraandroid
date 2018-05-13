@@ -60,6 +60,7 @@ public class Communicator extends Service {
     private int notificationIndex = 0;
     private long lastNotification = 0;
     private final CommunicatorState mState = new CommunicatorState();
+    private boolean mVibrate;
 
     @FunctionalInterface
     interface OnUnrecoverableBtErrorCallback {
@@ -94,6 +95,10 @@ public class Communicator extends Service {
         // Can't do this in constructor because R.string resources are not yet available
         d(TAG, "Initializing communicator");
         mHandler = new Handler();
+
+        AuraPrefs.init(this);
+        AuraPrefs.listen(this, R.string.prefs_notification_vibrate_key, value -> mVibrate = (Boolean) value);
+        mVibrate = AuraPrefs.shouldVibrateOnPeerNotification(this);
 
         mAdvertiser = new Advertiser(
                 mAdvertisementSet,
@@ -263,7 +268,7 @@ public class Communicator extends Service {
 
                 // TODO use different wording if notification_show is enabled
 
-                if (AuraPrefs.shouldVibrateOnPeerNotification(this)) {
+                if (mVibrate) {
                     builder.setLights(getResources().getColor(R.color.purple), PEERS_CHANGED_NOTIFICATION_LIGHT_PATTERN[0], PEERS_CHANGED_NOTIFICATION_LIGHT_PATTERN[1]);
                     builder.setVibrate(Config.PEERS_CHANGED_NOTIFICATION_VIBRATION_PATTERN);
                 }
@@ -295,7 +300,7 @@ public class Communicator extends Service {
         NotificationChannel channel = new NotificationChannel("communicator_channel", "Aura", importance);
         channel.setImportance(importance);
         channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-        if (AuraPrefs.shouldVibrateOnPeerNotification(this)) {
+        if (mVibrate) {
             channel.setLightColor(R.color.purple);
             channel.setVibrationPattern(Config.PEERS_CHANGED_NOTIFICATION_VIBRATION_PATTERN);
         }

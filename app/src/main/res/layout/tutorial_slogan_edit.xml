@@ -1,64 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/TutorialWrapper"
+    android:id="@+id/tutorial_overlay"
+    style="@style/TutorialOverlay"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true">
 
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/tutorial_overlay"
-        style="@style/TutorialOverlay.Top"
+    <LinearLayout
+        android:id="@+id/tutorial_heading"
+        style="@style/TutorialHeadlineWithArrow.Left"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <LinearLayout
-            android:id="@+id/tutorial_heading"
-            style="@style/TutorialHeadlineWithArrow.Left"
-            android:layout_width="match_parent"
-            app:layout_constraintBottom_toBottomOf="@id/tutorial_overlay"
-            android:layout_height="wrap_content">
-
-            <ImageView
-                style="@style/TutorialHeadlineWithArrowArrow.Left.Top"
-                android:layout_width="40dp"
-                android:layout_height="70dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="20dp" />
-
-            <TextView
-                style="@style/TutorialHeadlineWithArrowText.Top"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Your Ideas" />
-
-        </LinearLayout>
+        android:layout_height="wrap_content"
+        android:gravity="center">
 
         <TextView
-            style="@style/TutorialMessage.Top"
-            android:id="@+id/tutorial_message"
+            style="@style/TutorialHeadlineWithArrowText.Bottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Your Ideas" />
+
+        <ImageView
+            style="@style/TutorialHeadlineWithArrowArrow"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp" />
+
+    </LinearLayout>
+
+    <TextView
+        style="@style/TutorialMessage.Bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="This is a list of your ideas.\nClick each to delete or edit it." />
+
+    <LinearLayout
+        style="@style/TutorialButtonWrapper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/tutorial_back"
+            style="@style/TutorialButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toTopOf="@id/tutorial_heading"
-            android:text="This is a list of your ideas.\nClick each to delete or edit it." />
+            android:text="@string/tutorial_button_back" />
 
-        <LinearLayout
-            style="@style/TutorialButtonWrapper.Top"
+        <Button
+            android:id="@+id/tutorial_next"
+            style="@style/TutorialButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <Button
-                android:id="@+id/tutorial_back"
-                style="@style/TutorialButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/tutorial_button_back" />
-
-            <Button
-                android:id="@+id/tutorial_next"
-                style="@style/TutorialButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/tutorial_button_next" />
-        </LinearLayout>
-    </android.support.constraint.ConstraintLayout>
+            android:layout_height="wrap_content"
+            android:text="@string/tutorial_button_next" />
+    </LinearLayout>
 </LinearLayout>

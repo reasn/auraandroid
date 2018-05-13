@@ -3,6 +3,7 @@ package io.auraapp.auraandroid.ui.tutorial;
 
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import io.auraapp.auraandroid.R;
@@ -19,13 +20,14 @@ public class SloganEditStep extends ProfileStatusHidingStep {
 
         ViewGroup screen = (ViewGroup) LayoutInflater.from(mContext).inflate(R.layout.tutorial_slogan_edit, mRootView, false);
 
-        screen.findViewById(R.id.tutorial_overlay).getLayoutParams().height = getRelativeBottom(R.id.profile_my_text);
+        mRootView.findViewById(R.id.profile_my_text).setVisibility(View.GONE);
 
         return screen;
     }
 
     public void leave() {
         doLeave();
+        mRootView.findViewById(R.id.profile_my_text).setVisibility(View.VISIBLE);
     }
 
     @Override

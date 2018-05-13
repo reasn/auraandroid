@@ -123,6 +123,10 @@ public class ToolbarFragment extends ContextViewFragment {
                 activity.getSharedServicesSet().mTutorialManager.complete();
                 return true;
             }
+            if (item.getItemId() == R.id.action_shorten_retention) {
+                AuraPrefs.putPeerRetention(10000, activity);
+                return true;
+            }
             if (item.getItemId() == R.id.action_finish) {
                 activity.finish();
                 return true;

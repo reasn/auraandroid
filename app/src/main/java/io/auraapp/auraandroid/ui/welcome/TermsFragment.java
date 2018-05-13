@@ -19,7 +19,6 @@ import io.auraapp.auraandroid.ui.profile.ProfileFragment;
 public class TermsFragment extends ContextViewFragment {
 
     private static final String TAG = "@aura/ui/welcome/" + TermsFragment.class.getSimpleName();
-    public static final long FRAGMENT_ID = 5033;
     private ScreenPager mPager;
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override

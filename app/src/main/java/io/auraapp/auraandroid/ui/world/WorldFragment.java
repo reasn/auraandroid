@@ -49,7 +49,6 @@ import static io.auraapp.auraandroid.ui.common.CommunicatorProxy.replacePeer;
 public class WorldFragment extends ContextViewFragment {
 
     private static final String TAG = "@aura/ui/world/fragment";
-    public static final long FRAGMENT_ID = 5035;
     private Handler mHandler = new Handler();
     private PeerAdapter mPeerAdapter;
     private FakeSwipeRefreshLayout mSwipeRefresh;

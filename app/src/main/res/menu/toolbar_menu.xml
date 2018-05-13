@@ -36,6 +36,11 @@
                     android:title="@string/toolbar_complete_tutorial"
                     app:showAsAction="withText" />
                 <item
+                    android:id="@+id/action_shorten_retention"
+                    android:icon="@android:drawable/ic_menu_crop"
+                    android:title="@string/toolbar_shorten_retention"
+                    app:showAsAction="withText" />
+                <item
                     android:id="@+id/action_finish"
                     android:icon="@android:drawable/ic_menu_close_clear_cancel"
                     android:title="@string/toolbar_finish"

@@ -173,16 +173,17 @@
     </style>
 
     <style name="TutorialHeadlineWithArrow">
-        <item name="android:layout_margin">20dp</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginLeft">20dp</item>
+        <item name="android:layout_marginRight">20dp</item>
+        <item name="android:layout_marginBottom">20dp</item>
         <item name="android:orientation">horizontal</item>
         <item name="android:gravity">right</item>
         <item name="android:layoutDirection">rtl</item>
     </style>
 
 
-    <style name="TutorialHeadlineWithArrow.Left">
-        <item name="android:layout_margin">20dp</item>
-        <item name="android:orientation">horizontal</item>
+    <style name="TutorialHeadlineWithArrow.Left" parent="TutorialHeadlineWithArrow">
         <item name="android:gravity">left</item>
         <item name="android:layoutDirection">ltr</item>
     </style>
@@ -197,6 +198,8 @@
 
 
     <style name="TutorialHeadlineWithArrowArrow">
+        <item name="android:layout_width">32dp</item>
+        <item name="android:layout_height">56dp</item>
         <item name="android:background">@drawable/tutorial_arrow_up</item>
         <item name="android:scaleType">matrix</item>
     </style>
@@ -234,7 +237,10 @@
 
     <style name="TutorialMessage" parent="TutorialText">
         <item name="android:textSize">18sp</item>
-        <item name="android:layout_margin">20dp</item>
+        <item name="android:layout_marginTop">20dp</item>
+        <item name="android:layout_marginBottom">20dp</item>
+        <item name="android:layout_marginLeft">20dp</item>
+        <item name="android:layout_marginRight">20dp</item>
         <item name="android:textAppearance">?android:textAppearanceMedium</item>
         <item name="android:layout_below">@id/tutorial_heading</item>
     </style>

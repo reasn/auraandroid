@@ -27,7 +27,6 @@ public class PermissionsFragment extends ContextViewFragment {
     private static final String TAG = "@aura/ui/permissions/" + PermissionsFragment.class.getSimpleName();
     private static final int REQUEST_CODE_LOCATION_REQUEST = 149;
     private static final int REQUEST_CODE_APP_SETTINGS = 144;
-    public static final long FRAGMENT_ID = 5032;
 
     private final Handler mHandler = new Handler();
     private final Timer mTimer = new Timer(mHandler);

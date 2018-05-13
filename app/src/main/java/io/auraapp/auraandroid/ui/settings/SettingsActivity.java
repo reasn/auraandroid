@@ -10,6 +10,7 @@ import android.view.View;
 
 import io.auraapp.auraandroid.BuildConfig;
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.ui.DialogBuilder;
 import io.auraapp.auraandroid.ui.DialogManager;
@@ -23,6 +24,8 @@ public class SettingsActivity extends AppCompatActivity {
         // Necessary for splash screen
         setTheme(R.style.Theme_AppCompat_Light_NoActionBar);
         super.onCreate(savedInstanceState);
+
+        AuraPrefs.init(this);
 
         setContentView(R.layout.settings_activity);
 
@@ -50,6 +53,7 @@ public class SettingsActivity extends AppCompatActivity {
         @Override
         public void onCreate(final Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+
             getPreferenceManager().setSharedPreferencesName(Config.PREFERENCES_BUCKET);
             addPreferencesFromResource(R.xml.preferences);
 

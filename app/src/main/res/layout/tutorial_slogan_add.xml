@@ -1,48 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/TutorialWrapper"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.constraint.ConstraintLayout
+    <RelativeLayout
         android:id="@+id/tutorial_overlay"
-        style="@style/TutorialOverlay.Top"
+        style="@style/TutorialOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <LinearLayout
             android:id="@+id/tutorial_heading"
-            style="@style/TutorialHeadlineWithArrow.Top"
+            style="@style/TutorialHeadlineWithArrow.Left"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="@id/tutorial_overlay">
-
-            <ImageView
-                style="@style/TutorialHeadlineWithArrowArrow.Top"
-                android:layout_width="40dp"
-                android:layout_height="70dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="20dp" />
+            android:gravity="end">
 
             <TextView
-                style="@style/TutorialHeadlineWithArrowText.Top"
+                style="@style/TutorialHeadlineWithArrowText.Bottom"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
                 android:text="Add an Idea" />
+
+            <ImageView
+                style="@style/TutorialHeadlineWithArrowArrow"
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="25dp" />
 
         </LinearLayout>
 
         <TextView
-            android:id="@+id/tutorial_message"
-            style="@style/TutorialMessage.Top"
+            style="@style/TutorialMessage.Bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ideas are short sentences worth sharing with Aura users around you.\n\nAura about spreading ideas without centralized infrastructure (servers, telecom providers). It can\'t be censored by controlling the internet."
-            app:layout_constraintBottom_toTopOf="@id/tutorial_heading" />
+            android:text="An idea is everything worth sharing with nearby Aura users." />
 
         <LinearLayout
-            style="@style/TutorialButtonWrapper.Top"
+            style="@style/TutorialButtonWrapper"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -60,5 +57,5 @@
                 android:layout_height="wrap_content"
                 android:text="@string/tutorial_button_next" />
         </LinearLayout>
-    </android.support.constraint.ConstraintLayout>
+    </RelativeLayout>
 </LinearLayout>

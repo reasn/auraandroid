@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.ui.ScreenPager;
+import io.auraapp.auraandroid.ui.common.Dimensions;
 
 public class SloganAddStep extends ProfileStatusHidingStep {
 
@@ -19,16 +20,21 @@ public class SloganAddStep extends ProfileStatusHidingStep {
 
         ViewGroup screen = (ViewGroup) LayoutInflater.from(mContext).inflate(R.layout.tutorial_slogan_add, mRootView, false);
 
-        ViewGroup.LayoutParams layoutParams = (ViewGroup.LayoutParams) screen.findViewById(R.id.tutorial_overlay).getLayoutParams();
+        ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) screen.findViewById(R.id.tutorial_overlay).getLayoutParams();
 
-        layoutParams.height = getRelativeTop(R.id.profile_add_slogan)
-                - ((ViewGroup.MarginLayoutParams) mRootView.findViewById(R.id.profile_add_slogan).getLayoutParams()).bottomMargin;
+        mRootView.findViewById(R.id.pager).getLayoutParams().height = Dimensions.dp2px(300, mContext);
+        layoutParams.setMargins(0, Dimensions.dp2px(340, mContext), 0, 0);
+
+//        layoutParams.height = getRelativeTop(R.id.profile_add_slogan)
+//                - ((ViewGroup.MarginLayoutParams) mRootView.findViewById(R.id.profile_add_slogan).getLayoutParams()).bottomMargin;
+
 
         return screen;
     }
 
     public void leave() {
         doLeave();
+        mRootView.findViewById(R.id.pager).getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
     }
 
     @Override

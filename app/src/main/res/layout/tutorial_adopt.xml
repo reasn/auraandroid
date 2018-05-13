@@ -16,13 +16,13 @@
             style="@style/TutorialHeadlineText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Adopt Other Ideas︎" />
+            android:text="Check out others" />
 
         <TextView
             style="@style/TutorialMessage.Bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="This step is not yet finished. Also you survived the tutorial!\nClick 'Close' to start." />
+            android:text="Click somebody's name to see their profile text. Press and hold an idea to add it to your Aura." />
 
         <LinearLayout
             style="@style/TutorialButtonWrapper"

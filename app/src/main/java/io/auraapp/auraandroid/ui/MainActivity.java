@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.ExternalInvocation;
 import io.auraapp.auraandroid.common.PermissionHelper;
@@ -46,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
 
         v(TAG, "onCreate, intent: %s", getIntent().getAction());
 
+        AuraPrefs.init(this);
+        
         setContentView(R.layout.main_activity);
 
         mMyProfileManager = new MyProfileManager(this);

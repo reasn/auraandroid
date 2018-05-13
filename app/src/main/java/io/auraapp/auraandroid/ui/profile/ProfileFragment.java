@@ -23,7 +23,6 @@ import static io.auraapp.auraandroid.common.FormattedLog.i;
 public class ProfileFragment extends ContextViewFragment {
 
     private static final String TAG = "@aura/ui/profile/fragment";
-    public static final long FRAGMENT_ID = 5034;
     private RecyclerView mSlogansRecyclerView;
     private TextView mNameView;
     private TextView mTextView;

@@ -25,9 +25,11 @@ import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_SCREEN_PAGER_CHA
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_EXTRA_PREVIOUS;
 
 public class ScreenPagerAdapter extends FragmentPagerAdapter {
-    public static final String SCREEN_PRIVACY = "privacy";
-    private static final String SCREEN_WORLD = "world";
-    private static final String SCREEN_PROFILE = "profile";
+    public static final long ID_PERMISSIONS = 5032;
+    public static final long ID_TERMS = 5033;
+    public static final long ID_PROFILE = 5034;
+    public static final long ID_WORLD = 5035;
+    public static final long ID_DEBUG = 5036;
     private static final String TAG = "@aura/ui/" + ScreenPagerAdapter.class.getSimpleName();
     private final List<Fragment> mFragments = new ArrayList<>();
     private final LocalBroadcastManager mLocalBroadcastManager;
@@ -56,26 +58,6 @@ public class ScreenPagerAdapter extends FragmentPagerAdapter {
 
     public boolean debugVisible() {
         return has(DebugFragment.class);
-    }
-
-    public Class getClassForHandle(String handle) {
-        if (handle.equals(SCREEN_PROFILE)) {
-            return ProfileFragment.class;
-        }
-        if (handle.equals(SCREEN_WORLD)) {
-            return WorldFragment.class;
-        }
-        return TermsFragment.class;
-    }
-
-    public String getHandleForClass(Class fragment) {
-        if (fragment.equals(ProfileFragment.class)) {
-            return SCREEN_PROFILE;
-        }
-        if (fragment.equals(WorldFragment.class)) {
-            return SCREEN_WORLD;
-        }
-        return SCREEN_PRIVACY;
     }
 
     public void addPermissionsFragment() {
@@ -143,19 +125,19 @@ public class ScreenPagerAdapter extends FragmentPagerAdapter {
             throw new Error("Tried to get ID of null fragment at " + position);
         }
         if (fragment instanceof PermissionsFragment) {
-            return PermissionsFragment.FRAGMENT_ID;
+            return ID_PERMISSIONS;
         }
         if (fragment instanceof TermsFragment) {
-            return TermsFragment.FRAGMENT_ID;
+            return ID_TERMS;
         }
         if (mFragments.get(position) instanceof ProfileFragment) {
-            return ProfileFragment.FRAGMENT_ID;
+            return ID_PROFILE;
         }
         if (mFragments.get(position) instanceof WorldFragment) {
-            return WorldFragment.FRAGMENT_ID;
+            return ID_WORLD;
         }
         if (mFragments.get(position) instanceof DebugFragment) {
-            return DebugFragment.FRAGMENT_ID;
+            return ID_DEBUG;
         }
         throw new Error("Tried to get ID of unknown fragment " + fragment.getClass().getSimpleName());
     }

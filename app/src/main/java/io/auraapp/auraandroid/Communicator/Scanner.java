@@ -68,14 +68,18 @@ class Scanner {
         mPeerBroadcaster = peerBroadcaster;
         mOnUnrecoverableBtErrorCallback = onUnrecoverableBtErrorCallback;
 
-        AuraPrefs.listen(context, R.string.prefs_retention_key, () -> mPeerRetention = AuraPrefs.getPeerRetention(context));
-        mPeerRetention = AuraPrefs.getPeerRetention(context);
+        AuraPrefs.listen(mContext, R.string.prefs_retention_key, (value) -> {
+            mPeerRetention = Long.parseLong((String) value);
+            i(TAG, "Retention set to %d", mPeerRetention);
+        });
+        mPeerRetention = AuraPrefs.getPeerRetention(mContext);
     }
 
     void start() {
         mHandler.post(() -> {
             mQueued = false;
             mInactive = false;
+
             startScanning();
             returnControl();
         });
@@ -187,8 +191,8 @@ class Scanner {
                         }
                         device.bt.gatt = device.bt.device.connectGatt(mContext, false, mGattCallback);
 
-//                    } else {
-//                        v(TAG, "Nothing to do for disconnected device, id: %s", hexId);
+                    } else {
+                        v(TAG, "Nothing to do for disconnected device, id: %s, will be forgotten in %ds", hexId, (device.lastSeenTimestamp - now + mPeerRetention) / 1000);
                     }
                     continue;
                 }
@@ -273,6 +277,7 @@ class Scanner {
     @SuppressWarnings("ConstantConditions")
     private void startScanning() {
 
+        i(TAG, "Starting to scan, retention: %d", mPeerRetention);
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
             d(TAG, "Bluetooth is currently unavailable");

@@ -26,8 +26,6 @@
 
             <ImageView
                 style="@style/TutorialHeadlineWithArrowArrow"
-                android:layout_width="40dp"
-                android:layout_height="70dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp" />
 

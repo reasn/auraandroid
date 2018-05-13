@@ -48,7 +48,6 @@ public class DebugFragment extends ContextViewFragment {
 
     private static final String TAG = "@aura/ui/permissions/" + DebugFragment.class.getSimpleName();
     private static final String characters = "📜📡💚😇abcdefghijklmnopqrstuvwxyz1234567890 ,.-öä#ü+!\"§$%&/()=?`";
-    public static final long FRAGMENT_ID = 5036;
     private final Handler mHandler = new Handler();
     private final Timer mTimer = new Timer(mHandler);
     private Timer.Timeout mRefreshTimeout;
@@ -254,14 +253,22 @@ public class DebugFragment extends ContextViewFragment {
                 : "not set";
     }
 
+    private String renderLongPref(SharedPreferences prefs, Context context, @StringRes int key) {
+        return prefs.contains(context.getString(key))
+                ? "" + prefs.getLong(context.getString(key), 0)
+                : "not set";
+    }
+
     private String createPrefsDump(Context context) {
 
         SharedPreferences prefs = context.getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE);
 
         String dump = "\nterms agreed: " + renderBooleanPref(prefs, context, R.string.prefs_terms_agreed);
         dump += "\ntutorial completed: " + renderBooleanPref(prefs, context, R.string.prefs_tutorial_completed);
+        dump += "\nswipe on panic: " + renderBooleanPref(prefs, context, R.string.prefs_panic_swipe_key);
+        dump += "\nuninstall on panic: " + renderBooleanPref(prefs, context, R.string.prefs_panic_uninstall_key);
         dump += "\nhide BT stack broken: " + renderBooleanPref(prefs, context, R.string.prefs_hide_broken_bt_warning_key);
-        dump += "\npeer retention: " + renderStringPref(prefs, context, R.string.prefs_retention_key);
+        dump += "\npeer retention: " + renderLongPref(prefs, context, R.string.prefs_retention_key);
         return dump;
     }
 }
