@@ -96,6 +96,8 @@ public class TutorialManager {
             mCurrentStep = new SloganEditStep(mRootView, mContext, mPager);
         } else if (step.equals(AdoptStep.class)) {
             mCurrentStep = new AdoptStep(mRootView, mContext, mPager);
+        } else if (step.equals(FinalStep.class)) {
+            mCurrentStep = new FinalStep(mRootView, mContext, mPager);
         }
         mCurrentScreen = mCurrentStep.enter();
 

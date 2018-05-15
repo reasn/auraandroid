@@ -25,7 +25,7 @@
                 style="@style/TutorialHeadlineWithArrowText.Bottom"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Turn Aura on/off" />
+                android:text="@string/tutorial_enabled_headline" />
 
         </LinearLayout>
 
@@ -33,7 +33,7 @@
             style="@style/TutorialMessage.Bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="You\'re always in control of your Aura's visibility.\n\nNaturally Aura is only fun if it stays on.\n\nAura doesn\'t use the internet. That means privacy protection and no impact (0.1% per day) on your battery." />
+            android:text="@string/tutorial_enabled_text" />
 
         <LinearLayout
             style="@style/TutorialButtonWrapper"

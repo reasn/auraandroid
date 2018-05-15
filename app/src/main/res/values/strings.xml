@@ -210,9 +210,6 @@
     <string name="toolbar_tutorial">Show Tutorial</string>
     <string name="toolbar_terms">Reset Terms agreement</string>
 
-    <string name="tutorial_button_close">Close</string>
-    <string name="tutorial_button_back">Back</string>
-    <string name="tutorial_button_next">Next</string>
     <string name="world_peer_no_name">Somebody</string>
     <string name="toolbar_complete_tutorial">Complete Tutorial</string>
     <string name="profile_no_slogans">Click the button below\nto add your first idea.</string>
@@ -222,5 +219,33 @@
     <string name="world_peer_slogan_adopt_toast">Keep finger down to adopt idea</string>
     <string name="permissions_logo_description">Aura Logo</string>
     <string name="toolbar_shorten_retention">Shorten Retention</string>
+    <string name="tutorial_button_close">Close</string>
+    <string name="tutorial_button_back">Back</string>
+    <string name="tutorial_button_next">Next</string>
+    <string name="tutorial_welcome_headline">Welcome to Aura</string>
+    <string name="tutorial_welcome_text">This is a beta version, please expect a few bumps on the road :)  Aura doesn\'t use your internet connection. It doesn\'t require a SIM card or Wifi. It only requires Bluetooth to be enabled (which you can do in flight mode). Because of that it works on factory-reset phones, on planes and on Mars.  The following tutorial will show you how things work.</string>
+    <string name="tutorial_enabled_headline">Turn Aura on/off</string>
+    <string name="tutorial_enabled_text">You\'re always in control of your Aura\'s visibility.  Naturally Aura is only fun if it stays on.  Aura doesn\'t use the internet. That means privacy protection and no impact (0.1% per day) on your battery.</string>
+    <plurals name="tutorial_color_text">
+        <item quantity="zero">Your Aura consists of your name and text. Click the colored square to pick the color in which others will see your Aura.</item>
+        <item quantity="one">Your Aura consists of your name, text and an idea that you care for. Click the colored square to pick the color in which others will see your Aura.</item>
+        <item quantity="other">Your Aura consists of your name, text and up to %d ideas that you care for. Click the colored square to pick the color in which others will see your Aura.</item>
+    </plurals>
+    <string name="tutorial_color_headline">Color your Aura</string>
+    <string name="tutorial_name_headline">Choose a Name</string>
+    <string name="tutorial_name_text">Click to enter a nickname, a pseudonym or your real name.  Like the rest of your Aura this will be visible to Aura users around you. You can change it any time.</string>
+    <string name="tutorial_text_headline">Add your Text</string>
+    <string name="tutorial_text_text">Share information about yourself or something you care for. You can add links to social media and websites.</string>
+    <string name="tutorial_slogan_add_headline">Add an Idea</string>
+    <string name="tutorial_slogan_add_text">An idea is everything worth sharing with nearby Aura users.</string>
+    <string name="tutorial_slogan_edit_headline">Your Ideas</string>
+    <string name="tutorial_slogan_edit_text">This is a list of your ideas. Click each to delete or edit it.</string>
+    <string name="tutorial_swipe_headline">◀︎ Swipe left and right ▶︎</string>
+    <string name="tutorial_swipe_text">You can swipe to move between your own Aura and a list of nearby Auras.</string>
+    <string name="tutorial_adopt_headline">Check out others</string>
+    <string name="tutorial_adopt_text">Click somebody\'s name to see their profile text. Press and hold an idea to add it to your Aura.</string>
+    <string name="tutorial_final_headline">Final Words</string>
+    <string name="tutorial_final_text">You can use Aura in situations where it\'s important to credibly deny having used it (and swiping all data). For this, Aura supports Ripple (getAura.io/ripple) which is a system-wide panic button. In the Aura settings you can make sure all data is swiped.</string>
+
 
 </resources>

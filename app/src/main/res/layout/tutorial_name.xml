@@ -27,7 +27,7 @@
                 style="@style/TutorialHeadlineWithArrowText.Bottom"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Choose a Name" />
+                android:text="@string/tutorial_name_headline" />
 
         </LinearLayout>
 
@@ -35,7 +35,7 @@
             style="@style/TutorialMessage.Bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Click to enter a nickname, a pseudonym or your real name.\n\nLike the rest of your Aura this will be visible to Aura users around you. You can change it any time." />
+            android:text="@string/tutorial_name_text" />
 
         <LinearLayout
             style="@style/TutorialButtonWrapper"

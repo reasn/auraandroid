@@ -7,29 +7,28 @@ import android.view.ViewGroup;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.ui.ScreenPager;
-import io.auraapp.auraandroid.ui.world.WorldFragment;
 
-public class AdoptStep extends TutorialStep {
+public class FinalStep extends TutorialStep {
 
-    public AdoptStep(ViewGroup mRootView, Context mContext, ScreenPager mPager) {
+    public FinalStep(ViewGroup mRootView, Context mContext, ScreenPager mPager) {
         super(mRootView, mContext, mPager);
     }
 
     public ViewGroup enter() {
-        ViewGroup screen = (ViewGroup) LayoutInflater.from(mContext).inflate(R.layout.tutorial_adopt, mRootView, false);
-        mPager.setSwipeLocked(false);
-        mPager.goTo(WorldFragment.class, true);
+        ViewGroup screen = (ViewGroup) LayoutInflater.from(mContext).inflate(R.layout.tutorial_final, mRootView, false);
+        ViewGroup overlay = screen.findViewById(R.id.tutorial_overlay);
+        ((ViewGroup.MarginLayoutParams) overlay.getLayoutParams()).setMargins(0, 0, 0, 0);
+
         return screen;
     }
 
     @Override
     public Class<? extends TutorialStep> getPrevious() {
-        return SwipeStep.class;
+        return AdoptStep.class;
     }
 
     @Override
     public Class<? extends TutorialStep> getNextStep() {
-        return FinalStep.class;
+        return null;
     }
-
 }
