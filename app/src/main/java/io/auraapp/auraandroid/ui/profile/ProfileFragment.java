@@ -1,8 +1,11 @@
 package io.auraapp.auraandroid.ui.profile;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.annotation.LayoutRes;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -10,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.DialogManager;
 import io.auraapp.auraandroid.ui.MainActivity;
@@ -19,6 +23,12 @@ import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 
 import static io.auraapp.auraandroid.common.FormattedLog.i;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_ADOPTED_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_DROPPED_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_NAME_CHANGED_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_REPLACED_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_TEXT_CHANGED_ACTION;
 
 public class ProfileFragment extends ContextViewFragment {
 
@@ -30,24 +40,32 @@ public class ProfileFragment extends ContextViewFragment {
     private MySlogansRecycleAdapter mAdapter;
     private DialogManager mDialogManager;
     private MyProfileManager mMyProfileManager;
-    private final MyProfileManager.MyProfileChangedCallback mProfileChangedCallback = event -> {
-        switch (event) {
-            case MyProfileManager.EVENT_COLOR_CHANGED:
+
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION.equals(intent.getAction())) {
                 updateViewsWithColor();
-                break;
-            case MyProfileManager.EVENT_NAME_CHANGED:
+                mAdapter.notifyDataSetChanged();
+
+            } else if (LOCAL_MY_PROFILE_NAME_CHANGED_ACTION.equals(intent.getAction())
+                    || LOCAL_MY_PROFILE_TEXT_CHANGED_ACTION.equals(intent.getAction())) {
                 updateNameAndTextViews();
-                break;
-            case MyProfileManager.EVENT_TEXT_CHANGED:
-                updateNameAndTextViews();
-                break;
-            case MyProfileManager.EVENT_DROPPED:
-            case MyProfileManager.EVENT_ADOPTED:
+
+            } else if (LOCAL_MY_PROFILE_ADOPTED_ACTION.equals(intent.getAction())
+                    || LOCAL_MY_PROFILE_DROPPED_ACTION.equals(intent.getAction())) {
                 // If the numbers of slogans changes, the background has to be adapted
                 // to maintain color alternation
                 updateViewsWithColor();
                 reflectSloganCount();
-                break;
+
+                i(TAG, "Slogans changes (%s), synchronizing view", intent.getAction());
+                mAdapter.notifyMySlogansListChanged(mMyProfileManager.getProfile().getSlogans());
+            } else if (LOCAL_MY_PROFILE_REPLACED_ACTION.equals(intent.getAction())) {
+
+                i(TAG, "Slogans changes (%s), synchronizing view", intent.getAction());
+                mAdapter.notifyMySlogansListChanged(mMyProfileManager.getProfile().getSlogans());
+            }
         }
     };
 
@@ -103,9 +121,16 @@ public class ProfileFragment extends ContextViewFragment {
         SharedServicesSet servicesSet = activity.getSharedServicesSet();
         mDialogManager = servicesSet.mDialogManager;
         mMyProfileManager = servicesSet.mMyProfileManager;
-        mMyProfileManager.removeChangedCallback(mProfileChangedCallback);
-        mMyProfileManager.addChangedCallback(mProfileChangedCallback);
+        LocalBroadcastManager.getInstance(activity).registerReceiver(
+                mReceiver,
+                IntentFactory.localMyProfileChangedIntentFiler()
+        );
+    }
 
+    @Override
+    protected void onPauseWithContext(MainActivity activity) {
+        super.onPauseWithContext(activity);
+        LocalBroadcastManager.getInstance(activity).unregisterReceiver(mReceiver);
     }
 
     private void bindSlogansRecycler(Context context, ViewGroup rootView) {

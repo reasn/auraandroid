@@ -3,7 +3,6 @@ package io.auraapp.auraandroid.ui.common;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 
@@ -28,6 +27,7 @@ import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATED_AC
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_UPDATED_EXTRA_PEER;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_EXTRA_PROFILE;
 
 public class CommunicatorProxy {
     private static final String TAG = "@aura/communicatorProxy";
@@ -36,27 +36,14 @@ public class CommunicatorProxy {
     private Set<Peer> mPeers = new HashSet<>();
     private boolean mRegistered = false;
     private final Context mContext;
-
-    public static void replacePeer(Set<Peer> mutablePeers, Peer peer, boolean requireName) {
-        for (Peer candidate : mutablePeers.toArray(new Peer[mutablePeers.size()])) {
-            if (candidate.mId == peer.mId) {
-                mutablePeers.remove(candidate);
-            }
+    private final BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateMyProfile(
+                    (MyProfile) intent.getSerializableExtra(LOCAL_MY_PROFILE_EXTRA_PROFILE)
+            );
         }
-        if (peer.mName != null || !requireName) {
-            mutablePeers.add(peer);
-        }
-    }
-
-    public static Set<Peer> getPeersWithName(Set<Peer> peers) {
-        Set<Peer> peersWithName = new HashSet<>();
-        for (Peer peer : peers) {
-            if (peer.mName != null) {
-                peersWithName.add(peer);
-            }
-        }
-        return peersWithName;
-    }
+    };
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -117,6 +104,27 @@ public class CommunicatorProxy {
         }
     };
 
+    public static void replacePeer(Set<Peer> mutablePeers, Peer peer, boolean requireName) {
+        for (Peer candidate : mutablePeers.toArray(new Peer[mutablePeers.size()])) {
+            if (candidate.mId == peer.mId) {
+                mutablePeers.remove(candidate);
+            }
+        }
+        if (peer.mName != null || !requireName) {
+            mutablePeers.add(peer);
+        }
+    }
+
+    public static Set<Peer> getPeersWithName(Set<Peer> peers) {
+        Set<Peer> peersWithName = new HashSet<>();
+        for (Peer peer : peers) {
+            if (peer.mName != null) {
+                peersWithName.add(peer);
+            }
+        }
+        return peersWithName;
+    }
+
     public CommunicatorProxy(Context context) {
         mContext = context;
 
@@ -127,13 +135,21 @@ public class CommunicatorProxy {
         }
     }
 
-    public void startListening() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(INTENT_COMMUNICATOR_STATE_UPDATED_ACTION);
-        filter.addAction(INTENT_PEER_LIST_UPDATED_ACTION);
-        filter.addAction(INTENT_PEER_UPDATED_ACTION);
+    public void resume() {
 
-        mContext.registerReceiver(mReceiver, filter);
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(
+                mLocalReceiver,
+                IntentFactory.localMyProfileChangedIntentFiler()
+        );
+
+        mContext.registerReceiver(
+                mReceiver,
+                IntentFactory.createFilter(
+                        INTENT_COMMUNICATOR_STATE_UPDATED_ACTION,
+                        INTENT_PEER_LIST_UPDATED_ACTION,
+                        INTENT_PEER_UPDATED_ACTION
+                )
+        );
         mRegistered = true;
         d(TAG, "Started to listen for events from communicator");
     }
@@ -141,9 +157,10 @@ public class CommunicatorProxy {
     /**
      * @todo Tell communicator to stop sending intents until further notice
      */
-    public void stopListening() {
+    public void pause() {
         d(TAG, "Stopping to listen for events from communicator");
         if (mRegistered) {
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mLocalReceiver);
             mContext.unregisterReceiver(mReceiver);
         }
     }

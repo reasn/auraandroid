@@ -37,15 +37,12 @@ public class MyProfileManager {
     public final static int EVENT_DROPPED = 14;
     public final static int EVENT_ADOPTED = 15;
     public final static int EVENT_REPLACED = 16;
-    private final String mProfilePrefKey;
     private final Context mContext;
     private final MyProfile mMyProfile;
     private final Set<MyProfileChangedCallback> mChangedCallbacks = new HashSet<>();
 
     public MyProfileManager(Context context) {
         mContext = context;
-
-        mProfilePrefKey = context.getString(R.string.prefs_my_profile_key);
 
         // Without a persisted value, serialization fails and the default profile is persisted.
         @Nullable String serializedProfile = AuraPrefs.getProfile(mContext);
@@ -80,7 +77,6 @@ public class MyProfileManager {
     public void removeChangedCallback(MyProfileChangedCallback mProfileChangedCallback) {
         mChangedCallbacks.remove(mProfileChangedCallback);
     }
-
 
     public void addAndTriggerChangedCallback(int[] events, MyProfileChangedCallback callback) {
         mChangedCallbacks.add(callback);

@@ -1,5 +1,8 @@
 package io.auraapp.auraandroid.ui;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.StringRes;
@@ -11,6 +14,7 @@ import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.ExternalInvocation;
+import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.PermissionHelper;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxy;
 import io.auraapp.auraandroid.ui.main.BrokenBtStackAlertFragment;
@@ -19,15 +23,41 @@ import io.auraapp.auraandroid.ui.tutorial.TutorialManager;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_ADOPTED_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_DROPPED_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_NAME_CHANGED_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_REPLACED_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_TEXT_CHANGED_ACTION;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "@aura/main";
 
     private final Handler mHandler = new Handler();
-    private MyProfileManager mMyProfileManager;
     private CommunicatorProxy mCommunicatorProxy;
     private SharedServicesSet mSharedServicesSet;
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            d(TAG, "My profile changed");
+
+            if (LOCAL_MY_PROFILE_ADOPTED_ACTION.equals(intent.getAction())) {
+                toast(R.string.ui_profile_toast_slogan_adopted);
+
+            } else if (LOCAL_MY_PROFILE_REPLACED_ACTION.equals(intent.getAction())) {
+                toast(R.string.ui_profile_toast_slogan_replaced);
+
+            } else if (LOCAL_MY_PROFILE_DROPPED_ACTION.equals(intent.getAction())) {
+                toast(R.string.ui_profile_toast_slogan_dropped);
+
+            } else if (LOCAL_MY_PROFILE_NAME_CHANGED_ACTION.equals(intent.getAction())) {
+                toast(R.string.ui_profile_toast_name_changed);
+
+            } else if (LOCAL_MY_PROFILE_TEXT_CHANGED_ACTION.equals(intent.getAction())) {
+                toast(R.string.ui_profile_toast_text_changed);
+            }
+        }
+    };
 
     public SharedServicesSet getSharedServicesSet() {
         return mSharedServicesSet;
@@ -48,15 +78,14 @@ public class MainActivity extends AppCompatActivity {
         v(TAG, "onCreate, intent: %s", getIntent().getAction());
 
         AuraPrefs.init(this);
-        
+
         setContentView(R.layout.main_activity);
 
-        mMyProfileManager = new MyProfileManager(this);
         mCommunicatorProxy = new CommunicatorProxy(this);
 
         mSharedServicesSet = new SharedServicesSet();
+        mSharedServicesSet.mMyProfileManager = new MyProfileManager(this);
         mSharedServicesSet.mCommunicatorProxy = mCommunicatorProxy;
-        mSharedServicesSet.mMyProfileManager = mMyProfileManager;
         mSharedServicesSet.mDialogManager = new DialogManager(this);
         mSharedServicesSet.mPager = findViewById(R.id.pager);
 
@@ -67,37 +96,9 @@ public class MainActivity extends AppCompatActivity {
         ));
         mSharedServicesSet.mPager.redirectIfNeeded(this, null);
 
-        mMyProfileManager.addChangedCallback(event -> {
-            d(TAG, "My profile changed");
-            // TODO directly subscribe to broadcasts
-            mCommunicatorProxy.updateMyProfile(mMyProfileManager.getProfile());
-            switch (event) {
-                case MyProfileManager.EVENT_ADOPTED:
-                    toast(R.string.ui_profile_toast_slogan_adopted);
-                    break;
-                case MyProfileManager.EVENT_REPLACED:
-                    toast(R.string.ui_profile_toast_slogan_replaced);
-                    break;
-                case MyProfileManager.EVENT_DROPPED:
-                    toast(R.string.ui_profile_toast_slogan_dropped);
-                    break;
-                case MyProfileManager.EVENT_COLOR_CHANGED:
-                    break;
-                case MyProfileManager.EVENT_NAME_CHANGED:
-                    toast(R.string.ui_profile_toast_name_changed);
-                    break;
-                case MyProfileManager.EVENT_TEXT_CHANGED:
-                    toast(R.string.ui_profile_toast_text_changed);
-                    break;
-                default:
-                    throw new RuntimeException("Unknown slogan event " + event);
-            }
-        });
-        v(TAG, "Receiver registered");
-
 //        EmojiCompat.init(new BundledEmojiCompatConfig(this));
 
-        mCommunicatorProxy.updateMyProfile(mMyProfileManager.getProfile());
+        mCommunicatorProxy.updateMyProfile(mSharedServicesSet.mMyProfileManager.getProfile());
     }
 
     // TODO Bug: peer adopts and drops slogan but stays visible here
@@ -118,7 +119,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mHandler.post(() -> {
-            mCommunicatorProxy.startListening();
+            LocalBroadcastManager.getInstance(this).registerReceiver(
+                    mReceiver,
+                    IntentFactory.localMyProfileChangedIntentFiler()
+            );
+
+            mCommunicatorProxy.resume();
             if (mCommunicatorProxy.getState().mEnabled) {
                 mCommunicatorProxy.askForPeersUpdate();
             }
@@ -138,6 +144,9 @@ public class MainActivity extends AppCompatActivity {
     @ExternalInvocation
     protected void onPause() {
         super.onPause();
-        mHandler.post(() -> mCommunicatorProxy.stopListening());
+        mHandler.post(() -> {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
+            mCommunicatorProxy.pause();
+        });
     }
 }

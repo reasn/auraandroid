@@ -21,11 +21,6 @@ import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 import io.auraapp.auraandroid.ui.world.list.PeersDiffCallback;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
-import static io.auraapp.auraandroid.common.FormattedLog.i;
-import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_ADOPTED;
-import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_COLOR_CHANGED;
-import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_DROPPED;
-import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_REPLACED;
 
 public class MySlogansRecycleAdapter extends ExpandableRecyclerAdapter {
 
@@ -55,19 +50,6 @@ public class MySlogansRecycleAdapter extends ExpandableRecyclerAdapter {
         mOnMySloganActionCallback = onMySloganActionCallback;
         mMyProfileManager = myProfileManager;
         mItems.add(new SpacerItem());
-
-        mMyProfileManager.addChangedCallback(event -> {
-
-            if (event == EVENT_COLOR_CHANGED) {
-                notifyDataSetChanged();
-
-            } else if (event == EVENT_ADOPTED
-                    || event == EVENT_DROPPED
-                    || event == EVENT_REPLACED) {
-                i(TAG, "Slogans changes (%s), synchronizing view", MyProfileManager.nameEvent(event));
-                notifyMySlogansListChanged(mMyProfileManager.getProfile().getSlogans());
-            }
-        });
     }
 
     public void notifyMySlogansListChanged(TreeSet<Slogan> mySlogans) {

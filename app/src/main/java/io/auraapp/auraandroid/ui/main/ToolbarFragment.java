@@ -38,7 +38,9 @@ import io.auraapp.auraandroid.ui.settings.SettingsActivity;
 import io.auraapp.auraandroid.ui.welcome.TermsFragment;
 
 import static io.auraapp.auraandroid.common.FormattedLog.i;
-import static io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager.EVENT_COLOR_CHANGED;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_ACTION;
 
 public class ToolbarFragment extends ContextViewFragment {
 
@@ -51,12 +53,22 @@ public class ToolbarFragment extends ContextViewFragment {
     private final List<Long> mToolbarIconClicks = new ArrayList<>();
     private ScreenPager mPager;
     private MyProfileManager mMyProfileManager;
+    private boolean mReceiverRegistered = false;
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            updateVisibilityAccordingToCurrentlyVisibleScreen(
-                    intent.getStringExtra(IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_EXTRA_NEW)
-            );
+
+            if (LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION.equals(intent.getAction())) {
+
+                String color = mMyProfileManager.getColor();
+                i(TAG, "Color set to %s", color);
+                mToolbar.setBackgroundColor(Color.parseColor(color));
+                mEnabledSwitch.setTextColor(ColorHelper.getTextColor(Color.parseColor(color)));
+            } else {
+                updateVisibilityAccordingToCurrentlyVisibleScreen(
+                        intent.getStringExtra(IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_EXTRA_NEW)
+                );
+            }
         }
     };
 
@@ -88,11 +100,7 @@ public class ToolbarFragment extends ContextViewFragment {
         mMyProfileManager = activity.getSharedServicesSet().mMyProfileManager;
         mPager = activity.getSharedServicesSet().mPager;
 
-        LocalBroadcastManager.getInstance(activity).registerReceiver(
-                mReceiver,
-                IntentFactory.createFilter(IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_ACTION)
-        );
-
+        registerReceiverOnce(activity);
         mToolbar = (Toolbar) rootView;
         activity.setSupportActionBar(mToolbar);
 
@@ -188,14 +196,8 @@ public class ToolbarFragment extends ContextViewFragment {
         mEnabledSwitch.setChecked(enabled);
 
         // Now that mEnabledSwitch is set we can start coloring toolbar and switch text
-        mMyProfileManager.addAndTriggerChangedCallback(new int[]{EVENT_COLOR_CHANGED}, event -> {
-            if (event == EVENT_COLOR_CHANGED) {
-                String color = mMyProfileManager.getColor();
-                i(TAG, "Color set to %s", color);
-                mToolbar.setBackgroundColor(Color.parseColor(color));
-                mEnabledSwitch.setTextColor(ColorHelper.getTextColor(Color.parseColor(color)));
-            }
-        });
+        registerReceiverOnce(context);
+        mReceiver.onReceive(null, null);
 
         // Managed programmatically because offText XML attribute has no effect for SwitchCompat in menu item
         mEnabledSwitch.setText(context.getString(enabled
@@ -219,5 +221,20 @@ public class ToolbarFragment extends ContextViewFragment {
                 mEnabledSwitch.getTrackDrawable().setColorFilter(context.getResources().getColor(R.color.red), PorterDuff.Mode.MULTIPLY);
             }
         });
+    }
+
+    private void registerReceiverOnce(Context context) {
+
+        if (mReceiverRegistered) {
+            return;
+        }
+        mReceiverRegistered = true;
+        LocalBroadcastManager.getInstance(context).registerReceiver(
+                mReceiver,
+                IntentFactory.createFilter(
+                        LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION,
+                        LOCAL_SCREEN_PAGER_CHANGED_ACTION
+                )
+        );
     }
 }

@@ -62,6 +62,17 @@ public class IntentFactory {
         return filter;
     }
 
+    public static IntentFilter localMyProfileChangedIntentFiler() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION);
+        filter.addAction(LOCAL_MY_PROFILE_NAME_CHANGED_ACTION);
+        filter.addAction(LOCAL_MY_PROFILE_TEXT_CHANGED_ACTION);
+        filter.addAction(LOCAL_MY_PROFILE_DROPPED_ACTION);
+        filter.addAction(LOCAL_MY_PROFILE_ADOPTED_ACTION);
+        filter.addAction(LOCAL_MY_PROFILE_REPLACED_ACTION);
+        return filter;
+    }
+
     public static IntentFilter createFilter(String... actions) {
         IntentFilter filter = new IntentFilter();
         for (String action : actions) {
