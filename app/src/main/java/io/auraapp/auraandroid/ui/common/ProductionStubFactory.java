@@ -11,7 +11,7 @@ public class ProductionStubFactory {
         Set<Peer> peers = new HashSet<>();
 
         Peer peerA = new Peer(100000123);
-        peerA.mColor = "#000000";
+        peerA.mColor = "#ffffff";
         peerA.mName = "Anonymous";
 
         peerA.mText = "🔥🔥🔥\nDemocracy prevails. Let your kindness be a symbol for humanism and a better future";
@@ -21,7 +21,7 @@ public class ProductionStubFactory {
         peers.add(peerA);
 
         Peer peerB = new Peer(100000124);
-        peerB.mColor = "#ffffff";
+        peerB.mColor = "#5cf442";
         peerB.mName = "Jen Benson";
 
         peerB.mText = "I'm giving a talk on Friday, 2pm:"

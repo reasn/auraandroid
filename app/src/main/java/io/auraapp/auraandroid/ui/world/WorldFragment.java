@@ -100,7 +100,7 @@ public class WorldFragment extends ContextViewFragment {
     private BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            v(TAG, "onReceive, intent: %s", intent.getAction());
+            v(TAG, "onReceive, local intent: %s", intent.getAction());
 
             if (LOCAL_TUTORIAL_OPEN_ACTION.equals(intent.getAction())) {
                 mTutorialPeers = ProductionStubFactory.createFakePeers();
@@ -154,10 +154,6 @@ public class WorldFragment extends ContextViewFragment {
         mPeers = servicesSet.mCommunicatorProxy.getPeers();
         mComProxyState = servicesSet.mCommunicatorProxy.getState();
         mMyColor = servicesSet.mMyProfileManager.getColor();
-        v(TAG, "%s fake peers for tutorial", servicesSet.mTutorialManager.isOpen() ? "Showing" : "Not showing");
-        if (servicesSet.mTutorialManager.isOpen()) {
-            mTutorialPeers = ProductionStubFactory.createFakePeers();
-        }
 
         mNotScanningMessage = rootView.findViewById(R.id.world_not_scanning);
         mStartingWrapper = rootView.findViewById(R.id.world_starting_wrapper);
@@ -165,7 +161,7 @@ public class WorldFragment extends ContextViewFragment {
         mInviteButton = rootView.findViewById(R.id.world_invite);
         mSwipeRefresh = rootView.findViewById(R.id.fake_swipe_to_refresh);
         mSwipeRefresh.setEnabled(false);
-        mPeersRecycler = rootView.findViewById(R.id.profile_slogans_recycler);
+        mPeersRecycler = rootView.findViewById(R.id.world_slogans_recycler);
 
         mPeerAdapter = new PeerAdapter(activity, mPeersRecycler,
                 () -> Color.parseColor(mMyColor),
@@ -181,6 +177,13 @@ public class WorldFragment extends ContextViewFragment {
                         );
                     }
                 });
+
+        v(TAG, "%s fake peers for tutorial", servicesSet.mTutorialManager.isOpen() ? "Showing" : "Not showing");
+        if (servicesSet.mTutorialManager.isOpen()) {
+            mTutorialPeers = ProductionStubFactory.createFakePeers();
+            mPeerAdapter.notifyPeerListChanged(mTutorialPeers);
+        }
+
         mPeersRecycler.setAdapter(mPeerAdapter);
         mPeersRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         mPeersRecycler.setNestedScrollingEnabled(false);
@@ -189,6 +192,8 @@ public class WorldFragment extends ContextViewFragment {
         mPeerAdapter.onResume();
 
         reflectState(activity);
+
+//        v(TAG, "Updated view, peers: %d", mTutorialPeers);
     }
 
     @Override

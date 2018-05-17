@@ -197,7 +197,7 @@ public class ToolbarFragment extends ContextViewFragment {
 
         // Now that mEnabledSwitch is set we can start coloring toolbar and switch text
         registerReceiverOnce(context);
-        mReceiver.onReceive(null, null);
+        mReceiver.onReceive(context, new Intent(LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION));
 
         // Managed programmatically because offText XML attribute has no effect for SwitchCompat in menu item
         mEnabledSwitch.setText(context.getString(enabled

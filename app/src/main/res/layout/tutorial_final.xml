@@ -35,13 +35,19 @@
             style="@style/TutorialButtonWrapper"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/tutorial_back"
+                style="@style/TutorialButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/tutorial_button_back" />
 
             <Button
                 android:id="@+id/tutorial_next"
                 style="@style/TutorialButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/tutorial_button_next" />
+                android:text="@string/tutorial_button_close" />
         </LinearLayout>
     </RelativeLayout>
 </LinearLayout>

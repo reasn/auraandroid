@@ -253,12 +253,6 @@ public class DebugFragment extends ContextViewFragment {
                 : "not set";
     }
 
-    private String renderLongPref(SharedPreferences prefs, Context context, @StringRes int key) {
-        return prefs.contains(context.getString(key))
-                ? "" + prefs.getLong(context.getString(key), 0)
-                : "not set";
-    }
-
     private String createPrefsDump(Context context) {
 
         SharedPreferences prefs = context.getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE);
@@ -268,7 +262,7 @@ public class DebugFragment extends ContextViewFragment {
         dump += "\nswipe on panic: " + renderBooleanPref(prefs, context, R.string.prefs_panic_swipe_key);
         dump += "\nuninstall on panic: " + renderBooleanPref(prefs, context, R.string.prefs_panic_uninstall_key);
         dump += "\nhide BT stack broken: " + renderBooleanPref(prefs, context, R.string.prefs_hide_broken_bt_warning_key);
-        dump += "\npeer retention: " + renderLongPref(prefs, context, R.string.prefs_retention_key);
+        dump += "\npeer retention: " + renderStringPref(prefs, context, R.string.prefs_retention_key);
         return dump;
     }
 }

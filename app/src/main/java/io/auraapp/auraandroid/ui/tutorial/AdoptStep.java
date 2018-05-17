@@ -11,6 +11,8 @@ import io.auraapp.auraandroid.ui.world.WorldFragment;
 
 public class AdoptStep extends TutorialStep {
 
+    private int mMargin;
+
     public AdoptStep(ViewGroup mRootView, Context mContext, ScreenPager mPager) {
         super(mRootView, mContext, mPager);
     }
@@ -19,7 +21,16 @@ public class AdoptStep extends TutorialStep {
         ViewGroup screen = (ViewGroup) LayoutInflater.from(mContext).inflate(R.layout.tutorial_adopt, mRootView, false);
         mPager.setSwipeLocked(false);
         mPager.goTo(WorldFragment.class, true);
+        // TODO let steps control where to inject tutorial to support a wider varierty of screens
+        mMargin = ((ViewGroup.MarginLayoutParams) mRootView.findViewById(R.id.world_slogans_recycler).getLayoutParams()).bottomMargin;
+        ((ViewGroup.MarginLayoutParams) mRootView.findViewById(R.id.world_slogans_recycler).getLayoutParams()).bottomMargin = 300;
         return screen;
+    }
+
+    @Override
+    public void leave() {
+        super.leave();
+        ((ViewGroup.MarginLayoutParams) mRootView.findViewById(R.id.world_slogans_recycler).getLayoutParams()).bottomMargin = mMargin;
     }
 
     @Override
