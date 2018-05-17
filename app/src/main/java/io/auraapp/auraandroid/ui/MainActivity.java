@@ -21,7 +21,6 @@ import io.auraapp.auraandroid.ui.main.BrokenBtStackAlertFragment;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 import io.auraapp.auraandroid.ui.tutorial.TutorialManager;
 
-import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_ADOPTED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_DROPPED_ACTION;
@@ -34,13 +33,10 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "@aura/main";
 
     private final Handler mHandler = new Handler();
-    private CommunicatorProxy mCommunicatorProxy;
-    private SharedServicesSet mSharedServicesSet;
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+    private SharedServicesSet mServicesSet;
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            d(TAG, "My profile changed");
-
             if (LOCAL_MY_PROFILE_ADOPTED_ACTION.equals(intent.getAction())) {
                 toast(R.string.ui_profile_toast_slogan_adopted);
 
@@ -59,51 +55,48 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+
+    // TODO Bug: peer adopts and drops slogan but stays visible here
+    // TODO keep peers if aura disabled and communicator destroyed
+
+
     public SharedServicesSet getSharedServicesSet() {
-        return mSharedServicesSet;
+        return mServicesSet;
     }
 
     /**
      * Body cannot be wrapped in mHandler.post() because then fragments crash because
-     * they use e.g. mSharedServicesSet
+     * they use e.g. mServicesSet
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         // Necessary for splash screen
         setTheme(R.style.Theme_AppCompat_Light_NoActionBar);
-
         super.onCreate(savedInstanceState);
-
         v(TAG, "onCreate, intent: %s", getIntent().getAction());
 
         AuraPrefs.init(this);
 
         setContentView(R.layout.main_activity);
 
-        mCommunicatorProxy = new CommunicatorProxy(this);
+        mServicesSet = new SharedServicesSet();
+        mServicesSet.mMyProfileManager = new MyProfileManager(this);
+        mServicesSet.mCommunicatorProxy =  new CommunicatorProxy(this);
+        mServicesSet.mDialogManager = new DialogManager(this);
+        mServicesSet.mPager = findViewById(R.id.pager);
 
-        mSharedServicesSet = new SharedServicesSet();
-        mSharedServicesSet.mMyProfileManager = new MyProfileManager(this);
-        mSharedServicesSet.mCommunicatorProxy = mCommunicatorProxy;
-        mSharedServicesSet.mDialogManager = new DialogManager(this);
-        mSharedServicesSet.mPager = findViewById(R.id.pager);
-
-        mSharedServicesSet.mTutorialManager = new TutorialManager(this, findViewById(R.id.activity_wrapper), mSharedServicesSet.mPager);
-        mSharedServicesSet.mPager.setAdapter(new ScreenPagerAdapter(
+        mServicesSet.mTutorialManager = new TutorialManager(this, findViewById(R.id.activity_wrapper), mServicesSet.mPager);
+        mServicesSet.mPager.setAdapter(new ScreenPagerAdapter(
                 getSupportFragmentManager(),
                 LocalBroadcastManager.getInstance(this)
         ));
-        mSharedServicesSet.mPager.redirectIfNeeded(this, null);
+        mServicesSet.mPager.redirectIfNeeded(this, null);
 
 //        EmojiCompat.init(new BundledEmojiCompatConfig(this));
 
-        mCommunicatorProxy.updateMyProfile(mSharedServicesSet.mMyProfileManager.getProfile());
+        mServicesSet.mCommunicatorProxy.updateMyProfile(mServicesSet.mMyProfileManager.getProfile());
     }
-
-    // TODO Bug: peer adopts and drops slogan but stays visible here
-
-    // TODO keep peers if aura disabled and communicator destroyed
 
     private void toast(@StringRes int text) {
         Toast.makeText(this, EmojiHelper.replaceShortCode(getString(text)), Toast.LENGTH_SHORT).show();
@@ -114,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (!PermissionHelper.granted(this)) {
-            mSharedServicesSet.mPager.redirectIfNeeded(this, null);
+            mServicesSet.mPager.redirectIfNeeded(this, null);
             return;
         }
 
@@ -124,18 +117,18 @@ public class MainActivity extends AppCompatActivity {
                     IntentFactory.localMyProfileChangedIntentFiler()
             );
 
-            mCommunicatorProxy.resume();
-            if (mCommunicatorProxy.getState().mEnabled) {
-                mCommunicatorProxy.askForPeersUpdate();
+            mServicesSet.mCommunicatorProxy.resume();
+            if (mServicesSet.mCommunicatorProxy.getState().mEnabled) {
+                mServicesSet.mCommunicatorProxy.askForPeersUpdate();
             }
 
-            BrokenBtStackAlertFragment counterState =
-                    (BrokenBtStackAlertFragment) getSupportFragmentManager()
-                            .findFragmentByTag("broken_bt_stack_alert");
-
-            if (counterState == null) {
+            // Make sure BrokenBtStackAlertFragment is instantiated and in place
+            BrokenBtStackAlertFragment fragment = (BrokenBtStackAlertFragment) getSupportFragmentManager()
+                    .findFragmentByTag("broken_bt_stack_alert");
+            if (fragment == null) {
                 getSupportFragmentManager().beginTransaction()
-                        .add(new BrokenBtStackAlertFragment(), "broken_bt_stack_alert").commit();
+                        .add(new BrokenBtStackAlertFragment(), "broken_bt_stack_alert")
+                        .commit();
             }
         });
     }
@@ -146,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         mHandler.post(() -> {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
-            mCommunicatorProxy.pause();
+            mServicesSet.mCommunicatorProxy.pause();
         });
     }
 }
