@@ -43,6 +43,15 @@
             android:summaryOff="@string/prefs_panic_uninstall_off"
             android:summaryOn="@string/prefs_panic_uninstall_on"
             android:title="@string/prefs_panic_uninstall_title" />
+
+        <Preference
+            android:key="@string/prefs_panic_download_key"
+            android:summary="@string/prefs_panic_download_summary"
+            android:title="@string/prefs_panic_download_title" />
+        <Preference
+            android:key="@string/prefs_panic_trigger_key"
+            android:summary="@string/prefs_panic_trigger_summary"
+            android:title="@string/prefs_panic_trigger_title" />
     </PreferenceCategory>
 
     <PreferenceCategory

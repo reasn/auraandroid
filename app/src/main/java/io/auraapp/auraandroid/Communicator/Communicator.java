@@ -439,7 +439,6 @@ public class Communicator extends Service {
             return;
         }
 
-
         if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
             final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
             w(TAG, "Bluetooth state changed, state: %s", BtConst.nameAdapterState(state));

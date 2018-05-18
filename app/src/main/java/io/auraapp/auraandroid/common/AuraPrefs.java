@@ -44,19 +44,19 @@ public class AuraPrefs {
     }
 
     public static boolean hasAgreedToTerms(Context context) {
-        return get(context).getBoolean(context.getString(R.string.prefs_terms_agreed), false);
+        return get(context).getBoolean(context.getString(R.string.prefs_terms_agreed_key), false);
     }
 
     public static void putHasAgreedToTerms(Context context, boolean agreed) {
-        get(context).edit().putBoolean(context.getString(R.string.prefs_terms_agreed), agreed).apply();
+        get(context).edit().putBoolean(context.getString(R.string.prefs_terms_agreed_key), agreed).apply();
     }
 
     public static boolean hasCompletedTutorial(Context context) {
-        return get(context).getBoolean(context.getString(R.string.prefs_tutorial_completed), false);
+        return get(context).getBoolean(context.getString(R.string.prefs_tutorial_completed_key), false);
     }
 
     public static void putHasCompletedTutorial(Context context, boolean completed) {
-        get(context).edit().putBoolean(context.getString(R.string.prefs_tutorial_completed), completed).apply();
+        get(context).edit().putBoolean(context.getString(R.string.prefs_tutorial_completed_key), completed).apply();
     }
 
     public static boolean shouldHideBrokenBtStackAlert(Context context) {

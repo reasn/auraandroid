@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
         mServicesSet = new SharedServicesSet();
         mServicesSet.mMyProfileManager = new MyProfileManager(this);
-        mServicesSet.mCommunicatorProxy =  new CommunicatorProxy(this);
+        mServicesSet.mCommunicatorProxy = new CommunicatorProxy(this);
         mServicesSet.mDialogManager = new DialogManager(this);
         mServicesSet.mPager = findViewById(R.id.pager);
 
@@ -106,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
     @ExternalInvocation
     protected void onResume() {
         super.onResume();
+
         if (!PermissionHelper.granted(this)) {
             mServicesSet.mPager.redirectIfNeeded(this, null);
             return;
