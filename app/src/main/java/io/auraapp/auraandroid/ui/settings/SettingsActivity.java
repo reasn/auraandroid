@@ -71,7 +71,7 @@ public class SettingsActivity extends AppCompatActivity {
             addPreferencesFromResource(R.xml.preferences);
 
 
-            Preference.OnPreferenceChangeListener c = ($, $$) -> {
+            Preference.OnPreferenceChangeListener listener = ($, $$) -> {
                 mHandler.post(() -> {
                     @StringRes
                     int summary;
@@ -93,10 +93,10 @@ public class SettingsActivity extends AppCompatActivity {
                 return true;
             };
 
-            findPreference(mContext.getString(R.string.prefs_panic_uninstall_key)).setOnPreferenceChangeListener(c);
-            findPreference(mContext.getString(R.string.prefs_panic_swipe_key)).setOnPreferenceChangeListener(c);
+            findPreference(mContext.getString(R.string.prefs_panic_uninstall_key)).setOnPreferenceChangeListener(listener);
+            findPreference(mContext.getString(R.string.prefs_panic_swipe_key)).setOnPreferenceChangeListener(listener);
 
-            c.onPreferenceChange(null, null);
+            listener.onPreferenceChange(null, null);
 
             findPreference(mContext.getString(R.string.prefs_panic_trigger_key)).setOnPreferenceClickListener(preference -> {
 
@@ -119,7 +119,7 @@ public class SettingsActivity extends AppCompatActivity {
                 final String appPackageName = mContext.getString(R.string.prefs_panic_ripple_package_name);
                 try {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
-                } catch (android.content.ActivityNotFoundException anfe) {
+                } catch (android.content.ActivityNotFoundException exception) {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
                 }
 
