@@ -161,6 +161,14 @@
 
     <!--Preferences-->
     <string name="toolbar_preferences">Settings</string>
+    <string name="prefs_app_group_key">app</string>
+    <string name="prefs_app_group_title">Application</string>
+    <string name="prefs_retention_key" translatable="false">retention</string>
+    <string name="prefs_retention_title">How long to keep others\' ideas?</string>
+    <string name="prefs_retention_summary">Change how long you see ideas of others after you left their proximity</string>
+    <string name="prefs_retention_dialog_title">Keep others\' ideas…</string>
+    <!--<string name="ui_prefs_retention_dialog_message">If you pass by another Aura, its ideas remain visible afterwards. After what time should they disappear to make space?</string>-->
+
     <string name="prefs_notification_group_key" translatable="false">notifications</string>
     <string name="prefs_notification_group_title">Notifications</string>
     <string name="prefs_notification_show_key" translatable="false">notification_show</string>
@@ -175,24 +183,38 @@
     <string name="prefs_panic_group_key" translatable="false">panic</string>
     <string name="prefs_panic_group_title">Panic Button</string>
     <string name="prefs_panic_group_summary">Apps like Ripple and PanicButton allow swiftly swiping data of multiple apps in a panic situation.</string>
-    <string name="prefs_panic_swipe_key" translatable="false">panic_swipe</string>
-    <string name="prefs_panic_swipe_title">Delete user data</string>
-    <string name="prefs_panic_swipe_off">Activating the panic button does not delete your profile and ideas</string>
-    <string name="prefs_panic_swipe_on">Activating the panic button permanently deletes your profile and ideas</string>
+    <string name="prefs_panic_purge_key" translatable="false">panic_purge</string>
+    <string name="prefs_panic_purge_title">Delete user data</string>
+    <string name="prefs_panic_purge_off">Activating the panic button does not delete your profile and ideas</string>
+    <string name="prefs_panic_purge_on">Activating the panic button permanently deletes your profile and ideas</string>
+    <string name="prefs_panic_purge_dialog_title">Purge on Panic?</string>
+    <string name="prefs_panic_purge_dialog_message">If you enable this option and trigger a panic situation, all your data will be deleted irrevocably.</string>
+    <string name="prefs_panic_purge_confirm">Enable</string>
+    <string name="prefs_panic_purge_decline">Cancel</string>
     <string name="prefs_panic_uninstall_key" translatable="false">panic_uninstall</string>
     <string name="prefs_panic_uninstall_title">Try uninstalling Aura</string>
     <string name="prefs_panic_uninstall_off">Activating the panic button does not try to uninstall Aura</string>
     <string name="prefs_panic_uninstall_on">Activating the panic button tries to uninstall Aura</string>
+    <string name="prefs_panic_uninstall_dialog_title">Uninstall on Panic?</string>
+    <string name="prefs_panic_uninstall_dialog_message">If you enable this option and trigger a panic situation, Aura will try to uninstall itself.\nProbably Android will ask you to confirm that. When you do, all your data will be deleted irrevocably and you'll have to reinstall Aura.</string>
+    <string name="prefs_panic_uninstall_decline">Cancel</string>
+    <string name="prefs_panic_uninstall_confirm">Enable</string>
     <string name="prefs_panic_trigger_key" translatable="false">panic_trigger</string>
+    <string name="prefs_panic_trigger_title">Trigger Panic Now</string>
     <string name="prefs_panic_trigger_summary">Click to trigger a panic situation.\nThis will close Aura.</string>
     <string name="prefs_panic_trigger_summary_uninstall">Click to trigger a panic situation.\nThis will try to uninstall Aura</string>
-    <string name="prefs_panic_trigger_summary_swipe">Click to trigger a panic situation.\nThis will deletes all your Aura user data (cannot be undone)!</string>
-    <string name="prefs_panic_trigger_summary_swipe_uninstall">Click to trigger a panic situation.\nThis will deletes all your Aura user data (cannot be undone) and try to uninstall Aura!</string>
-    <string name="prefs_panic_trigger_title">Trigger Panic Now</string>
+    <string name="prefs_panic_trigger_summary_purge">Click to trigger a panic situation.\nThis will delete all your Aura user data (cannot be undone)!</string>
+    <string name="prefs_panic_trigger_summary_purge_uninstall">Click to trigger a panic situation.\nThis will delete all your Aura user data (cannot be undone) and try to uninstall Aura!</string>
+    <string name="prefs_panic_trigger_dialog_title">Trigger Panic?</string>
+    <string name="prefs_panic_trigger_dialog_message_uninstall">This will close Aura and try to uninstall it.\nAndroid will probably ask you to confirm this. All your user data will be deleted irrevocably!</string>
+    <string name="prefs_panic_trigger_dialog_message_purge">This will close Aura and delete all your user data irrevocably!</string>
+    <string name="prefs_panic_trigger_dialog_message_purge_uninstall">This will close Aura and delete all your user data irrevocably! Afterwards it will try to uninstall Aura.</string>
+    <string name="prefs_panic_trigger_decline">Cancel</string>
+    <string name="prefs_panic_trigger_confirm">⚠️ Panic</string>
 
     <string name="prefs_panic_download_key" translatable="false">panic_download</string>
     <string name="prefs_panic_download_title">Download Ripple</string>
-    <string name="prefs_panic_download_summary">Ripple is an app that provides you with a panic button. Aura, Telegram, Signal and many other apps support it.</string>
+    <string name="prefs_panic_download_summary">Ripple is an app that provides you with a panic button that can hide/purge Aura, Telegram, Signal and other apps.</string>
     <string name="prefs_panic_ripple_package_name">info.guardianproject.ripple</string>
 
     <string name="prefs_tutorial_completed_key" translatable="false">tutorial_completed</string>
@@ -200,14 +222,9 @@
     <string name="prefs_hide_broken_bt_warning_key" translatable="false">hide_broken_bt_stack_warning</string>
     <string name="prefs_enabled_key" translatable="false">enabled</string>
     <string name="prefs_my_profile_key" translatable="false">my_profile</string>
-    <string name="prefs_retention_key" translatable="false">retention</string>
-    <string name="prefs_retention_title">How long to keep others\' ideas</string>
-    <string name="prefs_retention_summary">Change how long you see ideas of others after you left their proximity</string>
-    <string name="prefs_retention_dialog_title">Keep Others\' Ideas</string>
-    <!--<string name="ui_prefs_retention_dialog_message">If you pass by another Aura, its ideas remain visible afterwards. After what time should they disappear to make space?</string>-->
     <string name="prefs_retention_default">300000</string>
     <string name="prefs_other_group_key" translatable="false">meta</string>
-    <string name="prefs_other_group_title">Other</string>
+    <string name="prefs_other_group_title">What else is there?</string>
     <string name="prefs_feedback_key" translatable="false">feedback</string>
     <string name="prefs_feedback_title">Feedback</string>
     <string name="prefs_feedback_summary">Please take a few minutes to help make Aura better!</string>
@@ -256,7 +273,7 @@
     <string name="tutorial_adopt_headline">Check out others</string>
     <string name="tutorial_adopt_text">Click somebody\'s name to see their profile text. Press and hold an idea to add it to your Aura.</string>
     <string name="tutorial_final_headline">Final Words</string>
-    <string name="tutorial_final_text">You can use Aura in situations where it\'s important to credibly deny having used it (and swiping all data). For this, Aura supports Ripple (getAura.io/ripple) which is a system-wide panic button. In the Aura settings you can make sure all data is swiped.</string>
+    <string name="tutorial_final_text">You can use Aura in situations where it\'s important to credibly deny having used it (and swiping all data). For this, Aura supports Ripple (getAura.io/ripple) which is a system-wide panic button. In the Aura settings you can make sure all data is purged.</string>
 
 
 </resources>

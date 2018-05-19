@@ -60,8 +60,14 @@ public class DialogManager {
         public void onDismiss(boolean neverShowAgain);
     }
 
+    @FunctionalInterface
     public interface OnSloganEditConfirm {
         public void onConfirm(String text);
+    }
+
+    @FunctionalInterface
+    public interface ConfirmCallback {
+        public void onConfirm(boolean confirmed);
     }
 
     public static class DialogState {
@@ -319,6 +325,27 @@ public class DialogManager {
                 .setOnConfirm(() -> btBrokenDismissHandler.onDismiss(checkBox.isChecked()))
                 .build();
         dialog.getCancelButton().setVisibility(View.GONE);
+        dialog.show();
+    }
+
+    public void showConfirm(
+            @StringRes int title,
+            @StringRes int message,
+            @StringRes int decline,
+            @StringRes int confirm,
+            ConfirmCallback confirmCallback) {
+
+        FullWidthDialog dialog = new DialogBuilder(mContext, mDialogState)
+                .setTitle(title)
+                .setMessage(message)
+                .setCancelText(decline)
+                .setConfirmText(confirm)
+                .setOnConfirm(() -> confirmCallback.onConfirm(true))
+                .build();
+        dialog.getCancelButton().setOnClickListener($ -> {
+            dialog.dismiss();
+            confirmCallback.onConfirm(false);
+        });
         dialog.show();
     }
 }

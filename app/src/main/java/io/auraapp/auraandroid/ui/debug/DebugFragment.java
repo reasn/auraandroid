@@ -259,7 +259,7 @@ public class DebugFragment extends ContextViewFragment {
 
         String dump = "\nterms agreed: " + renderBooleanPref(prefs, context, R.string.prefs_terms_agreed_key);
         dump += "\ntutorial completed: " + renderBooleanPref(prefs, context, R.string.prefs_tutorial_completed_key);
-        dump += "\nswipe on panic: " + renderBooleanPref(prefs, context, R.string.prefs_panic_swipe_key);
+        dump += "\npurge on panic: " + renderBooleanPref(prefs, context, R.string.prefs_panic_purge_key);
         dump += "\nuninstall on panic: " + renderBooleanPref(prefs, context, R.string.prefs_panic_uninstall_key);
         dump += "\nhide BT stack broken: " + renderBooleanPref(prefs, context, R.string.prefs_hide_broken_bt_warning_key);
         dump += "\npeer retention: " + renderStringPref(prefs, context, R.string.prefs_retention_key);

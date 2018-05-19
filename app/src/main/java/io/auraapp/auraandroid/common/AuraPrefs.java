@@ -10,6 +10,8 @@ import android.content.SharedPreferences;
 import com.google.gson.GsonBuilder;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfile;
@@ -19,6 +21,8 @@ import static io.auraapp.auraandroid.common.IntentFactory.PREFERENCE_CHANGED_EXT
 import static io.auraapp.auraandroid.common.IntentFactory.PREFERENCE_CHANGED_EXTRA_VALUE;
 
 public class AuraPrefs {
+
+    private static Set<BroadcastReceiver> mReceivers = new HashSet<>();
 
     public static boolean isEnabled(Context context) {
         return get(context)
@@ -65,10 +69,7 @@ public class AuraPrefs {
     }
 
     public static void putHideBrokenBtStackAlert(Context context) {
-        get(context)
-                .edit()
-                .putBoolean(context.getString(R.string.prefs_hide_broken_bt_warning_key), true)
-                .apply();
+        get(context).edit().putBoolean(context.getString(R.string.prefs_hide_broken_bt_warning_key), true).apply();
     }
 
     public static long getPeerRetention(Context context) {
@@ -85,11 +86,11 @@ public class AuraPrefs {
                 .apply();
     }
 
-    public static boolean shouldPanicSwipe(Context context) {
-        return get(context).getBoolean(context.getString(R.string.prefs_panic_swipe_key), false);
+    public static boolean shouldPurgeOnPanic(Context context) {
+        return get(context).getBoolean(context.getString(R.string.prefs_panic_purge_key), false);
     }
 
-    public static boolean shouldPanicUninstall(Context context) {
+    public static boolean shouldUninstallOnPanic(Context context) {
         return get(context).getBoolean(context.getString(R.string.prefs_panic_uninstall_key), false);
     }
 
@@ -109,21 +110,29 @@ public class AuraPrefs {
     /**
      * Keeps strong references to all listeners to keep them from being garbage collected
      */
-    private static SharedPreferences.OnSharedPreferenceChangeListener listener;
+    private static SharedPreferences.OnSharedPreferenceChangeListener mListener;
 
     public static void init(Context context) {
-        if (listener != null) {
+        if (mListener != null) {
             return;
         }
         // Listening for changes doesn'T work cross-process so we have to use local broadcasts.
-        listener = ($, changedKey) -> {
+        mListener = ($, changedKey) -> {
             Intent intent = new Intent(PREFERENCE_CHANGED_ACTION);
             intent.setPackage(context.getPackageName());
             intent.putExtra(PREFERENCE_CHANGED_EXTRA_KEY, changedKey);
             intent.putExtra(PREFERENCE_CHANGED_EXTRA_VALUE, (Serializable) get(context).getAll().get(changedKey));
             context.sendBroadcast(intent);
         };
-        get(context).registerOnSharedPreferenceChangeListener(listener);
+        get(context).registerOnSharedPreferenceChangeListener(mListener);
+    }
+
+    public static void finish(Context context) {
+        for (BroadcastReceiver receiver : mReceivers) {
+            context.unregisterReceiver(receiver);
+        }
+        mReceivers.clear();
+        get(context).unregisterOnSharedPreferenceChangeListener(mListener);
     }
 
     @FunctionalInterface
@@ -135,18 +144,20 @@ public class AuraPrefs {
 
         final String requiredKey = context.getString(key);
 
-        context.registerReceiver(new BroadcastReceiver() {
+        BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (requiredKey.equals(intent.getExtras().getString(PREFERENCE_CHANGED_EXTRA_KEY))) {
-                    callback.onPrefChanged(intent.getExtras().getString(PREFERENCE_CHANGED_EXTRA_VALUE));
+                    callback.onPrefChanged(intent.getExtras().getSerializable(PREFERENCE_CHANGED_EXTRA_VALUE));
                 }
             }
-        }, IntentFactory.createFilter(PREFERENCE_CHANGED_ACTION));
+        };
+        mReceivers.add(receiver);
+        context.registerReceiver(receiver, IntentFactory.createFilter(PREFERENCE_CHANGED_ACTION));
     }
 
     @SuppressLint("ApplySharedPref")
-    public static void swipe(Context context) {
+    public static void purge(Context context) {
         get(context).edit().clear().commit();
     }
 }

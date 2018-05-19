@@ -187,6 +187,7 @@ public class Communicator extends Service {
         } catch (IllegalArgumentException e) {
             // Can be ignored, we exit anyway
         }
+        AuraPrefs.finish(this);
         mHandler.removeCallbacks(null);
         stopForeground(true);
         mIsRunningInForeground = false;

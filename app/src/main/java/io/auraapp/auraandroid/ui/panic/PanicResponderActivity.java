@@ -19,15 +19,18 @@ public class PanicResponderActivity extends Activity {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
         if (intent != null && PANIC_TRIGGER_ACTION.equals(intent.getAction())) {
-            if (AuraPrefs.shouldPanicSwipe(this)) {
-                AuraPrefs.swipe(this);
+
+            boolean shouldUninstall = AuraPrefs.shouldUninstallOnPanic(this);
+            if (AuraPrefs.shouldPurgeOnPanic(this)) {
+                AuraPrefs.purge(this);
             }
-            if (AuraPrefs.shouldPanicUninstall(this)) {
+            AuraPrefs.finish(this);
+
+            if (shouldUninstall) {
                 Intent uninstallIntent = new Intent(Intent.ACTION_DELETE);
                 uninstallIntent.setData(Uri.parse("package:" + getPackageName()));
                 startActivity(uninstallIntent);
             }
-
             ExitActivity.exitAndRemoveFromRecentApps(this);
         }
         finishAndRemoveTask();
