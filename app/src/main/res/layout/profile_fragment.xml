@@ -71,6 +71,7 @@
                 <TextView
                     android:id="@+id/profile_no_slogans"
                     style="@style/SmallCenteredMessage"
+                    android:layout_gravity="center"
                     android:text="@string/profile_no_slogans" />
 
                 <android.support.v7.widget.RecyclerView

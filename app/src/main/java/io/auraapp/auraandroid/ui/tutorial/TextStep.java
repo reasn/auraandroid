@@ -7,16 +7,15 @@ import android.view.ViewGroup;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.ui.ScreenPager;
+import io.auraapp.auraandroid.ui.profile.ProfileFragment;
 
-public class TextStep extends ProfileStatusHidingStep {
+public class TextStep extends TutorialStep {
 
     public TextStep(ViewGroup mRootView, Context mContext, ScreenPager mPager) {
         super(mRootView, mContext, mPager);
     }
 
     public ViewGroup enter() {
-        doEnter();
-
         ViewGroup screen = (ViewGroup) LayoutInflater.from(mContext).inflate(R.layout.tutorial_text, mRootView, false);
 
         ViewGroup overlay = screen.findViewById(R.id.tutorial_overlay);
@@ -27,13 +26,15 @@ public class TextStep extends ProfileStatusHidingStep {
         mRootView.findViewById(R.id.profile_scroll_view).setOnTouchListener((v, event) -> true);
 
         ((ViewGroup.MarginLayoutParams) overlay.getLayoutParams())
-                .setMargins(0, getRelativeTop(R.id.profile_slogans_recycler), 0, 0);
+                .setMargins(0, getRelativeBottom(R.id.profile_my_text), 0, 0);
 
+        mPager.goTo(ProfileFragment.class, true);
+        mPager.setSwipeLocked(true);
         return screen;
     }
 
     public void leave() {
-        doLeave();
+        mPager.setSwipeLocked(false);
         mRootView.findViewById(R.id.profile_scroll_view).setOnTouchListener(null);
     }
 

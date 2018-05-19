@@ -33,7 +33,7 @@ public class SwipeStep extends TutorialStep {
 
     @Override
     public Class<? extends TutorialStep> getPrevious() {
-        return SloganEditStep.class;
+        return SloganAddStep.class;
     }
 
     @Override

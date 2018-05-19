@@ -76,6 +76,7 @@ public class TutorialManager {
             setCompleted(true);
             i(TAG, "Completed tutorial, sending intent %s", LOCAL_TUTORIAL_COMPLETE_ACTION);
             LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(LOCAL_TUTORIAL_COMPLETE_ACTION));
+            mRootView.findViewById(R.id.communicator_state_fragment).setVisibility(View.VISIBLE);
             return;
         }
         if (step.equals(WelcomeStep.class)) {
@@ -92,8 +93,6 @@ public class TutorialManager {
             mCurrentStep = new TextStep(mRootView, mContext, mPager);
         } else if (step.equals(SloganAddStep.class)) {
             mCurrentStep = new SloganAddStep(mRootView, mContext, mPager);
-        } else if (step.equals(SloganEditStep.class)) {
-            mCurrentStep = new SloganEditStep(mRootView, mContext, mPager);
         } else if (step.equals(AdoptStep.class)) {
             mCurrentStep = new AdoptStep(mRootView, mContext, mPager);
         } else if (step.equals(FinalStep.class)) {
@@ -113,6 +112,7 @@ public class TutorialManager {
         mCurrentScreen.findViewById(R.id.tutorial_overlay).setOnClickListener($ -> {
             // Just catch clicks so that they don't bubble to the background
         });
+        mRootView.findViewById(R.id.communicator_state_fragment).setVisibility(View.GONE);
         mRootView.addView(mCurrentScreen);
     }
 }

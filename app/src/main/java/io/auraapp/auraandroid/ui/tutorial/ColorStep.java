@@ -9,20 +9,18 @@ import android.widget.TextView;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.ui.ScreenPager;
+import io.auraapp.auraandroid.ui.profile.ProfileFragment;
 
-public class ColorStep extends ProfileStatusHidingStep {
+public class ColorStep extends TutorialStep {
 
     public ColorStep(ViewGroup mRootView, Context mContext, ScreenPager mPager) {
         super(mRootView, mContext, mPager);
     }
 
     public ViewGroup enter() {
-        doEnter();
-
         ViewGroup screen = (ViewGroup) LayoutInflater.from(mContext).inflate(R.layout.tutorial_color, mRootView, false);
 
         ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) screen.findViewById(R.id.tutorial_overlay).getLayoutParams();
-
         layoutParams.setMargins(0, getRelativeBottom(R.id.profile_color_and_name_wrapper), 0, 0);
 
         ((TextView) screen.findViewById(R.id.tutorial_color_text)).setText(
@@ -33,11 +31,13 @@ public class ColorStep extends ProfileStatusHidingStep {
                 )
         );
 
+        mPager.goTo(ProfileFragment.class, true);
+        mPager.setSwipeLocked(true);
         return screen;
     }
 
     public void leave() {
-        doLeave();
+        mPager.setSwipeLocked(false);
     }
 
     @Override
