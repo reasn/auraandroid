@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         mServicesSet.mDialogManager = new DialogManager(this);
         mServicesSet.mPager = findViewById(R.id.pager);
 
-        mServicesSet.mTutorialManager = new TutorialManager(this, findViewById(R.id.activity_wrapper), mServicesSet.mPager);
+        mServicesSet.mTutorialManager = new TutorialManager(this, findViewById(R.id.tutorial_parent), mServicesSet.mPager);
         mServicesSet.mPager.setAdapter(new ScreenPagerAdapter(
                 getSupportFragmentManager(),
                 LocalBroadcastManager.getInstance(this)

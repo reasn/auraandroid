@@ -24,7 +24,7 @@ public class FinalStep extends TutorialStep {
 
     @Override
     public Class<? extends TutorialStep> getPrevious() {
-        return AdoptStep.class;
+        return WorldStep.class;
     }
 
     @Override

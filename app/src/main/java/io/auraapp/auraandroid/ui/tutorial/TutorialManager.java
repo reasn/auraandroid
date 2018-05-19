@@ -6,7 +6,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.RelativeLayout;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.AuraPrefs;
@@ -21,17 +20,17 @@ public class TutorialManager {
     private static String TAG = "@aura/ui/welcome/" + TutorialManager.class.getSimpleName();
 
     private final Context mContext;
-    private final RelativeLayout mRootView;
+    private final ViewGroup mRootView;
     private final ScreenPager mPager;
     private View mCurrentScreen;
     private TutorialStep mCurrentStep = null;
     private boolean mOpen;
 
     public TutorialManager(Context context,
-                           RelativeLayout rootView,
+                           ViewGroup tutorialParent,
                            ScreenPager pager) {
         mContext = context;
-        mRootView = rootView;
+        mRootView = tutorialParent;
         mPager = pager;
     }
 
@@ -93,8 +92,8 @@ public class TutorialManager {
             mCurrentStep = new TextStep(mRootView, mContext, mPager);
         } else if (step.equals(SloganAddStep.class)) {
             mCurrentStep = new SloganAddStep(mRootView, mContext, mPager);
-        } else if (step.equals(AdoptStep.class)) {
-            mCurrentStep = new AdoptStep(mRootView, mContext, mPager);
+        } else if (step.equals(WorldStep.class)) {
+            mCurrentStep = new WorldStep(mRootView, mContext, mPager);
         } else if (step.equals(FinalStep.class)) {
             mCurrentStep = new FinalStep(mRootView, mContext, mPager);
         }
