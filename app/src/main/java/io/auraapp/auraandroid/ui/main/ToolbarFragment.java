@@ -172,12 +172,6 @@ public class ToolbarFragment extends ContextViewFragment {
     }
 
     @Override
-    protected void onPauseWithContext(MainActivity activity) {
-        super.onPauseWithContext(activity);
-        LocalBroadcastManager.getInstance(activity).unregisterReceiver(mReceiver);
-    }
-
-    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.toolbar_menu, menu);
 
@@ -225,6 +219,7 @@ public class ToolbarFragment extends ContextViewFragment {
 
     private void registerReceiverOnce(Context context) {
 
+        // Note that the receiver is never unregistered to not miss out on events
         if (mReceiverRegistered) {
             return;
         }
