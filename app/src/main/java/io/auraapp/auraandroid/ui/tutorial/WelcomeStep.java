@@ -19,7 +19,7 @@ public class WelcomeStep extends TutorialStep {
         ViewGroup overlay = screen.findViewById(R.id.tutorial_overlay);
         ((ViewGroup.MarginLayoutParams) overlay.getLayoutParams()).setMargins(0, 0, 0, 0);
         mPager.setSwipeLocked(true);
-
+//        ((TextView) screen.findViewById(R.id.tutorial_welcome_text)).setText(Html.fromHtml(mContext.getString(R.string.tutorial_welcome_text), FROM_HTML_MODE_COMPACT));
         return screen;
     }
 

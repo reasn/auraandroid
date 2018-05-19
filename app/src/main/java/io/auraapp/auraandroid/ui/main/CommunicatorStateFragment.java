@@ -104,7 +104,7 @@ public class CommunicatorStateFragment extends ContextViewFragment {
             infoBox.setColor(R.color.infoBoxWarning);
         };
         Runnable showGettingReady = () -> {
-            summary.setText(EmojiHelper.replaceShortCode(context.getString(R.string.ui_common_communicator_summary_on_not_active)));
+            summary.setText(EmojiHelper.replaceShortCode(context.getString(R.string.common_communicator_summary_on_not_active)));
             summary.setBackgroundColor(context.getResources().getColor(R.color.yellow));
         };
 
@@ -124,20 +124,20 @@ public class CommunicatorStateFragment extends ContextViewFragment {
 
         } else if (state.mBluetoothRestartRequired) {
             infoBox.setEmoji(":dizzy_face:");
-            infoBox.setHeading(R.string.ui_common_communicator_bt_restart_required_heading);
-            infoBox.setText(context.getString(R.string.ui_common_communicator_bt_restart_required_text)
+            infoBox.setHeading(R.string.common_communicator_bt_restart_required_heading);
+            infoBox.setText(context.getString(R.string.common_communicator_bt_restart_required_text)
                     .replaceAll("##error##", state.mLastError != null ? state.mLastError : "unknown"));
             infoBox.hideButton();
             infoBox.setColor(R.color.infoBoxError);
             show = BOX;
 
         } else if (state.mBtTurningOn) {
-            summary.setText(EmojiHelper.replaceShortCode(context.getString(R.string.ui_common_communicator_summary_bt_turning_on)));
+            summary.setText(EmojiHelper.replaceShortCode(context.getString(R.string.common_communicator_summary_bt_turning_on)));
             summary.setBackgroundColor(context.getResources().getColor(R.color.yellow));
         } else if (!state.mBtEnabled) {
             infoBox.setEmoji(":broken_heart:");
-            infoBox.setHeading(R.string.ui_common_communicator_bt_disabled_heading);
-            infoBox.setText(R.string.ui_common_communicator_bt_disabled_text);
+            infoBox.setHeading(R.string.common_communicator_bt_disabled_heading);
+            infoBox.setText(R.string.common_communicator_bt_disabled_text);
             infoBox.hideButton();
             infoBox.setColor(R.color.infoBoxWarning);
             infoBox.setOnClickListener($ -> startActivityForResult(
@@ -146,8 +146,8 @@ public class CommunicatorStateFragment extends ContextViewFragment {
             show = BOX;
         } else if (!state.mBleSupported) {
             infoBox.setEmoji(":dizzy_face:");
-            infoBox.setHeading(context.getString(R.string.ui_common_communicator_ble_not_supported_heading));
-            infoBox.setText(R.string.ui_common_communicator_ble_not_supported_text);
+            infoBox.setHeading(context.getString(R.string.common_communicator_ble_not_supported_heading));
+            infoBox.setText(R.string.common_communicator_ble_not_supported_text);
             infoBox.hideButton();
             infoBox.setColor(R.color.infoBoxError);
             show = BOX;
