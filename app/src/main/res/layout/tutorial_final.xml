@@ -29,6 +29,7 @@
             style="@style/TutorialMessage.Bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:autoLink="all"
             android:text="@string/tutorial_final_text" />
 
         <LinearLayout

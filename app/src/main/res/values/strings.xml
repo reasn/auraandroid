@@ -308,7 +308,12 @@
     <string name="tutorial_adopt_headline">Check out others</string>
     <string name="tutorial_adopt_text">Click somebody\'s name to see their profile text. Press and hold an idea to add it to your Aura.</string>
     <string name="tutorial_final_headline">Final Words</string>
-    <string name="tutorial_final_text">You can use Aura in situations where it\'s important to credibly deny having used it (and swiping all data). For this, Aura supports Ripple (getAura.io/ripple) which is a system-wide panic button. In the Aura settings you can make sure all data is purged.</string>
+    <string name="tutorial_final_text">
+        Sometimes it\'s important to deny having used Aura and quickly purging all your data.
+        \n
+        \nFor this, Aura supports the panic button Ripple (getAura.io/ripple).
+        \n\nIn the Aura settings you can make sure all data is purged.
+    </string>
 
 
 </resources>
