@@ -33,6 +33,7 @@ import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfile;
 import io.auraapp.auraandroid.ui.world.list.PeerAdapter;
 
+import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_LIST_UPDATED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_LIST_UPDATED_EXTRA_PEERS;
@@ -71,16 +72,18 @@ public class WorldFragment extends ContextViewFragment {
                 return;
             }
 
-            if (mTutorialPeers != null) {
-                return;
-            }
             if (INTENT_PEER_UPDATED_ACTION.equals(intent.getAction())) {
                 @SuppressWarnings("unchecked")
                 Peer peer = (Peer) extras.getSerializable(INTENT_PEER_UPDATED_EXTRA_PEER);
                 if (peer != null) {
                     replacePeer(mPeers, peer, false);
                     if (mPeerAdapter != null) {
-                        mPeerAdapter.notifyPeerChanged(peer);
+                        v(TAG, "Updating adapter, peers: %s", mPeers.size());
+
+                        if (mTutorialPeers == null) {
+                            // Maintaining state but not reflecting it in the adapter
+                            mPeerAdapter.notifyPeerChanged(peer);
+                        }
                     }
                 }
 
@@ -90,7 +93,10 @@ public class WorldFragment extends ContextViewFragment {
                 if (peers != null) {
                     mPeers = peers;
                     if (mPeerAdapter != null) {
-                        mPeerAdapter.notifyPeerListChanged(mPeers);
+                        if (mTutorialPeers == null) {
+                            // Maintaining state but not reflecting it in the adapter
+                            mPeerAdapter.notifyPeerListChanged(mPeers);
+                        }
                     }
                 }
             }
@@ -139,6 +145,7 @@ public class WorldFragment extends ContextViewFragment {
 
     @Override
     protected void onResumeWithContextAndView(MainActivity activity, ViewGroup rootView) {
+        d(TAG, "onResumeWithContextAndView");
 
         activity.registerReceiver(mReceiver, IntentFactory.communicatorIntentFilter());
         LocalBroadcastManager.getInstance(activity).registerReceiver(mLocalReceiver,
@@ -193,12 +200,13 @@ public class WorldFragment extends ContextViewFragment {
 
         reflectState(activity);
 
-//        v(TAG, "Updated view, peers: %d", mTutorialPeers);
+        v(TAG, "Updated view, tutorialPeers: %s", mTutorialPeers == null ? "null" : mTutorialPeers.size() + "");
     }
 
     @Override
     protected void onPauseWithContext(MainActivity activity) {
         super.onPauseWithContext(activity);
+        d(TAG, "onPauseWithContext");
         activity.unregisterReceiver(mReceiver);
         LocalBroadcastManager.getInstance(activity).unregisterReceiver(mLocalReceiver);
         v(TAG, "Receivers unregistered");
