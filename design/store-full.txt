@@ -1,48 +1,28 @@
-This is an alpha version: Please expect bumps in the road and help with your feedback!
+◉ Aura is a FREE local social network. ◉ It doesn't need internet and runs in subways and planes.
+You add ideas to your digital Aura. ◉ Nearby Aura users see your Aura and adopt your ideas.
+◉ Aura spreads ideas without internet and cannot be censored by internet surveillance
+<i>This is an alpha version: Please expect bumps in the road and help with your feedback!</i>
+<h1>🔥 How does it work?</h1>
+◉ Aura transmits data locally using Bluetooth LE
+◉ No registration/account needed
+◉ No Bluetooth pairing needed
+◉ No 3G or Wifi needed
+◉ Built to be always on
+◉ Battery impact is 0.1%/day
+◉ Range: 20m to 100m
 
-🔥 Aura is a network to spread ideas and change the world.
-Show your digital aura wherever you like. No censorship, no control.
+<b>Find out all about Aura at <a href="https://www.getAura.io">getAura.io</a></b>
 
-🔥 Aura is with you
-* Your Aura consists of a few ideas that are important to you.
-* When another user is in proximity, they can see your ideas. And you see theirs, of course.
+<h1>🔥 How does Aura compare?</h1>
+◉ CCTV and plainclothes police can't tell that you use Aura (unlike with Graffiti, protest signs and leaflets)
+◉ It's faster and more reliable than mouth-to-mouth
+◉ Aura can't be censored by autocratic regimes (unlike mainstream media or the internet)
+◉ It works without phone signal and needs no SIM card or Wifi (unlike Twitter, Facebook, Signal, Telegram)
+◉ Aura needs no special hardware (unlike goTenna)
 
-🔥 Aura wants to be the first unblockable social network
-* Today's social networks transmit your most private data over the internet.
-* Transmission is encrypted but owners and governments have access.
-* The safest way to keep information private is to not transmit it over a network.
-* Aura transmits data directly from phone to phone
-* No network operator or government can shut it down, it requires no network and no internet
-* No registration, nobody stores data about you
-* Because it doesn't need a network, you could run Aura on an old phone without wifi and SIM card.
+<h1>🔥 Tips and Tricks</h1>
+◉ In airplane mode you can enable only Bluetooth to run Aura in planes or if you want to go undetected
+◉ During street protests Aura allows to disperse messages even if the internet or phone network is disabled
+◉ Aura comes with a builtin panic button and support for apps like <a href="https://play.google.com/store/apps/details?id=info.guardianproject.ripple">Ripple</a> that swiftly purge all user data and even the app itself
 
-🔥 How does it work?
-* It creates a digital Aura around you \(20-100m\)
-* Your Aura consists of the ideas that you decide to share
-* Other users can see it
-* Your personal aura consists of text and emojis \(more to come!\)
-* Aura needs no internet for that. It works in the 🚇, on 🚂, in the 🏔, aboard 🛳, on the surface of 🌔, flying a ✈ or anywhere in the 🌌.
-* You can turn it off time.
-* There are no servers and no data is collected.
-
-🔥 Why do I want Aura?
-* Humans wore clothes and accessories for millennia. Get Aura and wear data!
-* Meet interesting people
-* Anonymously share gossip and buzz
-* Safely coordinate street protests in countries with full internet surveillance
-
-🔥 How can I help improve Aura?
-* Register for at [https://goo.gl/forms/pRELNGaehuGznPLm2](https://goo.gl/forms/pRELNGaehuGznPLm2) to stay up-to-date
-* Download it
-* Test it
-* Give feedback
-* if you like it - spread the word!
-
-🔥 Technology
-* Aura is based on Bluetooth LE. That is Bluetooth without the hassle
-* It creates a digital Aura around you
-* Aura needs no servers. You and only you control your data
-* Become invisible again with a click
-* Nobody can trace or monitor you without being within 100m range
-
-Made with 💚 in Hamburg St. Pauli.
+<i>Made with 💚 in Hamburg St. Pauli.</i>
