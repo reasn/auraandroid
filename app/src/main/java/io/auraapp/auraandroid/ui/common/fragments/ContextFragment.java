@@ -8,6 +8,7 @@ import android.widget.Toast;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.ui.MainActivity;
 
+import static io.auraapp.auraandroid.common.FormattedLog.e;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 
 abstract public class ContextFragment extends Fragment {
@@ -38,6 +39,8 @@ abstract public class ContextFragment extends Fragment {
         if (activity.getSharedServicesSet() != null) {
             v(TAG, "Invoking onResumeWithContext, fragment: %s", getClass().getSimpleName());
             onResumeWithContext(activity);
+        } else {
+            e(TAG, "Skipping onResumeWithContext because context is unavailable, fragment: %s", getClass().getSimpleName());
         }
     }
 
@@ -46,6 +49,8 @@ abstract public class ContextFragment extends Fragment {
         v(TAG, "onPause, fragment: %s", getClass().getSimpleName());
         if (getContext() != null) {
             onPauseWithContext(getMainActivity());
+        } else {
+            e(TAG, "Skipping onPauseWithContext because context is unavailable, fragment: %s", getClass().getSimpleName());
         }
         super.onPause();
     }

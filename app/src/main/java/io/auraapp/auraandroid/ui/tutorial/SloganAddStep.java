@@ -38,6 +38,7 @@ public class SloganAddStep extends TutorialStep {
 
     public void leave() {
         mPager.setSwipeLocked(false);
+        mRootView.findViewById(R.id.profile_my_text).setVisibility(View.VISIBLE);
         mRootView.findViewById(R.id.pager).getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
     }
 
