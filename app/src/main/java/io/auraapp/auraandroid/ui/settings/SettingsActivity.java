@@ -1,7 +1,5 @@
 package io.auraapp.auraandroid.ui.settings;
 
-
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -28,7 +26,6 @@ import io.auraapp.auraandroid.ui.panic.PanicResponderActivity;
 
 import static io.auraapp.auraandroid.ui.panic.PanicResponderActivity.PANIC_TRIGGER_ACTION;
 
-
 public class SettingsActivity extends AppCompatActivity {
 
     @Override
@@ -47,32 +44,28 @@ public class SettingsActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener($ -> finish());
 
         SettingsFragment fragment = new SettingsFragment();
+        // Fragment doesn't rely on `onAttach` because pre launch testing showed a situation
+        // where `onCreate` was fired before `onAttach`
         fragment.mActivity = this;
         getFragmentManager().beginTransaction().replace(R.id.preferences_placeholder, fragment).commit();
     }
 
     public static class SettingsFragment extends PreferenceFragment {
-        public Context mContext;
         private Handler mHandler = new Handler();
         public DialogManager mDialogManager;
         private DialogManager.DialogState mDialogState;
         public SettingsActivity mActivity;
 
-        @Override
-        public void onAttach(Context context) {
-            super.onAttach(context);
-            mContext = context;
-            mDialogState = new DialogManager.DialogState();
-            mDialogManager = new DialogManager(context, mDialogState);
-        }
-
         private Preference findPref(@StringRes int keyId) {
-            return findPreference(mContext.getString(keyId));
+            return findPreference(mActivity.getString(keyId));
         }
 
         @Override
         public void onCreate(final Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+
+            mDialogState = new DialogManager.DialogState();
+            mDialogManager = new DialogManager(mActivity, mDialogState);
 
             getPreferenceManager().setSharedPreferencesName(Config.PREFERENCES_BUCKET);
             addPreferencesFromResource(R.xml.preferences);
@@ -81,14 +74,14 @@ public class SettingsActivity extends AppCompatActivity {
             Runnable update = () -> {
                 @StringRes
                 int summary;
-                if (AuraPrefs.shouldUninstallOnPanic(mContext)
-                        && AuraPrefs.shouldPurgeOnPanic(mContext)) {
+                if (AuraPrefs.shouldUninstallOnPanic(mActivity)
+                        && AuraPrefs.shouldPurgeOnPanic(mActivity)) {
                     summary = R.string.prefs_panic_trigger_summary_purge_uninstall;
 
-                } else if (AuraPrefs.shouldUninstallOnPanic(mContext)) {
+                } else if (AuraPrefs.shouldUninstallOnPanic(mActivity)) {
                     summary = R.string.prefs_panic_trigger_summary_uninstall;
 
-                } else if (AuraPrefs.shouldPurgeOnPanic(mContext)) {
+                } else if (AuraPrefs.shouldPurgeOnPanic(mActivity)) {
                     summary = R.string.prefs_panic_trigger_summary_purge;
 
                 } else {
@@ -101,7 +94,7 @@ public class SettingsActivity extends AppCompatActivity {
 
                 // Get additional confirmation if the user wants to enable panic_purge
 
-                if (preference != null && preference.getKey().equals(mContext.getString(R.string.prefs_panic_purge_key)) && (Boolean) newValue) {
+                if (preference != null && preference.getKey().equals(mActivity.getString(R.string.prefs_panic_purge_key)) && (Boolean) newValue) {
                     mDialogManager.showConfirm(
                             R.string.prefs_panic_purge_dialog_title,
                             R.string.prefs_panic_purge_dialog_message,
@@ -116,7 +109,7 @@ public class SettingsActivity extends AppCompatActivity {
                     return false;
                 }
 
-                if (preference != null && preference.getKey().equals(mContext.getString(R.string.prefs_panic_uninstall_key)) && (Boolean) newValue) {
+                if (preference != null && preference.getKey().equals(mActivity.getString(R.string.prefs_panic_uninstall_key)) && (Boolean) newValue) {
                     mDialogManager.showConfirm(
                             R.string.prefs_panic_uninstall_dialog_title,
                             R.string.prefs_panic_uninstall_dialog_message,
@@ -145,14 +138,14 @@ public class SettingsActivity extends AppCompatActivity {
             findPref(R.string.prefs_panic_trigger_key).setOnPreferenceClickListener(preference -> {
 
                 @StringRes int message;
-                if (AuraPrefs.shouldUninstallOnPanic(mContext)
-                        && AuraPrefs.shouldPurgeOnPanic(mContext)) {
+                if (AuraPrefs.shouldUninstallOnPanic(mActivity)
+                        && AuraPrefs.shouldPurgeOnPanic(mActivity)) {
                     message = R.string.prefs_panic_trigger_dialog_message_purge_uninstall;
 
-                } else if (AuraPrefs.shouldUninstallOnPanic(mContext)) {
+                } else if (AuraPrefs.shouldUninstallOnPanic(mActivity)) {
                     message = R.string.prefs_panic_trigger_dialog_message_uninstall;
 
-                } else if (AuraPrefs.shouldPurgeOnPanic(mContext)) {
+                } else if (AuraPrefs.shouldPurgeOnPanic(mActivity)) {
                     message = R.string.prefs_panic_trigger_dialog_message_purge;
 
                 } else {
@@ -162,13 +155,13 @@ public class SettingsActivity extends AppCompatActivity {
                 Runnable trigger = () -> {
                     // Communicator needs its own intent as it deals with panic independently
                     Intent communicatorIntent = new Intent(PANIC_TRIGGER_ACTION);
-                    communicatorIntent.setClass(mContext, Communicator.class);
-                    mContext.startService(communicatorIntent);
+                    communicatorIntent.setClass(mActivity, Communicator.class);
+                    mActivity.startService(communicatorIntent);
 
                     mActivity.finish();
                     new Handler().post(() -> {
                         Intent intent = new Intent(PANIC_TRIGGER_ACTION);
-                        intent.setClass(mContext, PanicResponderActivity.class);
+                        intent.setClass(mActivity, PanicResponderActivity.class);
                         startActivity(intent);
                     });
                 };
@@ -192,7 +185,7 @@ public class SettingsActivity extends AppCompatActivity {
             });
 
             try {
-                mContext.getPackageManager().getPackageInfo(mContext.getString(R.string.prefs_panic_ripple_package_name), 0);
+                mActivity.getPackageManager().getPackageInfo(mActivity.getString(R.string.prefs_panic_ripple_package_name), 0);
                 ((PreferenceCategory) findPref(R.string.prefs_panic_group_key)).removePreference(
                         findPref(R.string.prefs_panic_download_key)
                 );
@@ -200,7 +193,7 @@ public class SettingsActivity extends AppCompatActivity {
 
                 findPref(R.string.prefs_panic_download_key).setOnPreferenceClickListener(preference -> {
 
-                    final String appPackageName = mContext.getString(R.string.prefs_panic_ripple_package_name);
+                    final String appPackageName = mActivity.getString(R.string.prefs_panic_ripple_package_name);
                     try {
                         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
                     } catch (android.content.ActivityNotFoundException exception) {
@@ -208,19 +201,19 @@ public class SettingsActivity extends AppCompatActivity {
                     }
 
                     Intent intentA = new Intent(PANIC_TRIGGER_ACTION);
-                    intentA.setClass(mContext, Communicator.class);
-                    mContext.startService(intentA);
+                    intentA.setClass(mActivity, Communicator.class);
+                    mActivity.startService(intentA);
                     return true;
                 });
             }
 
             findPref(R.string.prefs_about_key).setOnPreferenceClickListener(preference -> {
 
-                String message = mContext.getString(R.string.prefs_about_dialog_message)
+                String message = mActivity.getString(R.string.prefs_about_dialog_message)
                         .replaceAll("VERSION_CODE", BuildConfig.VERSION_CODE + "")
                         .replaceAll("VERSION_NAME", BuildConfig.VERSION_NAME);
 
-                FullWidthDialog dialog = new DialogBuilder(mContext, mDialogState)
+                FullWidthDialog dialog = new DialogBuilder(mActivity, mDialogState)
                         .setTitle(R.string.prefs_about_dialog_title)
                         .setMessage(message)
                         .build();
