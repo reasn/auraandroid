@@ -97,7 +97,7 @@ public class Communicator extends Service {
         mHandler = new Handler();
 
         AuraPrefs.init(this);
-        AuraPrefs.listen(this, R.string.prefs_notification_vibrate_key, value -> mVibrate = (Boolean) value);
+        AuraPrefs.listen(this, R.string.prefs_notification_vibrate_key, value -> mVibrate = value instanceof Boolean && (Boolean) value);
         mVibrate = AuraPrefs.shouldVibrateOnPeerNotification(this);
 
         mAdvertiser = new Advertiser(
