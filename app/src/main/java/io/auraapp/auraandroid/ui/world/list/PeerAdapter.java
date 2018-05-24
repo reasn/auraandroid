@@ -21,10 +21,11 @@ import io.auraapp.auraandroid.ui.common.lists.SpacerHolder;
 import io.auraapp.auraandroid.ui.common.lists.SpacerItem;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
+import static io.auraapp.auraandroid.common.FormattedLog.w;
 
 public class PeerAdapter extends ExpandableRecyclerAdapter {
 
-    private static final String TAG = "@aura/" + PeerAdapter.class.getSimpleName();
+    private static final String TAG = "@aura/ui/world/" + PeerAdapter.class.getSimpleName();
 
     private final static int TYPE_PEER = 244;
     private final static int TYPE_SPACER = 245;
@@ -89,7 +90,6 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
     }
 
     public void notifyPeerChanged(Peer peer) {
-        d(TAG, "Updating peer %s", peer);
         int position = -1;
         for (int i = 0; i < mItems.size(); i++) {
             if (mItems.get(i) instanceof Peer && ((Peer) mItems.get(i)).mId == peer.mId) {
@@ -98,9 +98,12 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
             }
         }
         if (position != -1) {
+            d(TAG, "Updating item %d, peer: %s, items: %d", position, peer, mItems.size());
             mItems.remove(position);
             mItems.add(position, peer);
             notifyItemChanged(position);
+        } else {
+            w(TAG, "Not updating, unknown peer: %s, items: %d", peer, mItems.size());
         }
     }
 

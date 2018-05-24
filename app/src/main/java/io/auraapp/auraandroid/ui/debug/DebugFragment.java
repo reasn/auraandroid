@@ -71,6 +71,10 @@ public class DebugFragment extends ContextViewFragment {
 
                 mLastIntentTimestamp = System.currentTimeMillis();
 
+                if (LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION.equals(intent.getAction())) {
+                    mState = (CommunicatorProxyState) extras.getSerializable(IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE);
+                    mLastStateUpdateTimestamp = System.currentTimeMillis();
+                }
                 if (INTENT_PEER_UPDATED_ACTION.equals(intent.getAction())) {
                     @SuppressWarnings("unchecked")
                     Peer peer = (Peer) extras.getSerializable(INTENT_PEER_UPDATED_EXTRA_PEER);
@@ -81,7 +85,8 @@ public class DebugFragment extends ContextViewFragment {
                         replacePeer(mPeers, peer, false);
                     }
 
-                } else if (INTENT_PEER_LIST_UPDATED_ACTION.equals(intent.getAction())) {
+                }
+                if (INTENT_PEER_LIST_UPDATED_ACTION.equals(intent.getAction())) {
                     @SuppressWarnings("unchecked")
                     Set<Peer> peers = (Set<Peer>) extras.getSerializable(INTENT_PEER_LIST_UPDATED_EXTRA_PEERS);
                     if (peers != null) {
@@ -90,18 +95,6 @@ public class DebugFragment extends ContextViewFragment {
                 }
                 reflectState(context);
             });
-        }
-    };
-    private BroadcastReceiver mCommunicatorProxyStateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            v(TAG, "onReceive, intent: %s", intent.getAction());
-            Bundle extras = intent.getExtras();
-            if (extras != null) {
-                mState = (CommunicatorProxyState) extras.getSerializable(IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE);
-                mLastStateUpdateTimestamp = System.currentTimeMillis();
-                reflectState(context);
-            }
         }
     };
 
@@ -120,10 +113,10 @@ public class DebugFragment extends ContextViewFragment {
 
     @Override
     protected void onResumeWithContextAndView(MainActivity activity, ViewGroup rootView) {
-        activity.registerReceiver(mReceiver, IntentFactory.communicatorIntentFilter());
-        LocalBroadcastManager
-                .getInstance(activity)
-                .registerReceiver(mCommunicatorProxyStateReceiver, IntentFactory.createFilter(LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION));
+        LocalBroadcastManager.getInstance(activity).registerReceiver(mReceiver, IntentFactory.createFilter(
+                LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION,
+                INTENT_PEER_LIST_UPDATED_ACTION,
+                INTENT_PEER_UPDATED_ACTION));
         v(TAG, "Receivers registered");
 
         SharedServicesSet servicesSet = activity.getSharedServicesSet();
@@ -201,8 +194,7 @@ public class DebugFragment extends ContextViewFragment {
     protected void onPauseWithContext(MainActivity activity) {
         super.onPauseWithContext(activity);
         Timer.clear(mRefreshTimeout);
-        activity.unregisterReceiver(mReceiver);
-        LocalBroadcastManager.getInstance(activity).unregisterReceiver(mCommunicatorProxyStateReceiver);
+        LocalBroadcastManager.getInstance(activity).unregisterReceiver(mReceiver);
         v(TAG, "Receivers unregistered");
     }
 

@@ -54,23 +54,15 @@ public class IntentFactory {
     public static final String PREFERENCE_CHANGED_EXTRA_KEY = prefix + "preference.changed.extraKey";
     public static final String PREFERENCE_CHANGED_EXTRA_VALUE = prefix + "preference.changed.extraValue";
 
-    public static IntentFilter communicatorIntentFilter() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(INTENT_COMMUNICATOR_STATE_UPDATED_ACTION);
-        filter.addAction(INTENT_PEER_LIST_UPDATED_ACTION);
-        filter.addAction(INTENT_PEER_UPDATED_ACTION);
-        return filter;
-    }
-
     public static IntentFilter localMyProfileChangedIntentFiler() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION);
-        filter.addAction(LOCAL_MY_PROFILE_NAME_CHANGED_ACTION);
-        filter.addAction(LOCAL_MY_PROFILE_TEXT_CHANGED_ACTION);
-        filter.addAction(LOCAL_MY_PROFILE_DROPPED_ACTION);
-        filter.addAction(LOCAL_MY_PROFILE_ADOPTED_ACTION);
-        filter.addAction(LOCAL_MY_PROFILE_REPLACED_ACTION);
-        return filter;
+        return createFilter(
+                LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION,
+                LOCAL_MY_PROFILE_NAME_CHANGED_ACTION,
+                LOCAL_MY_PROFILE_TEXT_CHANGED_ACTION,
+                LOCAL_MY_PROFILE_DROPPED_ACTION,
+                LOCAL_MY_PROFILE_ADOPTED_ACTION,
+                LOCAL_MY_PROFILE_REPLACED_ACTION
+        );
     }
 
     public static IntentFilter createFilter(String... actions) {

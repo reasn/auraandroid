@@ -60,13 +60,14 @@ public class CommunicatorProxy {
                 @SuppressWarnings("unchecked")
                 Peer peer = (Peer) extras.getSerializable(INTENT_PEER_UPDATED_EXTRA_PEER);
                 if (peer != null) {
-                    v(TAG, "Peer updated, peer: %s, slogans: %d", peer.mId, peer.mSlogans.size());
                     replacePeer(mPeers, peer, false);
+                    v(TAG, "Peer updated, peer: %s, slogans: %d, peers: %d", peer.mId, peer.mSlogans.size(), mPeers.size());
                 } else {
                     w(TAG, "Received invalid %s intent, peer: null", INTENT_PEER_UPDATED_ACTION);
                 }
                 // INTENT_PEER_UPDATED_ACTION is sent quite often and therefore not accompanied by
                 // communicator state. Return here to not generate warnings about the missing state
+                LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
                 return;
 
             } else if (INTENT_PEER_LIST_UPDATED_ACTION.equals(intent.getAction())) {
@@ -74,11 +75,12 @@ public class CommunicatorProxy {
                 Set<Peer> peers = (Set<Peer>) extras.getSerializable(INTENT_PEER_LIST_UPDATED_EXTRA_PEERS);
 
                 if (peers != null) {
-                    v(TAG, "Peer list changed, (%d) peers: %s", peers.size(), peers);
+                    v(TAG, "Peer list changed, was %d, is: %s", mPeers.size(), peers.size());
                     mPeers = peers;
                 } else {
                     w(TAG, "Received invalid %s intent, peers: null, intent: %s", INTENT_PEER_LIST_UPDATED_ACTION, intent);
                 }
+                LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
 
             } else if (!INTENT_COMMUNICATOR_STATE_UPDATED_ACTION.equals(intent.getAction())) {
                 w(TAG, "Received invalid intent (unknown action \"%s\"), ignoring it", intent.getAction());
@@ -101,8 +103,19 @@ public class CommunicatorProxy {
                 stateUpdate.putExtra(LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE, mState);
                 LocalBroadcastManager.getInstance(context).sendBroadcast(stateUpdate);
             }
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
         }
     };
+
+    public CommunicatorProxy(Context context) {
+        mContext = context;
+
+        if (AuraPrefs.isEnabled(context)) {
+            enable();
+        } else {
+            i(TAG, "Aura is currently disabled");
+        }
+    }
 
     public static void replacePeer(Set<Peer> mutablePeers, Peer peer, boolean requireName) {
         for (Peer candidate : mutablePeers.toArray(new Peer[mutablePeers.size()])) {
@@ -125,16 +138,6 @@ public class CommunicatorProxy {
         return peersWithName;
     }
 
-    public CommunicatorProxy(Context context) {
-        mContext = context;
-
-        if (AuraPrefs.isEnabled(context)) {
-            enable();
-        } else {
-            i(TAG, "Aura is currently disabled");
-        }
-    }
-
     public void resume() {
 
         LocalBroadcastManager.getInstance(mContext).registerReceiver(
@@ -142,14 +145,11 @@ public class CommunicatorProxy {
                 IntentFactory.localMyProfileChangedIntentFiler()
         );
 
-        mContext.registerReceiver(
-                mReceiver,
-                IntentFactory.createFilter(
-                        INTENT_COMMUNICATOR_STATE_UPDATED_ACTION,
-                        INTENT_PEER_LIST_UPDATED_ACTION,
-                        INTENT_PEER_UPDATED_ACTION
-                )
-        );
+        mContext.registerReceiver(mReceiver, IntentFactory.createFilter(
+                INTENT_COMMUNICATOR_STATE_UPDATED_ACTION,
+                INTENT_PEER_LIST_UPDATED_ACTION,
+                INTENT_PEER_UPDATED_ACTION
+        ));
         mRegistered = true;
         d(TAG, "Started to listen for events from communicator");
     }

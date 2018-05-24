@@ -63,47 +63,7 @@ public class WorldFragment extends ContextViewFragment {
     private TextView mNotScanningMessage;
     private String mMyColor;
     private Set<Peer> mTutorialPeers;
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            v(TAG, "onReceive, intent: %s", intent.getAction());
-            Bundle extras = intent.getExtras();
-            if (extras == null) {
-                return;
-            }
-
-            if (INTENT_PEER_UPDATED_ACTION.equals(intent.getAction())) {
-                @SuppressWarnings("unchecked")
-                Peer peer = (Peer) extras.getSerializable(INTENT_PEER_UPDATED_EXTRA_PEER);
-                if (peer != null) {
-                    replacePeer(mPeers, peer, false);
-                    if (mPeerAdapter != null) {
-                        v(TAG, "Updating adapter, peers: %s", mPeers.size());
-
-                        if (mTutorialPeers == null) {
-                            // Maintaining state but not reflecting it in the adapter
-                            mPeerAdapter.notifyPeerChanged(peer);
-                        }
-                    }
-                }
-
-            } else if (INTENT_PEER_LIST_UPDATED_ACTION.equals(intent.getAction())) {
-                @SuppressWarnings("unchecked")
-                Set<Peer> peers = (Set<Peer>) extras.getSerializable(INTENT_PEER_LIST_UPDATED_EXTRA_PEERS);
-                if (peers != null) {
-                    mPeers = peers;
-                    if (mPeerAdapter != null) {
-                        if (mTutorialPeers == null) {
-                            // Maintaining state but not reflecting it in the adapter
-                            mPeerAdapter.notifyPeerListChanged(mPeers);
-                        }
-                    }
-                }
-            }
-            reflectState(context);
-        }
-    };
-    private BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             v(TAG, "onReceive, local intent: %s", intent.getAction());
@@ -129,10 +89,47 @@ public class WorldFragment extends ContextViewFragment {
             if (extras == null) {
                 return;
             }
+
+            if (INTENT_PEER_UPDATED_ACTION.equals(intent.getAction())) {
+                @SuppressWarnings("unchecked")
+                Peer peer = (Peer) extras.getSerializable(INTENT_PEER_UPDATED_EXTRA_PEER);
+                if (peer != null) {
+                    replacePeer(mPeers, peer, false);
+                    if (mPeerAdapter != null) {
+
+                        if (mTutorialPeers == null) {
+                            v(TAG, "Updating adapter, peers: %s", mPeers.size());
+                            // Maintaining state but not reflecting it in the adapter
+                            mPeerAdapter.notifyPeerChanged(peer);
+                        } else {
+                            v(TAG, "Not updating adapter because tutorial is active, tutorialPeers:%s, peers: %s", mTutorialPeers.size(), mPeers.size());
+                        }
+                    }
+                }
+                reflectState(context);
+                return;
+
+            } else if (INTENT_PEER_LIST_UPDATED_ACTION.equals(intent.getAction())) {
+                @SuppressWarnings("unchecked")
+                Set<Peer> peers = (Set<Peer>) extras.getSerializable(INTENT_PEER_LIST_UPDATED_EXTRA_PEERS);
+                if (peers != null) {
+                    mPeers = peers;
+                    if (mPeerAdapter != null) {
+                        if (mTutorialPeers == null) {
+                            // Maintaining state but not reflecting it in the adapter
+                            mPeerAdapter.notifyPeerListChanged(mPeers);
+                        }
+                    }
+                }
+                reflectState(context);
+                return;
+            }
             if (LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION.equals(intent.getAction())) {
                 mComProxyState = (CommunicatorProxyState) extras.getSerializable(LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE);
                 reflectState(context);
-            } else if (LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION.equals(intent.getAction())) {
+                return;
+            }
+            if (LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION.equals(intent.getAction())) {
                 mMyColor = ((MyProfile) extras.getSerializable(LOCAL_MY_PROFILE_EXTRA_PROFILE)).getColor();
             }
         }
@@ -147,20 +144,22 @@ public class WorldFragment extends ContextViewFragment {
     protected void onResumeWithContextAndView(MainActivity activity, ViewGroup rootView) {
         d(TAG, "onResumeWithContextAndView");
 
-        activity.registerReceiver(mReceiver, IntentFactory.communicatorIntentFilter());
         LocalBroadcastManager.getInstance(activity).registerReceiver(mLocalReceiver,
                 IntentFactory.createFilter(
                         LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION,
                         LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION,
                         LOCAL_TUTORIAL_OPEN_ACTION,
-                        LOCAL_TUTORIAL_COMPLETE_ACTION
+                        LOCAL_TUTORIAL_COMPLETE_ACTION,
+                        INTENT_PEER_LIST_UPDATED_ACTION,
+                        INTENT_PEER_UPDATED_ACTION
                 ));
-        v(TAG, "Receivers registered");
 
         SharedServicesSet servicesSet = activity.getSharedServicesSet();
         mPeers = servicesSet.mCommunicatorProxy.getPeers();
         mComProxyState = servicesSet.mCommunicatorProxy.getState();
         mMyColor = servicesSet.mMyProfileManager.getColor();
+
+        v(TAG, "Receivers registered, peers fetched, peers: %d, mComProxyState: %s", mPeers.size(), mComProxyState);
 
         mNotScanningMessage = rootView.findViewById(R.id.world_not_scanning);
         mStartingWrapper = rootView.findViewById(R.id.world_starting_wrapper);
@@ -189,6 +188,8 @@ public class WorldFragment extends ContextViewFragment {
         if (servicesSet.mTutorialManager.isOpen()) {
             mTutorialPeers = ProductionStubFactory.createFakePeers();
             mPeerAdapter.notifyPeerListChanged(mTutorialPeers);
+        } else {
+            mPeerAdapter.notifyPeerListChanged(mPeers);
         }
 
         mPeersRecycler.setAdapter(mPeerAdapter);
@@ -200,17 +201,18 @@ public class WorldFragment extends ContextViewFragment {
 
         reflectState(activity);
 
-        v(TAG, "Updated view, tutorialPeers: %s", mTutorialPeers == null ? "null" : mTutorialPeers.size() + "");
+        v(TAG, "Updated view, peers: %d, tutorialPeers: %s",
+                mPeers.size(),
+                mTutorialPeers == null ? "null" : mTutorialPeers.size() + "");
     }
 
     @Override
     protected void onPauseWithContext(MainActivity activity) {
         super.onPauseWithContext(activity);
         d(TAG, "onPauseWithContext");
-        activity.unregisterReceiver(mReceiver);
         LocalBroadcastManager.getInstance(activity).unregisterReceiver(mLocalReceiver);
-        v(TAG, "Receivers unregistered");
         mPeerAdapter.onPause();
+        v(TAG, "Receivers unregistered, adapter paused");
     }
 
     public void reflectState(Context context) {
@@ -227,6 +229,8 @@ public class WorldFragment extends ContextViewFragment {
         mNotScanningMessage.setVisibility(scanning ? View.GONE : View.VISIBLE);
         mSwipeRefresh.setEnabled(scanning);
         mSwipeRefresh.setPeerCount(peersCount);
+
+        v(TAG, "Reflecting state, scanning: %b, peersCount: %d", scanning, peersCount);
 
         if (!scanning || peersCount > 0) {
             mStartingWrapper.setVisibility(View.GONE);
