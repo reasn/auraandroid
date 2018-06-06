@@ -22,9 +22,23 @@ import static io.auraapp.auraandroid.common.FormattedLog.v;
 
 public class PeerSloganHolder extends ExpandableViewHolder {
 
+    @FunctionalInterface
+    public static interface WhatsMyColorCallback {
+        @ColorInt
+        int getColor();
+    }
+    private static final String TAG = "aura/list/" + PeerSloganHolder.class.getSimpleName();
     private final WhatsMyColorCallback mWhatsMyColorCallback;
-    private Context mContext;
-    private TextViewClickMovement.LinkTouchListener mLinkTouchListener = new TextViewClickMovement.LinkTouchListener() {
+    private final Context mContext;
+    private final OnAdoptCallback mOnAdoptCallback;
+    private final TextView mTextView;
+
+    @ColorInt
+    int mTextColor;
+    @ColorInt
+    int mBackgroundColor;
+
+    private final TextViewClickMovement.LinkTouchListener mLinkTouchListener = new TextViewClickMovement.LinkTouchListener() {
 
         @Override
         public void onLinkClicked(String linkText) {
@@ -60,22 +74,6 @@ public class PeerSloganHolder extends ExpandableViewHolder {
         }
     };
 
-    @FunctionalInterface
-    public static interface WhatsMyColorCallback {
-        @ColorInt
-        public int getColor();
-    }
-
-    private static final String TAG = "aura/list/" + PeerSloganHolder.class.getSimpleName();
-    private final OnAdoptCallback mOnAdoptCallback;
-    private final TextView mTextView;
-
-    @ColorInt
-    public int mTextColor;
-    @ColorInt
-    public int mBackgroundColor;
-
-
     public PeerSloganHolder(View itemView, Context context, OnAdoptCallback onAdoptCallback, WhatsMyColorCallback whatsMyColorCallback) {
         super(itemView);
         mContext = context;
@@ -104,6 +102,7 @@ public class PeerSloganHolder extends ExpandableViewHolder {
 
         itemView.setBackgroundColor(mBackgroundColor);
         mTextView.setTextColor(mTextColor);
+        mTextView.setLinkTextColor(mTextColor);
 
         itemView.setTag(R.id.world_peer_slogan_tag_slogan, slogan);
     }
