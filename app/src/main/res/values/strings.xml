@@ -315,6 +315,8 @@
         \n\nIn the Aura settings you can make sure all data is purged.
     </string>
     <string name="debug_dump_logged">Dump logged</string>
+    <string name="toolbar_title_profile">My Aura</string>
+    <string name="toolbar_title_world">Other Auras</string>
 
 
 </resources>

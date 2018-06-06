@@ -91,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
                 getSupportFragmentManager(),
                 LocalBroadcastManager.getInstance(this)
         ));
-        mServicesSet.mPager.redirectIfNeeded(this, null);
 
 //        EmojiCompat.init(new BundledEmojiCompatConfig(this));
 

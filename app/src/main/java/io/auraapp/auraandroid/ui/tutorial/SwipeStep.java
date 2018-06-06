@@ -1,6 +1,5 @@
 package io.auraapp.auraandroid.ui.tutorial;
 
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;

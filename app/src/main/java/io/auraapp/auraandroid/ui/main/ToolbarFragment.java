@@ -8,7 +8,6 @@ import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
@@ -28,17 +27,17 @@ import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.ui.MainActivity;
-import io.auraapp.auraandroid.ui.ScreenPager;
 import io.auraapp.auraandroid.ui.common.ColorHelper;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxy;
 import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
 import io.auraapp.auraandroid.ui.permissions.PermissionsFragment;
+import io.auraapp.auraandroid.ui.profile.ProfileFragment;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 import io.auraapp.auraandroid.ui.settings.SettingsActivity;
 import io.auraapp.auraandroid.ui.welcome.TermsFragment;
+import io.auraapp.auraandroid.ui.world.WorldFragment;
 
 import static io.auraapp.auraandroid.common.FormattedLog.i;
-import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_ACTION;
 
@@ -51,7 +50,6 @@ public class ToolbarFragment extends ContextViewFragment {
     private Handler mHandler = new Handler();
     private boolean mDebugUiEnabled;
     private final List<Long> mToolbarIconClicks = new ArrayList<>();
-    private ScreenPager mPager;
     private MyProfileManager mMyProfileManager;
     private boolean mReceiverRegistered = false;
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -59,15 +57,17 @@ public class ToolbarFragment extends ContextViewFragment {
         public void onReceive(Context context, Intent intent) {
 
             if (LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION.equals(intent.getAction())) {
-
                 String color = mMyProfileManager.getColor();
                 i(TAG, "Color set to %s", color);
                 mToolbar.setBackgroundColor(Color.parseColor(color));
+                mToolbar.setTitleTextColor(ColorHelper.getTextColor(Color.parseColor(color)));
                 mEnabledSwitch.setTextColor(ColorHelper.getTextColor(Color.parseColor(color)));
-            } else {
+            } else if (LOCAL_SCREEN_PAGER_CHANGED_ACTION.equals(intent.getAction())) {
                 updateVisibilityAccordingToCurrentlyVisibleScreen(
                         intent.getStringExtra(IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_EXTRA_NEW)
                 );
+            } else {
+                throw new RuntimeException("Unexpected intent " + intent.getAction());
             }
         }
     };
@@ -91,6 +91,13 @@ public class ToolbarFragment extends ContextViewFragment {
         } else {
             mToolbar.setVisibility(View.VISIBLE);
         }
+        if (ProfileFragment.class.toString().equals(currentFragmentClass)) {
+            mToolbar.setTitle(R.string.toolbar_title_profile);
+        } else if (WorldFragment.class.toString().equals(currentFragmentClass)) {
+            mToolbar.setTitle(R.string.toolbar_title_world);
+        } else {
+            mToolbar.setTitle(" ");
+        }
     }
 
     @Override
@@ -98,18 +105,11 @@ public class ToolbarFragment extends ContextViewFragment {
 
         mCommunicatorProxy = activity.getSharedServicesSet().mCommunicatorProxy;
         mMyProfileManager = activity.getSharedServicesSet().mMyProfileManager;
-        mPager = activity.getSharedServicesSet().mPager;
 
         registerReceiverOnce(activity);
+
         mToolbar = (Toolbar) rootView;
         activity.setSupportActionBar(mToolbar);
-
-        // If app starts with this fragment, the receiver will never fire so we check here
-        @Nullable
-        Fragment currentItem = mPager.getScreenAdapter().getCurrentItem();
-        updateVisibilityAccordingToCurrentlyVisibleScreen(currentItem != null
-                ? currentItem.getClass().toString()
-                : "null");
 
         mToolbar.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.action_settings) {
@@ -227,7 +227,7 @@ public class ToolbarFragment extends ContextViewFragment {
         LocalBroadcastManager.getInstance(context).registerReceiver(
                 mReceiver,
                 IntentFactory.createFilter(
-                        LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION,
+                        LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION,
                         LOCAL_SCREEN_PAGER_CHANGED_ACTION
                 )
         );

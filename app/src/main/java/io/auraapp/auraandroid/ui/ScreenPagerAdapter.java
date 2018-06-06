@@ -34,7 +34,7 @@ public class ScreenPagerAdapter extends FragmentPagerAdapter {
     private final List<Fragment> mFragments = new ArrayList<>();
     private final LocalBroadcastManager mLocalBroadcastManager;
 
-    private Fragment mPrimaryItem = null;
+    private Fragment mCurrentItem = null;
 
     public ScreenPagerAdapter(FragmentManager fm, LocalBroadcastManager localBroadcastManager) {
         super(fm);
@@ -93,7 +93,7 @@ public class ScreenPagerAdapter extends FragmentPagerAdapter {
 
     @Nullable
     public Fragment getCurrentItem() {
-        return mPrimaryItem;
+        return mCurrentItem;
     }
 
     @Override
@@ -103,19 +103,19 @@ public class ScreenPagerAdapter extends FragmentPagerAdapter {
     }
 
     public void sendChangeBroadcast(Fragment fragment) {
-        if (mPrimaryItem != null && fragment.getClass().equals(mPrimaryItem.getClass())) {
+        if (mCurrentItem != null && fragment.getClass().equals(mCurrentItem.getClass())) {
             return;
         }
-        String previous = mPrimaryItem == null
+        String previous = mCurrentItem == null
                 ? "null"
-                : mPrimaryItem.getClass().toString();
+                : mCurrentItem.getClass().toString();
         i(TAG, "Broadcasting new primary fragment %s, was: %s", fragment.getClass().getSimpleName(), previous);
         Intent intent = new Intent(LOCAL_SCREEN_PAGER_CHANGED_ACTION);
         intent.putExtra(LOCAL_SCREEN_PAGER_CHANGED_EXTRA_NEW, fragment.getClass().toString());
         intent.putExtra(LOCAL_SCREEN_PAGER_CHANGED_EXTRA_PREVIOUS, previous);
         mLocalBroadcastManager.sendBroadcast(intent);
 
-        mPrimaryItem = fragment;
+        mCurrentItem = fragment;
     }
 
     @Override
