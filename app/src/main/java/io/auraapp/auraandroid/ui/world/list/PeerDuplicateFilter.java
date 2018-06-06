@@ -16,13 +16,13 @@ class PeerDuplicateFilter {
             return 0;
         }
         if (a.mName != b.mName) {
-            // They're not both null
+            // At least one of them is not null
             if (a.mName == null) {
-                // a is less than
-                return -1;
+                // a is below b
+                return 1;
             }
             if (b.mName == null) {
-                return 1;
+                return -1;
             }
         }
         if (Math.abs(a.mLastSeenTimestamp - b.mLastSeenTimestamp) < 60000) {
@@ -34,7 +34,7 @@ class PeerDuplicateFilter {
         return (int) (a.mLastSeenTimestamp - b.mLastSeenTimestamp);
     };
 
-    static List<Peer> filterDuplicates(Collection<Peer> peerSet) {
+    static List<Peer> sortAndFilterDuplicates(Collection<Peer> peerSet) {
         ArrayList<Peer> result = new ArrayList<>(peerSet);
         Collections.sort(result, mComparator);
         return result;

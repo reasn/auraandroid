@@ -54,6 +54,11 @@ class PeerBroadcaster {
         }
     }
 
+    void propagatePeerListWithoutDebounce(DeviceMap deviceMap) {
+        iv(TAG, "Debouncing propagation of peer list");
+        mPeersListCallback.peerListChanged(buildPeers(deviceMap));
+    }
+
     void propagatePeerList(DeviceMap deviceMap) {
         iv(TAG, "Debouncing propagation of peer list");
         mDebouncer.debounce(() -> mPeersListCallback.peerListChanged(buildPeers(deviceMap)));

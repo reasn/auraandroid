@@ -473,7 +473,8 @@ class Scanner {
                         // device changed, let's recheck if there's any duplicates
                         if (ScannerUtils.removeOldDevicesWithSameContent(mDeviceMap)) {
                             // A device was removed, propagate the entire list
-                            mPeerBroadcaster.propagatePeerList(mDeviceMap);
+                            // We must not debounce because otherwise the event might get lost
+                            mPeerBroadcaster.propagatePeerListWithoutDebounce(mDeviceMap);
                         } else {
                             mPeerBroadcaster.propagatePeer(device,
                                     newSlogans.size() > previousSlogans.size()

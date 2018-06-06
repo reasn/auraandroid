@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 
 import io.auraapp.auraandroid.R;
@@ -52,13 +51,14 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
     }
 
     public void notifyPeerListChanged(Collection<Peer> peerSet) {
-        List<Peer> uniquePeers = PeerDuplicateFilter.filterDuplicates(peerSet);
-        d(TAG, "Updating list, peers was %d, is: %d", mItems.size(), uniquePeers.size());
+        List<Object> itemsWithoutDuplicatePeers = new ArrayList<>(PeerDuplicateFilter.sortAndFilterDuplicates(peerSet));
+        itemsWithoutDuplicatePeers.add(new SpacerItem());
 
-        DiffUtil.DiffResult diff = DiffUtil.calculateDiff(new PeersDiffCallback(mItems, uniquePeers));
+        d(TAG, "Updating list, items count (including SpacerItem) was %d, is: %d", mItems.size(), itemsWithoutDuplicatePeers.size());
+
+        DiffUtil.DiffResult diff = DiffUtil.calculateDiff(new PeersDiffCallback(mItems, itemsWithoutDuplicatePeers));
         mItems.clear();
-        mItems.addAll(uniquePeers);
-        mItems.add(new SpacerItem());
+        mItems.addAll(itemsWithoutDuplicatePeers);
         diff.dispatchUpdatesTo(this);
     }
 
