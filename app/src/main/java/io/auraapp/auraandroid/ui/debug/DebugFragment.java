@@ -36,6 +36,7 @@ import io.auraapp.auraandroid.ui.profile.profileModel.MyProfile;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
 
 import static android.content.Context.MODE_PRIVATE;
+import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_LIST_UPDATED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_LIST_UPDATED_EXTRA_PEERS;
@@ -185,6 +186,11 @@ public class DebugFragment extends ContextViewFragment {
             profileManager.adopt(Slogan.create("Aura goes IoT!\nHelp at getaura.io/iot"));
         }));
 
+        rootView.findViewById(R.id.debug_log_dump).setOnClickListener($ -> {
+            i(TAG, createDump(activity));
+            toast(R.string.debug_dump_logged);
+        });
+
         Timer.clear(mRefreshTimeout);
         mRefreshTimeout = mTimer.setSerializedInterval(() -> mHandler.post(() -> reflectState(activity)), 1000);
         reflectState(activity);
@@ -199,17 +205,8 @@ public class DebugFragment extends ContextViewFragment {
     }
 
     private void reflectState(Context context) {
-        long now = System.currentTimeMillis();
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        String dump = "\nlast communicator intent: " +
-                (mLastIntentTimestamp > 0
-                        ? (now - mLastIntentTimestamp) / 1000 + "s ago"
-                        : "never");
-        dump += "\nlast communicator state: " + (now - mLastStateUpdateTimestamp) / 1000 + "s ago";
-        dump += "\nprofile: " + gson.toJson(mProfile);
-        dump += "\ncommunicator: " + gson.toJson(mState);
-        dump += "\npeers: " + gson.toJson(mPeers);
-        dump += createPrefsDump(context);
+
+        String dump = createDump(context);
         TextView communicatorStateDump = getRootView().findViewById(R.id.debug_communicator_state_dump);
         communicatorStateDump.setText(dump.replaceAll("\"", "").replaceAll("\n +\\{", " {"));
 
@@ -228,6 +225,21 @@ public class DebugFragment extends ContextViewFragment {
                 android.R.layout.simple_list_item_1,
                 mPeers.toArray(new Peer[mPeers.size()])
         ));
+    }
+
+    private String createDump(Context context) {
+        long now = System.currentTimeMillis();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String dump = "\nlast communicator intent: " +
+                (mLastIntentTimestamp > 0
+                        ? (now - mLastIntentTimestamp) / 1000 + "s ago"
+                        : "never");
+        dump += "\nlast communicator state: " + (now - mLastStateUpdateTimestamp) / 1000 + "s ago";
+        dump += "\nprofile: " + gson.toJson(mProfile);
+        dump += "\ncommunicator: " + gson.toJson(mState);
+        dump += "\npeers: " + gson.toJson(mPeers);
+        dump += createPrefsDump(context);
+        return dump;
     }
 
     private String renderBooleanPref(SharedPreferences prefs, Context context, @StringRes int key) {

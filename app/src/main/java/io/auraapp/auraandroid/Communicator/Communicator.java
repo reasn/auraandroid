@@ -126,11 +126,14 @@ public class Communicator extends Service {
                     if (!(peers instanceof Serializable)) {
                         throw new RuntimeException("peers must be serializable");
                     }
-                    int peerSloganCount = 0;
-                    for (Peer peer : peers) {
-                        peerSloganCount += peer.mSlogans.size();
+                    {
+                        // Maintain status bar notification
+                        int peerSloganCount = 0;
+                        for (Peer peer : peers) {
+                            peerSloganCount += peer.mSlogans.size();
+                        }
+                        mPeerSloganCount = peerSloganCount;
                     }
-                    mPeerSloganCount = peerSloganCount;
                     sendBroadcast(IntentFactory.peerListUpdated(peers, mState));
                     d(TAG, "Sent peer list intent with %d peers", peers.size());
                 }),

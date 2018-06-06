@@ -14,7 +14,6 @@ import static io.auraapp.auraandroid.common.FormattedLog.v;
 
 class PeerBroadcaster {
 
-    private static final String DEBOUNCE_ID_ALL_PEERS = "all-peers";
     private static final String TAG = "@aura/communicator/" + PeerBroadcaster.class.getSimpleName();
 
     @FunctionalInterface

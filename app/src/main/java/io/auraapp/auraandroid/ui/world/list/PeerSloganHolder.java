@@ -60,6 +60,7 @@ public class PeerSloganHolder extends ExpandableViewHolder {
         }
     };
 
+    @FunctionalInterface
     public static interface WhatsMyColorCallback {
         @ColorInt
         public int getColor();

@@ -11,6 +11,8 @@ import static org.junit.Assert.assertNotEquals;
 public class PeerSpec {
 
     private static Peer peerA = new Peer(1234);
+    private static Peer peerA2 = new Peer(1234);
+    private static Peer peerB = new Peer(1234);
 
     static {
         peerA.mName = "wundula";
@@ -18,15 +20,11 @@ public class PeerSpec {
         peerA.mSlogans.add(Slogan.create("fufu"));
     }
 
-    private static Peer peerA2 = new Peer(1234);
-
     static {
         peerA2.mName = "wundula";
         peerA2.mSlogans.add(Slogan.create("foo"));
         peerA2.mSlogans.add(Slogan.create("fufu"));
     }
-
-    private static Peer peerB = new Peer(1234);
 
     static {
         peerB.mName = "madeIn";

@@ -8,9 +8,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.List;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Peer;
@@ -38,30 +38,6 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
     private final RecyclerView.RecycledViewPool mSloganRecyclerViewPool;
     private Timer.Timeout mRedrawTimeout;
     private Timer mTimer = new Timer(new Handler());
-
-    private final Comparator<Peer> mComparator = (a, b) -> {
-        if (a.mId == b.mId) {
-            // Avoids duplicates when the name changes
-            return 0;
-        }
-        if (a.mName != b.mName) {
-            // They're not both null
-            if (a.mName == null) {
-                // a is less than
-                return -1;
-            }
-            if (b.mName == null) {
-                return 1;
-            }
-        }
-        if (Math.abs(a.mLastSeenTimestamp - b.mLastSeenTimestamp) < 60000) {
-            if (a.mName == null || b.mName == null) {
-                return a.mId - b.mId;
-            }
-            return a.mName.compareTo(b.mName);
-        }
-        return (int) (a.mLastSeenTimestamp - b.mLastSeenTimestamp);
-    };
     private PeerSloganHolder.WhatsMyColorCallback mWhatsMyColorCallback;
 
     public PeerAdapter(Context context, RecyclerView recyclerView, PeerSloganHolder.WhatsMyColorCallback whatsMyColorCallback, OnAdoptCallback onAdoptCallback) {
@@ -75,16 +51,13 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
         mSloganRecyclerViewPool = new RecyclerView.RecycledViewPool();
     }
 
-    public void notifyPeerListChanged(Set<Peer> peerSet) {
+    public void notifyPeerListChanged(Collection<Peer> peerSet) {
+        List<Peer> uniquePeers = PeerDuplicateFilter.filterDuplicates(peerSet);
+        d(TAG, "Updating list, peers was %d, is: %d", mItems.size(), uniquePeers.size());
 
-        TreeSet<Peer> treeSet = new TreeSet<>(mComparator);
-        treeSet.addAll(peerSet);
-        ArrayList<Peer> sortedPeers = new ArrayList<>(treeSet);
-        d(TAG, "Updating list, peers was %d, is: %d", mItems.size(), sortedPeers.size());
-
-        DiffUtil.DiffResult diff = DiffUtil.calculateDiff(new PeersDiffCallback(mItems, sortedPeers));
+        DiffUtil.DiffResult diff = DiffUtil.calculateDiff(new PeersDiffCallback(mItems, uniquePeers));
         mItems.clear();
-        mItems.addAll(sortedPeers);
+        mItems.addAll(uniquePeers);
         mItems.add(new SpacerItem());
         diff.dispatchUpdatesTo(this);
     }
@@ -97,14 +70,17 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
                 break;
             }
         }
-        if (position != -1) {
-            d(TAG, "Updating item %d, peer: %s, items: %d", position, peer, mItems.size());
-            mItems.remove(position);
-            mItems.add(position, peer);
-            notifyItemChanged(position);
-        } else {
+        if (position == -1) {
             w(TAG, "Not updating, unknown peer: %s, items: %d", peer, mItems.size());
+            return;
         }
+
+        d(TAG, "Updating item %d, peer: %s, items: %d", position, peer, mItems.size());
+        mItems.remove(position);
+        mItems.add(position, peer);
+
+
+        notifyItemChanged(position);
     }
 
     /**

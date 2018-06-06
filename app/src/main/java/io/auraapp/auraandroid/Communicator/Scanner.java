@@ -470,11 +470,17 @@ class Scanner {
                                 existingSloganChanged,
                                 !profile.equals(previousProfile)
                         );
-                        mPeerBroadcaster.propagatePeer(device,
-                                newSlogans.size() > previousSlogans.size()
-                                        || existingSloganChanged
-                                        || !profile.equals(previousProfile),
-                                countSlogans());
+                        // device changed, let's recheck if there's any duplicates
+                        if (ScannerUtils.removeOldDevicesWithSameContent(mDeviceMap)) {
+                            // A device was removed, propagate the entire list
+                            mPeerBroadcaster.propagatePeerList(mDeviceMap);
+                        } else {
+                            mPeerBroadcaster.propagatePeer(device,
+                                    newSlogans.size() > previousSlogans.size()
+                                            || existingSloganChanged
+                                            || !profile.equals(previousProfile),
+                                    countSlogans());
+                        }
                     }
                 } catch (UnknownAdvertisementException e) {
                     w(TAG, "Characteristic retrieved matches no prop UUID, id: %s, uuid: %s", hexId, uuid);

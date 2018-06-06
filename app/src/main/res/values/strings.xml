@@ -314,6 +314,7 @@
         \nFor this, Aura supports the panic button Ripple (getAura.io/ripple).
         \n\nIn the Aura settings you can make sure all data is purged.
     </string>
+    <string name="debug_dump_logged">Dump logged</string>
 
 
 </resources>
