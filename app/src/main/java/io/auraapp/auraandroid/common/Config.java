@@ -22,7 +22,7 @@ public class Config {
     public static final int PROFILE_NAME_MAX_LENGTH = 30;
 
     public static final int PROFILE_TEXT_MAX_LENGTH = 400;
-    public static final int PROFILE_TEXT_MAX_LINE_BREAKS = 5;
+    public static final int PROFILE_TEXT_MAX_LINE_BREAKS = 15;
 
     public static final int PROFILE_SLOGANS_MAX_LINE_BREAKS = 1;
     public static final int PROFILE_SLOGANS_MAX_SLOGANS = 3;

@@ -15,6 +15,8 @@ class PeerListHelper {
             // Avoids duplicates when the name changes
             return 0;
         }
+
+        // Move mName=null to the bottom
         if (a.mName != b.mName) {
             // At least one of them is not null
             if (a.mName == null) {
@@ -24,13 +26,17 @@ class PeerListHelper {
             if (b.mName == null) {
                 return -1;
             }
+        } else if(a.mName == null) {
+            // Both names are null
+            return a.mId - b.mId;
         }
+
+        // Order nearby peers by name
         if (Math.abs(a.mLastSeenTimestamp - b.mLastSeenTimestamp) < 60000) {
-            if (a.mName == null || b.mName == null) {
-                return a.mId - b.mId;
-            }
             return a.mName.compareTo(b.mName);
         }
+
+        // Order the rest by mLastSeenTimestamp
         return (int) (a.mLastSeenTimestamp - b.mLastSeenTimestamp);
     };
 

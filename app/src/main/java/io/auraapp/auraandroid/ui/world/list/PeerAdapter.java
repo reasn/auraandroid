@@ -27,7 +27,6 @@ import io.auraapp.auraandroid.ui.common.lists.SpacerHolder;
 import io.auraapp.auraandroid.ui.common.lists.SpacerItem;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
-import static io.auraapp.auraandroid.common.FormattedLog.quickDump;
 import static io.auraapp.auraandroid.common.FormattedLog.w;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_COMPLETE_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_OPEN_ACTION;
@@ -89,7 +88,6 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
             peerSet.addAll(getOriginalPeers());
             peerSet.addAll(ProductionStubFactory.createFakePeers());
         }
-        quickDump(mFakePeersEnabled);
         itemsWithoutDuplicatePeers = new ArrayList<>(PeerListHelper.sortAndFilterDuplicates(peerSet));
         itemsWithoutDuplicatePeers.add(new SpacerItem());
 
@@ -128,8 +126,6 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
     }
 
     private void toggleFakePeers() {
-        quickDump("tut " + mTutorialOpen);
-        quickDump("pref " + AuraPrefs.areDebugFakePeersEnabled(mContext));
         mFakePeersEnabled = mTutorialOpen || AuraPrefs.areDebugFakePeersEnabled(mContext);
         notifyPeerListChanged(getOriginalPeers());
     }

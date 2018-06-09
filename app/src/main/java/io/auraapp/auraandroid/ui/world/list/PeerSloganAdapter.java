@@ -19,12 +19,12 @@ public class PeerSloganAdapter extends ExpandableRecyclerAdapter {
     private final PeerSloganHolder.WhatsMyColorCallback mWhatsMyColorCallback;
     private Context mContext;
 
-    public PeerSloganAdapter(@NonNull Context context,
-                             RecyclerView listView,
-                             ColorSet colorSet,
-                             OnAdoptCallback onAdoptCallback,
-                             ArrayList<Slogan> slogans,
-                             PeerSloganHolder.WhatsMyColorCallback whatsMyColorCallback) {
+    PeerSloganAdapter(@NonNull Context context,
+                      RecyclerView listView,
+                      ColorSet colorSet,
+                      OnAdoptCallback onAdoptCallback,
+                      ArrayList<Slogan> slogans,
+                      PeerSloganHolder.WhatsMyColorCallback whatsMyColorCallback) {
 
         super(context, listView);
         mItems.addAll(slogans);

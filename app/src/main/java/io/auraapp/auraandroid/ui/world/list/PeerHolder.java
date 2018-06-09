@@ -2,6 +2,7 @@ package io.auraapp.auraandroid.ui.world.list;
 
 import android.content.Context;
 import android.support.v7.util.DiffUtil;
+import android.support.v7.util.ListUpdateCallback;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -110,6 +111,9 @@ public class PeerHolder extends ExpandableViewHolder {
         mDetailsView.setBackgroundColor(colorSet.mBackground);
     }
 
+    // Has nothing to do in class contest but Java doesn't allow to closure scope local variables
+    private boolean mOrderChanged;
+
     private void bindSlogans(Peer peer, ColorSet colorSet) {
 
         mSlogansListView.setBackgroundColor(colorSet.mAccentBackground);
@@ -123,18 +127,40 @@ public class PeerHolder extends ExpandableViewHolder {
             if (!colorSet.equals(adapter.mColorSet)) {
                 adapter.mColorSet = colorSet;
                 adapter.notifyDataSetChanged();
-            } else if (peer.mSlogans.size() != existingSlogans.size()) {
-                // Alternating colors require that all items be redrawn
-                existingSlogans.clear();
-                existingSlogans.addAll(peer.mSlogans);
-                adapter.notifyDataSetChanged();
 
             } else {
-
                 DiffUtil.DiffResult diff = DiffUtil.calculateDiff(new SlogansDiffCallback(existingSlogans, peer.mSlogans));
                 existingSlogans.clear();
                 existingSlogans.addAll(peer.mSlogans);
-                diff.dispatchUpdatesTo(mSlogansListView.getAdapter());
+
+                mOrderChanged = false;
+                diff.dispatchUpdatesTo(new ListUpdateCallback() {
+                    @Override
+                    public void onInserted(int position, int count) {
+                        mOrderChanged = true;
+                    }
+
+                    @Override
+                    public void onRemoved(int position, int count) {
+                        mOrderChanged = true;
+                    }
+
+                    @Override
+                    public void onMoved(int fromPosition, int toPosition) {
+                        mOrderChanged = true;
+                    }
+
+                    @Override
+                    public void onChanged(int position, int count, Object payload) {
+                    }
+                });
+
+                // To maintain alternating colors require that all items be redrawn
+                if (mOrderChanged) {
+                    adapter.notifyDataSetChanged();
+                } else {
+                    diff.dispatchUpdatesTo(mSlogansListView.getAdapter());
+                }
             }
             return;
         }

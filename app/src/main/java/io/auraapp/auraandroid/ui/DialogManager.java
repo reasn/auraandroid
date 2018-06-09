@@ -120,13 +120,19 @@ public class DialogManager {
         editText.setText(text != null ? text : "");
         editText.requestFocus();
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.PROFILE_TEXT_MAX_LENGTH)});
+        editText.addTextChangedListener(createLineBreakLimitingTextWatcher(Config.PROFILE_TEXT_MAX_LINE_BREAKS));
         editText.setSelection(0);
 
         FullWidthDialog dialog = new DialogBuilder(mContext, mDialogState)
                 .setTitle(R.string.ui_profile_dialog_edit_text_title)
                 .setView(view)
                 .enableKeyboard()
-                .setOnConfirm(() -> callback.onTextEdited(editText.getTextAsString()))
+                .setOnConfirm(() -> callback.onTextEdited(
+                        replaceLineBreaks(
+                                editText.getTextAsString(),
+                                Config.PROFILE_TEXT_MAX_LINE_BREAKS)
+                        )
+                )
                 .setCancelText(R.string.ui_profile_dialog_edit_cancel)
                 .setConfirmText(R.string.ui_profile_dialog_edit_confirm)
                 .build();
@@ -235,12 +241,15 @@ public class DialogManager {
                 .setCancelText(R.string.ui_profile_dialog_edit_cancel)
                 .setConfirmText(R.string.ui_profile_dialog_edit_confirm)
                 .enableKeyboard()
-                .setOnConfirm(() -> onConfirm.onConfirm(editText.getTextAsString()))
+                .setOnConfirm(() -> onConfirm.onConfirm(
+                        replaceLineBreaks(
+                                editText.getTextAsString(),
+                                Config.PROFILE_SLOGANS_MAX_LINE_BREAKS)
+                        )
+                )
                 .build()
                 .show();
 
-        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.PROFILE_SLOGANS_MAX_LENGTH)});
-        editText.requestFocus();
 
         // Some phones have problems with filtering newline characters using an InputFilter.
         // Therefore this very ugly solution that does the replacement manually.
@@ -257,7 +266,13 @@ public class DialogManager {
         // }
         // Thanks to https://stackoverflow.com/questions/15653664/replace-character-inside-textwatcher-in-android
 
-        editText.addTextChangedListener(new TextWatcher() {
+        editText.addTextChangedListener(createLineBreakLimitingTextWatcher(Config.PROFILE_SLOGANS_MAX_LINE_BREAKS));
+        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Config.PROFILE_SLOGANS_MAX_LENGTH)});
+        editText.requestFocus();
+    }
+
+    private TextWatcher createLineBreakLimitingTextWatcher(int maxLineBreaks) {
+        return new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
@@ -277,36 +292,40 @@ public class DialogManager {
                 while (m.find()) {
                     count += 1;
                 }
-                if (count > Config.PROFILE_SLOGANS_MAX_LINE_BREAKS) {
-                    editable.replace(0, editable.length(), new SpannableStringBuilder(replaceLineBreaks(string)));
+                if (count > maxLineBreaks) {
+                    editable.replace(
+                            0,
+                            editable.length(),
+                            new SpannableStringBuilder(replaceLineBreaks(string, maxLineBreaks))
+                    );
                 }
             }
-        });
+        };
     }
 
     /**
      * Thanks to https://stackoverflow.com/questions/767759/occurrences-of-substring-in-a-string
      * Thanks to https://stackoverflow.com/questions/3448330/in-matcher-replace-method-how-to-limit-replace-times
      */
-    private String replaceLineBreaks(String content) {
+    private String replaceLineBreaks(String content, int maxLineBreaks) {
         Matcher m = mLinebreakPattern.matcher(content);
         StringBuffer sb = new StringBuffer();
         boolean filtered = false;
         int index = 0;
         while (m.find()) {
             index++;
-            if (index > Config.PROFILE_SLOGANS_MAX_LINE_BREAKS) {
+            if (index > maxLineBreaks) {
                 filtered = true;
                 m.appendReplacement(sb, "");
             }
         }
         // Show no toast if line breaks are disabled altogether
         //noinspection ConstantConditions
-        if (filtered && Config.PROFILE_SLOGANS_MAX_LINE_BREAKS > 0) {
+        if (filtered && maxLineBreaks > 0) {
             String text = mContext.getResources().getQuantityString(
                     R.plurals.ui_dialog_edit_slogan_line_break_limit,
-                    Config.PROFILE_SLOGANS_MAX_LINE_BREAKS,
-                    Config.PROFILE_SLOGANS_MAX_LINE_BREAKS);
+                    maxLineBreaks,
+                    maxLineBreaks);
             Toast.makeText(mContext, EmojiHelper.replaceShortCode(text), Toast.LENGTH_SHORT).show();
         }
         m.appendTail(sb);
