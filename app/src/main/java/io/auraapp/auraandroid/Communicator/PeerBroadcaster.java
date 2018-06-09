@@ -31,7 +31,7 @@ class PeerBroadcaster {
     private final PeerListChangedCallback mPeersListCallback;
     private final PeerChangedCallback mPeerChangedCallback;
     private final Timer mTimer = new Timer(new Handler());
-    private final Timer.Debouncer mDebouncer = new Timer.Debouncer(mTimer, DEBOUNCE);
+    private final Timer.Debouncer mListDebouncer = new Timer.Debouncer(mTimer, DEBOUNCE);
 
     PeerBroadcaster(PeerListChangedCallback peerListChangedCallback, PeerChangedCallback peerChangedCallback) {
         mPeersListCallback = peerListChangedCallback;
@@ -44,24 +44,23 @@ class PeerBroadcaster {
     void propagatePeer(Device device, boolean contentChanged, int sloganCount) {
         if (contentChanged) {
             v(TAG, "Not debouncing because content changed");
-            // Not debouncing because otherwise contentAdded can get lost and no notification
-            // (e.g. vibration) is sent to the user
-            mDebouncer.clear();
+            // Not debouncing because otherwise the contentChange parameter could get lost.
+            // Then no notification (e.g. vibration) is sent to the user
+            device.clearDebouncer();
             mPeerChangedCallback.peerChanged(buildPeer(device), true, sloganCount);
         } else {
             iv(TAG, "Debouncing propagation of peer");
-            mDebouncer.debounce(() -> mPeerChangedCallback.peerChanged(buildPeer(device), false, sloganCount));
-        }
-    }
 
-    void propagatePeerListWithoutDebounce(DeviceMap deviceMap) {
-        iv(TAG, "Debouncing propagation of peer list");
-        mPeersListCallback.peerListChanged(buildPeers(deviceMap));
+            device.getDebouncer(mTimer, DEBOUNCE).debounce(
+                    () -> mPeerChangedCallback.peerChanged(buildPeer(device), false, sloganCount)
+            );
+//            mPeerDebouncer.debounce(() -> mPeerChangedCallback.peerChanged(buildPeer(device), false, sloganCount));
+        }
     }
 
     void propagatePeerList(DeviceMap deviceMap) {
         iv(TAG, "Debouncing propagation of peer list");
-        mDebouncer.debounce(() -> mPeersListCallback.peerListChanged(buildPeers(deviceMap)));
+        mListDebouncer.debounce(() -> mPeersListCallback.peerListChanged(buildPeers(deviceMap)));
     }
 
     Set<Peer> buildPeers(DeviceMap deviceMap) {

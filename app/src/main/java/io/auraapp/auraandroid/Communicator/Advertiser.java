@@ -119,6 +119,11 @@ class Advertiser {
 
     void updateAdvertisement() {
         i(TAG, "Updating advertisement (stopping and starting)");
+        if (mBluetoothAdvertiser == null) {
+            // Observed in the wild
+            mOnCorruptedState.onCorruptedState(new RuntimeException("Bluetooth advertiser was null while attempting to update advertisement"));
+            return;
+        }
         mBluetoothAdvertiser.stopAdvertising(mAdvertisingCallback);
         advertise();
         mStateChangeCallback.onStateChange(mAdvertisementSet.mVersion, mAdvertisementSet.mId);

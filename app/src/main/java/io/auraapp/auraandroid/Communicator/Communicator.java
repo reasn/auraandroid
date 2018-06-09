@@ -550,7 +550,7 @@ public class Communicator extends Service {
 
     @Override
     public void onDestroy() {
-        w(TAG, "onDestroy called, destroying");
+        i(TAG, "onDestroy called, destroying");
         mScanner.stop();
         mAdvertiser.stop();
     }

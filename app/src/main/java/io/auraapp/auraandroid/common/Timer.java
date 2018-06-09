@@ -21,10 +21,14 @@ public class Timer {
         this.mHandler = handler;
     }
 
-    public static void clear(@Nullable Timeout timeout) {
+    /**
+     * Always returns null to allow mTimeout = Timeout.clear(mTimeout);
+     */
+    public static Timeout clear(@Nullable Timeout timeout) {
         if (timeout != null) {
             timeout.clear();
         }
+        return null;
     }
 
     public Timeout setTimeout(Runnable runnable, long timeout) {
@@ -78,7 +82,7 @@ public class Timer {
             if (mLastRun <= now - mInterval) {
                 mLastRun = now;
                 mMostRecentRunnable.run();
-                Timer.clear(mRunTimeout);
+                mRunTimeout = Timer.clear(mRunTimeout);
                 return;
             }
 

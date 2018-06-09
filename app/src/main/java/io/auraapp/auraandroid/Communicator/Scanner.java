@@ -27,6 +27,7 @@ import io.auraapp.auraandroid.common.Peer;
 
 import static android.bluetooth.BluetoothProfile.STATE_CONNECTED;
 import static io.auraapp.auraandroid.Communicator.MetaDataUnpacker.byteArrayToString;
+import static io.auraapp.auraandroid.common.Config.COMMUNICATOR_INCOMPLETE_PEER_FORGET_AFTER;
 import static io.auraapp.auraandroid.common.Config.DEV_FAKE_PEER_CHARACTERISTIC_RETRIEVAL_FAILURE;
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.e;
@@ -95,7 +96,7 @@ class Scanner {
 
     void stop() {
         mHandler.post(() -> {
-            w(TAG, "onStop called, destroying");
+            i(TAG, "onStop called, destroying");
             mInactive = true;
             for (Device device : mDeviceMap.values()) {
                 disconnectDevice(device);
@@ -129,6 +130,7 @@ class Scanner {
         device.isDiscoveringServices = false;
         device.mFetchingAProp = false;
         device.mSynchronizing = false;
+        device.clearDebouncer();
     }
 
     private void actOnState() {
@@ -141,7 +143,6 @@ class Scanner {
         mQueued = false;
 
         long now = System.currentTimeMillis();
-
         for (int id : mDeviceMap.ids()) {
 
             Device device = mDeviceMap.getById(id);
@@ -150,23 +151,37 @@ class Scanner {
             try {
                 if (device.shouldDisconnect) {
                     disconnectDevice(device);
+                    if (device.stats.mSuccessfulRetrievals == 0) {
+                        mHandler.post(() -> {
+                            mDeviceMap.removeById(id);
+                            mPeerBroadcaster.propagatePeerList(mDeviceMap);
+                        });
+                        returnControl();
+                        return;
+                    } else {
+                        mHandler.post(() -> mPeerBroadcaster.propagatePeer(device, false, countSlogans()));
+                    }
                     // Giving the BT some air before we do the next connection attempt
                     continue;
                 }
 
                 if (!device.connected) {
-                    if (device.bt.device == null) {
-                        v(TAG, "Waiting for next sighting to set device property, id: %s", hexId);
-
-                    } else if (device.lastConnectAttempt != 0 && now - device.lastConnectAttempt <= Config.COMMUNICATOR_PEER_CONNECT_TIMEOUT) {
+                    if (device.lastConnectAttempt != 0 && now - device.lastConnectAttempt <= Config.COMMUNICATOR_PEER_CONNECT_TIMEOUT) {
                         v(TAG, "Nothing to do, connection attempt is in progress, id: %s", hexId);
-
-                    } else if (device.lastConnectAttempt != 0 && now - device.lastConnectAttempt > Config.COMMUNICATOR_PEER_CONNECT_TIMEOUT) {
+                        continue;
+                    }
+                    if (device.lastConnectAttempt != 0 && now - device.lastConnectAttempt > Config.COMMUNICATOR_PEER_CONNECT_TIMEOUT) {
                         d(TAG, "Connection timeout, closing gatt, id: %s", hexId);
                         device.shouldDisconnect = true;
                         device.stats.mErrors++;
+                        continue;
+                    }
 
-                    } else if (now - device.lastSeenTimestamp > mPeerRetention) {
+                    long ttl = device.stats.mSuccessfulRetrievals == 0
+                            ? COMMUNICATOR_INCOMPLETE_PEER_FORGET_AFTER
+                            : mPeerRetention;
+
+                    if (now - device.lastSeenTimestamp > ttl) {
                         // lastSeenTimestamp may be 0
                         v(TAG, "Forgetting device, id: %s", hexId);
                         device.bt.device = null;
@@ -176,8 +191,11 @@ class Scanner {
                             mDeviceMap.removeById(id);
                             mPeerBroadcaster.propagatePeerList(mDeviceMap);
                         });
+                        returnControl();
+                        return;
+                    }
 
-                    } else if (device.mOutdated) {
+                    if (device.mOutdated && device.bt.device != null) {
                         d(TAG, "Device is marked as outdated, connecting to gatt server, id: %s", hexId);
                         device.connectionAttempts++;
                         device.mSynchronizing = true;
@@ -190,10 +208,18 @@ class Scanner {
                             continue;
                         }
                         device.bt.gatt = device.bt.device.connectGatt(mContext, false, mGattCallback);
-
-                    } else {
-                        v(TAG, "Nothing to do for disconnected device, id: %s, will be forgotten in %ds", hexId, (device.lastSeenTimestamp - now + mPeerRetention) / 1000);
+                        continue;
                     }
+
+                    v(TAG, "Nothing to do for disconnected device, id: %s, will be forgotten in %ds, waiting for BT device: %b, lastConnectAttempt: %d, lastSeen: %d, successfulRetrievals: %d",
+                            hexId,
+                            (device.lastSeenTimestamp - now + ttl) / 1000,
+                            device.bt.device == null,
+                            device.lastConnectAttempt > 0 ? now - device.lastConnectAttempt : -1,
+                            now - device.lastSeenTimestamp,
+                            device.stats.mSuccessfulRetrievals
+                    );
+
                     continue;
                 }
 
@@ -236,13 +262,36 @@ class Scanner {
                 device.mSynchronizing = false;
                 device.stats.mSuccessfulRetrievals++;
                 device.shouldDisconnect = true;
-                mPeerBroadcaster.propagatePeer(device, false, countSlogans());
+                propagatePeerAndConsiderListUpdate(device, false, countSlogans());
             } catch (Exception e) {
                 e(TAG, "Unhandled exception, device: %s", device);
                 throw e;
             }
         }
         returnControl();
+    }
+
+    private int mLastPropagatedPeerCount = -1;
+
+    /**
+     * Propagates changes to a peer corresponding to `device`.
+     * <p>
+     * Also checks if the peer list has been propagated with the current number of peers.
+     * If not, the full list is propagated.
+     * Background: Without this method, a new peer would only be added if its advertisement were
+     * observed after all characteristics have been received. If the peer went out of range in between,
+     * it would remain invisible.
+     */
+    private void propagatePeerAndConsiderListUpdate(Device device, boolean contentChanged, int sloganCount) {
+
+        if (mLastPropagatedPeerCount != mDeviceMap.ids().size()) {
+            // `device` was not yet part of a `propagatePeerList` invocation
+            mLastPropagatedPeerCount = mDeviceMap.ids().size();
+            mPeerBroadcaster.propagatePeerList(mDeviceMap);
+        } else {
+            // `device` was already part of a `propagatePeerList` invocation, just update it
+            mPeerBroadcaster.propagatePeer(device, contentChanged, sloganCount);
+        }
     }
 
     private int countSlogans() {
@@ -421,7 +470,7 @@ class Scanner {
                 String hexId = Integer.toHexString(device.mId);
 
                 if (status != BluetoothGatt.GATT_SUCCESS) {
-                    w(TAG, "onCharacteristicRead unsuccessful");
+                    i(TAG, "onCharacteristicRead unsuccessful");
                     device.shouldDisconnect = true;
                     device.stats.mErrors++;
                     returnControl();
@@ -472,11 +521,10 @@ class Scanner {
                         );
                         // device changed, let's recheck if there's any duplicates
                         if (ScannerUtils.removeOldDevicesWithSameContent(mDeviceMap)) {
-                            // A device was removed, propagate the entire list
-                            // We must not debounce because otherwise the event might get lost
-                            mPeerBroadcaster.propagatePeerListWithoutDebounce(mDeviceMap);
+                            mPeerBroadcaster.propagatePeerList(mDeviceMap);
                         } else {
-                            mPeerBroadcaster.propagatePeer(device,
+                            propagatePeerAndConsiderListUpdate(
+                                    device,
                                     newSlogans.size() > previousSlogans.size()
                                             || existingSloganChanged
                                             || !profile.equals(previousProfile),
@@ -541,7 +589,7 @@ class Scanner {
                     device.mOutdated = true;
                     device.mDataVersion = metaData.getDataVersion();
                 }
-                mPeerBroadcaster.propagatePeer(device, false, countSlogans());
+                propagatePeerAndConsiderListUpdate(device, false, countSlogans());
                 return;
             }
             final Device unknownDevice = Device.create(id, result.getDevice());

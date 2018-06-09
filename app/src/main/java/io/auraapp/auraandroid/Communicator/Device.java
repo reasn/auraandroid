@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import io.auraapp.auraandroid.common.PeerStatsSet;
+import io.auraapp.auraandroid.common.Timer;
 
 class Device {
 
@@ -38,6 +39,7 @@ class Device {
     private final Map<UUID, Boolean> mFreshMap;
     private final Map<UUID, String> mPropertyMap;
     boolean mSynchronizing = false;
+    private Timer.Debouncer debouncer;
 
     private Device(int id) {
         mFreshMap = new HashMap<>();
@@ -129,6 +131,19 @@ class Device {
             }
         }
         return null;
+    }
+
+    Timer.Debouncer getDebouncer(Timer timer, long interval) {
+        if (debouncer == null) {
+            debouncer = new Timer.Debouncer(timer, interval);
+        }
+        return debouncer;
+    }
+
+    void clearDebouncer() {
+        if (debouncer != null) {
+            debouncer.clear();
+        }
     }
 
     @Override
