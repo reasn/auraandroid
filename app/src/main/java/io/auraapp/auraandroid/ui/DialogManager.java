@@ -19,7 +19,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.TreeSet;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -189,7 +189,7 @@ public class DialogManager {
                 .show();
     }
 
-    public void showReplace(TreeSet<Slogan> mySlogans, AdoptCallback adoptCallback) {
+    public void showReplace(List<Slogan> mySlogans, AdoptCallback adoptCallback) {
 
         RadioGroup radioGroup = (RadioGroup) View.inflate(mContext, R.layout.profile_dialog_replace_slogan, null);
         SparseArray<Slogan> map = new SparseArray<>();

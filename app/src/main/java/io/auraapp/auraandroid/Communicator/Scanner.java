@@ -450,12 +450,12 @@ class Scanner {
                 }
                 try {
                     DevicePeerProfile previousProfile = device.buildProfile();
-                    Set<String> previousSlogans = device.buildSlogans();
+                    List<String> previousSlogans = device.buildSlogans();
                     if (device.updateWithReceivedAttribute(uuid, propValue)) {
 
                         // Let's find out if any existing slogan changed or a slogan was added.
                         // If that's the case, contentAdded is true and will result in a notification
-                        Set<String> newSlogans = device.buildSlogans();
+                        List<String> newSlogans = device.buildSlogans();
                         boolean existingSloganChanged = false;
                         for (String slogan : previousSlogans) {
                             if (!newSlogans.contains(slogan)) {

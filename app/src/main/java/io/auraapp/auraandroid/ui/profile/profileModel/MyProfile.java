@@ -1,10 +1,10 @@
 package io.auraapp.auraandroid.ui.profile.profileModel;
 
 import java.io.Serializable;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.auraapp.auraandroid.common.Slogan;
-import io.auraapp.auraandroid.ui.SloganComparator;
 
 public class MyProfile implements Serializable {
 
@@ -13,7 +13,7 @@ public class MyProfile implements Serializable {
     float mColorPickerPointY;
     String mName = null;
     String mText = null;
-    final TreeSet<Slogan> mSlogans = new TreeSet<>(new SloganComparator());
+    final List<Slogan> mSlogans = new ArrayList<>();
 
     public String getColor() {
         return mColor;
@@ -23,7 +23,7 @@ public class MyProfile implements Serializable {
         return mText;
     }
 
-    public TreeSet<Slogan> getSlogans() {
+    public List<Slogan> getSlogans() {
         return mSlogans;
     }
 

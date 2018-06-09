@@ -8,7 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
-import java.util.TreeSet;
+import java.util.List;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.Slogan;
@@ -52,7 +52,7 @@ public class MySlogansRecycleAdapter extends ExpandableRecyclerAdapter {
         mItems.add(new SpacerItem());
     }
 
-    public void notifyMySlogansListChanged(TreeSet<Slogan> mySlogans) {
+    public void notifyMySlogansListChanged(List<Slogan> mySlogans) {
         d(TAG, "Updating list, mySlogans: %d", mySlogans.size());
 
         ArrayList<Object> newItems = new ArrayList<>(mySlogans);

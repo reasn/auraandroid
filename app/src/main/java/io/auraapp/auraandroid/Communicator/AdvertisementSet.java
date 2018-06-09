@@ -1,7 +1,7 @@
 package io.auraapp.auraandroid.Communicator;
 
 import java.util.Arrays;
-import java.util.TreeSet;
+import java.util.List;
 import java.util.UUID;
 
 import io.auraapp.auraandroid.common.Slogan;
@@ -30,14 +30,13 @@ class AdvertisementSet {
     private String mColor;
     // TODO make number of slogans part of advertisement
 
-    static String[] prepareSlogans(TreeSet<Slogan> slogans) {
+    static String[] prepareSlogans(List<Slogan> slogans) {
 
         String[] mySloganStrings = new String[slogans.size()];
         int index = 0;
         for (Slogan slogan : slogans) {
             mySloganStrings[index++] = slogan.getText();
         }
-
         String[] result = new String[PROFILE_SLOGANS_MAX_SLOGANS];
         for (int i = 0; i < PROFILE_SLOGANS_MAX_SLOGANS; i++) {
             result[i] = mySloganStrings.length <= i || mySloganStrings[i] == null
@@ -102,7 +101,7 @@ class AdvertisementSet {
 
     // TODO advertise and test if ongoing data transfers are interrupted if advertisement is restarted frequently
 
-    String getProp(UUID uuid)  throws UnknownAdvertisementException {
+    String getProp(UUID uuid) throws UnknownAdvertisementException {
         if (UuidSet.PROFILE.equals(uuid)) {
             return mProfile;
 

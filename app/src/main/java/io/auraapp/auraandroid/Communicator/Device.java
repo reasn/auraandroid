@@ -4,12 +4,12 @@ import android.bluetooth.BluetoothDevice;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
 import io.auraapp.auraandroid.common.PeerStatsSet;
@@ -68,8 +68,8 @@ class Device {
         }
     }
 
-    Set<String> buildSlogans() {
-        Set<String> slogans = new HashSet<>();
+    List<String> buildSlogans() {
+        List<String> slogans = new ArrayList<>();
         for (UUID uuid : AdvertisementSet.ADVERTISED_SLOGAN_UUIDS) {
             String slogan = mPropertyMap.get(uuid);
             if (slogan != null && !slogan.equals("")) {
