@@ -9,6 +9,7 @@ import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceScreen;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -70,7 +71,6 @@ public class SettingsActivity extends AppCompatActivity {
             getPreferenceManager().setSharedPreferencesName(Config.PREFERENCES_BUCKET);
             addPreferencesFromResource(R.xml.preferences);
 
-
             Runnable update = () -> {
                 @StringRes
                 int summary;
@@ -129,6 +129,11 @@ public class SettingsActivity extends AppCompatActivity {
 
                 return true;
             };
+
+            if (!AuraPrefs.isDebugEnabled(mActivity)) {
+                PreferenceScreen preferenceScreen = getPreferenceScreen();
+                preferenceScreen.removePreference(findPref(R.string.prefs_debug_group_key));
+            }
 
             findPref(R.string.prefs_panic_uninstall_key).setOnPreferenceChangeListener(listener);
             findPref(R.string.prefs_panic_purge_key).setOnPreferenceChangeListener(listener);

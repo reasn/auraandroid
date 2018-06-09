@@ -5,14 +5,14 @@
     <PreferenceCategory
         android:key="@string/prefs_app_group_key"
         android:title="@string/prefs_app_group_title">
-    <ListPreference
-        android:defaultValue="@string/prefs_retention_default"
-        android:dialogTitle="@string/prefs_retention_dialog_title"
-        android:entries="@array/world_peers_retention_captions"
-        android:entryValues="@array/world_peers_retention_values"
-        android:key="@string/prefs_retention_key"
-        android:summary="@string/prefs_retention_summary"
-        android:title="@string/prefs_retention_title" />
+        <ListPreference
+            android:defaultValue="@string/prefs_retention_default"
+            android:dialogTitle="@string/prefs_retention_dialog_title"
+            android:entries="@array/world_peers_retention_captions"
+            android:entryValues="@array/world_peers_retention_values"
+            android:key="@string/prefs_retention_key"
+            android:summary="@string/prefs_retention_summary"
+            android:title="@string/prefs_retention_title" />
     </PreferenceCategory>
     <PreferenceCategory
         android:key="@string/prefs_notification_group_key"
@@ -73,5 +73,16 @@
             android:key="@string/prefs_about_key"
             android:summary="@string/prefs_about_summary"
             android:title="@string/prefs_about_title" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="@string/prefs_debug_group_key"
+        android:title="@string/prefs_debug_group_title">
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="@string/prefs_debug_fake_peers_key"
+            android:summaryOff="@string/prefs_debug_fake_peers_off"
+            android:summaryOn="@string/prefs_debug_fake_peers_on"
+            android:title="@string/prefs_debug_fake_peers_title" />
     </PreferenceCategory>
 </PreferenceScreen>

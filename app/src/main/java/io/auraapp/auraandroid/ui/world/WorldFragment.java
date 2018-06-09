@@ -16,7 +16,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
@@ -28,7 +27,6 @@ import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.SharedServicesSet;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxyState;
-import io.auraapp.auraandroid.ui.common.ProductionStubFactory;
 import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfile;
 import io.auraapp.auraandroid.ui.world.list.PeerAdapter;
@@ -43,9 +41,6 @@ import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STA
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_EXTRA_PROFILE;
-import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_COMPLETE_ACTION;
-import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_OPEN_ACTION;
-import static io.auraapp.auraandroid.ui.common.CommunicatorProxy.replacePeer;
 
 public class WorldFragment extends ContextViewFragment {
 
@@ -55,35 +50,16 @@ public class WorldFragment extends ContextViewFragment {
     private FakeSwipeRefreshLayout mSwipeRefresh;
 
     private CommunicatorProxyState mComProxyState = null;
-    private Set<Peer> mPeers = new HashSet<>();
     private RecyclerView mPeersRecycler;
     private LinearLayout mStartingWrapper;
     private View mNoPeersWrapper;
     private Button mInviteButton;
     private TextView mNotScanningMessage;
     private String mMyColor;
-    private Set<Peer> mTutorialPeers;
     private final BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             v(TAG, "onReceive, local intent: %s", intent.getAction());
-
-            if (LOCAL_TUTORIAL_OPEN_ACTION.equals(intent.getAction())) {
-                mTutorialPeers = ProductionStubFactory.createFakePeers();
-                if (mPeerAdapter != null) {
-                    mPeerAdapter.notifyPeerListChanged(mTutorialPeers);
-                    reflectState(context);
-                }
-                return;
-            }
-            if (LOCAL_TUTORIAL_COMPLETE_ACTION.equals(intent.getAction())) {
-                mTutorialPeers = null;
-                if (mPeerAdapter != null) {
-                    mPeerAdapter.notifyPeerListChanged(mPeers);
-                    reflectState(context);
-                }
-                return;
-            }
 
             Bundle extras = intent.getExtras();
             if (extras == null) {
@@ -93,18 +69,8 @@ public class WorldFragment extends ContextViewFragment {
             if (INTENT_PEER_UPDATED_ACTION.equals(intent.getAction())) {
                 @SuppressWarnings("unchecked")
                 Peer peer = (Peer) extras.getSerializable(INTENT_PEER_UPDATED_EXTRA_PEER);
-                if (peer != null) {
-                    replacePeer(mPeers, peer, false);
-                    if (mPeerAdapter != null) {
-
-                        if (mTutorialPeers == null) {
-                            v(TAG, "Updating adapter, peers: %s", mPeers.size());
-                            // Maintaining state but not reflecting it in the adapter
-                            mPeerAdapter.notifyPeerChanged(peer);
-                        } else {
-                            v(TAG, "Not updating adapter because tutorial is active, tutorialPeers:%s, peers: %s", mTutorialPeers.size(), mPeers.size());
-                        }
-                    }
+                if (peer != null && mPeerAdapter != null) {
+                    mPeerAdapter.notifyPeerChanged(peer);
                 }
                 reflectState(context);
                 return;
@@ -112,14 +78,8 @@ public class WorldFragment extends ContextViewFragment {
             } else if (INTENT_PEER_LIST_UPDATED_ACTION.equals(intent.getAction())) {
                 @SuppressWarnings("unchecked")
                 Set<Peer> peers = (Set<Peer>) extras.getSerializable(INTENT_PEER_LIST_UPDATED_EXTRA_PEERS);
-                if (peers != null) {
-                    mPeers = peers;
-                    if (mPeerAdapter != null) {
-                        if (mTutorialPeers == null) {
-                            // Maintaining state but not reflecting it in the adapter
-                            mPeerAdapter.notifyPeerListChanged(mPeers);
-                        }
-                    }
+                if (peers != null && mPeerAdapter != null) {
+                    mPeerAdapter.notifyPeerListChanged(peers);
                 }
                 reflectState(context);
                 return;
@@ -148,18 +108,16 @@ public class WorldFragment extends ContextViewFragment {
                 IntentFactory.createFilter(
                         LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION,
                         LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION,
-                        LOCAL_TUTORIAL_OPEN_ACTION,
-                        LOCAL_TUTORIAL_COMPLETE_ACTION,
                         INTENT_PEER_LIST_UPDATED_ACTION,
                         INTENT_PEER_UPDATED_ACTION
                 ));
 
         SharedServicesSet servicesSet = activity.getSharedServicesSet();
-        mPeers = servicesSet.mCommunicatorProxy.getPeers();
+        Set<Peer> peers = servicesSet.mCommunicatorProxy.getPeers();
         mComProxyState = servicesSet.mCommunicatorProxy.getState();
         mMyColor = servicesSet.mMyProfileManager.getColor();
 
-        v(TAG, "Receivers registered, peers fetched, peers: %d, mComProxyState: %s", mPeers.size(), mComProxyState);
+        v(TAG, "Receivers registered, peers fetched, peers: %d, mComProxyState: %s", peers.size(), mComProxyState);
 
         mNotScanningMessage = rootView.findViewById(R.id.world_not_scanning);
         mStartingWrapper = rootView.findViewById(R.id.world_starting_wrapper);
@@ -185,12 +143,7 @@ public class WorldFragment extends ContextViewFragment {
                 });
 
         v(TAG, "%s fake peers for tutorial", servicesSet.mTutorialManager.isOpen() ? "Showing" : "Not showing");
-        if (servicesSet.mTutorialManager.isOpen()) {
-            mTutorialPeers = ProductionStubFactory.createFakePeers();
-            mPeerAdapter.notifyPeerListChanged(mTutorialPeers);
-        } else {
-            mPeerAdapter.notifyPeerListChanged(mPeers);
-        }
+        mPeerAdapter.notifyPeerListChanged(peers);
 
         mPeersRecycler.setAdapter(mPeerAdapter);
         mPeersRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -201,9 +154,7 @@ public class WorldFragment extends ContextViewFragment {
 
         reflectState(activity);
 
-        v(TAG, "Updated view, peers: %d, tutorialPeers: %s",
-                mPeers.size(),
-                mTutorialPeers == null ? "null" : mTutorialPeers.size() + "");
+        v(TAG, "Updated view, peers: %d", peers.size());
     }
 
     @Override
@@ -221,9 +172,7 @@ public class WorldFragment extends ContextViewFragment {
                 && mComProxyState.mCommunicatorState != null
                 && mComProxyState.mCommunicatorState.mScanning;
 
-        int peersCount = mTutorialPeers != null
-                ? mTutorialPeers.size()
-                : mPeers != null ? mPeers.size() : 0;
+        int peersCount = mPeerAdapter.getVisiblePeers().size();
 
         mPeersRecycler.setVisibility(scanning ? View.VISIBLE : View.GONE);
         mNotScanningMessage.setVisibility(scanning ? View.GONE : View.VISIBLE);

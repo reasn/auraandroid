@@ -63,6 +63,22 @@ public class AuraPrefs {
         get(context).edit().putBoolean(context.getString(R.string.prefs_tutorial_completed_key), completed).apply();
     }
 
+    public static boolean areDebugFakePeersEnabled(Context context) {
+        return get(context).getBoolean(context.getString(R.string.prefs_debug_fake_peers_key), false);
+    }
+
+    public static void putDebugFakePeersEnabled(Context context, boolean enabled) {
+        get(context).edit().putBoolean(context.getString(R.string.prefs_debug_fake_peers_key), enabled).apply();
+    }
+
+    public static boolean isDebugEnabled(Context context) {
+        return get(context).getBoolean(context.getString(R.string.prefs_debug_enabled_key), false);
+    }
+
+    public static void putDebugEnabled(Context context, boolean debugEnabled) {
+        get(context).edit().putBoolean(context.getString(R.string.prefs_debug_enabled_key), debugEnabled).apply();
+    }
+
     public static boolean shouldHideBrokenBtStackAlert(Context context) {
         return get(context).getBoolean(context.getString(R.string.prefs_hide_broken_bt_warning_key), false);
 
@@ -140,7 +156,7 @@ public class AuraPrefs {
         public void onPrefChanged(Serializable value);
     }
 
-    public static void listen(Context context, int key, OnPrefChanged callback) {
+    public static Runnable listen(Context context, int key, OnPrefChanged callback) {
 
         final String requiredKey = context.getString(key);
 
@@ -154,6 +170,7 @@ public class AuraPrefs {
         };
         mReceivers.add(receiver);
         context.registerReceiver(receiver, IntentFactory.createFilter(PREFERENCE_CHANGED_ACTION));
+        return () -> mReceivers.remove(receiver);
     }
 
     @SuppressLint("ApplySharedPref")

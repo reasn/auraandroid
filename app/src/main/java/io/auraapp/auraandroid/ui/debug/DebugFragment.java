@@ -127,8 +127,6 @@ public class DebugFragment extends ContextViewFragment {
         mProfile = servicesSet.mMyProfileManager.getProfile();
         mLastStateUpdateTimestamp = System.currentTimeMillis();
 
-        // TODO come up with great personas
-
         rootView.findViewById(R.id.demo_edge).setOnClickListener($ -> mHandler.post(() -> {
             profileManager.setName(createRandomStringOfLength(Config.PROFILE_NAME_MAX_LENGTH));
 

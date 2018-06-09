@@ -1,26 +1,36 @@
 package io.auraapp.auraandroid.ui.world.list;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.AuraPrefs;
+import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.Timer;
+import io.auraapp.auraandroid.ui.common.ProductionStubFactory;
 import io.auraapp.auraandroid.ui.common.lists.ExpandableRecyclerAdapter;
 import io.auraapp.auraandroid.ui.common.lists.ExpandableViewHolder;
 import io.auraapp.auraandroid.ui.common.lists.SpacerHolder;
 import io.auraapp.auraandroid.ui.common.lists.SpacerItem;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
+import static io.auraapp.auraandroid.common.FormattedLog.quickDump;
 import static io.auraapp.auraandroid.common.FormattedLog.w;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_COMPLETE_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_OPEN_ACTION;
 
 public class PeerAdapter extends ExpandableRecyclerAdapter {
 
@@ -39,6 +49,25 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
     private Timer mTimer = new Timer(new Handler());
     private PeerSloganHolder.WhatsMyColorCallback mWhatsMyColorCallback;
 
+    private List<Object> mOriginalPeers;
+    private Runnable mUnregisterPrefListener;
+    private boolean mTutorialOpen = false;
+    private boolean mFakePeersEnabled = false;
+
+    private BroadcastReceiver mTutorialReciever = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (LOCAL_TUTORIAL_OPEN_ACTION.equals(intent.getAction())) {
+                mTutorialOpen = true;
+                toggleFakePeers();
+            }
+            if (LOCAL_TUTORIAL_COMPLETE_ACTION.equals(intent.getAction())) {
+                mTutorialOpen = false;
+                toggleFakePeers();
+            }
+        }
+    };
+
     public PeerAdapter(Context context, RecyclerView recyclerView, PeerSloganHolder.WhatsMyColorCallback whatsMyColorCallback, OnAdoptCallback onAdoptCallback) {
         super(context, recyclerView);
         mContext = context;
@@ -48,10 +77,20 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
         // Expand single peer (=2 because of spacer item)
         mItemCountToExpandEverything = 2;
         mSloganRecyclerViewPool = new RecyclerView.RecycledViewPool();
+        mFakePeersEnabled = AuraPrefs.areDebugFakePeersEnabled(mContext);
     }
 
     public void notifyPeerListChanged(Collection<Peer> peerSet) {
-        List<Object> itemsWithoutDuplicatePeers = new ArrayList<>(PeerDuplicateFilter.sortAndFilterDuplicates(peerSet));
+        mOriginalPeers = new ArrayList<>(peerSet);
+
+        List<Object> itemsWithoutDuplicatePeers;
+        if (mFakePeersEnabled) {
+            peerSet = new HashSet<>();
+            peerSet.addAll(getOriginalPeers());
+            peerSet.addAll(ProductionStubFactory.createFakePeers());
+        }
+        quickDump(mFakePeersEnabled);
+        itemsWithoutDuplicatePeers = new ArrayList<>(PeerListHelper.sortAndFilterDuplicates(peerSet));
         itemsWithoutDuplicatePeers.add(new SpacerItem());
 
         d(TAG, "Updating list, items count (including SpacerItem) was %d, is: %d", mItems.size(), itemsWithoutDuplicatePeers.size());
@@ -62,31 +101,46 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
         diff.dispatchUpdatesTo(this);
     }
 
-    public void notifyPeerChanged(Peer peer) {
-        int position = -1;
-        for (int i = 0; i < mItems.size(); i++) {
-            if (mItems.get(i) instanceof Peer && ((Peer) mItems.get(i)).mId == peer.mId) {
-                position = i;
-                break;
-            }
+    public List<Peer> getVisiblePeers() {
+        List<Peer> peers = new ArrayList<>(getOriginalPeers());
+        if (mFakePeersEnabled) {
+            peers.addAll(ProductionStubFactory.createFakePeers());
         }
+        return peers;
+    }
+
+    public void notifyPeerChanged(Peer peer) {
+        PeerListHelper.replace(mOriginalPeers, peer);
+        int position = PeerListHelper.replace(mItems, peer);
         if (position == -1) {
             w(TAG, "Not updating, unknown peer: %s, items: %d", peer, mItems.size());
             return;
         }
-
-        d(TAG, "Updating item %d, peer: %s, items: %d", position, peer, mItems.size());
-        mItems.remove(position);
-        mItems.add(position, peer);
-
-
         notifyItemChanged(position);
+    }
+
+    private Collection<Peer> getOriginalPeers() {
+        HashSet<Peer> castCollection = new HashSet<>();
+        for (Object peer : mOriginalPeers) {
+            castCollection.add((Peer) peer);
+        }
+        return castCollection;
+    }
+
+    private void toggleFakePeers() {
+        quickDump("tut " + mTutorialOpen);
+        quickDump("pref " + AuraPrefs.areDebugFakePeersEnabled(mContext));
+        mFakePeersEnabled = mTutorialOpen || AuraPrefs.areDebugFakePeersEnabled(mContext);
+        notifyPeerListChanged(getOriginalPeers());
     }
 
     /**
      * Ensures that the lastFetch information is properly reflected in items
      */
     public void onResume() {
+
+        mUnregisterPrefListener = AuraPrefs.listen(mContext, R.string.prefs_debug_fake_peers_key, value -> toggleFakePeers());
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mTutorialReciever, IntentFactory.createFilter(LOCAL_TUTORIAL_OPEN_ACTION, LOCAL_TUTORIAL_COMPLETE_ACTION));
         Timer.clear(mRedrawTimeout);
         mRedrawTimeout = mTimer.setSerializedInterval(() -> {
             long now = System.currentTimeMillis();
@@ -102,6 +156,9 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
     }
 
     public void onPause() {
+        if (mUnregisterPrefListener != null) {
+            mUnregisterPrefListener.run();
+        }
         Timer.clear(mRedrawTimeout);
     }
 

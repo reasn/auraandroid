@@ -30,6 +30,7 @@ import io.auraapp.auraandroid.ui.MainActivity;
 import io.auraapp.auraandroid.ui.common.ColorHelper;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxy;
 import io.auraapp.auraandroid.ui.common.fragments.ContextViewFragment;
+import io.auraapp.auraandroid.ui.debug.DebugFragment;
 import io.auraapp.auraandroid.ui.permissions.PermissionsFragment;
 import io.auraapp.auraandroid.ui.profile.ProfileFragment;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfileManager;
@@ -48,7 +49,6 @@ public class ToolbarFragment extends ContextViewFragment {
     private CommunicatorProxy mCommunicatorProxy;
     private SwitchCompat mEnabledSwitch;
     private Handler mHandler = new Handler();
-    private boolean mDebugUiEnabled;
     private final List<Long> mToolbarIconClicks = new ArrayList<>();
     private MyProfileManager mMyProfileManager;
     private boolean mReceiverRegistered = false;
@@ -143,7 +143,7 @@ public class ToolbarFragment extends ContextViewFragment {
         });
 
         mToolbar.setOnClickListener($ -> mHandler.post(() -> {
-            if (!Config.DEBUG_UI_ENABLED || mDebugUiEnabled) {
+            if (!Config.DEBUG_UI_ENABLED) {
                 return;
             }
             long now = System.currentTimeMillis();
@@ -159,16 +159,29 @@ public class ToolbarFragment extends ContextViewFragment {
             }
             if (eligibleClicks >= Config.MAIN_DEBUG_VIEW_SWITCH_CLICKS) {
                 mToolbarIconClicks.clear();
-                mDebugUiEnabled = true;
+                boolean enabled = !AuraPrefs.isDebugEnabled(activity);
+                AuraPrefs.putDebugEnabled(activity, enabled);
+                mToolbar.getMenu().findItem(R.id.menu_debug_group).setVisible(enabled);
                 Toast.makeText(
                         activity,
-                        EmojiHelper.replaceShortCode(activity.getString(R.string.main_toast_debug_mode_enabled)),
+                        EmojiHelper.replaceShortCode(activity.getString(enabled
+                                ? R.string.main_toast_debug_mode_enabled
+                                : R.string.main_toast_debug_mode_disabled)),
                         Toast.LENGTH_SHORT
                 ).show();
-                activity.getSharedServicesSet().mPager.getScreenAdapter().addDebugFragment();
-                mToolbar.getMenu().findItem(R.id.menu_debug_group).setVisible(true);
+
+                if (enabled) {
+                    activity.getSharedServicesSet().mPager.getScreenAdapter().addDebugFragment();
+                } else {
+                    AuraPrefs.putDebugFakePeersEnabled(activity, false);
+                    activity.getSharedServicesSet().mPager.getScreenAdapter().remove(DebugFragment.class);
+                }
             }
         }));
+
+        if (AuraPrefs.isDebugEnabled(activity)) {
+            activity.getSharedServicesSet().mPager.getScreenAdapter().addDebugFragment();
+        }
     }
 
     @Override

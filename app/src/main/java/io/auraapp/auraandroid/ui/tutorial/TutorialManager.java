@@ -48,7 +48,7 @@ public class TutorialManager {
     public void open() {
         i(TAG, "Opening tutorial and sending intent %s", LOCAL_TUTORIAL_OPEN_ACTION);
         mOpen = true;
-        goTo(WelcomeStep.class);
+        goTo(SwipeStep.class);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(LOCAL_TUTORIAL_OPEN_ACTION));
     }
 

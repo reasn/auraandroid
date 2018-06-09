@@ -235,6 +235,15 @@
     <string name="prefs_about_dialog_title">About Aura</string>
     <string name="prefs_about_dialog_message">\nCopyright 2018\nVersion VERSION_NAME (build VERSION_CODE).\n</string>
     <string name="prefs_about_dialog_confirm">Close</string>
+
+    <string name="prefs_debug_group_key">debug</string>
+    <string name="prefs_debug_group_title">Debug Options</string>
+    <string name="prefs_debug_enabled_key">debug_enabled</string>
+    <string name="prefs_debug_fake_peers_key">debug_enable_fake_peers</string>
+    <string name="prefs_debug_fake_peers_off">Fake peers are added to nearby users</string>
+    <string name="prefs_debug_fake_peers_on">No fake peers are added</string>
+    <string name="prefs_debug_fake_peers_title">Show fake peers</string>
+
     <string name="toolbar_tutorial">Show Tutorial</string>
     <string name="toolbar_terms">Reset Terms agreement</string>
 
@@ -316,7 +325,7 @@
     </string>
     <string name="debug_dump_logged">Dump logged</string>
     <string name="toolbar_title_profile">My Aura</string>
-    <string name="toolbar_title_world">Other Auras</string>
+    <string name="toolbar_title_world">Nearby Auras</string>
 
 
 </resources>

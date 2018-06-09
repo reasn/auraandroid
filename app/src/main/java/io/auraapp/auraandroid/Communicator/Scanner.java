@@ -68,7 +68,7 @@ class Scanner {
         mPeerBroadcaster = peerBroadcaster;
         mOnUnrecoverableBtErrorCallback = onUnrecoverableBtErrorCallback;
 
-        AuraPrefs.listen(mContext, R.string.prefs_retention_key, (value) -> {
+        AuraPrefs.listen(mContext, R.string.prefs_retention_key, value -> {
             mPeerRetention = Long.parseLong((String) value);
             i(TAG, "Retention set to %d", mPeerRetention);
         });

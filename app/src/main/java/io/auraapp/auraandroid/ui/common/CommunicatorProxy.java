@@ -154,8 +154,6 @@ public class CommunicatorProxy {
         d(TAG, "Started to listen for events from communicator");
     }
 
-    // TODO remove previous peers if they're exact duplicates (but ID) of a newer one
-
     /**
      * @todo Tell communicator to stop sending intents until further notice
      */
