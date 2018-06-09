@@ -34,8 +34,6 @@ public class TutorialManager {
         mPager = pager;
     }
 
-    // TODO invert tutorial colors if aura is dark
-
     public void setCompleted(boolean completed) {
         AuraPrefs.putHasCompletedTutorial(mContext, completed);
     }
@@ -48,7 +46,7 @@ public class TutorialManager {
     public void open() {
         i(TAG, "Opening tutorial and sending intent %s", LOCAL_TUTORIAL_OPEN_ACTION);
         mOpen = true;
-        goTo(SwipeStep.class);
+        goTo(WelcomeStep.class);
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(LOCAL_TUTORIAL_OPEN_ACTION));
     }
 

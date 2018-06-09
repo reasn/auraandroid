@@ -33,10 +33,10 @@ public class PeerHolder extends ExpandableViewHolder {
     private RecyclerView mSlogansListView;
     private PeerSloganHolder.WhatsMyColorCallback mWhatsMyColorCallback;
 
-    public PeerHolder(View itemView,
-                      Context context,
-                      OnAdoptCallback onAdoptCallback,
-                      PeerSloganHolder.WhatsMyColorCallback whatsMyColorCallback) {
+    PeerHolder(View itemView,
+               Context context,
+               OnAdoptCallback onAdoptCallback,
+               PeerSloganHolder.WhatsMyColorCallback whatsMyColorCallback) {
         super(itemView);
 
         mContext = context;

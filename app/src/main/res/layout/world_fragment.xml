@@ -98,10 +98,16 @@
                 style="@style/SmallCenteredMessage"
                 android:text="@string/world_not_scanning" />
 
+            <!--
+            without descendantFocusability the ScrollView automatically scrolls to
+            the first peer slogan whenever a peer changes.
+            Thanks to https://code.i-harness.com/en/q/24083d5
+            -->
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/world_slogans_recycler"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:descendantFocusability="blocksDescendants" />
 
         </LinearLayout>
     </ScrollView>
