@@ -18,14 +18,17 @@
         android:theme="@style/AppTheme.Launcher">
         <activity
             android:name=".ui.MainActivity"
+            android:screenOrientation="portrait"
             android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.SEND" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.settings.SettingsActivity" />
+        <activity android:name=".ui.settings.SettingsActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.panic.PanicResponderActivity"
             android:launchMode="singleInstance"

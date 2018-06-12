@@ -95,6 +95,11 @@ public class MainActivity extends AppCompatActivity {
 //        EmojiCompat.init(new BundledEmojiCompatConfig(this));
 
         mServicesSet.mCommunicatorProxy.updateMyProfile(mServicesSet.mMyProfileManager.getProfile());
+
+        if (Intent.ACTION_SEND.equals(getIntent().getAction())) {
+            //Same behavior as with "add" click
+            //mServicesSet.mDialogManager.showParametrizedSloganEdit();
+        }
     }
 
     private void toast(@StringRes int text) {
