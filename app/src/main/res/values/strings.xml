@@ -182,10 +182,10 @@
 
     <string name="prefs_panic_group_key" translatable="false">panic</string>
     <string name="prefs_panic_group_title">Panic Button</string>
-    <string name="prefs_panic_group_summary">Apps like Ripple and PanicButton allow swiftly swiping data of multiple apps in a panic situation.</string>
+    <string name="prefs_panic_group_summary">With apps like Ripple and PanicButton one button kills multiple privacy-sensitive apps at once. In addition Aura can automatically delete all its data or try to uninstall itself.</string>
     <string name="prefs_panic_purge_key" translatable="false">panic_purge</string>
     <string name="prefs_panic_purge_title">Delete user data</string>
-    <string name="prefs_panic_purge_off">Activating the panic button does not delete your profile and ideas</string>
+    <string name="prefs_panic_purge_off">Click to delete your profile and ideas when the panic button is activated</string>
     <string name="prefs_panic_purge_on">Activating the panic button permanently deletes your profile and ideas</string>
     <string name="prefs_panic_purge_dialog_title">Purge on Panic?</string>
     <string name="prefs_panic_purge_dialog_message">If you enable this option and trigger a panic situation, all your data will be deleted irrevocably.</string>
@@ -193,7 +193,7 @@
     <string name="prefs_panic_purge_decline">Cancel</string>
     <string name="prefs_panic_uninstall_key" translatable="false">panic_uninstall</string>
     <string name="prefs_panic_uninstall_title">Try uninstalling Aura</string>
-    <string name="prefs_panic_uninstall_off">Activating the panic button does not try to uninstall Aura</string>
+    <string name="prefs_panic_uninstall_off">Click to try to uninstall Aura when the panic button is activated</string>
     <string name="prefs_panic_uninstall_on">Activating the panic button tries to uninstall Aura</string>
     <string name="prefs_panic_uninstall_dialog_title">Uninstall on Panic?</string>
     <string name="prefs_panic_uninstall_dialog_message">If you enable this option and trigger a panic situation, Aura will try to uninstall itself.\nProbably Android will ask you to confirm that. When you do, all your data will be deleted irrevocably and you'll have to reinstall Aura.</string>
