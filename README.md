@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="http://getaura.io/img/icon.png" style="zoom: 0.8" alt="Aura Logo" />
+    <img src="http://getaura.io/img/icon.png" width="200" height="200" alt="Aura Logo" />
 </p>
 
 # Aura
