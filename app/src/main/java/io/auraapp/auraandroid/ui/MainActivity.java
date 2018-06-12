@@ -128,12 +128,17 @@ public class MainActivity extends AppCompatActivity {
             }
 
             // Make sure BrokenBtStackAlertFragment is instantiated and in place
-            BrokenBtStackAlertFragment fragment = (BrokenBtStackAlertFragment) getSupportFragmentManager()
-                    .findFragmentByTag("broken_bt_stack_alert");
-            if (fragment == null) {
-                getSupportFragmentManager().beginTransaction()
-                        .add(new BrokenBtStackAlertFragment(), "broken_bt_stack_alert")
-                        .commit();
+            try {
+                BrokenBtStackAlertFragment fragment = (BrokenBtStackAlertFragment) getSupportFragmentManager()
+                        .findFragmentByTag("broken_bt_stack_alert");
+                if (fragment == null) {
+                    getSupportFragmentManager().beginTransaction()
+                            .add(new BrokenBtStackAlertFragment(), "broken_bt_stack_alert")
+                            .commit();
+                }
+            } catch (IllegalStateException e) {
+                // Observed in the wild
+                // Do nothing. BrokenBtStackAlertFragment is not essential, no need to crash.
             }
         });
     }

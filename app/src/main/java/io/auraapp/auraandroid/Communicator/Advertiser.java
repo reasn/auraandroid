@@ -214,7 +214,6 @@ class Advertiser {
             @Override
             public void onCharacteristicReadRequest(BluetoothDevice device, int requestId, int offset, BluetoothGattCharacteristic characteristic) {
                 mHandler.post(() -> {
-
                     try {
 
                         String propValue = mAdvertisementSet.getProp(characteristic.getUuid());
@@ -227,7 +226,9 @@ class Advertiser {
                                 offset);
                         v(TAG, "sending response, bytes: %d", response.length);
                         mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, response);
-
+                    } catch (NullPointerException e) {
+                        // Observed in the wild
+                        mOnBluetoothErrorCallback.onUnrecoverableBtError("characteristicRead_NullPointer");
                     } catch (UnknownAdvertisementException e) {
                         // Invalid characteristic
                         w(TAG, "Invalid characteristic requested, address: %s, characteristic: %s", device.getAddress(), characteristic.getUuid());

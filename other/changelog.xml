@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <changelog>
-    <version name="alpha 2.4.0" code="28">
+    <version name="alpha 2.4.1" code="28">
         <en-US>
             ✅ Disables screen rotation
             ✅ Better wording for panic settings
             ✅ Code cleanup
+            ✅ Small bugfixes
         </en-US>
     </version>
 </changelog>
