@@ -1,4 +1,6 @@
-![Aura Logo](http://getaura.io/img/icon.png)
+<div style="text-align:center">
+    <img src="http://getaura.io/img/icon.png" alt="Aura Logo" />
+</div>
 
 # Aura
 
