@@ -2,10 +2,12 @@
 <changelog>
     <version name="alpha 2.4.1" code="29">
         <en-US>
-            ✅ Disables screen rotation
-            ✅ Better wording for panic settings
-            ✅ Code cleanup
-            ✅ Small bugfixes
+            <![CDATA[
+✅ Disables screen rotation
+✅ Better wording for panic settings
+✅ Code cleanup
+✅ Small bugfixes
+            ]]>
         </en-US>
     </version>
 </changelog>
