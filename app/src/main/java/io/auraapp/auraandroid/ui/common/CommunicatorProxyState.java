@@ -12,9 +12,8 @@ public class CommunicatorProxyState implements Serializable {
     public boolean mEnabled = false;
 
 
-    public CommunicatorProxyState(boolean enabled, @Nullable CommunicatorState state) {
+    CommunicatorProxyState(@Nullable CommunicatorState state) {
         mCommunicatorState = state;
-        mEnabled = enabled;
     }
 
     @Override

@@ -20,7 +20,7 @@ public class TermsFragment extends ContextViewFragment {
 
     private static final String TAG = "@aura/ui/welcome/" + TermsFragment.class.getSimpleName();
     private ScreenPager mPager;
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
 

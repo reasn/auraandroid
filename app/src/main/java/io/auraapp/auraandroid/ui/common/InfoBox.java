@@ -68,23 +68,6 @@ public class InfoBox extends LinearLayout {
         }
     }
 
-    public void showButton(@StringRes int caption, @StringRes int textBelowButton, OnClickListener onClickListener) {
-        mButtonView.setText(EmojiHelper.replaceShortCode(getContext().getString(caption)));
-        mButtonView.setVisibility(View.VISIBLE);
-        setButtonClickListener(onClickListener);
-        if (textBelowButton > 0) {
-            mSecondTextView.setText(getContext().getString(textBelowButton));
-            mSecondTextView.setVisibility(View.VISIBLE);
-        } else {
-            mSecondTextView.setVisibility(View.GONE);
-        }
-        mSecondTextView.setVisibility(View.VISIBLE);
-    }
-
-    public void setButtonClickListener(OnClickListener onClickListener) {
-        mButtonView.setOnClickListener(onClickListener);
-    }
-
     public void hideButton() {
         mButtonView.setVisibility(View.GONE);
         mSecondTextView.setVisibility(View.GONE);

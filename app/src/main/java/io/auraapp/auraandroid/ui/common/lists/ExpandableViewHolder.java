@@ -5,7 +5,7 @@ import android.view.View;
 
 public abstract class ExpandableViewHolder extends RecyclerView.ViewHolder {
 
-    public ExpandableViewHolder(View itemView) {
+    protected ExpandableViewHolder(View itemView) {
         super(itemView);
     }
 

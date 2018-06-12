@@ -20,7 +20,7 @@ abstract public class ContextFragment extends Fragment {
     protected void onPauseWithContext(MainActivity activity) {
     }
 
-    public MainActivity getMainActivity() {
+    private MainActivity getMainActivity() {
         Context context = getContext();
         if (context != null && !(context instanceof MainActivity)) {
             throw new RuntimeException("Tried to attach " + getClass().getSimpleName() + " to " + context.getClass().getSimpleName() + ". May only attached to " + MainActivity.class.getSimpleName());

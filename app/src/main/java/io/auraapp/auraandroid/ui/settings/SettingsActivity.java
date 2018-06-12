@@ -52,7 +52,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     public static class SettingsFragment extends PreferenceFragment {
-        private Handler mHandler = new Handler();
+        private final Handler mHandler = new Handler();
         public DialogManager mDialogManager;
         private DialogManager.DialogState mDialogState;
         public SettingsActivity mActivity;

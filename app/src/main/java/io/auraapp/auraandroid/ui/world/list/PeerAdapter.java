@@ -44,16 +44,16 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
      * Thanks https://medium.com/@mgn524/optimizing-nested-recyclerview-a9b7830a4ba7
      */
     private final RecyclerView.RecycledViewPool mSloganRecyclerViewPool;
+    private final PeerSloganHolder.WhatsMyColorCallback mWhatsMyColorCallback;
+    private final Timer mTimer = new Timer(new Handler());
     private Timer.Timeout mRedrawTimeout;
-    private Timer mTimer = new Timer(new Handler());
-    private PeerSloganHolder.WhatsMyColorCallback mWhatsMyColorCallback;
 
     private List<Object> mOriginalPeers;
     private Runnable mUnregisterPrefListener;
     private boolean mTutorialOpen = false;
     private boolean mFakePeersEnabled = false;
 
-    private BroadcastReceiver mTutorialReciever = new BroadcastReceiver() {
+    private final BroadcastReceiver mTutorialReciever = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (LOCAL_TUTORIAL_OPEN_ACTION.equals(intent.getAction())) {
@@ -68,7 +68,7 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
     };
 
     public PeerAdapter(Context context, RecyclerView recyclerView, PeerSloganHolder.WhatsMyColorCallback whatsMyColorCallback, OnAdoptCallback onAdoptCallback) {
-        super(context, recyclerView);
+        super(context);
         mContext = context;
         mOnAdoptCallback = onAdoptCallback;
         mWhatsMyColorCallback = whatsMyColorCallback;

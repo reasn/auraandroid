@@ -8,8 +8,8 @@ import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.ui.common.lists.SpacerItem;
 
 public class PeersDiffCallback extends DiffUtil.Callback {
-    private List<?> mNewItems;
-    private List<?> mOldItems;
+    private final List<?> mNewItems;
+    private final List<?> mOldItems;
 
     public PeersDiffCallback(List<?> oldItems, List<?> newItems) {
         mNewItems = newItems;

@@ -33,7 +33,7 @@ public class ColorButton extends AppCompatButton {
         abstract void setColors(@ColorInt int color, @ColorInt int accent);
     }
 
-    private ColorSettableDrawable mColorButtonDrawable = new ColorSettableDrawable() {
+    private final ColorSettableDrawable mColorButtonDrawable = new ColorSettableDrawable() {
         private static final int MARGIN = 30;
         private static final int BORDER = 5;
         private final Paint mColorPaint = new Paint();

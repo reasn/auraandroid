@@ -31,10 +31,10 @@ import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_SCREEN_PAGER_CHA
 public class CommunicatorStateFragment extends ContextViewFragment {
 
     private static final String TAG = "@aura/ui/" + CommunicatorStateFragment.class.getSimpleName();
-    public static final int BLUETOOTH_ENABLE_REQUEST_ID = 6543;
+    private static final int BLUETOOTH_ENABLE_REQUEST_ID = 6543;
     private CommunicatorProxyState mCommunicatorProxyState;
 
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context $, Intent intent) {
             v(TAG, "onReceive, intent: %s", intent.getAction());

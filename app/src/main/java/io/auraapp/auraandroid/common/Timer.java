@@ -7,7 +7,7 @@ import android.support.annotation.Nullable;
 public class Timer {
 
     @FunctionalInterface
-    public static interface Timeout {
+    public interface Timeout {
         void clear();
     }
 

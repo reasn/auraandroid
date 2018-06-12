@@ -33,11 +33,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="80dp" />
 
-            <ListView
-                android:id="@+id/debug_peers_list"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
             <TextView
                 android:id="@+id/debug_communicator_state_dump"
                 android:layout_width="match_parent"

@@ -49,11 +49,6 @@ class DeviceMap {
         mDeviceMap.put(mIdMap.get(address), device);
     }
 
-    void clear() {
-        mDeviceMap.clear();
-        mIdMap.clear();
-    }
-
     void removeById(int id) {
         mDeviceMap.remove(id);
         Set<Runnable> mutations = new HashSet<>();

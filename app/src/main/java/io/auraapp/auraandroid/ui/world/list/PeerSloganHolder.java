@@ -23,7 +23,7 @@ import static io.auraapp.auraandroid.common.FormattedLog.v;
 public class PeerSloganHolder extends ExpandableViewHolder {
 
     @FunctionalInterface
-    public static interface WhatsMyColorCallback {
+    public interface WhatsMyColorCallback {
         @ColorInt
         int getColor();
     }

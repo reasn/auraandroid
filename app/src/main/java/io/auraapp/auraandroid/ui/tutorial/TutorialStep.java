@@ -10,13 +10,9 @@ import io.auraapp.auraandroid.ui.ScreenPager;
 
 public abstract class TutorialStep {
 
-    public static final int STEP_ENABLED = 1;
-    public static final int STEP_SWIPE = 2;
-    public static final int STEP_COLOR = 3;
-    public static final int STEP_NAME = 4;
-    protected ViewGroup mRootView;
-    protected Context mContext;
-    protected ScreenPager mPager;
+    final ViewGroup mRootView;
+    final Context mContext;
+    final ScreenPager mPager;
 
     public abstract ViewGroup enter();
 
@@ -27,13 +23,13 @@ public abstract class TutorialStep {
 
     abstract public Class<? extends TutorialStep> getNextStep();
 
-    public TutorialStep(ViewGroup mRootView, Context mContext, ScreenPager mPager) {
+    TutorialStep(ViewGroup mRootView, Context mContext, ScreenPager mPager) {
         this.mRootView = mRootView;
         this.mContext = mContext;
         this.mPager = mPager;
     }
 
-    int getRelativeTop(View view) {
+    private int getRelativeTop(View view) {
         if (view.getParent() == mRootView)
             return view.getTop();
         else

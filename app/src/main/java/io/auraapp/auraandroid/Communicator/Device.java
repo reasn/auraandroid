@@ -93,8 +93,8 @@ class Device {
             return null;
             // TODO test with zero-length strings
         }
-        String name = parts[0].replaceAll("\\#", "#");
-        String text = parts[1].replaceAll("\\#", "#");
+        String name = parts[0].replaceAll("\\\\#", "#");
+        String text = parts[1].replaceAll("\\\\#", "#");
 
         return new DevicePeerProfile(color, name, text);
     }

@@ -8,11 +8,11 @@ import io.auraapp.auraandroid.ui.common.ColorHelper;
 
 class ColorSet {
     @ColorInt
-    int mBackground;
+    final int mBackground;
     @ColorInt
-    int mText;
+    final int mText;
     @ColorInt
-    int mAccentBackground;
+    final int mAccentBackground;
 
     private ColorSet(int text, int background, int accentBackground) {
         mText = text;

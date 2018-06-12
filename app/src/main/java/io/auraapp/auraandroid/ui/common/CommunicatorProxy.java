@@ -32,7 +32,7 @@ import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_EXTRA
 public class CommunicatorProxy {
     private static final String TAG = "@aura/communicatorProxy";
 
-    private CommunicatorProxyState mState = new CommunicatorProxyState(false, null);
+    private final CommunicatorProxyState mState = new CommunicatorProxyState(null);
     private Set<Peer> mPeers = new HashSet<>();
     private boolean mRegistered = false;
     private final Context mContext;
@@ -60,7 +60,7 @@ public class CommunicatorProxy {
                 @SuppressWarnings("unchecked")
                 Peer peer = (Peer) extras.getSerializable(INTENT_PEER_UPDATED_EXTRA_PEER);
                 if (peer != null) {
-                    replacePeer(mPeers, peer, false);
+                    replacePeer(mPeers, peer);
                     v(TAG, "Peer updated, peer: %s, slogans: %d, peers: %d", peer.mId, peer.mSlogans.size(), mPeers.size());
                 } else {
                     w(TAG, "Received invalid %s intent, peer: null", INTENT_PEER_UPDATED_ACTION);
@@ -117,15 +117,13 @@ public class CommunicatorProxy {
         }
     }
 
-    public static void replacePeer(Set<Peer> mutablePeers, Peer peer, boolean requireName) {
+    public static void replacePeer(Set<Peer> mutablePeers, Peer peer) {
         for (Peer candidate : mutablePeers.toArray(new Peer[mutablePeers.size()])) {
             if (candidate.mId == peer.mId) {
                 mutablePeers.remove(candidate);
             }
         }
-        if (peer.mName != null || !requireName) {
-            mutablePeers.add(peer);
-        }
+        mutablePeers.add(peer);
     }
 
     public static Set<Peer> getPeersWithName(Set<Peer> peers) {

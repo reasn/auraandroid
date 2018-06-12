@@ -37,37 +37,37 @@ public class DialogManager {
 
     @FunctionalInterface
     public interface MyNameEditedCallback {
-        public void onNameEdited(String name);
+        void onNameEdited(String name);
     }
 
     @FunctionalInterface
     public interface MyTextEditedCallback {
-        public void onTextEdited(String name);
+        void onTextEdited(String name);
     }
 
     @FunctionalInterface
     public interface AdoptCallback {
-        public void onAdoptSlogan(Slogan sloganToReplace);
+        void onAdoptSlogan(Slogan sloganToReplace);
     }
 
     @FunctionalInterface
     public interface DropCallback {
-        public void onDropSlogan(Slogan slogan);
+        void onDropSlogan(Slogan slogan);
     }
 
     @FunctionalInterface
     public interface BtBrokenDismissHandler {
-        public void onDismiss(boolean neverShowAgain);
+        void onDismiss(boolean neverShowAgain);
     }
 
     @FunctionalInterface
     public interface OnSloganEditConfirm {
-        public void onConfirm(String text);
+        void onConfirm(String text);
     }
 
     @FunctionalInterface
     public interface ConfirmCallback {
-        public void onConfirm(boolean confirmed);
+        void onConfirm(boolean confirmed);
     }
 
     public static class DialogState {
@@ -77,7 +77,7 @@ public class DialogManager {
     private static final String TAG = "@aura/ui/" + DialogManager.class.getSimpleName();
     private final static Pattern mLinebreakPattern = Pattern.compile("\n");
     private final DialogState mDialogState;
-    private Context mContext;
+    private final Context mContext;
     private ColorPicker.SelectedColor mPickedColor = null;
 
     public DialogManager(Context context) {

@@ -24,10 +24,6 @@ public class WelcomeStep extends TutorialStep {
     }
 
     @Override
-    public void leave() {
-    }
-
-    @Override
     public Class<? extends TutorialStep> getPrevious() {
         return null;
     }

@@ -45,7 +45,7 @@ public class MySlogansRecycleAdapter extends ExpandableRecyclerAdapter {
                                    RecyclerView listView,
                                    OnMySloganActionCallback onMySloganActionCallback,
                                    MyProfileManager myProfileManager) {
-        super(context, listView);
+        super(context);
         mContext = context;
         mOnMySloganActionCallback = onMySloganActionCallback;
         mMyProfileManager = myProfileManager;

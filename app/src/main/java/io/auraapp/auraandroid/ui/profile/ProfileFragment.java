@@ -41,7 +41,7 @@ public class ProfileFragment extends ContextViewFragment {
     private DialogManager mDialogManager;
     private MyProfileManager mMyProfileManager;
 
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION.equals(intent.getAction())) {

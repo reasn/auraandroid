@@ -14,11 +14,9 @@ abstract public class ExpandableRecyclerAdapter extends RecyclerView.Adapter<Exp
 
     protected int mItemCountToExpandEverything = -1;
     protected final LayoutInflater mInflater;
-    private RecyclerView mRecyclerView;
 
-    public ExpandableRecyclerAdapter(Context context, RecyclerView recyclerView) {
+    public ExpandableRecyclerAdapter(Context context) {
         super();
-        mRecyclerView = recyclerView;
         mInflater = LayoutInflater.from(context);
     }
 

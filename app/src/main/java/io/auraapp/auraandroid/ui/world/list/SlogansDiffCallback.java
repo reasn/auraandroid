@@ -8,10 +8,10 @@ import io.auraapp.auraandroid.common.Slogan;
 import io.auraapp.auraandroid.ui.common.lists.SpacerItem;
 
 public class SlogansDiffCallback extends DiffUtil.Callback {
-    private List<?> mNewItems;
-    private List<?> mOldItems;
+    private final List<?> mNewItems;
+    private final List<?> mOldItems;
 
-    public SlogansDiffCallback(List<?> oldItems, List<?> newItems) {
+    SlogansDiffCallback(List<?> oldItems, List<?> newItems) {
         mNewItems = newItems;
         mOldItems = oldItems;
     }

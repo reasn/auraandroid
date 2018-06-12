@@ -22,7 +22,7 @@ import static io.auraapp.auraandroid.common.IntentFactory.PREFERENCE_CHANGED_EXT
 
 public class AuraPrefs {
 
-    private static Set<BroadcastReceiver> mReceivers = new HashSet<>();
+    private final static Set<BroadcastReceiver> mReceivers = new HashSet<>();
 
     public static boolean isEnabled(Context context) {
         return get(context)
@@ -153,7 +153,7 @@ public class AuraPrefs {
 
     @FunctionalInterface
     public interface OnPrefChanged {
-        public void onPrefChanged(Serializable value);
+        void onPrefChanged(Serializable value);
     }
 
     public static Runnable listen(Context context, int key, OnPrefChanged callback) {

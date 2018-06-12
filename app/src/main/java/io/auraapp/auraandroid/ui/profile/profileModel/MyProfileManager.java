@@ -26,7 +26,7 @@ public class MyProfileManager {
 
     @FunctionalInterface
     public interface MyProfileChangedCallback {
-        public void myProfileChanged(int event);
+        void myProfileChanged(int event);
     }
 
     private static final String TAG = "@aura/ui/common/" + MyProfileManager.class.getSimpleName();

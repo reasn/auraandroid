@@ -31,8 +31,8 @@ public class PeerHolder extends ExpandableViewHolder {
     private final TextView mStatsView;
     private final View mDetailsView;
     private final ProgressBar mSpinner;
-    private RecyclerView mSlogansListView;
-    private PeerSloganHolder.WhatsMyColorCallback mWhatsMyColorCallback;
+    private final RecyclerView mSlogansListView;
+    private final PeerSloganHolder.WhatsMyColorCallback mWhatsMyColorCallback;
 
     PeerHolder(View itemView,
                Context context,

@@ -45,7 +45,7 @@ import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_EXTRA
 public class WorldFragment extends ContextViewFragment {
 
     private static final String TAG = "@aura/ui/world/fragment";
-    private Handler mHandler = new Handler();
+    private final Handler mHandler = new Handler();
     private PeerAdapter mPeerAdapter;
     private FakeSwipeRefreshLayout mSwipeRefresh;
 
@@ -166,7 +166,7 @@ public class WorldFragment extends ContextViewFragment {
         v(TAG, "Receivers unregistered, adapter paused");
     }
 
-    public void reflectState(Context context) {
+    private void reflectState(Context context) {
 
         boolean scanning = mComProxyState.mEnabled
                 && mComProxyState.mCommunicatorState != null

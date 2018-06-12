@@ -32,7 +32,7 @@ public class PermissionsFragment extends ContextViewFragment {
     private final Timer mTimer = new Timer(mHandler);
     private Timer.Timeout mCheckTimeout;
     private ScreenPager mPager;
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String newFragmentClass = intent.getStringExtra(IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_EXTRA_NEW);

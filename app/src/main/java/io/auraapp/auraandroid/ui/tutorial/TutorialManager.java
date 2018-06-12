@@ -17,7 +17,7 @@ import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_OPEN_AC
 
 public class TutorialManager {
 
-    private static String TAG = "@aura/ui/welcome/" + TutorialManager.class.getSimpleName();
+    private final static String TAG = "@aura/ui/welcome/" + TutorialManager.class.getSimpleName();
 
     private final Context mContext;
     private final ViewGroup mRootView;

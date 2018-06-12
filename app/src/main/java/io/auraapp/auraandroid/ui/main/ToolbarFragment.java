@@ -45,14 +45,14 @@ import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_SCREEN_PAGER_CHA
 public class ToolbarFragment extends ContextViewFragment {
 
     private static final String TAG = "@aura/ui/" + ToolbarFragment.class.getSimpleName();
+    private final Handler mHandler = new Handler();
+    private final List<Long> mToolbarIconClicks = new ArrayList<>();
     private Toolbar mToolbar;
     private CommunicatorProxy mCommunicatorProxy;
     private SwitchCompat mEnabledSwitch;
-    private Handler mHandler = new Handler();
-    private final List<Long> mToolbarIconClicks = new ArrayList<>();
     private MyProfileManager mMyProfileManager;
     private boolean mReceiverRegistered = false;
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
 
@@ -132,7 +132,7 @@ public class ToolbarFragment extends ContextViewFragment {
                 return true;
             }
             if (item.getItemId() == R.id.action_shorten_retention) {
-                AuraPrefs.putPeerRetention(10000, activity);
+                AuraPrefs.putPeerRetention(Config.DEBUG_SHORTENED_RETENTION, activity);
                 return true;
             }
             if (item.getItemId() == R.id.action_finish) {

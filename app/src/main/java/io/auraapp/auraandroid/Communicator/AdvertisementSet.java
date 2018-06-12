@@ -21,7 +21,7 @@ class AdvertisementSet {
             UuidSet.SLOGAN_2,
             UuidSet.SLOGAN_3
     };
-    public static final int BYTE_LENGTH = 6;
+    static final int BYTE_COUNT = 6;
 
     int mId = 0;
     byte mVersion = 0;
@@ -54,7 +54,7 @@ class AdvertisementSet {
         this.mProfile = profileString;
     }
 
-    public static String prepareProfile(String color, String name, String text) {
+    static String prepareProfile(String color, String name, String text) {
         if (color.substring(0, 1).equals("#")) {
             color = color.substring(1);
         }

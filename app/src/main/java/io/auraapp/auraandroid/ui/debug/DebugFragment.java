@@ -9,9 +9,7 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.content.LocalBroadcastManager;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -60,7 +58,7 @@ public class DebugFragment extends ContextViewFragment {
 
     private long mLastIntentTimestamp;
 
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             mHandler.post(() -> {
@@ -83,7 +81,7 @@ public class DebugFragment extends ContextViewFragment {
                         if (mPeers == null) {
                             mPeers = new HashSet<>();
                         }
-                        replacePeer(mPeers, peer, false);
+                        replacePeer(mPeers, peer);
                     }
 
                 }
@@ -207,22 +205,6 @@ public class DebugFragment extends ContextViewFragment {
         String dump = createDump(context);
         TextView communicatorStateDump = getRootView().findViewById(R.id.debug_communicator_state_dump);
         communicatorStateDump.setText(dump.replaceAll("\"", "").replaceAll("\n +\\{", " {"));
-
-        ListView peersList = getRootView().findViewById(R.id.debug_peers_list);
-
-        if (mPeers == null) {
-            peersList.setVisibility(View.GONE);
-            return;
-        }
-
-        peersList.setVisibility(View.VISIBLE);
-        // Not efficient but minimal code. That's okay because it doesn't affect performance
-        // for users
-        peersList.setAdapter(new DebugPeersListArrayAdapter(
-                context,
-                android.R.layout.simple_list_item_1,
-                mPeers.toArray(new Peer[mPeers.size()])
-        ));
     }
 
     private String createDump(Context context) {

@@ -7,11 +7,11 @@ import static io.auraapp.auraandroid.common.FormattedLog.w;
 class MetaDataUnpacker {
 
     static class MetaData {
-        byte mAuraVersion;
-        byte mDataVersion;
-        int mId;
+        final byte mAuraVersion;
+        final byte mDataVersion;
+        final int mId;
 
-        public MetaData(byte auraVersion, byte dataVersion, int id) {
+        MetaData(byte auraVersion, byte dataVersion, int id) {
             this.mAuraVersion = auraVersion;
             this.mDataVersion = dataVersion;
             this.mId = id;
@@ -52,7 +52,7 @@ class MetaDataUnpacker {
         if (metaData == null) {
             w(TAG, "Additional data missing, null");
             return null;
-        } else if (metaData.length < AdvertisementSet.BYTE_LENGTH) {
+        } else if (metaData.length < AdvertisementSet.BYTE_COUNT) {
             w(TAG, "Additional data invalid, length: %d", metaData.length);
             return null;
         }
@@ -71,7 +71,7 @@ class MetaDataUnpacker {
         return new MetaData(auraVersion, dataVersion, id);
     }
 
-    public static String byteArrayToString(byte[] bytes) {
+    static String byteArrayToString(byte[] bytes) {
         StringBuilder result = new StringBuilder();
         for (byte element : bytes) {
             result.append(" ").append(String.format("%02X", element));

@@ -10,11 +10,11 @@ import io.auraapp.auraandroid.common.EmojiHelper;
 
 public class DialogBuilder {
 
-    private Context mContext;
+    private final Context mContext;
     private String mTitle;
     private View mView = null;
     private boolean keyboard;
-    private DialogManager.DialogState mDialogState;
+    private final DialogManager.DialogState mDialogState;
     private Runnable mOnConfirm;
     private String mCancelText;
     private String mConfirmText;
@@ -64,16 +64,6 @@ public class DialogBuilder {
 
     public DialogBuilder setOnConfirm(Runnable onConfirm) {
         mOnConfirm = onConfirm;
-        return this;
-    }
-
-    public DialogBuilder setCancelText(String cancelText) {
-        this.mCancelText = cancelText;
-        return this;
-    }
-
-    public DialogBuilder setConfirmText(String confirmText) {
-        this.mConfirmText = confirmText;
         return this;
     }
 

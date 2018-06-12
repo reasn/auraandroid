@@ -1,14 +1,11 @@
 package io.auraapp.auraandroid.Communicator;
 
-/**
- * Created by alexander on 14.04.18.
- */
 class DevicePeerProfile {
     final String mColor;
     final String mName;
     final String mText;
 
-    public DevicePeerProfile(String mColor, String mName, String mText) {
+    DevicePeerProfile(String mColor, String mName, String mText) {
         this.mColor = mColor;
         this.mName = mName;
         this.mText = mText;

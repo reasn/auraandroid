@@ -28,7 +28,7 @@ import io.auraapp.auraandroid.common.Peer;
 import static android.bluetooth.BluetoothProfile.STATE_CONNECTED;
 import static io.auraapp.auraandroid.Communicator.MetaDataUnpacker.byteArrayToString;
 import static io.auraapp.auraandroid.common.Config.COMMUNICATOR_INCOMPLETE_PEER_FORGET_AFTER;
-import static io.auraapp.auraandroid.common.Config.DEV_FAKE_PEER_CHARACTERISTIC_RETRIEVAL_FAILURE;
+import static io.auraapp.auraandroid.common.Config.DEBUG_FAKE_PEER_CHARACTERISTIC_RETRIEVAL_FAILURE;
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.e;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
@@ -249,7 +249,7 @@ class Scanner {
 
                 UUID nextOutdatedCharaUuid = device.getFirstOutdatedPropertyUuid();
 
-                if (DEV_FAKE_PEER_CHARACTERISTIC_RETRIEVAL_FAILURE) {
+                if (DEBUG_FAKE_PEER_CHARACTERISTIC_RETRIEVAL_FAILURE) {
                     continue;
                 }
                 if (nextOutdatedCharaUuid != null) {

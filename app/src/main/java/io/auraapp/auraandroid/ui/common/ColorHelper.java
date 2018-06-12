@@ -23,7 +23,7 @@ public class ColorHelper {
                         + b * b * .114);
     }
 
-    public static int adjustBrightness(int color, int factor) {
+    private static int adjustBrightness(int color, int factor) {
         int r = round(Color.red(color) + factor);
         int g = round(Color.green(color) + factor);
         int b = round(Color.blue(color) + factor);

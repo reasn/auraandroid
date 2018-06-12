@@ -40,7 +40,7 @@ public class FakeSwipeRefreshLayout extends SwipeRefreshLayout {
      * As the advertisement of peers are continuously monitored, triggering a refresh has zero impact.
      * As the user indicated a wish for an update, we briefly toast the current status.
      */
-    void refresh() {
+    private void refresh() {
         i(TAG, "Showing swipe to refresh indicator to transport sense of immediacy");
         String text = getResources().getQuantityString(R.plurals.world_toast_refresh, mPeerCount, mPeerCount);
 

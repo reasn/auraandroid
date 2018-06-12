@@ -156,7 +156,7 @@ public class ColorPicker extends FrameLayout {
         mColorListener = colorListener;
     }
 
-    public void setSelector(Point point) {
+    private void setSelector(Point point) {
         mSelectorView.setX(point.x - mSelectorView.getMeasuredWidth() / 2);
         mSelectorView.setY(point.y - mSelectorView.getMeasuredHeight() / 2);
         triggerListener(point.x, point.y, getColorFromBitmap(point.x, point.y));

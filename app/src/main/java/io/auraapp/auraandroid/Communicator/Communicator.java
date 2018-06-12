@@ -174,7 +174,7 @@ public class Communicator extends Service {
         actOnStateWhileWaitingForPermissions();
     }
 
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context $, Intent intent) {
             d(TAG, "onReceive, intent: %s", intent);

@@ -19,7 +19,7 @@ public class FullWidthDialog extends Dialog {
 
     private final LinearLayout mRootView;
     private TextView mTitleView;
-    private DialogManager.DialogState mDialogState;
+    private final DialogManager.DialogState mDialogState;
     private Button mCancelButton;
     private Button mConfirmButton;
 
