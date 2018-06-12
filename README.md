@@ -1,25 +1,27 @@
 <p align="center">
-    <img src="http://getaura.io/img/icon.png" alt="Aura Logo" />
+    <img src="http://getaura.io/img/icon.png" style="zoom: 0.8" alt="Aura Logo" />
 </p>
 
 # Aura
 
 Aura is a hyperlocal social network that relies on Bluetooth LE and doesn't use internet or wifi.
 
-### How does it work?
-* Your Aura is an always-on digital profile that contains sparks, small shareable ideas.
-* These sparks are spread from Aura to Aura to eventually change the world.
-
-### Censorship Sucks.
+## Censorship Sucks.
 Thoughts are free. Sharing them can be dangerous. 
 With Aura you can share ideas anonymously with people around. 
 It works person-to-person without internet, can't be blocked and leaves no traces with your phone operator.
 
-### Useful links
+## How does it work?
+* Your Aura is an always-on digital profile that contains sparks, small shareable ideas.
+* These sparks are spread from Aura to Aura to eventually change the world.
+
+## Useful links
 * Check out the web page at [getAura.io](https://www.getAura.io).
 * Report or read about [open issues](https://github.com/reasn/auraandroid/issues).
 
-### Contribution
+## Contribution
+
+### How can I help?
 Please get in touch via GitHub or email (info@getAura.io) if you wish to contribute! 
 
 ### Deployment (relies on unpublished private credentials)
