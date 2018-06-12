@@ -1,6 +1,6 @@
-<div style="text-align:center">
+<p align="center">
     <img src="http://getaura.io/img/icon.png" alt="Aura Logo" />
-</div>
+</p>
 
 # Aura
 
