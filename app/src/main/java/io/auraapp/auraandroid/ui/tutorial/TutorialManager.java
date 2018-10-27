@@ -2,16 +2,24 @@ package io.auraapp.auraandroid.ui.tutorial;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.ui.ScreenPager;
 
 import static io.auraapp.auraandroid.common.FormattedLog.i;
+import static io.auraapp.auraandroid.common.FormattedLog.quickDump;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_COMPLETE_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_OPEN_ACTION;
 
@@ -29,6 +37,8 @@ public class TutorialManager {
     public TutorialManager(Context context,
                            ViewGroup tutorialParent,
                            ScreenPager pager) {
+
+
         mContext = context;
         mRootView = tutorialParent;
         mPager = pager;
@@ -47,8 +57,46 @@ public class TutorialManager {
         i(TAG, "Opening tutorial and sending intent %s", LOCAL_TUTORIAL_OPEN_ACTION);
         mOpen = true;
 
-        goTo(AuraPrefs.getTutorialStep(mContext));
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(LOCAL_TUTORIAL_OPEN_ACTION));
+        Set<String> completed = AuraPrefs.getCompletedTutorialSteps(mContext);
+
+        if (completed.size() == 0) {
+            goTo(WelcomeStep.class);
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(LOCAL_TUTORIAL_OPEN_ACTION));
+            return;
+        }
+
+        // Some tutorial steps (other than WelcomeStep) require the view hierarchy to be built up.
+        // Entering them immediately would lead to crashes
+        // Waiting 500ms is a very dirty solution for the problem
+
+        new Handler().postDelayed(() -> {
+
+            if (completed.contains(FinalStep.class.getName())) {
+                complete();
+                return;
+            }
+
+            if (completed.contains(WorldStep.class.getName())) {
+                goTo(FinalStep.class);
+            } else if (completed.contains(SwipeStep.class.getName())) {
+                goTo(WorldStep.class);
+            } else if (completed.contains(SloganAddStep.class.getName())) {
+                goTo(SwipeStep.class);
+            } else if (completed.contains(TextStep.class.getName())) {
+                goTo(SloganAddStep.class);
+            } else if (completed.contains(NameStep.class.getName())) {
+                goTo(TextStep.class);
+            } else if (completed.contains(ColorStep.class.getName())) {
+                goTo(NameStep.class);
+            } else if (completed.contains(EnabledStep.class.getName())) {
+                goTo(ColorStep.class);
+            } else if (completed.contains(WelcomeStep.class.getName())) {
+                goTo(EnabledStep.class);
+            } else {
+                goTo(WelcomeStep.class);
+            }
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(LOCAL_TUTORIAL_OPEN_ACTION));
+        }, 500);
     }
 
     public void close() {
@@ -66,13 +114,22 @@ public class TutorialManager {
         return mOpen;
     }
 
-    protected void goTo(Class<? extends TutorialStep> step) {
+    protected void completeCurrentAndGoTo(Class<? extends TutorialStep> step) {
+
+        if (mCurrentStep != null) {
+            AuraPrefs.markTutorialStepAsCompleted(mContext, mCurrentStep.getClass().getName());
+        }
         goTo(step.getName());
+    }
+
+    protected void goTo(Class<? extends TutorialStep> step) {
+        goTo(step == null ? null : step.getName());
     }
 
     protected void goTo(String step) {
 
         close();
+
         if (step == null) {
             mOpen = false;
             setCompleted(true);
@@ -81,6 +138,7 @@ public class TutorialManager {
             mRootView.findViewById(R.id.communicator_state_fragment).setVisibility(View.VISIBLE);
             return;
         }
+
         if (step.equals(EnabledStep.class.getName())) {
             mCurrentStep = new EnabledStep(mRootView, mContext, mPager, this);
         } else if (step.equals(SwipeStep.class.getName())) {
@@ -103,20 +161,18 @@ public class TutorialManager {
         }
         mCurrentScreen = mCurrentStep.enter();
 
-        AuraPrefs.putTutorialStep(mContext, mCurrentStep.getClass().getName());
-
         Button backButton = mCurrentScreen.findViewById(R.id.tutorial_back);
         if (backButton != null) {
             backButton.setOnClickListener($ -> goTo(mCurrentStep.getPrevious()));
         }
         Button nextButton = mCurrentScreen.findViewById(R.id.tutorial_next);
         if (nextButton != null) {
-            nextButton.setOnClickListener($ -> {
-                Class<? extends TutorialStep> nextStep = mCurrentStep.getNextStep();
-                if (nextStep != null) {
-                    goTo(nextStep);
-                }
-            });
+            if (AuraPrefs.getCompletedTutorialSteps(mContext).contains(mCurrentStep.getClass().getName())) {
+                //Allow the user to progress if they completed this step before
+                nextButton.setVisibility(View.VISIBLE);
+            }
+
+            nextButton.setOnClickListener($ -> goTo(mCurrentStep.getNextStep()));
         }
 
         mCurrentScreen.findViewById(R.id.tutorial_overlay).setOnClickListener($ -> {

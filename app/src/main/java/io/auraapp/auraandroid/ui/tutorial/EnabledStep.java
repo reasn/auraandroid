@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.ui.ScreenPager;
 import io.auraapp.auraandroid.ui.common.CommunicatorProxyState;
@@ -29,17 +30,22 @@ public class EnabledStep extends TutorialStep {
             }
             CommunicatorProxyState proxyState = (CommunicatorProxyState) extras.getSerializable(IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE);
             if (proxyState != null && proxyState.mEnabled) {
-                mTutorialManager.goTo(ColorStep.class);
+                mTutorialManager.completeCurrentAndGoTo(ColorStep.class);
             }
         }
     };
-
 
     public EnabledStep(ViewGroup mRootView, Context mContext, ScreenPager mPager, TutorialManager manager) {
         super(mRootView, mContext, mPager, manager);
     }
 
     public ViewGroup enter() {
+
+        // EnabledStep automatically progresses to the next step when Aura gets enabled,
+        // WelcomeStep doesn't have such logic and therefore needs to be marked as completed
+        // explicitly here.
+        AuraPrefs.markTutorialStepAsCompleted(mContext, WelcomeStep.class.getName());
+
         ViewGroup screen = (ViewGroup) LayoutInflater.from(mContext).inflate(R.layout.tutorial_enabled, mRootView, false);
 
         ViewGroup overlay = screen.findViewById(R.id.tutorial_overlay);
@@ -59,7 +65,6 @@ public class EnabledStep extends TutorialStep {
                 mBroadcastReceiver,
                 IntentFactory.createFilter(LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION));
 
-
         return screen;
     }
 
@@ -72,5 +77,10 @@ public class EnabledStep extends TutorialStep {
     @Override
     public Class<? extends TutorialStep> getPrevious() {
         return WelcomeStep.class;
+    }
+
+    @Override
+    public Class<? extends TutorialStep> getNextStep() {
+        return ColorStep.class;
     }
 }

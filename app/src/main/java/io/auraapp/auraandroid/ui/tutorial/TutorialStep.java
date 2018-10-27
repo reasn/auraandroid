@@ -15,23 +15,20 @@ public abstract class TutorialStep {
     final ScreenPager mPager;
     final protected TutorialManager mTutorialManager;
 
+    public abstract ViewGroup enter();
+
+    public void leave() {
+    }
+
+    abstract public Class<? extends TutorialStep> getPrevious();
+
+    abstract public Class<? extends TutorialStep> getNextStep();
 
     TutorialStep(ViewGroup rootView, Context context, ScreenPager pager, TutorialManager manager) {
         mRootView = rootView;
         mContext = context;
         mPager = pager;
         mTutorialManager = manager;
-    }
-
-    public abstract ViewGroup enter();
-
-    abstract public Class<? extends TutorialStep> getPrevious();
-
-    public void leave() {
-    }
-
-    public Class<? extends TutorialStep> getNextStep() {
-        return null;
     }
 
     private int getRelativeTop(View view) {

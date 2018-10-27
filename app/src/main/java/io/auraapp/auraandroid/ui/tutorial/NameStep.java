@@ -21,7 +21,7 @@ public class NameStep extends TutorialStep {
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context $, Intent intent) {
-            mTutorialManager.goTo(TextStep.class);
+            mTutorialManager.completeCurrentAndGoTo(TextStep.class);
         }
     };
 
@@ -54,4 +54,11 @@ public class NameStep extends TutorialStep {
     public Class<? extends TutorialStep> getPrevious() {
         return ColorStep.class;
     }
+
+    @Override
+    public Class<? extends TutorialStep> getNextStep() {
+        return TextStep.class;
+    }
+
+
 }

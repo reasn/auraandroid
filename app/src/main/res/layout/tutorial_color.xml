@@ -32,10 +32,10 @@
         </LinearLayout>
 
         <TextView
-            style="@style/TutorialMessage.Bottom"
             android:id="@+id/tutorial_color_text"
+            style="@style/TutorialMessage.Bottom"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
 
         <LinearLayout
             style="@style/TutorialButtonWrapper"
@@ -49,6 +49,13 @@
                 android:layout_height="wrap_content"
                 android:text="@string/tutorial_button_back" />
 
+            <Button
+                android:id="@+id/tutorial_next"
+                style="@style/TutorialButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/tutorial_button_next"
+                android:visibility="gone" />
         </LinearLayout>
     </RelativeLayout>
 </LinearLayout>

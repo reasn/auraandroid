@@ -10,8 +10,11 @@ import android.content.SharedPreferences;
 import com.google.gson.GsonBuilder;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfile;
@@ -64,12 +67,15 @@ public class AuraPrefs {
         get(context).edit().putBoolean(context.getString(R.string.prefs_tutorial_completed_key), completed).apply();
     }
 
-    public static String getTutorialStep(Context context) {
-        return get(context).getString(context.getString(R.string.prefs_tutorial_current_step_key), "unknown tutorial step");
+    public static Set<String> getCompletedTutorialSteps(Context context) {
+        return get(context).getStringSet(context.getString(R.string.prefs_tutorial_completed_steps_key), Collections.emptySet());
     }
 
-    public static void putTutorialStep(Context context, String currentStep) {
-        get(context).edit().putString(context.getString(R.string.prefs_tutorial_current_step_key), currentStep).apply();
+    public static void markTutorialStepAsCompleted(Context context, String currentStep) {
+        // Using a TreeSet to remove duplicates
+        TreeSet<String> completed = new TreeSet<>(getCompletedTutorialSteps(context));
+        completed.add(currentStep);
+        get(context).edit().putStringSet(context.getString(R.string.prefs_tutorial_completed_steps_key), completed).apply();
     }
 
     public static boolean areDebugFakePeersEnabled(Context context) {

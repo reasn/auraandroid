@@ -9,12 +9,14 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -237,12 +239,19 @@ public class DebugFragment extends ContextViewFragment {
                 : "not set";
     }
 
+    private String renderStringSetPref(SharedPreferences prefs, Context context, @StringRes int key) {
+        return prefs.contains(context.getString(key))
+                ? TextUtils.join(", ", prefs.getStringSet(context.getString(key), Collections.emptySet()))
+                : "not set";
+    }
+
     private String createPrefsDump(Context context) {
 
         SharedPreferences prefs = context.getSharedPreferences(Config.PREFERENCES_BUCKET, MODE_PRIVATE);
 
         String dump = "\nterms agreed: " + renderBooleanPref(prefs, context, R.string.prefs_terms_agreed_key);
         dump += "\ntutorial completed: " + renderBooleanPref(prefs, context, R.string.prefs_tutorial_completed_key);
+        dump += "\ncompleted tutorial steps: " + renderStringSetPref(prefs, context, R.string.prefs_tutorial_completed_steps_key);
         dump += "\npurge on panic: " + renderBooleanPref(prefs, context, R.string.prefs_panic_purge_key);
         dump += "\nuninstall on panic: " + renderBooleanPref(prefs, context, R.string.prefs_panic_uninstall_key);
         dump += "\nhide BT stack broken: " + renderBooleanPref(prefs, context, R.string.prefs_hide_broken_bt_warning_key);

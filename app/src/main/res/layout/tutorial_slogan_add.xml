@@ -26,8 +26,8 @@
 
             <ImageView
                 style="@style/TutorialHeadlineWithArrowArrow"
-                android:layout_marginTop="20dp"
                 android:layout_marginLeft="10dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginRight="25dp" />
 
         </LinearLayout>
@@ -55,7 +55,8 @@
                 style="@style/TutorialButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/tutorial_button_next" />
+                android:text="@string/tutorial_button_next"
+                android:visibility="gone" />
         </LinearLayout>
     </RelativeLayout>
 </LinearLayout>
