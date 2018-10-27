@@ -41,6 +41,8 @@ import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STA
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_EXTRA_PROFILE;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_COMPLETE_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_OPEN_ACTION;
 
 public class WorldFragment extends ContextViewFragment {
 
@@ -56,6 +58,7 @@ public class WorldFragment extends ContextViewFragment {
     private Button mInviteButton;
     private TextView mNotScanningMessage;
     private String mMyColor;
+    private boolean mFakePeersEnabled;
     private final BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -63,6 +66,17 @@ public class WorldFragment extends ContextViewFragment {
 
             Bundle extras = intent.getExtras();
             if (extras == null) {
+                return;
+            }
+
+            if (LOCAL_TUTORIAL_OPEN_ACTION.equals(intent.getAction())) {
+                mFakePeersEnabled = true;
+                reflectState(context);
+                return;
+            }
+            if (LOCAL_TUTORIAL_COMPLETE_ACTION.equals(intent.getAction())) {
+                mFakePeersEnabled = false;
+                reflectState(context);
                 return;
             }
 
@@ -106,6 +120,8 @@ public class WorldFragment extends ContextViewFragment {
 
         LocalBroadcastManager.getInstance(activity).registerReceiver(mLocalReceiver,
                 IntentFactory.createFilter(
+                        LOCAL_TUTORIAL_OPEN_ACTION,
+                        LOCAL_TUTORIAL_COMPLETE_ACTION,
                         LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION,
                         LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION,
                         INTENT_PEER_LIST_UPDATED_ACTION,
@@ -116,6 +132,8 @@ public class WorldFragment extends ContextViewFragment {
         Set<Peer> peers = servicesSet.mCommunicatorProxy.getPeers();
         mComProxyState = servicesSet.mCommunicatorProxy.getState();
         mMyColor = servicesSet.mMyProfileManager.getColor();
+
+        mFakePeersEnabled = servicesSet.mTutorialManager.isOpen();
 
         v(TAG, "Receivers registered, peers fetched, peers: %d, mComProxyState: %s", peers.size(), mComProxyState);
 
@@ -174,16 +192,20 @@ public class WorldFragment extends ContextViewFragment {
 
         int peersCount = mPeerAdapter.getVisiblePeers().size();
 
-        mPeersRecycler.setVisibility(scanning ? View.VISIBLE : View.GONE);
-        mNotScanningMessage.setVisibility(scanning ? View.GONE : View.VISIBLE);
+        mPeersRecycler.setVisibility(mFakePeersEnabled || scanning ? View.VISIBLE : View.GONE);
+        mNotScanningMessage.setVisibility(mFakePeersEnabled || scanning ? View.GONE : View.VISIBLE);
         mSwipeRefresh.setEnabled(scanning);
         mSwipeRefresh.setPeerCount(peersCount);
 
         v(TAG, "Reflecting state, scanning: %b, peersCount: %d", scanning, peersCount);
 
-        if (!scanning || peersCount > 0) {
+        if (mFakePeersEnabled || !scanning || peersCount > 0) {
             mStartingWrapper.setVisibility(View.GONE);
             mNoPeersWrapper.setVisibility(View.GONE);
+            return;
+        }
+
+        if (mFakePeersEnabled) {
             return;
         }
 
