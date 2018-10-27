@@ -55,7 +55,6 @@ public class EnabledStep extends TutorialStep {
         mPager.setSwipeLocked(true);
         mPager.goTo(ProfileFragment.class, false);
 
-
         LocalBroadcastManager.getInstance(mContext).registerReceiver(
                 mBroadcastReceiver,
                 IntentFactory.createFilter(LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION));
@@ -73,10 +72,5 @@ public class EnabledStep extends TutorialStep {
     @Override
     public Class<? extends TutorialStep> getPrevious() {
         return WelcomeStep.class;
-    }
-
-    @Override
-    public Class<? extends TutorialStep> getNextStep() {
-        return ColorStep.class;
     }
 }

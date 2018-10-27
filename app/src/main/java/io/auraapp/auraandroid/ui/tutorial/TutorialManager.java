@@ -46,7 +46,8 @@ public class TutorialManager {
     public void open() {
         i(TAG, "Opening tutorial and sending intent %s", LOCAL_TUTORIAL_OPEN_ACTION);
         mOpen = true;
-        goTo(WelcomeStep.class);
+
+        goTo(AuraPrefs.getTutorialStep(mContext));
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(LOCAL_TUTORIAL_OPEN_ACTION));
     }
 
@@ -66,6 +67,10 @@ public class TutorialManager {
     }
 
     protected void goTo(Class<? extends TutorialStep> step) {
+        goTo(step.getName());
+    }
+
+    protected void goTo(String step) {
 
         close();
         if (step == null) {
@@ -76,26 +81,29 @@ public class TutorialManager {
             mRootView.findViewById(R.id.communicator_state_fragment).setVisibility(View.VISIBLE);
             return;
         }
-        if (step.equals(WelcomeStep.class)) {
-            mCurrentStep = new WelcomeStep(mRootView, mContext, mPager, this);
-        } else if (step.equals(EnabledStep.class)) {
+        if (step.equals(EnabledStep.class.getName())) {
             mCurrentStep = new EnabledStep(mRootView, mContext, mPager, this);
-        } else if (step.equals(SwipeStep.class)) {
+        } else if (step.equals(SwipeStep.class.getName())) {
             mCurrentStep = new SwipeStep(mRootView, mContext, mPager, this);
-        } else if (step.equals(ColorStep.class)) {
+        } else if (step.equals(ColorStep.class.getName())) {
             mCurrentStep = new ColorStep(mRootView, mContext, mPager, this);
-        } else if (step.equals(NameStep.class)) {
+        } else if (step.equals(NameStep.class.getName())) {
             mCurrentStep = new NameStep(mRootView, mContext, mPager, this);
-        } else if (step.equals(TextStep.class)) {
+        } else if (step.equals(TextStep.class.getName())) {
             mCurrentStep = new TextStep(mRootView, mContext, mPager, this);
-        } else if (step.equals(SloganAddStep.class)) {
+        } else if (step.equals(SloganAddStep.class.getName())) {
             mCurrentStep = new SloganAddStep(mRootView, mContext, mPager, this);
-        } else if (step.equals(WorldStep.class)) {
+        } else if (step.equals(WorldStep.class.getName())) {
             mCurrentStep = new WorldStep(mRootView, mContext, mPager, this);
-        } else if (step.equals(FinalStep.class)) {
+        } else if (step.equals(FinalStep.class.getName())) {
             mCurrentStep = new FinalStep(mRootView, mContext, mPager, this);
+        } else {
+            mCurrentStep = new WelcomeStep(mRootView, mContext, mPager, this);
+
         }
         mCurrentScreen = mCurrentStep.enter();
+
+        AuraPrefs.putTutorialStep(mContext, mCurrentStep.getClass().getName());
 
         Button backButton = mCurrentScreen.findViewById(R.id.tutorial_back);
         if (backButton != null) {
@@ -103,7 +111,12 @@ public class TutorialManager {
         }
         Button nextButton = mCurrentScreen.findViewById(R.id.tutorial_next);
         if (nextButton != null) {
-            nextButton.setOnClickListener($ -> goTo(mCurrentStep.getNextStep()));
+            nextButton.setOnClickListener($ -> {
+                Class<? extends TutorialStep> nextStep = mCurrentStep.getNextStep();
+                if (nextStep != null) {
+                    goTo(nextStep);
+                }
+            });
         }
 
         mCurrentScreen.findViewById(R.id.tutorial_overlay).setOnClickListener($ -> {

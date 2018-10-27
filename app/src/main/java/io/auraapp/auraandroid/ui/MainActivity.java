@@ -111,36 +111,37 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        if (!PermissionHelper.granted(this)) {
-            mServicesSet.mPager.redirectIfNeeded(this, null);
-            return;
-        }
+        mServicesSet.mPager.redirectIfNeeded(this, null);
 
-        mHandler.post(() -> {
-            LocalBroadcastManager.getInstance(this).registerReceiver(
-                    mReceiver,
-                    IntentFactory.localMyProfileChangedIntentFiler()
-            );
+        if (PermissionHelper.granted(this)) {
+            // Don't try to resume Communicator without appropriate permissions
 
-            mServicesSet.mCommunicatorProxy.resume();
-            if (mServicesSet.mCommunicatorProxy.getState().mEnabled) {
-                mServicesSet.mCommunicatorProxy.askForPeersUpdate();
-            }
+            mHandler.post(() -> {
+                LocalBroadcastManager.getInstance(this).registerReceiver(
+                        mReceiver,
+                        IntentFactory.localMyProfileChangedIntentFiler()
+                );
 
-            // Make sure BrokenBtStackAlertFragment is instantiated and in place
-            try {
-                BrokenBtStackAlertFragment fragment = (BrokenBtStackAlertFragment) getSupportFragmentManager()
-                        .findFragmentByTag("broken_bt_stack_alert");
-                if (fragment == null) {
-                    getSupportFragmentManager().beginTransaction()
-                            .add(new BrokenBtStackAlertFragment(), "broken_bt_stack_alert")
-                            .commit();
+                mServicesSet.mCommunicatorProxy.resume();
+                if (mServicesSet.mCommunicatorProxy.getState().mEnabled) {
+                    mServicesSet.mCommunicatorProxy.askForPeersUpdate();
                 }
-            } catch (IllegalStateException e) {
-                // Observed in the wild
-                // Do nothing. BrokenBtStackAlertFragment is not essential, no need to crash.
-            }
-        });
+
+                // Make sure BrokenBtStackAlertFragment is instantiated and in place
+                try {
+                    BrokenBtStackAlertFragment fragment = (BrokenBtStackAlertFragment) getSupportFragmentManager()
+                            .findFragmentByTag("broken_bt_stack_alert");
+                    if (fragment == null) {
+                        getSupportFragmentManager().beginTransaction()
+                                .add(new BrokenBtStackAlertFragment(), "broken_bt_stack_alert")
+                                .commit();
+                    }
+                } catch (IllegalStateException e) {
+                    // Observed in the wild
+                    // Do nothing. BrokenBtStackAlertFragment is not essential, no need to crash.
+                }
+            });
+        }
     }
 
     @Override

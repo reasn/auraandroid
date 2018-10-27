@@ -217,6 +217,7 @@
     <string name="prefs_panic_download_summary">Ripple is an app that provides you with a panic button that can hide/purge Aura, Telegram, Signal and other apps.</string>
     <string name="prefs_panic_ripple_package_name">info.guardianproject.ripple</string>
 
+    <string name="prefs_tutorial_current_step_key" translatable="false">tutorial_current_step</string>
     <string name="prefs_tutorial_completed_key" translatable="false">tutorial_completed</string>
     <string name="prefs_terms_agreed_key" translatable="false">terms_agreed</string>
     <string name="prefs_hide_broken_bt_warning_key" translatable="false">hide_broken_bt_stack_warning</string>

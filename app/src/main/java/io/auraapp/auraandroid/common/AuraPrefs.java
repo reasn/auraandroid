@@ -64,6 +64,14 @@ public class AuraPrefs {
         get(context).edit().putBoolean(context.getString(R.string.prefs_tutorial_completed_key), completed).apply();
     }
 
+    public static String getTutorialStep(Context context) {
+        return get(context).getString(context.getString(R.string.prefs_tutorial_current_step_key), "unknown tutorial step");
+    }
+
+    public static void putTutorialStep(Context context, String currentStep) {
+        get(context).edit().putString(context.getString(R.string.prefs_tutorial_current_step_key), currentStep).apply();
+    }
+
     public static boolean areDebugFakePeersEnabled(Context context) {
         return get(context).getBoolean(context.getString(R.string.prefs_debug_fake_peers_key), false);
     }
