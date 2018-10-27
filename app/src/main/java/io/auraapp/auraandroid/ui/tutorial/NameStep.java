@@ -11,8 +11,8 @@ import io.auraapp.auraandroid.ui.profile.ProfileFragment;
 
 public class NameStep extends TutorialStep {
 
-    public NameStep(ViewGroup mRootView, Context mContext, ScreenPager mPager) {
-        super(mRootView, mContext, mPager);
+    public NameStep(ViewGroup mRootView, Context mContext, ScreenPager mPager, TutorialManager manager) {
+        super(mRootView, mContext, mPager, manager);
     }
 
     public ViewGroup enter() {

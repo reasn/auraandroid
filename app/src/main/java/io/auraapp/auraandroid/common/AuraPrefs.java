@@ -16,6 +16,7 @@ import java.util.Set;
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.ui.profile.profileModel.MyProfile;
 
+import static io.auraapp.auraandroid.common.Config.COMMUNICATIOR_ENABLED_DEFAULT;
 import static io.auraapp.auraandroid.common.IntentFactory.PREFERENCE_CHANGED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.PREFERENCE_CHANGED_EXTRA_KEY;
 import static io.auraapp.auraandroid.common.IntentFactory.PREFERENCE_CHANGED_EXTRA_VALUE;
@@ -26,7 +27,7 @@ public class AuraPrefs {
 
     public static boolean isEnabled(Context context) {
         return get(context)
-                .getBoolean(context.getString(R.string.prefs_enabled_key), true);
+                .getBoolean(context.getString(R.string.prefs_enabled_key), COMMUNICATIOR_ENABLED_DEFAULT);
     }
 
     public static void putEnabled(Context context, boolean enabled) {

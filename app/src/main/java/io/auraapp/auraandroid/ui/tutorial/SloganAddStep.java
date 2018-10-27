@@ -13,8 +13,8 @@ import io.auraapp.auraandroid.ui.profile.ProfileFragment;
 
 public class SloganAddStep extends TutorialStep {
 
-    public SloganAddStep(ViewGroup mRootView, Context mContext, ScreenPager mPager) {
-        super(mRootView, mContext, mPager);
+    public SloganAddStep(ViewGroup mRootView, Context mContext, ScreenPager mPager, TutorialManager manager) {
+        super(mRootView, mContext, mPager, manager);
     }
 
     public ViewGroup enter() {

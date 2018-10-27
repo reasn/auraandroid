@@ -13,8 +13,8 @@ import io.auraapp.auraandroid.ui.profile.ProfileFragment;
 
 public class ColorStep extends TutorialStep {
 
-    public ColorStep(ViewGroup mRootView, Context mContext, ScreenPager mPager) {
-        super(mRootView, mContext, mPager);
+    public ColorStep(ViewGroup mRootView, Context mContext, ScreenPager mPager, TutorialManager manager) {
+        super(mRootView, mContext, mPager, manager);
     }
 
     public ViewGroup enter() {

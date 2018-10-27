@@ -36,6 +36,7 @@ public class Config {
 
     // Communicator
 
+    public static final boolean COMMUNICATIOR_ENABLED_DEFAULT = false;
     public static final boolean COMMUNICATOR_HIGH_POWER = true;
     public static final long COMMUNICATOR_INCOMPLETE_PEER_FORGET_AFTER = 1000 * 10;
     public static final long COMMUNICATOR_PEER_CONNECT_TIMEOUT = 1000 * 10;

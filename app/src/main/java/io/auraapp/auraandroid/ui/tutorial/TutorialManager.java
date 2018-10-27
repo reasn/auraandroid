@@ -65,7 +65,7 @@ public class TutorialManager {
         return mOpen;
     }
 
-    private void goTo(Class<? extends TutorialStep> step) {
+    protected void goTo(Class<? extends TutorialStep> step) {
 
         close();
         if (step == null) {
@@ -77,23 +77,23 @@ public class TutorialManager {
             return;
         }
         if (step.equals(WelcomeStep.class)) {
-            mCurrentStep = new WelcomeStep(mRootView, mContext, mPager);
+            mCurrentStep = new WelcomeStep(mRootView, mContext, mPager, this);
         } else if (step.equals(EnabledStep.class)) {
-            mCurrentStep = new EnabledStep(mRootView, mContext, mPager);
+            mCurrentStep = new EnabledStep(mRootView, mContext, mPager, this);
         } else if (step.equals(SwipeStep.class)) {
-            mCurrentStep = new SwipeStep(mRootView, mContext, mPager);
+            mCurrentStep = new SwipeStep(mRootView, mContext, mPager, this);
         } else if (step.equals(ColorStep.class)) {
-            mCurrentStep = new ColorStep(mRootView, mContext, mPager);
+            mCurrentStep = new ColorStep(mRootView, mContext, mPager, this);
         } else if (step.equals(NameStep.class)) {
-            mCurrentStep = new NameStep(mRootView, mContext, mPager);
+            mCurrentStep = new NameStep(mRootView, mContext, mPager, this);
         } else if (step.equals(TextStep.class)) {
-            mCurrentStep = new TextStep(mRootView, mContext, mPager);
+            mCurrentStep = new TextStep(mRootView, mContext, mPager, this);
         } else if (step.equals(SloganAddStep.class)) {
-            mCurrentStep = new SloganAddStep(mRootView, mContext, mPager);
+            mCurrentStep = new SloganAddStep(mRootView, mContext, mPager, this);
         } else if (step.equals(WorldStep.class)) {
-            mCurrentStep = new WorldStep(mRootView, mContext, mPager);
+            mCurrentStep = new WorldStep(mRootView, mContext, mPager, this);
         } else if (step.equals(FinalStep.class)) {
-            mCurrentStep = new FinalStep(mRootView, mContext, mPager);
+            mCurrentStep = new FinalStep(mRootView, mContext, mPager, this);
         }
         mCurrentScreen = mCurrentStep.enter();
 

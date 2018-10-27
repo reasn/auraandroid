@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     style="@style/TutorialWrapper"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -19,7 +20,8 @@
             <ImageView
                 style="@style/TutorialHeadlineWithArrowArrow"
                 android:layout_marginLeft="10dp"
-                android:layout_marginRight="40dp" />
+                android:layout_marginRight="40dp"
+                tools:ignore="RtlHardcoded" />
 
             <TextView
                 style="@style/TutorialHeadlineWithArrowText.Bottom"
@@ -47,12 +49,6 @@
                 android:layout_height="wrap_content"
                 android:text="@string/tutorial_button_back" />
 
-            <Button
-                android:id="@+id/tutorial_next"
-                style="@style/TutorialButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/tutorial_button_next" />
         </LinearLayout>
     </RelativeLayout>
 </LinearLayout>

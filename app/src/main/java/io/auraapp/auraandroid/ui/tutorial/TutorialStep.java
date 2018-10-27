@@ -13,6 +13,7 @@ public abstract class TutorialStep {
     final ViewGroup mRootView;
     final Context mContext;
     final ScreenPager mPager;
+    final protected TutorialManager mTutorialManager;
 
     public abstract ViewGroup enter();
 
@@ -23,10 +24,11 @@ public abstract class TutorialStep {
 
     abstract public Class<? extends TutorialStep> getNextStep();
 
-    TutorialStep(ViewGroup mRootView, Context mContext, ScreenPager mPager) {
-        this.mRootView = mRootView;
-        this.mContext = mContext;
-        this.mPager = mPager;
+    TutorialStep(ViewGroup rootView, Context context, ScreenPager pager, TutorialManager manager) {
+        mRootView = rootView;
+        mContext = context;
+        mPager = pager;
+        mTutorialManager = manager;
     }
 
     private int getRelativeTop(View view) {

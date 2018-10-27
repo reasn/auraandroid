@@ -12,8 +12,8 @@ public class SwipeStep extends TutorialStep {
     private int mMargin;
     private ViewGroup.MarginLayoutParams mRecyclerParams;
 
-    public SwipeStep(ViewGroup mRootView, Context mContext, ScreenPager mPager) {
-        super(mRootView, mContext, mPager);
+    public SwipeStep(ViewGroup mRootView, Context mContext, ScreenPager mPager, TutorialManager manager) {
+        super(mRootView, mContext, mPager, manager);
     }
 
     public ViewGroup enter() {

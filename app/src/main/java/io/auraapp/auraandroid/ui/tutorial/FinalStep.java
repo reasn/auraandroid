@@ -10,8 +10,8 @@ import io.auraapp.auraandroid.ui.ScreenPager;
 
 public class FinalStep extends TutorialStep {
 
-    public FinalStep(ViewGroup mRootView, Context mContext, ScreenPager mPager) {
-        super(mRootView, mContext, mPager);
+    public FinalStep(ViewGroup mRootView, Context mContext, ScreenPager mPager, TutorialManager manager) {
+        super(mRootView, mContext, mPager, manager);
     }
 
     public ViewGroup enter() {
