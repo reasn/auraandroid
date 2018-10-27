@@ -196,7 +196,7 @@
     <string name="prefs_panic_uninstall_off">Click to try to uninstall Aura when the panic button is activated</string>
     <string name="prefs_panic_uninstall_on">Activating the panic button tries to uninstall Aura</string>
     <string name="prefs_panic_uninstall_dialog_title">Uninstall on Panic?</string>
-    <string name="prefs_panic_uninstall_dialog_message">If you enable this option and trigger a panic situation, Aura will try to uninstall itself.\nProbably Android will ask you to confirm that. When you do, all your data will be deleted irrevocably and you'll have to reinstall Aura.</string>
+    <string name="prefs_panic_uninstall_dialog_message">If you enable this option and trigger a panic situation, Aura will try to uninstall itself.\nProbably Android will ask you to confirm that. When you do, all your data will be deleted irrevocably and you\'ll have to reinstall Aura.</string>
     <string name="prefs_panic_uninstall_decline">Cancel</string>
     <string name="prefs_panic_uninstall_confirm">Enable</string>
     <string name="prefs_panic_trigger_key" translatable="false">panic_trigger</string>
