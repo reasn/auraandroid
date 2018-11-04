@@ -204,9 +204,7 @@ public class WorldFragment extends ContextViewFragment {
 
         boolean fakePeersEnabled = mTutorialOpen || AuraPrefs.areDebugFakePeersEnabled(context);
 
-        if (!fakePeersEnabled) {
-            mPeerAdapter.toggleFakePeers(mTutorialOpen);
-        }
+        mPeerAdapter.toggleFakePeers(mTutorialOpen);
 
         int peersCount = mPeerAdapter.getVisiblePeers().size();
 
@@ -231,10 +229,6 @@ public class WorldFragment extends ContextViewFragment {
 
         mStartingWrapper.setVisibility(View.VISIBLE);
         mNoPeersWrapper.setVisibility(View.VISIBLE);
-
-//        throw "Closing the tutorial doesn't hide the fake peers";
-//        throw "Reopening the tutorial doesn't show the fake peers";
-//        throw "Restarting the app inside the tutorial after having completed it doesn't show the fake peers";
 
         CommunicatorState communicatorState = mComProxyState.mCommunicatorState;
         long scanDuration = System.currentTimeMillis() - communicatorState.mScanStartTimestamp;

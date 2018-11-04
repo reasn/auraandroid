@@ -111,8 +111,11 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
 
     public void toggleFakePeers(boolean tutorialOpen) {
         mTutorialOpen = tutorialOpen;
+        boolean oldFakePeersEnabled = mFakePeersEnabled;
         mFakePeersEnabled = mTutorialOpen || AuraPrefs.areDebugFakePeersEnabled(mContext);
-        notifyPeerListChanged(getOriginalPeers());
+        if (oldFakePeersEnabled != mFakePeersEnabled) {
+            notifyPeerListChanged(getOriginalPeers());
+        }
     }
 
     /**
