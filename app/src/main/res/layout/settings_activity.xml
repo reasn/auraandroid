@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/purple"
+        app:navigationContentDescription="@string/toolbar_icon_contentDescription"
         android:elevation="0dp"
         app:title="@string/settings_title"
         app:titleTextColor="@color/white" />

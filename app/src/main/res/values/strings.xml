@@ -246,12 +246,14 @@
     <string name="prefs_debug_fake_peers_title">Show fake peers</string>
 
     <string name="toolbar_tutorial">Show Tutorial</string>
+    <string name="toolbar_icon_contentDescription">Aura logo (white circle with very thick black border)</string>
     <string name="toolbar_terms">Reset Terms agreement</string>
     <string name="toolbar_debug">Debug</string>
 
     <string name="world_peer_no_name">Somebody</string>
     <string name="toolbar_complete_tutorial">Complete Tutorial</string>
     <string name="profile_no_slogans">Click \'◉\' to add\nyour first idea</string>
+    <string name="profile_add_slogan_contentDescription">Add an idea to my profile</string>
     <string name="world_not_scanning">Your Aura is off. Activate it to see others.</string>
     <string name="toolbar_finish">Exit</string>
     <string name="settings_title">Aura Settings</string>

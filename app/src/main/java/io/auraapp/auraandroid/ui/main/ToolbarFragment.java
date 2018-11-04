@@ -60,7 +60,10 @@ public class ToolbarFragment extends ContextViewFragment {
 
             if (LOCAL_TUTORIAL_OPENED_ACTION.equals(intent.getAction())) {
                 if (mToolbar != null) {
-                    mToolbar.getMenu().findItem(R.id.action_tutorial).setVisible(false);
+                    MenuItem item = mToolbar.getMenu().findItem(R.id.action_tutorial);
+                    if (item != null) {
+                        item.setVisible(false);
+                    }
                 }
 
             } else if (LOCAL_TUTORIAL_COMPLETED_ACTION.equals(intent.getAction())) {

@@ -2,6 +2,8 @@
 <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
+    app:navigationContentDescription="@string/toolbar_icon_contentDescription"
+    app:collapseContentDescription="@string/toolbar_icon_contentDescription"
     android:layout_height="?attr/actionBarSize"
     android:elevation="0dp"
     app:title=" " />
