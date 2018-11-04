@@ -41,13 +41,7 @@ public class EnabledStep extends TutorialStep {
 
     public ViewGroup enter() {
 
-        // EnabledStep automatically progresses to the next step when Aura gets enabled,
-        // WelcomeStep doesn't have such logic and therefore needs to be marked as completed
-        // explicitly here.
-        AuraPrefs.markTutorialStepAsCompleted(mContext, WelcomeStep.class.getName());
-
         ViewGroup screen = (ViewGroup) LayoutInflater.from(mContext).inflate(R.layout.tutorial_enabled, mRootView, false);
-
         ViewGroup overlay = screen.findViewById(R.id.tutorial_overlay);
 
         // TODO measure somehow, this didn't work in onResume:

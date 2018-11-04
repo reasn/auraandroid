@@ -78,6 +78,13 @@ public class AuraPrefs {
         get(context).edit().putStringSet(context.getString(R.string.prefs_tutorial_completed_steps_key), completed).apply();
     }
 
+    public static void resetCompletedTutorialSteps(Context context) {
+        get(context).edit().putStringSet(
+                context.getString(R.string.prefs_tutorial_completed_steps_key),
+                Collections.emptySet()
+        ).apply();
+    }
+
     public static boolean areDebugFakePeersEnabled(Context context) {
         return get(context).getBoolean(context.getString(R.string.prefs_debug_fake_peers_key), false);
     }

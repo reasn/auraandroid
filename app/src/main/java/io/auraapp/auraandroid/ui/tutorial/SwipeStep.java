@@ -7,15 +7,12 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.ui.ScreenPager;
 
-import static io.auraapp.auraandroid.common.FormattedLog.quickDump;
-import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_ADOPTED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_ACTION;
 
 public class SwipeStep extends TutorialStep {
@@ -42,7 +39,7 @@ public class SwipeStep extends TutorialStep {
         ViewGroup screen = (ViewGroup) LayoutInflater.from(mContext).inflate(R.layout.tutorial_swipe, mRootView, false);
         mNextButton = screen.findViewById(R.id.tutorial_next);
         mPager.setSwipeLocked(false);
-        mRecyclerParams = ((ViewGroup.MarginLayoutParams) mRootView.findViewById(R.id.world_slogans_recycler).getLayoutParams());
+        mRecyclerParams = ((ViewGroup.MarginLayoutParams) mRootView.findViewById(R.id.world_peers_recycler).getLayoutParams());
         mMargin = mRecyclerParams.bottomMargin;
         screen.post(() -> mRecyclerParams.bottomMargin = screen.findViewById(R.id.tutorial_overlay).getMeasuredHeight());
 

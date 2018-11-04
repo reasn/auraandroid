@@ -19,7 +19,6 @@ import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.ui.ScreenPager;
 
 import static io.auraapp.auraandroid.common.FormattedLog.i;
-import static io.auraapp.auraandroid.common.FormattedLog.quickDump;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_COMPLETE_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_OPEN_ACTION;
 
@@ -50,7 +49,7 @@ public class TutorialManager {
 
     public void complete() {
         setCompleted(true);
-        close();
+        goTo((String) null);
     }
 
     public void open() {
@@ -59,7 +58,8 @@ public class TutorialManager {
 
         Set<String> completed = AuraPrefs.getCompletedTutorialSteps(mContext);
 
-        if (completed.size() == 0) {
+        if (completed.size() == 0 || completed.contains(FinalStep.class.getName())) {
+            // If the user already completed the tutorial, we show first step but allow skipping
             goTo(WelcomeStep.class);
             LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(LOCAL_TUTORIAL_OPEN_ACTION));
             return;
@@ -70,11 +70,6 @@ public class TutorialManager {
         // Waiting 500ms is a very dirty solution for the problem
 
         new Handler().postDelayed(() -> {
-
-            if (completed.contains(FinalStep.class.getName())) {
-                complete();
-                return;
-            }
 
             if (completed.contains(WorldStep.class.getName())) {
                 goTo(FinalStep.class);
@@ -119,7 +114,7 @@ public class TutorialManager {
         if (mCurrentStep != null) {
             AuraPrefs.markTutorialStepAsCompleted(mContext, mCurrentStep.getClass().getName());
         }
-        goTo(step.getName());
+        goTo(step);
     }
 
     protected void goTo(Class<? extends TutorialStep> step) {
@@ -172,7 +167,7 @@ public class TutorialManager {
                 nextButton.setVisibility(View.VISIBLE);
             }
 
-            nextButton.setOnClickListener($ -> goTo(mCurrentStep.getNextStep()));
+            nextButton.setOnClickListener($ -> completeCurrentAndGoTo(mCurrentStep.getNextStep()));
         }
 
         mCurrentScreen.findViewById(R.id.tutorial_overlay).setOnClickListener($ -> {

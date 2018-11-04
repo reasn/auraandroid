@@ -20,6 +20,7 @@ import java.util.Set;
 
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.R;
+import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.common.Config;
 import io.auraapp.auraandroid.common.EmojiHelper;
 import io.auraapp.auraandroid.common.IntentFactory;
@@ -75,7 +76,9 @@ public class WorldFragment extends ContextViewFragment {
                 return;
             }
             if (LOCAL_TUTORIAL_COMPLETE_ACTION.equals(intent.getAction())) {
-                mFakePeersEnabled = false;
+                // Fake peers are enabled when either the tutorial is visible or
+                // The debugFakePeers pref is set to true
+                mFakePeersEnabled = AuraPrefs.areDebugFakePeersEnabled(context);
                 reflectState(context);
                 return;
             }
@@ -133,7 +136,7 @@ public class WorldFragment extends ContextViewFragment {
         mComProxyState = servicesSet.mCommunicatorProxy.getState();
         mMyColor = servicesSet.mMyProfileManager.getColor();
 
-        mFakePeersEnabled = servicesSet.mTutorialManager.isOpen();
+        mFakePeersEnabled = servicesSet.mTutorialManager.isOpen() || AuraPrefs.areDebugFakePeersEnabled(activity);
 
         v(TAG, "Receivers registered, peers fetched, peers: %d, mComProxyState: %s", peers.size(), mComProxyState);
 
@@ -143,9 +146,10 @@ public class WorldFragment extends ContextViewFragment {
         mInviteButton = rootView.findViewById(R.id.world_invite);
         mSwipeRefresh = rootView.findViewById(R.id.fake_swipe_to_refresh);
         mSwipeRefresh.setEnabled(false);
-        mPeersRecycler = rootView.findViewById(R.id.world_slogans_recycler);
+        mPeersRecycler = rootView.findViewById(R.id.world_peers_recycler);
 
-        mPeerAdapter = new PeerAdapter(activity, mPeersRecycler,
+        mPeerAdapter = new PeerAdapter(activity,
+                servicesSet.mTutorialManager.isOpen(),
                 () -> Color.parseColor(mMyColor),
                 slogan -> {
                     if (servicesSet.mMyProfileManager.getProfile().getSlogans().contains(slogan)) {
@@ -208,6 +212,9 @@ public class WorldFragment extends ContextViewFragment {
         if (mFakePeersEnabled) {
             return;
         }
+        throw "Closing the tutorial doesn't hide the fake peers";
+        throw "Reopening the tutorial doesn't show the fake peers";
+        throw "Restarting the app inside the tutorial after having completed it doesn't show the fake peers";
 
         CommunicatorState communicatorState = mComProxyState.mCommunicatorState;
         long scanDuration = System.currentTimeMillis() - communicatorState.mScanStartTimestamp;

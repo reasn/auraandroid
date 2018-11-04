@@ -23,7 +23,7 @@ public class WorldStep extends TutorialStep {
         mPager.setSwipeLocked(false);
         mPager.goTo(WorldFragment.class, true);
 
-        mRecyclerParams = ((ViewGroup.MarginLayoutParams) mRootView.findViewById(R.id.world_slogans_recycler).getLayoutParams());
+        mRecyclerParams = ((ViewGroup.MarginLayoutParams) mRootView.findViewById(R.id.world_peers_recycler).getLayoutParams());
         mMargin = mRecyclerParams.bottomMargin;
         screen.post(() -> mRecyclerParams.bottomMargin = screen.findViewById(R.id.tutorial_overlay).getMeasuredHeight());
         return screen;

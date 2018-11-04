@@ -50,10 +50,10 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
 
     private List<Object> mOriginalPeers;
     private Runnable mUnregisterPrefListener;
-    private boolean mTutorialOpen = false;
-    private boolean mFakePeersEnabled = false;
+    private boolean mTutorialOpen;
+    private boolean mFakePeersEnabled;
 
-    private final BroadcastReceiver mTutorialReciever = new BroadcastReceiver() {
+    private final BroadcastReceiver mTutorialReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (LOCAL_TUTORIAL_OPEN_ACTION.equals(intent.getAction())) {
@@ -67,7 +67,7 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
         }
     };
 
-    public PeerAdapter(Context context, RecyclerView recyclerView, PeerSloganHolder.WhatsMyColorCallback whatsMyColorCallback, OnAdoptCallback onAdoptCallback) {
+    public PeerAdapter(Context context, boolean tutorialOpen, PeerSloganHolder.WhatsMyColorCallback whatsMyColorCallback, OnAdoptCallback onAdoptCallback) {
         super(context);
         mContext = context;
         mOnAdoptCallback = onAdoptCallback;
@@ -75,6 +75,7 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
         mItems.add(new SpacerItem());
         // Expand single peer (=2 because of spacer item)
         mItemCountToExpandEverything = 2;
+        mTutorialOpen = tutorialOpen;
         mSloganRecyclerViewPool = new RecyclerView.RecycledViewPool();
         mFakePeersEnabled = AuraPrefs.areDebugFakePeersEnabled(mContext);
     }
@@ -136,7 +137,7 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
     public void onResume() {
 
         mUnregisterPrefListener = AuraPrefs.listen(mContext, R.string.prefs_debug_fake_peers_key, value -> toggleFakePeers());
-        LocalBroadcastManager.getInstance(mContext).registerReceiver(mTutorialReciever, IntentFactory.createFilter(LOCAL_TUTORIAL_OPEN_ACTION, LOCAL_TUTORIAL_COMPLETE_ACTION));
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mTutorialReceiver, IntentFactory.createFilter(LOCAL_TUTORIAL_OPEN_ACTION, LOCAL_TUTORIAL_COMPLETE_ACTION));
         Timer.clear(mRedrawTimeout);
         mRedrawTimeout = mTimer.setSerializedInterval(() -> {
             long now = System.currentTimeMillis();

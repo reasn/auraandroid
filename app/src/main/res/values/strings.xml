@@ -91,11 +91,11 @@
         <item quantity="other">Refreshing nearby ideas …</item>
     </plurals>
     <string name="world_no_peers_heading">Nobody Around</string>
-    <string name="world_no_peers_info_text">Make it more exciting - invite people!</string>
+    <string name="world_no_peers_info_text">Aura has a range of 20m to 100m. It only works with others.</string>
     <string name="world_no_peers_invite">Invite Friends!</string>
     <string name="world_no_peers_info_second_text">Should be seeing someone? Try turning Bluetooth off and on again.</string>
     <string name="world_starting_heading">Looking for Auras</string>
-    <string name="world_starting_text">Let\'s give it a few seconds to see if there\'s anybody around.</string>
+    <string name="world_starting_text">Nearby Auras will appear in a few seconds.</string>
     <plurals name="world_peers_heading_slogans">
         <item quantity="zero">No ideas nearby</item>
         <item quantity="one">Others shared one idea</item>
@@ -119,7 +119,7 @@
     <string name="common_communicator_bt_restart_required_text">Please disable Bluetooth and activate it again.
     \nIf that doesn\'t help, try restarting your phone. This is not caused by Aura. Sorry about it!</string>
     <string name="common_communicator_bt_disabled_heading">Bluetooth Off</string>
-    <string name="common_communicator_bt_disabled_text">Enable Bluetooth for Aura to work.</string>
+    <string name="common_communicator_bt_disabled_text">Aura needs Bluetooth. Click here to enable it.</string>
     <string name="common_communicator_summary_bt_turning_on">Bluetooth is starting…</string>
     <string name="common_communicator_summary_on_not_active">Aura is getting ready…</string>
     <string name="common_communicator_ble_not_supported_heading">Phone Unsupported</string>
@@ -251,7 +251,7 @@
     <string name="world_peer_no_name">Somebody</string>
     <string name="toolbar_complete_tutorial">Complete Tutorial</string>
     <string name="profile_no_slogans">Click \'◉\' to add\nyour first idea</string>
-    <string name="world_not_scanning">Nearby Auras are shown here\nwhen your Aura is on.</string>
+    <string name="world_not_scanning">Your Aura is off. Activate it to see others.</string>
     <string name="toolbar_finish">Exit</string>
     <string name="settings_title">Aura Settings</string>
     <string name="world_peer_slogan_adopt_toast">Keep finger down to adopt idea</string>
@@ -316,7 +316,7 @@
     <string name="tutorial_swipe_headline">◀︎ Swipe left and right ▶︎</string>
     <string name="tutorial_swipe_text">You can swipe to move between your own Aura and a list of nearby Auras.</string>
     <string name="tutorial_adopt_headline">Check out others</string>
-    <string name="tutorial_adopt_text">Click somebody\'s name to see their profile text. Press and hold an idea to add it to your Aura.</string>
+    <string name="tutorial_adopt_text">Click a name to see the profile text. Press and hold an idea to add it to your Aura.</string>
     <string name="tutorial_final_headline">Final Words</string>
     <string name="tutorial_final_text">
         Sometimes it\'s important to deny having used Aura and quickly purging all your data.
