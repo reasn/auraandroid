@@ -41,6 +41,8 @@ import io.auraapp.auraandroid.ui.world.WorldFragment;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_SCREEN_PAGER_CHANGED_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_COMPLETED_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_OPENED_ACTION;
 
 public class ToolbarFragment extends ContextViewFragment {
 
@@ -56,7 +58,17 @@ public class ToolbarFragment extends ContextViewFragment {
         @Override
         public void onReceive(Context context, Intent intent) {
 
-            if (LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION.equals(intent.getAction())) {
+            if (LOCAL_TUTORIAL_OPENED_ACTION.equals(intent.getAction())) {
+                if (mToolbar != null) {
+                    mToolbar.getMenu().findItem(R.id.action_tutorial).setVisible(false);
+                }
+
+            } else if (LOCAL_TUTORIAL_COMPLETED_ACTION.equals(intent.getAction())) {
+                if (mToolbar != null) {
+                    mToolbar.getMenu().findItem(R.id.action_tutorial).setVisible(true);
+                }
+
+            } else if (LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION.equals(intent.getAction())) {
                 String color = mMyProfileManager.getColor();
                 i(TAG, "Color set to %s", color);
                 mToolbar.setBackgroundColor(Color.parseColor(color));
@@ -249,7 +261,9 @@ public class ToolbarFragment extends ContextViewFragment {
                 mReceiver,
                 IntentFactory.createFilter(
                         LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION,
-                        LOCAL_SCREEN_PAGER_CHANGED_ACTION
+                        LOCAL_SCREEN_PAGER_CHANGED_ACTION,
+                        LOCAL_TUTORIAL_OPENED_ACTION,
+                        LOCAL_TUTORIAL_COMPLETED_ACTION
                 )
         );
     }

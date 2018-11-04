@@ -49,6 +49,9 @@ public class TutorialManager {
     }
 
     public void open() {
+        if (mOpen) {
+            return;
+        }
         i(TAG, "Opening tutorial and sending intent %s", LOCAL_TUTORIAL_OPENED_ACTION);
         mOpen = true;
 
