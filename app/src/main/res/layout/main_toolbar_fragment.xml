@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     app:navigationContentDescription="@string/toolbar_icon_contentDescription"
     app:collapseContentDescription="@string/toolbar_icon_contentDescription"
+    android:contentDescription="@string/toolbar_contentDescription"
     android:layout_height="?attr/actionBarSize"
     android:elevation="0dp"
     app:title=" " />

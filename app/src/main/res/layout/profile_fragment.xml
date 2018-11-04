@@ -23,6 +23,7 @@
             <io.auraapp.auraandroid.ui.profile.ColorButton
                 android:id="@+id/profile_color_button_wrapper"
                 android:layout_width="60dp"
+                android:contentDescription="@string/profile_color_contentDescription"
                 android:layout_height="60dp" />
 
             <TextView

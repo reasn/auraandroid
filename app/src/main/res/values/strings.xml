@@ -2,6 +2,7 @@
     <string name="app_name">Aura</string>
 
     <string name="profile_default_slogan">:ghost: I just installed Aura. Let\'s see what to make of it. :fire:</string>
+    <string name="profile_color_contentDescription">Change my Aura\'s color</string>
     <string name="profile_default_name">:ghost: Anonymous</string>
     <string name="profile_default_text">I am an Aura user</string>
 
@@ -246,6 +247,7 @@
     <string name="prefs_debug_fake_peers_title">Show fake peers</string>
 
     <string name="toolbar_tutorial">Show Tutorial</string>
+    <string name="toolbar_contentDescription">Toolbar (contains Aura logo and menu button)</string>
     <string name="toolbar_icon_contentDescription">Aura logo (white circle with very thick black border)</string>
     <string name="toolbar_terms">Reset Terms agreement</string>
     <string name="toolbar_debug">Debug</string>
