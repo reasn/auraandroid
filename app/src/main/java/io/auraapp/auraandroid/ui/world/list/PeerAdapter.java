@@ -28,8 +28,6 @@ import io.auraapp.auraandroid.ui.common.lists.SpacerItem;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.w;
-import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_COMPLETE_ACTION;
-import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_OPEN_ACTION;
 
 public class PeerAdapter extends ExpandableRecyclerAdapter {
 
@@ -49,23 +47,8 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
     private Timer.Timeout mRedrawTimeout;
 
     private List<Object> mOriginalPeers;
-    private Runnable mUnregisterPrefListener;
     private boolean mTutorialOpen;
     private boolean mFakePeersEnabled;
-
-    private final BroadcastReceiver mTutorialReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (LOCAL_TUTORIAL_OPEN_ACTION.equals(intent.getAction())) {
-                mTutorialOpen = true;
-                toggleFakePeers();
-            }
-            if (LOCAL_TUTORIAL_COMPLETE_ACTION.equals(intent.getAction())) {
-                mTutorialOpen = false;
-                toggleFakePeers();
-            }
-        }
-    };
 
     public PeerAdapter(Context context, boolean tutorialOpen, PeerSloganHolder.WhatsMyColorCallback whatsMyColorCallback, OnAdoptCallback onAdoptCallback) {
         super(context);
@@ -126,7 +109,8 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
         return castCollection;
     }
 
-    private void toggleFakePeers() {
+    public void toggleFakePeers(boolean tutorialOpen) {
+        mTutorialOpen = tutorialOpen;
         mFakePeersEnabled = mTutorialOpen || AuraPrefs.areDebugFakePeersEnabled(mContext);
         notifyPeerListChanged(getOriginalPeers());
     }
@@ -136,8 +120,7 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
      */
     public void onResume() {
 
-        mUnregisterPrefListener = AuraPrefs.listen(mContext, R.string.prefs_debug_fake_peers_key, value -> toggleFakePeers());
-        LocalBroadcastManager.getInstance(mContext).registerReceiver(mTutorialReceiver, IntentFactory.createFilter(LOCAL_TUTORIAL_OPEN_ACTION, LOCAL_TUTORIAL_COMPLETE_ACTION));
+        toggleFakePeers(mTutorialOpen);
         Timer.clear(mRedrawTimeout);
         mRedrawTimeout = mTimer.setSerializedInterval(() -> {
             long now = System.currentTimeMillis();
@@ -153,9 +136,6 @@ public class PeerAdapter extends ExpandableRecyclerAdapter {
     }
 
     public void onPause() {
-        if (mUnregisterPrefListener != null) {
-            mUnregisterPrefListener.run();
-        }
         Timer.clear(mRedrawTimeout);
     }
 

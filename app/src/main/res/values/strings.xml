@@ -247,6 +247,7 @@
 
     <string name="toolbar_tutorial">Show Tutorial</string>
     <string name="toolbar_terms">Reset Terms agreement</string>
+    <string name="toolbar_debug">Debug</string>
 
     <string name="world_peer_no_name">Somebody</string>
     <string name="toolbar_complete_tutorial">Complete Tutorial</string>
@@ -257,6 +258,9 @@
     <string name="world_peer_slogan_adopt_toast">Keep finger down to adopt idea</string>
     <string name="permissions_logo_description">Aura Logo</string>
     <string name="toolbar_shorten_retention">Shorten Retention</string>
+    <string name="toolbar_toggle_fake_peers">Toogle Fake Peers</string>
+    <string name="toolbar_toggle_fake_peers_enabled">Fake Peers enabled</string>
+    <string name="toolbar_toggle_fake_peers_disabled">Fake Peers disabled</string>
     <string name="tutorial_button_close">Close</string>
     <string name="tutorial_button_back">Back</string>
     <string name="tutorial_button_next">Next</string>

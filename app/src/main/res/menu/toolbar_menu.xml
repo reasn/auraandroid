@@ -20,7 +20,7 @@
     <group>
         <item
             android:id="@+id/menu_debug_group"
-            android:title="Debug"
+            android:title="@string/toolbar_debug"
             android:visible="false">
             <menu>
 
@@ -39,6 +39,11 @@
                     android:id="@+id/action_shorten_retention"
                     android:icon="@android:drawable/ic_menu_crop"
                     android:title="@string/toolbar_shorten_retention"
+                    app:showAsAction="withText" />
+                <item
+                    android:id="@+id/action_toggle_fake_peers"
+                    android:icon="@android:drawable/ic_menu_myplaces"
+                    android:title="@string/toolbar_toggle_fake_peers"
                     app:showAsAction="withText" />
                 <item
                     android:id="@+id/action_finish"

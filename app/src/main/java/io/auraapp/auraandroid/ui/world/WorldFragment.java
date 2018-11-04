@@ -33,6 +33,8 @@ import io.auraapp.auraandroid.ui.profile.profileModel.MyProfile;
 import io.auraapp.auraandroid.ui.world.list.PeerAdapter;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
+import static io.auraapp.auraandroid.common.FormattedLog.e;
+import static io.auraapp.auraandroid.common.FormattedLog.quickDump;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_LIST_UPDATED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.INTENT_PEER_LIST_UPDATED_EXTRA_PEERS;
@@ -42,8 +44,8 @@ import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STA
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_COMMUNICATOR_STATE_CHANGED_EXTRA_PROXY_STATE;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_MY_PROFILE_EXTRA_PROFILE;
-import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_COMPLETE_ACTION;
-import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_OPEN_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_COMPLETED_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_OPENED_ACTION;
 
 public class WorldFragment extends ContextViewFragment {
 
@@ -59,27 +61,27 @@ public class WorldFragment extends ContextViewFragment {
     private Button mInviteButton;
     private TextView mNotScanningMessage;
     private String mMyColor;
-    private boolean mFakePeersEnabled;
+    private boolean mTutorialOpen;
+    private Runnable mUnregisterPrefListener;
+
     private final BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             v(TAG, "onReceive, local intent: %s", intent.getAction());
 
-            Bundle extras = intent.getExtras();
-            if (extras == null) {
+            if (LOCAL_TUTORIAL_OPENED_ACTION.equals(intent.getAction())) {
+                mTutorialOpen = true;
+                reflectState(context);
+                return;
+            }
+            if (LOCAL_TUTORIAL_COMPLETED_ACTION.equals(intent.getAction())) {
+                mTutorialOpen = false;
+                reflectState(context);
                 return;
             }
 
-            if (LOCAL_TUTORIAL_OPEN_ACTION.equals(intent.getAction())) {
-                mFakePeersEnabled = true;
-                reflectState(context);
-                return;
-            }
-            if (LOCAL_TUTORIAL_COMPLETE_ACTION.equals(intent.getAction())) {
-                // Fake peers are enabled when either the tutorial is visible or
-                // The debugFakePeers pref is set to true
-                mFakePeersEnabled = AuraPrefs.areDebugFakePeersEnabled(context);
-                reflectState(context);
+            Bundle extras = intent.getExtras();
+            if (extras == null) {
                 return;
             }
 
@@ -112,6 +114,7 @@ public class WorldFragment extends ContextViewFragment {
         }
     };
 
+
     @Override
     protected int getLayoutResource() {
         return R.layout.world_fragment;
@@ -121,10 +124,11 @@ public class WorldFragment extends ContextViewFragment {
     protected void onResumeWithContextAndView(MainActivity activity, ViewGroup rootView) {
         d(TAG, "onResumeWithContextAndView");
 
+        mUnregisterPrefListener = AuraPrefs.listen(activity, R.string.prefs_debug_fake_peers_key, value -> reflectState(getActivity()));
         LocalBroadcastManager.getInstance(activity).registerReceiver(mLocalReceiver,
                 IntentFactory.createFilter(
-                        LOCAL_TUTORIAL_OPEN_ACTION,
-                        LOCAL_TUTORIAL_COMPLETE_ACTION,
+                        LOCAL_TUTORIAL_OPENED_ACTION,
+                        LOCAL_TUTORIAL_COMPLETED_ACTION,
                         LOCAL_COMMUNICATOR_STATE_CHANGED_ACTION,
                         LOCAL_MY_PROFILE_COLOR_CHANGED_ACTION,
                         INTENT_PEER_LIST_UPDATED_ACTION,
@@ -136,7 +140,7 @@ public class WorldFragment extends ContextViewFragment {
         mComProxyState = servicesSet.mCommunicatorProxy.getState();
         mMyColor = servicesSet.mMyProfileManager.getColor();
 
-        mFakePeersEnabled = servicesSet.mTutorialManager.isOpen() || AuraPrefs.areDebugFakePeersEnabled(activity);
+        mTutorialOpen = servicesSet.mTutorialManager.isOpen();
 
         v(TAG, "Receivers registered, peers fetched, peers: %d, mComProxyState: %s", peers.size(), mComProxyState);
 
@@ -183,6 +187,9 @@ public class WorldFragment extends ContextViewFragment {
     protected void onPauseWithContext(MainActivity activity) {
         super.onPauseWithContext(activity);
         d(TAG, "onPauseWithContext");
+        if (mUnregisterPrefListener != null) {
+            mUnregisterPrefListener.run();
+        }
         LocalBroadcastManager.getInstance(activity).unregisterReceiver(mLocalReceiver);
         mPeerAdapter.onPause();
         v(TAG, "Receivers unregistered, adapter paused");
@@ -194,27 +201,40 @@ public class WorldFragment extends ContextViewFragment {
                 && mComProxyState.mCommunicatorState != null
                 && mComProxyState.mCommunicatorState.mScanning;
 
+
+        boolean fakePeersEnabled = mTutorialOpen || AuraPrefs.areDebugFakePeersEnabled(context);
+
+        if (!fakePeersEnabled) {
+            mPeerAdapter.toggleFakePeers(mTutorialOpen);
+        }
+
         int peersCount = mPeerAdapter.getVisiblePeers().size();
 
-        mPeersRecycler.setVisibility(mFakePeersEnabled || scanning ? View.VISIBLE : View.GONE);
-        mNotScanningMessage.setVisibility(mFakePeersEnabled || scanning ? View.GONE : View.VISIBLE);
+        mPeersRecycler.setVisibility(fakePeersEnabled || scanning ? View.VISIBLE : View.GONE);
+        mNotScanningMessage.setVisibility(fakePeersEnabled || scanning ? View.GONE : View.VISIBLE);
         mSwipeRefresh.setEnabled(scanning);
         mSwipeRefresh.setPeerCount(peersCount);
 
         v(TAG, "Reflecting state, scanning: %b, peersCount: %d", scanning, peersCount);
 
-        if (mFakePeersEnabled || !scanning || peersCount > 0) {
+        quickDump("----");
+        quickDump(mTutorialOpen);
+        quickDump(fakePeersEnabled);
+        quickDump(scanning);
+        quickDump(peersCount);
+
+        if (fakePeersEnabled || !scanning || peersCount > 0) {
             mStartingWrapper.setVisibility(View.GONE);
             mNoPeersWrapper.setVisibility(View.GONE);
             return;
         }
 
-        if (mFakePeersEnabled) {
-            return;
-        }
-        throw "Closing the tutorial doesn't hide the fake peers";
-        throw "Reopening the tutorial doesn't show the fake peers";
-        throw "Restarting the app inside the tutorial after having completed it doesn't show the fake peers";
+        mStartingWrapper.setVisibility(View.VISIBLE);
+        mNoPeersWrapper.setVisibility(View.VISIBLE);
+
+//        throw "Closing the tutorial doesn't hide the fake peers";
+//        throw "Reopening the tutorial doesn't show the fake peers";
+//        throw "Restarting the app inside the tutorial after having completed it doesn't show the fake peers";
 
         CommunicatorState communicatorState = mComProxyState.mCommunicatorState;
         long scanDuration = System.currentTimeMillis() - communicatorState.mScanStartTimestamp;

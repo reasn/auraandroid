@@ -8,19 +8,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
 
 import io.auraapp.auraandroid.R;
 import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.ui.ScreenPager;
 
 import static io.auraapp.auraandroid.common.FormattedLog.i;
-import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_COMPLETE_ACTION;
-import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_OPEN_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_COMPLETED_ACTION;
+import static io.auraapp.auraandroid.common.IntentFactory.LOCAL_TUTORIAL_OPENED_ACTION;
 
 public class TutorialManager {
 
@@ -53,15 +49,16 @@ public class TutorialManager {
     }
 
     public void open() {
-        i(TAG, "Opening tutorial and sending intent %s", LOCAL_TUTORIAL_OPEN_ACTION);
+        i(TAG, "Opening tutorial and sending intent %s", LOCAL_TUTORIAL_OPENED_ACTION);
         mOpen = true;
 
         Set<String> completed = AuraPrefs.getCompletedTutorialSteps(mContext);
 
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(LOCAL_TUTORIAL_OPENED_ACTION));
+
         if (completed.size() == 0 || completed.contains(FinalStep.class.getName())) {
             // If the user already completed the tutorial, we show first step but allow skipping
             goTo(WelcomeStep.class);
-            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(LOCAL_TUTORIAL_OPEN_ACTION));
             return;
         }
 
@@ -90,7 +87,6 @@ public class TutorialManager {
             } else {
                 goTo(WelcomeStep.class);
             }
-            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(LOCAL_TUTORIAL_OPEN_ACTION));
         }, 500);
     }
 
@@ -128,8 +124,8 @@ public class TutorialManager {
         if (step == null) {
             mOpen = false;
             setCompleted(true);
-            i(TAG, "Completed tutorial, sending intent %s", LOCAL_TUTORIAL_COMPLETE_ACTION);
-            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(LOCAL_TUTORIAL_COMPLETE_ACTION));
+            i(TAG, "Completed tutorial, sending intent %s", LOCAL_TUTORIAL_COMPLETED_ACTION);
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(LOCAL_TUTORIAL_COMPLETED_ACTION));
             mRootView.findViewById(R.id.communicator_state_fragment).setVisibility(View.VISIBLE);
             return;
         }

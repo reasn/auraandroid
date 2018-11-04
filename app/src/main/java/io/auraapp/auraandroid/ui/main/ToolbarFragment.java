@@ -135,13 +135,22 @@ public class ToolbarFragment extends ContextViewFragment {
                 AuraPrefs.putPeerRetention(Config.DEBUG_SHORTENED_RETENTION, activity);
                 return true;
             }
+            if (item.getItemId() == R.id.action_toggle_fake_peers) {
+                if (AuraPrefs.areDebugFakePeersEnabled(activity)) {
+                    toast(R.string.toolbar_toggle_fake_peers_disabled);
+                    AuraPrefs.putDebugFakePeersEnabled(activity, false);
+                } else {
+                    toast(R.string.toolbar_toggle_fake_peers_enabled);
+                    AuraPrefs.putDebugFakePeersEnabled(activity, true);
+                }
+                return true;
+            }
             if (item.getItemId() == R.id.action_finish) {
                 activity.finish();
                 return true;
             }
             return false;
         });
-
         mToolbar.setOnClickListener($ -> mHandler.post(() -> {
             if (!Config.DEBUG_UI_ENABLED) {
                 return;
@@ -173,7 +182,6 @@ public class ToolbarFragment extends ContextViewFragment {
                 if (enabled) {
                     activity.getSharedServicesSet().mPager.getScreenAdapter().addDebugFragment();
                 } else {
-                    AuraPrefs.putDebugFakePeersEnabled(activity, false);
                     activity.getSharedServicesSet().mPager.getScreenAdapter().remove(DebugFragment.class);
                 }
             }
@@ -196,7 +204,7 @@ public class ToolbarFragment extends ContextViewFragment {
         MenuItem enabledItem = menu.findItem(R.id.menu_item_enabled);
         enabledItem.setActionView(R.layout.common_toolbar_switch);
 
-        menu.findItem(R.id.action_reset_terms).setVisible(Config.DEBUG_UI_ENABLED);
+        mToolbar.getMenu().findItem(R.id.menu_debug_group).setVisible(AuraPrefs.isDebugEnabled(context));
 
         mEnabledSwitch = enabledItem.getActionView().findViewById(R.id.enabled_switch);
         boolean enabled = mCommunicatorProxy.getState().mEnabled;

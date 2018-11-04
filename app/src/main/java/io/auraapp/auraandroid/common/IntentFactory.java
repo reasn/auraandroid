@@ -48,8 +48,8 @@ public class IntentFactory {
     public static final String LOCAL_SCREEN_PAGER_CHANGED_EXTRA_PREVIOUS = prefix + "local.screenPagerChanges.extraPrevious";
     public static final String LOCAL_SCREEN_PAGER_CHANGED_EXTRA_NEW = prefix + "local.screenPagerChanges.extraNew";
 
-    public static final String LOCAL_TUTORIAL_OPEN_ACTION = prefix + "local.tutorial.opened";
-    public static final String LOCAL_TUTORIAL_COMPLETE_ACTION = prefix + "local.tutorial.completed";
+    public static final String LOCAL_TUTORIAL_OPENED_ACTION = prefix + "local.tutorial.opened";
+    public static final String LOCAL_TUTORIAL_COMPLETED_ACTION = prefix + "local.tutorial.completed";
     public static final String PREFERENCE_CHANGED_ACTION = prefix + "preference.changed";
     public static final String PREFERENCE_CHANGED_EXTRA_KEY = prefix + "preference.changed.extraKey";
     public static final String PREFERENCE_CHANGED_EXTRA_VALUE = prefix + "preference.changed.extraValue";
