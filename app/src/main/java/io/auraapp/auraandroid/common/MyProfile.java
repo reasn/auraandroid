@@ -1,4 +1,4 @@
-package io.auraapp.auraandroid.ui.profile.profileModel;
+package io.auraapp.auraandroid.common;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -8,12 +8,12 @@ import io.auraapp.auraandroid.common.Slogan;
 
 public class MyProfile implements Serializable {
 
-    String mColor = null;
-    float mColorPickerPointX;
-    float mColorPickerPointY;
-    String mName = null;
-    String mText = null;
-    final List<Slogan> mSlogans = new ArrayList<>();
+    public String mColor = null;
+    public float mColorPickerPointX;
+    public float mColorPickerPointY;
+    public String mName = null;
+    public String mText = null;
+    public final List<Slogan> mSlogans = new ArrayList<>();
 
     public String getColor() {
         return mColor;

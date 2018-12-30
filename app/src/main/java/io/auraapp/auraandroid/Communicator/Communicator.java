@@ -28,7 +28,7 @@ import io.auraapp.auraandroid.common.IntentFactory;
 import io.auraapp.auraandroid.common.Peer;
 import io.auraapp.auraandroid.common.PermissionHelper;
 import io.auraapp.auraandroid.ui.MainActivity;
-import io.auraapp.auraandroid.ui.profile.profileModel.MyProfile;
+import io.auraapp.auraandroid.common.MyProfile;
 
 import static io.auraapp.auraandroid.common.Config.PEERS_CHANGED_NOTIFICATION_LIGHT_PATTERN;
 import static io.auraapp.auraandroid.common.EmojiHelper.replaceShortCode;
@@ -37,7 +37,7 @@ import static io.auraapp.auraandroid.common.FormattedLog.e;
 import static io.auraapp.auraandroid.common.FormattedLog.i;
 import static io.auraapp.auraandroid.common.FormattedLog.v;
 import static io.auraapp.auraandroid.common.FormattedLog.w;
-import static io.auraapp.auraandroid.ui.panic.PanicResponderActivity.PANIC_TRIGGER_ACTION;
+import static io.auraapp.auraandroid.common.Config.PANIC_TRIGGER_ACTION;
 
 /**
  * Runs in a separate process

@@ -13,8 +13,8 @@ import io.auraapp.auraandroid.Communicator.Communicator;
 import io.auraapp.auraandroid.Communicator.CommunicatorState;
 import io.auraapp.auraandroid.common.AuraPrefs;
 import io.auraapp.auraandroid.common.IntentFactory;
+import io.auraapp.auraandroid.common.MyProfile;
 import io.auraapp.auraandroid.common.Peer;
-import io.auraapp.auraandroid.ui.profile.profileModel.MyProfile;
 
 import static io.auraapp.auraandroid.common.FormattedLog.d;
 import static io.auraapp.auraandroid.common.FormattedLog.i;

@@ -6,19 +6,18 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import io.auraapp.auraandroid.common.AuraPrefs;
+import io.auraapp.auraandroid.common.Config;
 
 /**
  * Thanks https://github.com/TeamNewPipe/NewPipe/pull/133/files
  */
 public class PanicResponderActivity extends Activity {
 
-    public static final String PANIC_TRIGGER_ACTION = "info.guardianproject.panic.action.TRIGGER";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
-        if (intent != null && PANIC_TRIGGER_ACTION.equals(intent.getAction())) {
+        if (intent != null && Config.PANIC_TRIGGER_ACTION.equals(intent.getAction())) {
 
             boolean shouldUninstall = AuraPrefs.shouldUninstallOnPanic(this);
             if (AuraPrefs.shouldPurgeOnPanic(this)) {

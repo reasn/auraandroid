@@ -68,4 +68,6 @@ public class Config {
     public static final String PREFERENCES_BUCKET = "aura_prefs_v1";
     // milliseconds
     public static final long WORLD_SLOGAN_ADOPT_PRESS_DURATION = 1200;
+
+    public static final String PANIC_TRIGGER_ACTION = "info.guardianproject.panic.action.TRIGGER";
 }

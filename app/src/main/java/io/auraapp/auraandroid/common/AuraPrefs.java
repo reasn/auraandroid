@@ -14,7 +14,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import io.auraapp.auraandroid.R;
-import io.auraapp.auraandroid.ui.profile.profileModel.MyProfile;
 
 import static io.auraapp.auraandroid.common.IntentFactory.PREFERENCE_CHANGED_ACTION;
 import static io.auraapp.auraandroid.common.IntentFactory.PREFERENCE_CHANGED_EXTRA_KEY;

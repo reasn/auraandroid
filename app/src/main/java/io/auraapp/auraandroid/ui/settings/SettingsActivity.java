@@ -25,7 +25,7 @@ import io.auraapp.auraandroid.ui.DialogManager;
 import io.auraapp.auraandroid.ui.FullWidthDialog;
 import io.auraapp.auraandroid.ui.panic.PanicResponderActivity;
 
-import static io.auraapp.auraandroid.ui.panic.PanicResponderActivity.PANIC_TRIGGER_ACTION;
+import static io.auraapp.auraandroid.common.Config.PANIC_TRIGGER_ACTION;
 
 public class SettingsActivity extends AppCompatActivity {
 
